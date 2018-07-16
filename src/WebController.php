@@ -28,7 +28,7 @@ class WebController {
 
         $action = $_POST['action'];
 
-        $call = json_decode($action);
+        $call = json_decode($action, true);
 
         $call = $call ? $call : ['method' => $action];
 
@@ -83,7 +83,7 @@ class WebController {
                 throw new RuntimeException("Invalid method");
             }
 
-            $out = call_user_func_array(array($this, $method), array($call));
+            $out = call_user_func_array(array($this, $method), [$call]);
         } else
         {
             throw new RuntimeException("Invalid method");
@@ -138,7 +138,7 @@ class WebController {
 
         $output['error'] = 0;
 
-        Helper::jsonOut($output);
+        return $output;
     }
 
     public function kill() {
@@ -159,7 +159,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0));
+        return ['error' => 0];
 
     }
 
@@ -192,7 +192,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return array('error' => 0, 'tmpdir' => $temp['tok']);
 
     }
 
@@ -209,7 +209,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut($temp);
+        return $temp;
 
     }
 
@@ -231,7 +231,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0));
+        return ['error' => 0];
 
     }
 
@@ -259,14 +259,13 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
         
         
         $e->screenshots($e->postlist['target'], $e->postlist['to']);
     }
 
     public function filesCompress($params) {
-
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             Helper::jsonError(22);
         }
@@ -289,7 +288,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
     }
 
     public function filesCopy($params) {
@@ -311,7 +310,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
     }
 
     public function filesMove($params) {
@@ -333,7 +332,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
 
     }
 
@@ -352,7 +351,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
 
     }
 
@@ -383,7 +382,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
 
     }
 
@@ -405,7 +404,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'tmpdir' => $temp['tok']));
+        return ['error' => 0, 'tmpdir' => $temp['tok']];
 
     }
 
@@ -423,7 +422,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('listing' => $contents));
+        return ['listing' => $contents];
     }
 
     public function viewNfo($params) {
@@ -444,7 +443,7 @@ class WebController {
             return false;
         }
 
-        Helper::jsonOut(array('error' => 0, 'nfo' => $contents));
+        return ['error' => 0, 'nfo' => $contents];
 
     }
 
