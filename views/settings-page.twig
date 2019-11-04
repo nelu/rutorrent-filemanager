@@ -1,0 +1,94 @@
+<div id="fMan_optPan">
+    <fieldset>
+        <legend>Display Settings</legend>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td>Paths history number of values:</td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Opthistpath" value=""/></td>
+            </tr>
+            <tr>
+                <td>Strip trailing slashes from directory names:</td>
+                <td><input type="checkbox" name="fMan_Optstripdirs" id="fMan_Optstripdirs" value="true"/></td>
+            </tr>
+            <tr>
+                <td>Show hidden files:</td>
+                <td><input type="checkbox" name="fMan_Optshowhidden" id="fMan_Optshowhidden" value="true"/></td>
+            </tr>
+            <tr>
+                <td>Clean console log automatically:</td>
+                <td><input type="checkbox" name="fMan_Optcleanlog" id="fMan_Optcleanlog" value="true"/></td>
+            </tr>
+            <tr>
+                <td>Permissions format:</td>
+                <td><select name="fMan_Optpermf" id="fMan_Optpermf">
+                        <option value="1">Octal (0755)</option>
+                        <option value="2">Symbolic (-rw)</option>
+                    </select></td>
+            </tr>
+            <tr>
+                <td>Date - Time format:</td>
+                <td><input type="text" name="fMan_Opttimef" class="TextboxLarge" style="width: 160px;" id="fMan_Opttimef"
+                           value=""/></td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td><strong>%s</strong> - seconds</td>
+                            <td><strong>%m</strong> - minutes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>%h</strong> - hours</td>
+                            <td><strong>%d</strong> - day</td>
+                        </tr>
+                        <tr>
+                            <td><strong>%M</strong> - month</td>
+                            <td><strong>%y </strong>- year</td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <table width="100%" border="0" align="right" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>Format: <strong>%d</strong>.<strong>%M</strong>.<strong>%y</strong>
+                                <strong>%h</strong>:<strong>%m</strong>:<strong>%s</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Equals to: <strong>03</strong>.<strong>12</strong>.<strong>2011</strong> <strong>22</strong>:<strong>55</strong>:<strong>47</strong>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset>
+        <legend>Archive Settings</legend>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td>Multi-volume format:</td>
+                <td><select name="fMan_Optarcnscheme" id="fMan_Optarcnscheme">
+                        <option value="new" selected="selected">NEW - .part1.rar</option>
+                        <option value="old">OLD - .r01</option>
+                    </select></td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset>
+        <legend>Screenshot Settings</legend>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td>Screens rows:</td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Optscrows" value=""/></td>
+            </tr>
+            <tr>
+                <td>Screens columns:</td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Optsccols" value=""/></td>
+            </tr>
+            <tr>
+                <td>Thumbnail width:</td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Optscwidth" value=""/></td>
+            </tr>
+        </table>
+    </fieldset>
+</div>
