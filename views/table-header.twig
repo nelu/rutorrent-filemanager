@@ -1,8 +1,17 @@
 <table width="100%" border="0" id="fMan_navpath" cellspacing="0" cellpadding="0">
     <tr>
-        <td width="19"><input type="button" name="fMan_navbut" id="fMan_navbut" value=""/></td>
-        <td><select name="fMan_pathsel" id="fMan_pathsel" style="width:100%;">
+        <td width="19"><input type="button" name="flm-nav-refresh" id="flm-nav-refresh"  class="flm-sprite sprite-curdir" value=""/></td>
+        <td><select name="flm-navpath" id="flm-navpath" style="width:100%;">
             </select>
         </td>
     </tr>
 </table>
+<form action="{{ apiUrl }}"
+      style="display:none"
+      id="flm-get-data"
+      method="post"
+      target="datafrm">
+    <input type="hidden" name="dir"  value="">
+    <input type="hidden" name="target" value="">
+    <input type="hidden" name="action" value="fileDownload">
+</form>

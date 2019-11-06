@@ -4,23 +4,25 @@
     padding-top: 1px;
 }
 
-#fMan_navbut {
+#flm-nav-refresh {
     margin-left: 2px;
     margin-right: 2px;
     margin-top: 0px;
     margin-bottom: 0px;
-    background-image: url(images/curdir.png);
+/*    background-image: url(images/curdir.png);
     background-repeat: no-repeat;
+        background-position: center center;
+ */
+    background-color: transparent;
     height: 18px;
     width: 18px;
     padding: 0px;
-    background-color: transparent;
+
+
     border: 1px solid #FBFBFC;
-    background-position: center center;
 }
-#fMan_navbut:hover {
-    background-image: url(images/refresh.png);
-    background-repeat: no-repeat;
+#flm-nav-refresh:hover {
+    background-position: -57px -83px;
     border-top-style: outset;
     border-right-style: outset;
     border-bottom-style: outset;
@@ -135,15 +137,134 @@ div#fMan_CreateSFV div.dlg-header {
     margin-left: 0px;
 }
 
-.Icon_UpD {background: transparent url(images/dir_up.png) no-repeat left center}
-.Icon_Mp3 {background: transparent url(images/mp3.png) no-repeat left center}
-.Icon_Vid {background: transparent url(images/video.png) no-repeat left center}
-.Icon_Img {background: transparent url(images/image.gif) no-repeat left center}
-.Icon_Nfo {background: transparent url(images/nfo.gif) no-repeat left center}
-.Icon_Sfv {background: transparent url(images/sfv.gif) no-repeat left center}
-.Icon_Rar {background: transparent url(images/rar.gif) no-repeat left center}
-.Icon_partRar {background: transparent url(images/rarpart.gif) no-repeat left center}
-.Icon_Zip {background: transparent url(images/zip.gif) no-repeat left center}
-.Icon_gnuARCH {background: transparent url(images/archive.png) no-repeat left center}
+.flm-sprite {
+    background-image: url(spritesheet.png);
+    background-repeat: no-repeat;
+    display: block;
+}
 
-.Icon_Torrent {background: transparent url(images/torrent.png) no-repeat left center}
+.sprite-archive {
+    width: 16px;
+    height: 16px;
+    background-position: -5px -5px;
+}
+
+.sprite-console {
+    width: 16px;
+    height: 16px;
+    background-position: -31px -5px;
+}
+
+.sprite-copy {
+    width: 16px;
+    height: 16px;
+    background-position: -57px -5px;
+}
+
+.sprite-curdir {
+    width: 16px;
+    height: 16px;
+    background-position: -83px -5px;
+}
+
+.sprite-delete {
+    width: 16px;
+    height: 16px;
+    background-position: -5px -31px;
+}
+
+.flm-sprite-dir_up {
+    width: 16px;
+    height: 16px;
+    background-position: -31px -31px;
+}
+
+.sprite-extract {
+    width: 16px;
+    height: 16px;
+    background-position: -57px -31px;
+}
+
+.sprite-image {
+    width: 16px;
+    height: 16px;
+    background-position: -83px -31px;
+}
+
+.sprite-move {
+    width: 16px;
+    height: 16px;
+    background-position: -5px -57px;
+}
+
+.sprite-mp3 {
+    width: 16px;
+    height: 16px;
+    background-position: -31px -57px;
+}
+
+.sprite-newdir {
+    width: 16px;
+    height: 16px;
+    background-position: -57px -57px;
+}
+
+.sprite-nfo {
+    width: 16px;
+    height: 16px;
+    background-position: -83px -57px;
+}
+
+.sprite-rar {
+    width: 16px;
+    height: 16px;
+    background-position: -5px -83px;
+}
+
+.sprite-rarpart {
+    width: 16px;
+    height: 16px;
+    background-position: -31px -83px;
+}
+
+.sprite-refresh {
+    width: 16px;
+    height: 16px;
+    background-position: -57px -83px;
+}
+
+.sprite-rename {
+    width: 16px;
+    height: 16px;
+    background-position: -83px -83px;
+}
+
+.sprite-sfv {
+    width: 16px;
+    height: 16px;
+    background-position: -109px -5px;
+}
+
+.sprite-torrent {
+    width: 16px;
+    height: 16px;
+    background-position: -109px -31px;
+}
+
+.sprite-video {
+    width: 16px;
+    height: 16px;
+    background-position: -109px -57px;
+}
+
+.sprite-vplay {
+    width: 16px;
+    height: 16px;
+    background-position: -109px -83px;
+}
+
+.sprite-zip {
+    width: 16px;
+    height: 16px;
+    background-position: -5px -109px;
+}

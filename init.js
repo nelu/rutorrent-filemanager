@@ -5,14 +5,29 @@ plugin.ui = {
 };
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer+"-table";
 
+
+
+
 // will be updated on languageLoad
 // with missing localisations and methods
 var tableSchema = {
 	obj: new dxSTable(),
-	format: null,
-	ondblclick: null,
-	onselect: null,
-	ondelete: null,
+	format: function(table, arr) {
+		console.log('valled frm bootstrap format');
+		return (arr);
+	},
+	ondblclick: function(table, arr) {
+		console.log('valled frm bootstrap format');
+		return (arr);
+	},
+	onselect: function(table, arr) {
+		console.log('valled frm bootstrap format');
+		return (arr);
+	},
+	ondelete: function(table, arr) {
+		console.log('valled frm bootstrap format');
+		return (arr);
+	},
 	columns: [
 		{
 		text: theUILang.Name,
@@ -64,11 +79,38 @@ plugin.ui.init = function () {
 
 	console.log('plugin.ui.init translations loaded');
 
+
+
+
+	plugin.resizeBottom = theWebUI.resizeBottom;
+	theWebUI.resizeBottom = function (w, h) {
+		plugin.resizeBottom.call(this, w, h);
+
+		window.flm.ui.resize(w, h);
+	};
+
+
+
+
+
 	if(plugin.canChangeTabs())
 	{
         plugin.renameTab(plugin.ui.fsBrowserContainer,theUILang.fManager);
         window.flm.ui.init();
 	}
+
+
+
+	plugin.addAndShowSettings = theWebUI.addAndShowSettings;
+	theWebUI.addAndShowSettings = function(arg) {
+		if (plugin.enabled) {
+			window.flm.ui.settings.onShow(arg);
+		}
+		plugin.addAndShowSettings.call(theWebUI, arg);
+	};
+
+
+
 };
 
 
@@ -105,13 +147,7 @@ theWebUI.setSettings = function() {
 
 };
 
-plugin.addAndShowSettings = theWebUI.addAndShowSettings;
-theWebUI.addAndShowSettings = function(arg) {
-	if (plugin.enabled) {
-		window.flm.ui.settings.onShow(arg);
-	}
-	plugin.addAndShowSettings.call(theWebUI, arg);
-};
+
 
 plugin.flmOnShow = theTabs.onShow;
 theTabs.onShow = function(id) {
@@ -128,12 +164,8 @@ theTabs.onShow = function(id) {
 	}
 };
 
-plugin.resizeBottom = theWebUI.resizeBottom;
-theWebUI.resizeBottom = function (w, h) {
 
-	//theWebUI.fManager.resize(w, h);
-	plugin.resizeBottom.call(this, w, h);
-};
+
 
 plugin.onRemove = function() {
 	theWebUI.fManager.cleanactions();
@@ -166,15 +198,13 @@ if(plugin.canChangeTabs())
 injectScript('/plugins/filemanager/js/twig.min.js',
     // view engine
     function() {
-                injectScript('/plugins/filemanager/js/q.min.js',
-                    // promise support
-                    function() {
-                        injectScript('/plugins/filemanager/js/app.js',
-                            function() {
-                            // localisation + app
-                                plugin.loadLang();
-                            });
-		});
+				injectScript('/plugins/filemanager/js/app.js',
+					function() {
+
+					// localisation + app
+						plugin.loadLang();
+					});
+
 });
 plugin.loadMainCSS();
 
