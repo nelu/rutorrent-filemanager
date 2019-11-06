@@ -48,7 +48,7 @@ theUILang.fErrMsg[24]	= 'Archiv Manipulation deaktiviert (Anwendung nicht gefund
 
 
 
-theUILang.fDiagmkdir		= 'Erstelle neues Verzeichnis';
+theUILang.flm_popup_mkdir		= 'Erstelle neues Verzeichnis';
 theUILang.fDiagndirname	= 'Verzeichnis Name';
 theUILang.fDiagnodirname 	= 'Bitte Verzeichnisnamen eingeben!';
 theUILang.fDiagRename 	= 'Datei/Verzeichnis umbenennen';

@@ -49,7 +49,7 @@ theUILang.fErrMsg[24]	= 'Manipulation des archives désactivée (applications in
 
 
 
-theUILang.fDiagmkdir		= "Créer un nouveau dossier";
+theUILang.flm_popup_mkdir		= "Créer un nouveau dossier";
 theUILang.fDiagndirname	= "Nom du dossier";
 theUILang.fDiagnodirname 	= "Veuillez entrer un nom de dossier.";
 theUILang.fDiagRename 	= "Renommer un fichier / dossier";

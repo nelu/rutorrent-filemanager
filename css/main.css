@@ -37,8 +37,8 @@ table.disabled_table {
     color: #DFDFDF;
 }
 
-div#fMan_mkdir div.dlg-header {
-    background-image: url(images/newdir.png);
+div[id^="flm_popup_"].dlg-header {
+    padding-left: 2px;
 }
 
 div#fMan_Rename {
@@ -137,9 +137,14 @@ div#fMan_CreateSFV div.dlg-header {
     margin-left: 0px;
 }
 
+.flm-sprite-diag {
+    float: left;
+    margin-right: 6px;
+}
+
 .flm-sprite {
-    background-image: url(spritesheet.png);
-    background-repeat: no-repeat;
+    background-image: url(spritesheet.png) !important;
+    background-repeat: no-repeat !important;
     display: block;
 }
 
@@ -206,7 +211,8 @@ div#fMan_CreateSFV div.dlg-header {
 .sprite-newdir {
     width: 16px;
     height: 16px;
-    background-position: -57px -57px;
+    background-attachment: scroll;
+    background-position: -57px -57px !important;
 }
 
 .sprite-nfo {

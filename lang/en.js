@@ -49,7 +49,7 @@ theUILang.fErrMsg[24]	= 'File Manager: archive manipulation disabled (applicatio
 
 
 
-theUILang.fDiagmkdir		= 'Create new directory';
+theUILang.flm_popup_mkdir		= 'Create new directory';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
 theUILang.fDiagRename 	= 'Rename file / directory';
