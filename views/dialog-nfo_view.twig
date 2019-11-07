@@ -1,0 +1,17 @@
+{% extends "flm::dialog-window.twig" %}
+{% block content %}
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td width="8%"><strong>Format:</strong></td>
+            <td width="92%">
+                <select id="fMan_nfoformat" name="fMan_nfoformat">
+                    <option value="1" selected="selected">DOS</option>
+                    <option value="0">WIN</option>
+                </select>
+                <input name="fMan_nfofile" type="hidden" id="fMan_nfofile" value=""/></td>
+        </tr>
+    </table>
+    <div id="nfo_content" style="width: 549px;">
+        <pre>Loading...</pre>
+    </div>
+{% endblock %}

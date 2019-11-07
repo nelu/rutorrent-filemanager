@@ -52,7 +52,7 @@ theUILang.fErrMsg[24]	= 'Manipulation des archives désactivée (applications in
 theUILang.flm_popup_mkdir		= "Créer un nouveau dossier";
 theUILang.fDiagndirname	= "Nom du dossier";
 theUILang.fDiagnodirname 	= "Veuillez entrer un nom de dossier.";
-theUILang.fDiagRename 	= "Renommer un fichier / dossier";
+theUILang.flm_popup_rename 	= "Renommer un fichier / dossier";
 theUILang.fDiagRenameTo 	= "Renommer en :";
 theUILang.fDiagRenameBut	= "Renommer";
 theUILang.fDiagRenameEmpty	= "Veuillez entrer un nouveau nom.";
@@ -79,7 +79,7 @@ theUILang.fDiagMoveTo	= "Déplacer les fichiers vers :";
 theUILang.fDiagMoveEmpty	= "Veuillez sélectionne le chemin où doit être déplacés les fichiers.";
 theUILang.fDiagMoveFalse	= "Chemin non permis";
 
-theUILang.fDiagCopy		= "Copier des dossiers / fichiers";
+theUILang.flm_popup_copy		= "Copier des dossiers / fichiers";
 theUILang.fDiagCopySel	= "Fichiers marqués pour le copiage:";
 theUILang.fDiagCopyTo	= "Copier vers :";
 

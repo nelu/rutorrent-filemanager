@@ -1,0 +1,38 @@
+<div class="cont fxcaret">
+    <div class="flm-popup-diag-content">
+        {% if multiselect %}
+            <fieldset>
+                {% block heading %}
+                {% endblock %}
+                <div id="flm-diag-paths-list" class="checklist">
+                    <ul></ul>
+                </div>
+            </fieldset>
+        {% else %}
+        {% block heading %}
+        {% endblock %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% block navigation %}
+        {% if pathbrowse %}
+        <fieldset>
+            <legend>To:</legend>
+
+            <input type="text" id="flm-diag-navigation-path" class="TextboxLarge" style="width:350px;" autocomplete="off"/>
+            <input id="flm-diag-navigation-browse-but" class="Button aright" type="button" value="..." style="float: right;"/>
+        </fieldset>
+       {% endif %}
+    {% endblock %}
+
+    <div class="aright buttons-list">
+        <input type="button" class="fMan_Start Button" value="{{ theUILang.fcreate }}" class="Button" />
+        <input type="button" class="Cancel Button" value="{{ theUILang.fDiagClose }}"/>
+    </div>
+
+</div>
+
+
+

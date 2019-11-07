@@ -1,0 +1,41 @@
+{% set pathbrowse = true %}
+{% set multiselect = 1 %}
+{% extends "flm::dialog-window.twig" %}
+
+{% block heading %}
+    <legend>{{ theUILang.fDiagCArchiveSel }}</legend>
+{% endblock %}
+
+{% block content %}
+
+<fieldset>
+    <legend>Options:</legend>
+    <label> {{ theUILang.fDiagArchive }}
+        <input type="text" id="fMan_CArchivebpath" name="fMan_CArchivebpath" class="TextboxLarge" style="width:320px;"
+               autocomplete="off"/>
+    </label>
+    <input type="button" value="..." id="fMan_CArchivebbut" class="Button aright"><br/>
+    <label style="float: left;"> {{ theUILang.fDiagCArchType }}}
+        <select name="fMan_archtype" id="fMan_archtype">
+        </select>
+    </label>
+    <label style="float: left; margin-left: 10px;">
+        {{ theUILang.fDiagCompression }}
+        <select name="fMan_archcompr" id="fMan_archcompr"> </select>
+    </label>
+    <label style="float: right;">
+        {{ theUILang.fDiagCArchVsize }}
+        <input name="fMan_vsize" class="fMan_CArchiveRAR Textbox num1" type="text" value="" id="fMan_vsize"
+               disabled="true"/>
+    </label>
+    <label style="float: right;">
+        <input name="fMan_multiv" type="checkbox" value="1" class="fMan_CArchiveRAR" id="fMan_multiv"
+               style="margin-right: 5px; margin-top:8px;"/>
+    </label>
+    <label style="clear:both; float: left;">
+        Password: <input name="fMan_apassword" class="TextboxLarge fMan_CArchiveRAR" type="text" value=""
+                         id="fMan_apassword"/>
+    </label>
+</fieldset>
+<div style="clear:both;"></div>
+{% endblock %}

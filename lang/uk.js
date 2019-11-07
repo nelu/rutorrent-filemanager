@@ -52,7 +52,7 @@ theUILang.fErrMsg[24]	= 'archive manipulation disabled (application not found)';
 theUILang.flm_popup_mkdir		= 'Create new directory';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
-theUILang.fDiagRename 	= 'Rename file / directory';
+theUILang.flm_popup_rename 	= 'Rename file / directory';
 theUILang.fDiagRenameTo 	= 'Rename to:';
 theUILang.fDiagRenameBut	= 'Rename';
 theUILang.fDiagRenameEmpty	= 'Enter a new name';
@@ -79,7 +79,7 @@ theUILang.fDiagMoveTo	= 'Move files to:';
 theUILang.fDiagMoveEmpty	= 'Please select the path where to move the files to';
 theUILang.fDiagMoveFalse	= 'Path not permitted';
 
-theUILang.fDiagCopy		= 'Copy files and folders';
+theUILang.flm_popup_copy		= 'Copy files and folders';
 theUILang.fDiagCopySel	= 'Files marked for duplication:';
 theUILang.fDiagCopyTo	= 'Copy files to:';
 
