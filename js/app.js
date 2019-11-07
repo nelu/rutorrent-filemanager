@@ -138,7 +138,7 @@
 
             var res = [];
             var item;
-            for(var i in parts)
+            for(var i=0; i< parts.length;i++)
             {
                 item = this.trimslashes(parts[i]);
                  if(item !== "")
@@ -146,7 +146,7 @@
                      res.push(item);
                  }
             }
-            return '/' + parts.join('/');
+            return '/' + res.join('/');
 
         },
         encode_string : function(str) {
@@ -409,6 +409,10 @@ function FileManager () {
                         } else {
                             switch (table.getIdByCol(i)) {
                                 case 'name':
+                                    if (flm.ui.browser.isTopDir(arr[i]))
+                                    {
+                                        arr[i] = '../';
+                                    }
                                     if (theWebUI.fManager.settings.stripdirs
                                         && flm.utils.isDir(arr[i])) {
                                         arr[i] = flm.utils.trimslashes(arr[i]);
@@ -440,28 +444,38 @@ function FileManager () {
 
                 sortAlphaNumeric: function (x, y) {
 
-                    if (flm.ui.browser.isTopDir(x.key.split('_flm_')[1])
-                    || flm.ui.browser.isTopDir(y.key.split('_flm_')[1]))
+                    var xVal = x.key.split('_flm_')[1];
+                    var yVal = y.key.split('_flm_')[1];
+
+                    if (flm.ui.browser.isTopDir(xVal)
+                   || flm.ui.browser.isTopDir(yVal)
+                    )
                     {
-                        return (!this.reverse ? 1 : -1);
+                        return  !this.reverse ? 1 : -1;
                     }
                     else if
-                    (flm.utils.isDir(x.key.split('_flm_')[1])
-                        && flm.utils.isDir(y.key.split('_flm_')[1]))
+                    (flm.utils.isDir(xVal)
+                        || flm.utils.isDir(yVal))
                     {
-                        return this.initialFilesSortAlphaNumeric(x, y);
+                        return (flm.utils.isDir(xVal)
+                            && flm.utils.isDir(yVal))
+                            ? this.initialFilesSortAlphaNumeric(x, y)
+                            : (!this.reverse ? 1 : -1);
 
                     }
+
                     return (this.initialFilesSortAlphaNumeric(x, y));
                 },
 
                 sortNumeric: function (x, y) {
-                    var value = this.reverse
-                        ? y.key.split('_flm_')[1]
-                        : x.key.split('_flm_')[1];
-                    if (flm.ui.browser.isTopDir(value)) {
-                        return (!this.reverse ? 1 : -1);
+
+                    if (flm.ui.browser.isTopDir(x.key.split('_flm_')[1])
+                        || flm.ui.browser.isTopDir(y.key.split('_flm_')[1])
+                    )
+                    {
+                        return  !this.reverse ? 1 : -1;
                     }
+
                     return (this.initialFileSortNumeric(x, y));
                 },
 
@@ -490,7 +504,6 @@ function FileManager () {
             // up dir path check
             browse.isTopDir = function(path) {
                 path = flm.utils.buildPath([path]);
-
                 return (path === flm.utils.basename(flm.currentPath));
             };
 
@@ -579,7 +592,7 @@ function FileManager () {
                 var utils = FileManagerUtils();
 
                 var pathIsDir = utils.isDir(path);
-                path = utils.buildPath([path]);
+                path = '/'+ utils.ltrim(path, '/');
 
                 var table = browse.table();
                 var flm = theWebUI.fManager;
@@ -688,14 +701,15 @@ function FileManager () {
                 table.clearRows();
 
                 if (flm.currentPath !== '/') {
+                    var path = flm.utils.basename(flm.currentPath) + '/' ; // trailing slash required, its a dir
                     table.addRowById({
-                        name : '../',
+                        name : path,
                         size : '',
                         time : '',
                         type : '/',
                         perm : ''
                     },
-                        "_flm_" + flm.utils.rtrim(flm.utils.basename(flm.currentPath)) + '/',  // trailing slash required, its a dir
+                        "_flm_" + path,
                         'flm-sprite flm-sprite-dir_up');
                 } else {
                     if (data.length < 1) {
@@ -1437,7 +1451,7 @@ function FileManager () {
                     return false;
                 }*/
 
-                flm.currentPath = "/"+flm.utils.trimslashes(dir, '/');
+                flm.currentPath = flm.utils.buildPath([dir]);
 
                 flm.ui.browser.updateNavigationPath();
                 console.log('parseReply reply', response, dir);
