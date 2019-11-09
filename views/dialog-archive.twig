@@ -11,12 +11,15 @@
 <fieldset>
     <legend>Options:</legend>
     <label> {{ theUILang.fDiagArchive }}
-        <input type="text" id="fMan_CArchivebpath" name="fMan_CArchivebpath" class="TextboxLarge" style="width:320px;"
+        <input type="text" id="flm-diag-navigation-path" name="flm-diag-navigation-path" class="TextboxLarge" style="width:320px;"
                autocomplete="off"/>
     </label>
     <input type="button" value="..." id="fMan_CArchivebbut" class="Button aright"><br/>
-    <label style="float: left;"> {{ theUILang.fDiagCArchType }}}
+    <label style="float: left;"> {{ theUILang.fDiagCArchType }}
         <select name="fMan_archtype" id="fMan_archtype">
+            {% for type in utils.archive_types %}
+                <option {{ type=='zip' ? 'selected="selected"': '' }}value="{{ type }}"> {{ type|upper }}</option>
+            {% endfor %}
         </select>
     </label>
     <label style="float: left; margin-left: 10px;">

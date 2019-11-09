@@ -92,7 +92,7 @@ theUILang.fDiagSFVHashfile	= 'Speichere SFV-Datei nach:';
 
 theUILang.fDiagSFVempty	= 'Benenne die SFV-Datei';
 
-theUILang.fDiagCArchive	= 'Erstelle Archiv';
+theUILang.flm_popup_archive	= 'Erstelle Archiv';
 theUILang.fDiagCArchType	= 'Typ:';
 theUILang.fDiagCArchVsize	= 'Dateigröße (mb):';
 

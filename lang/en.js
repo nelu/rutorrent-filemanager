@@ -93,7 +93,7 @@ theUILang.fDiagSFVHashfile	= 'Save hash file to:';
 
 theUILang.fDiagSFVempty	= 'Please name a sfv file';
 
-theUILang.fDiagCArchive	= 'Create Archive';
+theUILang.flm_popup_archive	= 'Create Archive';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
 

@@ -93,7 +93,7 @@ theUILang.fDiagSFVHashfile	= "Enregister le fichier vers :";
 
 theUILang.fDiagSFVempty	= "Veuillez nommer le fichier de hash.";
 
-theUILang.fDiagCArchive	= "Créer une archive";
+theUILang.flm_popup_archive	= "Créer une archive";
 theUILang.fDiagCArchType	= "Type:";
 theUILang.fDiagCArchVsize	= "Taille des volumes (Mo):";
 
