@@ -665,6 +665,8 @@ function FileManager () {
                 }
 
                 context.add([CMENU_SEP]);
+                context.add(["Permissions", "flm.ui.showPermissions(flm.currentPath)"]);
+
                 context.add([theUILang.fRefresh, "flm.goToPath(flm.currentPath)"]);
 
 
@@ -821,6 +823,8 @@ function FileManager () {
 
         // file operation dialogs
         var dialogs = {
+
+            activeDialogs:{},
             // multiple file operations are ui blocking
             forms: {
                 archive: {
@@ -860,6 +864,9 @@ function FileManager () {
                 nfo_view: {
                     template: "dialog-svf_check"
                 }
+            },
+
+            beforeShow: function(id, what) {
             },
 
             checkInputs : function(diag, forcedir) {
@@ -1048,8 +1055,12 @@ function FileManager () {
             getDialogId: function(what) {
                 return 'flm_popup_' + what;
             },
+
+            getDialogHeader: function(diagId) {
+                return $('#'+diagId+"-header");
+            },
             //makeVisbile
-            showDialog: function(what, events)
+            showDialog: function(what, viewEvents)
             {
 
                 if( !this.forms.hasOwnProperty(what))
@@ -1060,20 +1071,36 @@ function FileManager () {
 
                 var config = this.forms[what];
                 var diagId =  this.getDialogId(what);
-
+                var diags = this;
 
                 // create it
                 if(!theDialogManager.items.hasOwnProperty(diagId))
                 {
                     flm.views.getView(config.template, function (html)
-                        {
+                    {
 
-                            theDialogManager.make(diagId, theUILang[diagId], $(html).get(0), config.modal);
-
-                            for (var i in events)
+                            if(!theDialogManager.items.hasOwnProperty(diagId))
                             {
-                                theDialogManager.setHandler(diagId, i, events[i]);
+                                theDialogManager.make(diagId, theUILang[diagId], $(html).get(0), config.modal);
+                                diags.getDialogHeader(diagId).prepend('<span class="flm-sprite-diag flm-sprite sprite-'+ what +'"></span>');
+
+                                $.each(['beforeHide', 'beforeShow', 'afterHide', 'afterShow'], function(ndx, evName)
+                                {
+
+                                    theDialogManager.setHandler(diagId, evName, function(id)
+                                    {
+                                        $type(diags[evName])
+                                        && diags[evName].apply(diags, [id, what]);
+
+                                        viewEvents.hasOwnProperty(evName)
+                                        &&  viewEvents[evName].apply(diags, [id, what]);
+
+                                    });
+
+                                });
                             }
+
+
                             theDialogManager.show(diagId);
                         },
                         {
@@ -1507,7 +1534,6 @@ function FileManager () {
 
                         var currentPath = flm.getCurrentPath();
 
-                        $('#flm_popup_mkdir-currentpath').text(currentPath);
                         $('#flm_popup_mkdir .fMan_Start').click(function() {
                             var dirname =  $('#fMan-ndirname').val();
 

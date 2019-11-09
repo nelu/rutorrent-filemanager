@@ -66,13 +66,13 @@ theUILang.fDiagTo		= 'Zu:';
 theUILang.fDiagNoPath	= 'Zielverzeichnis nicht gestattet';
 
 
-theUILang.fDiagDelete	= 'Lösche Datei und Verzeichnis';
+theUILang.flm_popup_delete	= 'Lösche Datei und Verzeichnis';
 theUILang.fDiagDeleteSel	= 'Dateien markiert zum Löschen:';
 theUILang.fDiagDeleteBut	= 'Löschen';
 
 theUILang.fDiagConsole	= 'Konsole';
 
-theUILang.fDiagMove		= 'Verschiebe Datein und Verzeichnis';
+theUILang.flm_popup_move		= 'Verschiebe Datein und Verzeichnis';
 theUILang.fDiagMoveSel	= 'Dateien markiert zum Verschieben:';
 theUILang.fDiagMoveTo	= 'Verschieben Dateien nach:';
 theUILang.fDiagMoveEmpty	= 'Bitte wählen Sie das Zielverzeichnis';
@@ -83,10 +83,10 @@ theUILang.fDiagCopySel	= 'Dateien markiert zum Kopieren:';
 theUILang.fDiagCopyTo	= 'Kopiere Dateien nach:';
 
 theUILang.fDiagNFO		= '.NFO Viewer';
-theUILang.fDiagSFVCheck	= 'Datei überprüfen';
+theUILang.flm_popup_sfv_check	= 'Datei überprüfen';
 theUILang.fDiagSFVCheckf	= 'Prüfsumme der Datei:';
 
-theUILang.fDiagSFVCreate	= 'Erstelle SFV-Datei';
+theUILang.flm_popup_sfv_create	= 'Erstelle SFV-Datei';
 theUILang.fDiagSFVCreateSel	= 'Datei markiert zum Prüfen:';
 theUILang.fDiagSFVHashfile	= 'Speichere SFV-Datei nach:';
 

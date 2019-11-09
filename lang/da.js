@@ -67,13 +67,13 @@ theUILang.fDiagTo		= 'To:';
 theUILang.fDiagNoPath	= 'Destination not permitted';
 
 
-theUILang.fDiagDelete	= 'Delete files and folders';
+theUILang.flm_popup_delete	= 'Delete files and folders';
 theUILang.fDiagDeleteSel	= 'Files marked for removal:';
 theUILang.fDiagDeleteBut	= 'Delete';
 
 theUILang.fDiagConsole	= 'Console';
 
-theUILang.fDiagMove		= 'Move files and folders';
+theUILang.flm_popup_move		= 'Move files and folders';
 theUILang.fDiagMoveSel	= 'Files marked for relocation:';
 theUILang.fDiagMoveTo	= 'Move files to:';
 theUILang.fDiagMoveEmpty	= 'Please select the path where to move the files to';
@@ -84,10 +84,10 @@ theUILang.fDiagCopySel	= 'Files marked for duplication:';
 theUILang.fDiagCopyTo	= 'Copy files to:';
 
 theUILang.fDiagNFO		= '.NFO Viewer';
-theUILang.fDiagSFVCheck	= 'Simple File Verification';
+theUILang.flm_popup_sfv_check	= 'Simple File Verification';
 theUILang.fDiagSFVCheckf	= 'Checksum file:';
 
-theUILang.fDiagSFVCreate	= 'Create SFV file';
+theUILang.flm_popup_sfv_create	= 'Create SFV file';
 theUILang.fDiagSFVCreateSel	= 'Files marked for hashing:';
 theUILang.fDiagSFVHashfile	= 'Save hash file to:';
 

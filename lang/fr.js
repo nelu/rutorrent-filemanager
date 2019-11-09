@@ -67,13 +67,13 @@ theUILang.fDiagTo		= "Vers :";
 theUILang.fDiagNoPath	= "Destination non permise";
 
 
-theUILang.fDiagDelete	= "Supprimer des dossiers / fichiers";
+theUILang.flm_popup_delete	= "Supprimer des dossiers / fichiers";
 theUILang.fDiagDeleteSel	= "Fichiers marqués à supprimer :";
 theUILang.fDiagDeleteBut	= "Supprimer";
 
 theUILang.fDiagConsole	= "Console";
 
-theUILang.fDiagMove		= "Déplacer des dossiers / fichiers";
+theUILang.flm_popup_move		= "Déplacer des dossiers / fichiers";
 theUILang.fDiagMoveSel	= "Fichiers marqués à déplacer:";
 theUILang.fDiagMoveTo	= "Déplacer les fichiers vers :";
 theUILang.fDiagMoveEmpty	= "Veuillez sélectionne le chemin où doit être déplacés les fichiers.";
@@ -84,10 +84,10 @@ theUILang.fDiagCopySel	= "Fichiers marqués pour le copiage:";
 theUILang.fDiagCopyTo	= "Copier vers :";
 
 theUILang.fDiagNFO		= "Lecteur de .NFO";
-theUILang.fDiagSFVCheck	= "Simple File Verification";
+theUILang.flm_popup_sfv_check	= "Simple File Verification";
 theUILang.fDiagSFVCheckf	= "Fichier checksum :";
 
-theUILang.fDiagSFVCreate	= "Créer un fichier SFV";
+theUILang.flm_popup_sfv_create	= "Créer un fichier SFV";
 theUILang.fDiagSFVCreateSel	= "Fichiers marqués pour le hashage :";
 theUILang.fDiagSFVHashfile	= "Enregister le fichier vers :";
 
