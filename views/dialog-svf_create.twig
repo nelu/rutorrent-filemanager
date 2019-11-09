@@ -1,5 +1,7 @@
-{% set pathbrowse = true %}
-{% set multiselect = true %}
+{% set pathbrowse = currentPath %}
+{% set multiselect = 1 %}
+{% set multiselectFilesOnly = true %}
+
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
     <legend>{{ theUILang.fDiagSFVCreateSel }}</legend>

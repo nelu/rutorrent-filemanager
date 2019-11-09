@@ -1,13 +1,23 @@
-{% extends "flm::dialog-window.twig" %}
-{% block content %}
-<fieldset><legend>Command log:</legend>
-    <div id="fMan_ConsoleLog" style="width:500px; height:310px;">
-        <pre></pre>
+<div class="cont fxcaret flm_content-content">
+
+
+    <div class="flm-popup-diag-content">
+        <fieldset>
+            <legend>Command log:</legend>
+            <div id="fMan_ConsoleLog" style="width:500px; height:310px;">
+                <pre></pre>
+            </div>
+        </fieldset>
+
     </div>
-</fieldset>'
 
-{% endblock %}
+    <div class="aright buttons-list">
+        <input type="button" id="flm-diag-console-clear" class="Button" value="Clear"/>
+        <input type="button" id="flm-diag-console-stop" class="Button" value="{{ theUILang.fDiagStop }}"  disabled="true"/>
+        <input type="button" class="flm-diag-cancel Cancel Button" value="{{ theUILang.fDiagClose }}"/>
+    </div>
 
+</div>
 
 
 

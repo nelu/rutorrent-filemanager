@@ -52,6 +52,7 @@ theUILang.fErrMsg[24]	= 'File Manager: archive manipulation disabled (applicatio
 theUILang.flm_popup_mkdir		= 'Create new directory';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
+theUILang.flm_popup_permissions = 'File permissions';
 theUILang.flm_popup_rename 	= 'Rename file / directory';
 theUILang.fDiagRenameTo 	= 'Rename to:';
 theUILang.fDiagRenameBut	= 'Rename';
@@ -71,7 +72,7 @@ theUILang.flm_popup_delete	= 'Delete files and folders';
 theUILang.fDiagDeleteSel	= 'Files marked for removal:';
 theUILang.fDiagDeleteBut	= 'Delete';
 
-theUILang.fDiagConsole	= 'Console';
+theUILang.flm_popup_console	= 'Console';
 
 theUILang.flm_popup_move		= 'Move files and folders';
 theUILang.fDiagMoveSel	= 'Files marked for relocation:';
@@ -109,7 +110,7 @@ theUILang.fManArComp[1] = ['Store', 'Fast', 'Better'];
 theUILang.fManArComp[2]	= theUILang.fManArComp[3] = theUILang.fManArComp[4] = ['Default'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
-theUILang.fDiagExtract	= 'Extract Archive';
+theUILang.flm_popup_extract	= 'Extract Archive';
 theUILang.fDiagArchive	= 'Archive:';
 theUILang.fDiagCompression	= 'Compression:';
 theUILang.fDiagExtDo		= 'Extract';

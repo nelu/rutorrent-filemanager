@@ -1,5 +1,8 @@
+{% set pathbrowse = false %}
+{% set multiselect = 1 %}
+{% set multiselectFilesOnly = false %}
+
 {% extends "flm::dialog-window.twig" %}
-{% set multiselect = true %}
 {% block heading %}
     <legend>{{ theUILang.fDiagDeleteSel  }}</legend>
 {% endblock %}

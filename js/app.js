@@ -1,29 +1,31 @@
- function FileManagerUtils() {
+function FileManagerUtils() {
 
-    return {
+    var utils = {
         archive_types: ["zip", "rar", "tar", "gz", "bz2"],
-        isArchive : function(element) {
+        isArchive: function (element) {
             var fext = this.getExt(element);
-            return fext.match(/^(zip|rar|tar|gz|bz2)$/i);
+            return (this.archive_types.indexOf(fext) > -1);
+
+            // return fext.match(/^(zip|rar|tar|gz|bz2)$/i);
         },
-        isDir : function(element) {
-            return (element.charAt(element.length - 1) == '/');
+        isDir: function (element) {
+            return (element.charAt(element.length - 1) === '/');
         },
 
-        formatDate : function(timestamp, format) {
+        formatDate: function (timestamp, format) {
 
             if (timestamp) {
 
                 var d = new Date(timestamp * 1000);
 
                 var times = {
-                    s : d.getSeconds(),
-                    m : d.getMinutes(),
-                    h : d.getHours(),
+                    s: d.getSeconds(),
+                    m: d.getMinutes(),
+                    h: d.getHours(),
 
-                    d : d.getDate(),
-                    M : d.getMonth(),
-                    y : d.getFullYear()
+                    d: d.getDate(),
+                    M: d.getMonth(),
+                    y: d.getFullYear()
                 };
 
                 for (i in times) {
@@ -35,7 +37,7 @@
                     }
                 }
 
-                var ndt = format.replace(/%([dMyhms])/g, function(m0, m1) {
+                var ndt = format.replace(/%([dMyhms])/g, function (m0, m1) {
                     return times[m1];
                 });
                 return ndt;
@@ -44,7 +46,21 @@
             }
         },
 
-        getICO: function(element) {
+        hasDir: function (entries) {
+            var hasDirs = false;
+            $.each(entries, function (k, v) {
+                if (window.flm.utils.isDir(v)) {
+                    hasDirs = true;
+                    return false;
+
+                }
+
+            });
+
+            return hasDirs;
+        },
+
+        getICO: function (element) {
 
             if (this.isDir(element)) {
                 return ('Icon_Dir');
@@ -58,7 +74,7 @@
                 return iko + 'sprite-rarpart';
             }
 
-            switch(element) {
+            switch (element) {
 
                 case 'mp3' :
                     iko += 'sprite-mp3';
@@ -107,21 +123,21 @@
             return (iko);
         },
 
-        getExt: function(element) {
+        getExt: function (element) {
 
             if (!$type(element)) {
                 return '';
             }
 
             var ext = element.split('.').pop();
-            var valid = (element.split('.').length > 1 ) && ext.match(/^[A-Za-z0-9]{2,5}$/);
+            var valid = (element.split('.').length > 1) && ext.match(/^[A-Za-z0-9]{2,5}$/);
 
             ext = valid ? ext : '';
 
 
-            return  ext.toLowerCase();
+            return ext.toLowerCase();
         },
-        basename: function(path) {
+        basedir: function (path) {
 
             var last = '';
             path = this.trimslashes(path);
@@ -135,42 +151,41 @@
                 }
             }
 
-            return '/'+this.trimslashes(last);
+            return '/' + this.trimslashes(last);
         },
 
-        buildPath: function(parts) {
+
+        buildPath: function (parts) {
 
             var res = [];
             var item;
-            for(var i=0; i< parts.length;i++)
-            {
+            for (var i = 0; i < parts.length; i++) {
                 item = this.trimslashes(parts[i]);
-                 if(item !== "")
-                 {
-                     res.push(item);
-                 }
+                if (item !== "") {
+                    res.push(item);
+                }
             }
             return '/' + res.join('/');
 
         },
-        encode_string : function(str) {
+        encode_string: function (str) {
 
             return encodeURIComponent(this.json_encode(str));
 
         },
 
-        json_encode : function(obj) {
+        json_encode: function (obj) {
             var self = this;
-            switch($type(obj)) {
+            switch ($type(obj)) {
                 case "number":
                     return (String(obj));
                 case "boolean":
-                    return ( obj ? "1" : "0");
+                    return (obj ? "1" : "0");
                 case "string":
                     return ('"' + obj + '"');
                 case "array": {
                     var s = '';
-                    $.each(obj, function(key, item) {
+                    $.each(obj, function (key, item) {
                         if (s.length)
                             s += ",";
                         s += self.json_encode(item);
@@ -179,7 +194,7 @@
                 }
                 case "object": {
                     var s = '';
-                    $.each(obj, function(key, item) {
+                    $.each(obj, function (key, item) {
                         if (s.length)
                             s += ",";
                         s += ('"' + key + '":' + self.json_encode(item));
@@ -190,8 +205,7 @@
             return ("null");
         },
 
-        rtrim: function(str, char)
-        {
+        rtrim: function (str, char) {
             if (!$type(str)) {
                 return str;
             }
@@ -200,7 +214,7 @@
 
             var lastIndexOfChar = 0;
 
-            for (var i = str.length-1; i >= 0; i--) {
+            for (var i = str.length - 1; i >= 0; i--) {
                 if (str[i] === char) {
                     lastIndexOfChar = i;
                 } else {
@@ -212,8 +226,7 @@
                 : str;
         },
 
-        ltrim: function(str, char)
-        {
+        ltrim: function (str, char) {
             if (!$type(str)) {
                 return str;
             }
@@ -224,7 +237,7 @@
 
             for (var i = 0; i < str.length; i++) {
                 if (str[i] === char) {
-                    lastIndexOfChar = i+1;
+                    lastIndexOfChar = i + 1;
                 } else {
                     break;
                 }
@@ -233,7 +246,7 @@
             return str.slice(lastIndexOfChar)
 
         },
-        trimslashes: function(str) {
+        trimslashes: function (str) {
 
             if (!$type(str)) {
                 return '';
@@ -251,40 +264,49 @@
             return (rar.join('/'));
         },
 
-/*        sortAlphaNumeric: function(x, y) {
+        /*        sortAlphaNumeric: function(x, y) {
 
-            if (x.key.split('_flm_')[1] == theWebUI.fManager.getLastPath(flm.currentPath)) {
-                return (this.reverse ? 1 : -1);
-            }
-            return (this.oldFilesSortAlphaNumeric(x, y));
-        },*/
+                    if (x.key.split('_flm_')[1] == theWebUI.fManager.getLastPath(flm.currentPath)) {
+                        return (this.reverse ? 1 : -1);
+                    }
+                    return (this.oldFilesSortAlphaNumeric(x, y));
+                },*/
 
-        addslashes : function(str) {
+        addslashes: function (str) {
             // http://phpjs.org/functions/addslashes:303
             return (str + '').replace(/[\\"\/]/g, '\\$&').replace(/\u0000/g, '\\0');
         },
-        
+
         actionResult: function (result) {
-            var isSuccess =  function () {
+            var isSuccess = function () {
 
                 return result == 'succes';
             };
-            
+
             return {
                 isSuccess: isSuccess
             }
         },
 
-        validname : function(what) {
+        validname: function (what) {
             return (what.split('/').length > 1) ? false : true;
         }
 
     };
+    utils.basename = function(what)
+    {
+        var arr = utils.trimslashes(what).split('/');
+
+        var r = arr.pop();
+        return r;
+    };
+
+    return utils;
 
 };
 
 
-function FileManager () {
+function FileManager() {
 
     var flm = {};
 
@@ -296,39 +318,37 @@ function FileManager () {
     };
 
     flm.utils = FileManagerUtils();
-    var apiClient = function(endpoint) {
+    var apiClient = function (endpoint) {
 
         endpoint = endpoint || getPlugin().path + 'action.php';
-        return  {
+        return {
             endpoint: endpoint,
-            get: function(data) {
+            get: function (data) {
                 return this.request('GET', data);
             },
-            post: function(data) {
+            post: function (data) {
                 return this.request('POST', data);
             },
-            request : function(type, data)
-            {
+            request: function (type, data) {
                 type = type || 'GET';
 
                 var deferred = $.Deferred();
 
                 $.ajax({
-                    type : type,
-                    url : endpoint +'?_=' + Math.floor(Date.now() / 1000),
-                    timeout : theWebUI.settings["webui.reqtimeout"],
-                    async : true,
-                    cache : false,
-                    data : data,
-                  //  contentType: "application/json",
-                    dataType : "json",
+                    type: type,
+                    url: endpoint + '?_=' + Math.floor(Date.now() / 1000),
+                    timeout: theWebUI.settings["webui.reqtimeout"],
+                    async: true,
+                    cache: false,
+                    data: data,
+                    //  contentType: "application/json",
+                    dataType: "json",
 
-                    error : function(XMLHttpRequest, textStatus, errorThrown) {
-                        deferred.reject({'response': XMLHttpRequest, textStatus, errorThrown});
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        deferred.reject({'response': [XMLHttpRequest, textStatus, errorThrown]});
                     },
-                    success : function(data) {
-                        if(data.hasOwnProperty('error') && data.error)
-                        {
+                    success: function (data) {
+                        if (data.hasOwnProperty('error') && data.error) {
                             deferred.reject({'response': data});
 
                         } else {
@@ -337,7 +357,7 @@ function FileManager () {
                     }
                 });
 
-                return  deferred.promise();
+                return deferred.promise();
 
             },
         };
@@ -346,38 +366,35 @@ function FileManager () {
 
     var views = function () {
         self = this;
-        self.viewsPath = pluginUrl+'/views';
-        var viewsConfig = {
-            id: "create-archive",
-            href: viewsPath+"/create-archive.html",
-            // for this example we'll block until the template is loaded
-            async: true,
+        self.viewsPath = pluginUrl + '/views';
 
-            // The default is to load asynchronously, and call the load function
-            //   when the template is loaded.
 
-            load: function(template) {
-
-                console.log('got view template', template, template.render({'dummy': "var data for dummy"}));
-                return template;
+        for (var funcName in flm.utils) {
+            if ($type(flm.utils[funcName]) === "function") {
+                Twig.extendFunction(funcName, flm.utils[funcName]);
             }
-        };
+        }
 
-        self.getView = function(name, fn, options) {
+        self.getView = function (name, fn, options) {
             //
             options = options || {};
 
-            options.views= 'flm';
-            options.lang= theUILang;
-            options.settings= {
+            options.views = 'flm';
+            options.theUILang = theUILang;
+            options.utils= flm.utils;
+            options.settings = {
                 'twig options': {
-                    namespaces: { 'flm': viewsPath+'/' },
-                    href: viewsPath+'/'+name+'.twig'
+                    namespaces: {'flm': viewsPath + '/'},
+                    href: viewsPath + '/' + name + '.twig'
                 }
             };
 
-            Twig.renderFile(undefined, options, function(dumb, template){
-                fn(template);
+            if ($type(options.async)) {
+                options.settings['twig options'].allow_async = options.async;
+            }
+
+            return Twig.renderFile(undefined, options, function (dumb, template) {
+                $type(fn) && fn(template);
             });
         };
 
@@ -385,12 +402,11 @@ function FileManager () {
 
     };
 
-    var userInterface = function()
-    {
+    var userInterface = function () {
 
         var self = {};
 
-        var fsBrowser = function(){
+        var fsBrowser = function () {
 
             var browse = {
                 selectedTarget: null,
@@ -414,8 +430,7 @@ function FileManager () {
                         } else {
                             switch (table.getIdByCol(i)) {
                                 case 'name':
-                                    if (flm.ui.browser.isTopDir(arr[i]))
-                                    {
+                                    if (flm.ui.browser.isTopDir(arr[i])) {
                                         arr[i] = '../';
                                     }
                                     if (theWebUI.fManager.settings.stripdirs
@@ -453,15 +468,12 @@ function FileManager () {
                     var yVal = y.key.split('_flm_')[1];
 
                     if (flm.ui.browser.isTopDir(xVal)
-                   || flm.ui.browser.isTopDir(yVal)
-                    )
-                    {
-                        return  !this.reverse ? 1 : -1;
-                    }
-                    else if
+                        || flm.ui.browser.isTopDir(yVal)
+                    ) {
+                        return !this.reverse ? 1 : -1;
+                    } else if
                     (flm.utils.isDir(xVal)
-                        || flm.utils.isDir(yVal))
-                    {
+                        || flm.utils.isDir(yVal)) {
                         return (flm.utils.isDir(xVal)
                             && flm.utils.isDir(yVal))
                             ? this.initialFilesSortAlphaNumeric(x, y)
@@ -476,18 +488,17 @@ function FileManager () {
 
                     if (flm.ui.browser.isTopDir(x.key.split('_flm_')[1])
                         || flm.ui.browser.isTopDir(y.key.split('_flm_')[1])
-                    )
-                    {
-                        return  !this.reverse ? 1 : -1;
+                    ) {
+                        return !this.reverse ? 1 : -1;
                     }
 
                     return (this.initialFileSortNumeric(x, y));
                 },
 
                 onDoubleClick: function (obj) {
-                /*    if (theWebUI.fManager.inaction) {
-                        return false;
-                    }*/
+                    /*    if (theWebUI.fManager.inaction) {
+                            return false;
+                        }*/
                     var target = obj.id.slice(5, obj.id.length);
 
                     if (flm.utils.isDir(target)) {
@@ -501,61 +512,76 @@ function FileManager () {
             };
 
 
-            browse.init = function() {
+            browse.init = function () {
                 browse.updateTableConfig();
                 browse.setSorting();
             };
 
             // up dir path check
-            browse.isTopDir = function(path) {
+            browse.isTopDir = function (path) {
                 path = flm.utils.buildPath([path]);
-                return (path === flm.utils.basename(flm.currentPath));
+                return (path === flm.utils.basedir(flm.currentPath));
             };
 
-            browse.disableTable = function() {
+            browse.disableTable = function () {
                 uiTable.table.addClass('disabled_table');
             };
-            browse.enableTable = function() {
+            browse.enableTable = function () {
                 uiTable.table.removeClass('disabled_table');
             };
 
-            browse.loadNavigation = function() {
-                if(!browse.navigationLoaded)
-                {
-                    flm.views.getView('table-header', function (view)
-                    {
-                        browse.navigationLoaded = true;
-                        var plugin = getPlugin();
-                        $('#'+plugin.ui.fsBrowserContainer).prepend(view);
+            browse.getSelection = function () {
+                var selectedEntries = [];
+                var rows = browse.table().rowSel;
+                var entryName;
+                for (var i in rows) {
+                    entryName = i.split('flm')[1];
+                    if ((!rows[i]) || browse.isTopDir(entryName)) {
+                        continue;
+                    }
+                    selectedEntries.push(entryName);
+                }
 
-                        $('#flm-navpath').change(function() {
-                            var path = $(this).val();
-                            if (path == flm.currentPath) {
-                                return false;
-                            }
+                return selectedEntries;
 
-                            flm.goToPath(path);
-                        });
+            };
 
-                        $('#flm-nav-refresh').click(function() {
-                            flm.goToPath(flm.currentPath);
-                        });
-                    },
+            browse.loadNavigation = function () {
+                if (!browse.navigationLoaded) {
+                    flm.views.getView('table-header', function (view) {
+                            browse.navigationLoaded = true;
+                            var plugin = getPlugin();
+                            $('#' + plugin.ui.fsBrowserContainer).prepend(view);
+
+                            $('#flm-navpath').change(function () {
+                                var path = $(this).val();
+                                if (path == flm.currentPath) {
+                                    return false;
+                                }
+
+                                flm.goToPath(path);
+                            });
+
+                            $('#flm-nav-refresh').click(function () {
+                                flm.goToPath(flm.currentPath);
+                            });
+                        },
                         {apiUrl: flm.apiClient.endpoint});
                 }
             };
 
-            browse.onShow = function() {
+            browse.onShow = function () {
                 console.log('Filemanager ui broswer onshow');
-                if(isVisible) {return;}
+                if (isVisible) {
+                    return;
+                }
                 isVisible = true;
                 browse.loadNavigation();
                 var table = browse.table();
-                if(table)
-                {
-                    flm.goToPath(flm.currentPath).then(function() {
-                            table.refreshRows();
-                            theWebUI.resize();
+                if (table) {
+                    flm.goToPath(flm.currentPath).then(function () {
+                        table.refreshRows();
+                        theWebUI.resize();
                     });
 
                     $('#fMan_showconsole').show();
@@ -574,7 +600,7 @@ function FileManager () {
 
 
             // executed outside the browse/this scope
-            browse.onSelectEntry = function(e, id) {
+            browse.onSelectEntry = function (e, id) {
 
                 var target = id.split('_flm_')[1];
                 browse.selectedTarget = target;
@@ -592,18 +618,18 @@ function FileManager () {
                 }
             };
 
-            browse.setEntryMenu = function(context, path) {
+            browse.setEntryMenu = function (context, path) {
                 var utils = FileManagerUtils();
 
                 var pathIsDir = utils.isDir(path);
-                path = '/'+ utils.ltrim(path, '/');
+                path = '/' + utils.ltrim(path, '/');
 
                 var table = browse.table();
                 var flm = theWebUI.fManager;
 
-                context.add([theUILang.fOpen, (table.selCount > 1) ? null : ( pathIsDir ? function() {
+                context.add([theUILang.fOpen, (table.selCount > 1) ? null : (pathIsDir ? function () {
                     browse.navTo(path);
-                } : function() {
+                } : function () {
                     browse.getFile(path);
                 })]);
 
@@ -616,7 +642,7 @@ function FileManager () {
                     if (fext == 'nfo') {
                         context.add([CMENU_SEP]);
                         context.add([theUILang.fView,
-                            function() {
+                            function () {
                                 flm.viewNFO(path, 1);
                             }]);
                         context.add([CMENU_SEP]);
@@ -625,47 +651,49 @@ function FileManager () {
                     context.add([theUILang.fCopy, "flm.ui.showCopy()"]);
                     context.add([theUILang.fMove, "flm.ui.showMove()"]);
                     context.add([theUILang.fDelete, "flm.ui.showDelete()"]);
-                    if(!(table.selCount > 1)) {
+                    if (!(table.selCount > 1)) {
                         context.add([theUILang.fRename, 'flm.ui.showRename()']);
                     }
                     context.add([CMENU_SEP]);
 
                     if (utils.isArchive(path) && !(table.selCount > 1)) {
                         context.add([theUILang.fExtracta, "flm.ui.showExtract()"]);
-                        context.add([theUILang.fExtracth, "flm.ui.showExtract(true)"]);
                         context.add([CMENU_SEP]);
                     }
 
                     var create_sub = [];
 
-                    create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && !(table.selCount > 1) ? function() {
+                    create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && !(table.selCount > 1) ? function () {
                         flm.createT(path);
                     } : null]);
                     create_sub.push([CMENU_SEP]);
                     create_sub.push([theUILang.fcNewDir, "flm.ui.createDir()"]);
                     create_sub.push([theUILang.fcNewArchive, "flm.ui.showArchive()"]);
-                    if(!pathIsDir){
+
+                    if (!utils.hasDir(browse.getSelection())) {
                         create_sub.push([CMENU_SEP]);
-                        create_sub.push([theUILang.fcSFV,  "flm.ui.showSFVcreate()"]);
+                        create_sub.push([theUILang.fcSFV, "flm.ui.showSFVcreate()"]);
                     }
 
 
-                //    create_sub.push([theUILang.fcScreens, (thePlugins.isInstalled('screenshots') && !pathIsDir && utils.getExt(path).match(new RegExp("^(" + thePlugins.get('screenshots').extensions.join('|') + ")$", "i")) && !(this.actiontimeout > 0)) ? flm.actionCheck('Screenshots', path) : null]);
+                    //    create_sub.push([theUILang.fcScreens, (thePlugins.isInstalled('screenshots') && !pathIsDir && utils.getExt(path).match(new RegExp("^(" + thePlugins.get('screenshots').extensions.join('|') + ")$", "i")) && !(this.actiontimeout > 0)) ? flm.actionCheck('Screenshots', path) : null]);
 
                     context.add([CMENU_CHILD, theUILang.fcreate, create_sub]);
 
 
                     (fext === 'sfv')
-                    && context.add([theUILang.fcheckSFV,  "flm.ui.showSFVcheck()"]);
+                    && context.add([theUILang.fcheckSFV, "flm.ui.showSFVcheck()"]);
                     (!pathIsDir && thePlugins.isInstalled('mediainfo'))
-                    && context.add([theUILang.fMediaI, function() {flm.doMediainfo(path); }]);
+                    && context.add([theUILang.fMediaI, function () {
+                        flm.doMediainfo(path);
+                    }]);
 
                 } else {
-                    context.add([theUILang.fcNewDir,  "flm.ui.createDir()"]);
+                    context.add([theUILang.fcNewDir, "flm.ui.createDir()"]);
                 }
 
                 context.add([CMENU_SEP]);
-                context.add(["Permissions", "flm.ui.showPermissions(flm.currentPath)"]);
+              /*  context.add(["Permissions", "flm.ui.showPermissions()"]);*/
 
                 context.add([theUILang.fRefresh, "flm.goToPath(flm.currentPath)"]);
 
@@ -674,11 +702,10 @@ function FileManager () {
             };
 
             // navigation
-            browse.navTo = function(path)
-            {
+            browse.navTo = function (path) {
                 path = flm.utils.buildPath([path]);
                 // up dir path check
-                var fullPath =  browse.isTopDir(path)
+                var fullPath = browse.isTopDir(path)
                     ? path
                     : flm.utils.buildPath([flm.currentPath, path]);
 
@@ -686,15 +713,14 @@ function FileManager () {
             };
 
             // get file
-            browse.getFile = function(path)
-            {
+            browse.getFile = function (path) {
                 var fullPath = flm.currentPath + '/' + flm.utils.trimslashes(path);
                 flm.getFile(fullPath);
             };
 
             // table
 
-            browse.setSorting = function() {
+            browse.setSorting = function () {
                 var table = theWebUI.getTable("flm");
 
                 table.initialFileSortNumeric = table.sortNumeric;
@@ -704,38 +730,38 @@ function FileManager () {
                 table.sortAlphaNumeric = uiTable.sortAlphaNumeric;
             };
 
-            browse.setTableEntries  = function(data) {
+            browse.setTableEntries = function (data) {
 
                 var table = browse.table();
 
                 table.clearRows();
 
                 if (flm.currentPath !== '/') {
-                    var path = flm.utils.basename(flm.currentPath) + '/' ; // trailing slash required, its a dir
+                    var path = flm.utils.basedir(flm.currentPath) + '/'; // trailing slash required, its a dir
                     table.addRowById({
-                        name : path,
-                        size : '',
-                        time : '',
-                        type : '/',
-                        perm : ''
-                    },
+                            name: path,
+                            size: '',
+                            time: '',
+                            type: '/',
+                            perm: ''
+                        },
                         "_flm_" + path,
                         'flm-sprite flm-sprite-dir_up');
                 } else {
                     if (data.length < 1) {
                         data = {
-                            0 : {
-                                name : '/',
-                                size : '',
-                                time : '',
-                                perm : ''
+                            0: {
+                                name: '/',
+                                size: '',
+                                time: '',
+                                perm: ''
                             }
                         };
                     }
                 }
 
 
-                $.each(data, function(ndx, file) {
+                $.each(data, function (ndx, file) {
 
                     if (flm.utils.isDir(file.name)) {
                         var ftype = 0;
@@ -744,31 +770,31 @@ function FileManager () {
                     }
 
                     var entry = {
-                        name : file.name,
-                        size : file.size,
-                        time : file.time,
-                        type : ftype + file.name,
-                        perm : file.perm
+                        name: file.name,
+                        size: file.size,
+                        time: file.time,
+                        type: ftype + file.name,
+                        perm: file.perm
                     };
 
-                    var hash  = "_flm_" + file.name;
+                    var hash = "_flm_" + file.name;
 
                     table.addRowById(entry, hash, flm.utils.getICO(file.name));
 
-                     if (!theWebUI.fManager.settings.showhidden && (file.name.charAt(0) === '.')) {
-                         table.hideRow(hash);
-                     }
+                    if (!theWebUI.fManager.settings.showhidden && (file.name.charAt(0) === '.')) {
+                        table.hideRow(hash);
+                    }
                 });
                 table.refreshRows();
 
             };
 
-            browse.table = function() {
+            browse.table = function () {
                 return theWebUI.getTable("flm");
             };
 
 
-            browse.updateNavigationPath = function() {
+            browse.updateNavigationPath = function () {
 
                 var cpath = $('#flm-navpath');
 
@@ -779,8 +805,8 @@ function FileManager () {
                 entries.push(flm.currentPath);
 
 
-                cpath.children('option').each(function(index, val) {
-                    if(entries.length < historySize) {
+                cpath.children('option').each(function (index, val) {
+                    if (entries.length < historySize) {
                         if (val.value !== flm.currentPath && val.value !== '/') {
                             entries.push(val.value);
                         }
@@ -809,30 +835,41 @@ function FileManager () {
                 table.renameColumnById('time', theUILang.fTime);
                 table.renameColumnById('type', theUILang.fType);
                 table.renameColumnById('perm', theUILang.fPerm);
-                table.format = function() {return uiTable.format.apply(browse, arguments);};
-                table.ondblclick = function() {return uiTable.onDoubleClick.apply(browse, arguments);};
-                table.ondelete = function() {return uiTable.ondelete.apply(browse, arguments);};
-                table.onselect = function() {browse.onSelectEntry.apply(browse, arguments);};
+                table.format = function () {
+                    return uiTable.format.apply(browse, arguments);
+                };
+                table.ondblclick = function () {
+                    return uiTable.onDoubleClick.apply(browse, arguments);
+                };
+                table.ondelete = function () {
+                    return uiTable.ondelete.apply(browse, arguments);
+                };
+                table.onselect = function () {
+                    browse.onSelectEntry.apply(browse, arguments);
+                };
 
             };
 
 
-
             return browse;
         };
+        var browser = fsBrowser();
 
         // file operation dialogs
         var dialogs = {
 
-            activeDialogs:{},
+            activeDialogs: {},
+            onStartEvent: null,
             // multiple file operations are ui blocking
             forms: {
                 archive: {
-                    modal : true,
+                    modal: true,
+                    multiselect: true,
                     template: "dialog-archive"
                 },
                 copy: {
-                    modal : true,
+                    modal: true,
+                    multiselect: true,
                     template: "dialog-copy"
                 },
                 console: {
@@ -843,22 +880,33 @@ function FileManager () {
                 },
                 move: {
                     modal: true,
+                    multiselect: true,
                     template: "dialog-move"
                 },
                 delete: {
+                    multiselect: true,
                     template: "dialog-delete"
                 },
                 extract: {
                     modal: true,
                     template: "dialog-extract"
                 },
+                permissions: {
+                    modal: false,
+                    template: "dialog-permissions"
+                },
                 rename: {
+                    modal: true,
                     template: "dialog-rename"
                 },
                 sfv_check: {
                     template: "dialog-sfv-check"
                 },
                 sfv_create: {
+                    modal: true,
+                    hasList: true,
+                    multiselect: true,
+                    multiselectFilesOnly: true,
                     template: "dialog-svf_create"
                 },
                 nfo_view: {
@@ -866,10 +914,67 @@ function FileManager () {
                 }
             },
 
-            beforeShow: function(id, what) {
+            beforeShow: function (id, what) {
+                var diagId = this.getDialogId(what);
+                var diags = this;
+                diags.getDialogHeader(diagId);
+
+                diags.getDialogHeader(id)
+                    .empty()
+                    .html(theUILang[diagId])
+                    .prepend('<span class="flm-sprite-diag flm-sprite sprite-' + what + '"></span>');
+
+                var config = this.forms[what];
+
+                if ($type(config.modal)) {
+                    theDialogManager.setModalState();
+                } else {
+                    theDialogManager.clearModalState();
+                }
+
+                var data = {
+                    apiUrl: flm.apiClient.endpoint,
+                    selectedEntries: browser.getSelection(),
+                    selectedTarget: flm.getCurrentPath(browser.selectedTarget),
+                    currentPath: flm.getCurrentPath('/')
+                };
+
+                flm.views.getView(config.template, function (html) {
+                        var newContent = $('#' + id + ' .flm_popup-content')
+                            .html(html);
+
+                        newContent.find('.flm-diag-cancel')
+                            .click(function () {
+                                diags.hide();
+                            });
+                        newContent.find('.flm-diag-start')
+                            .click(function () {
+                                console.log('start triggered');
+                            });
+                        diags.enableStartButton(id);
+
+                        newContent.find('.flm-diag-start').attr('disabled', false)
+                            .click(function () {
+                                if ($type(diags.onStartEvent) === "function") {
+                                    diags.onStartEvent.apply(diags, arguments);
+                                }
+                            })
+
+                    },
+                    data);
+                /*
+                                var forcedirs = (id == 'fMan_CreateSFV') ? true : false;
+                */
+
+                /*         if (!(theWebUI.fManager.actiontoken.length > 1)) {
+
+                         }*/
+
+                //   this.setMultipleSelection();
+
             },
 
-            checkInputs : function(diag, forcedir) {
+            checkInputs: function (diag, forcedir) {
 
                 forcedir = $type(forcedir) ? true : false;
 
@@ -884,7 +989,7 @@ function FileManager () {
                     return false;
                 }
 
-         //       path = path.split(this.homedir);
+                //       path = path.split(this.homedir);
                 path = flm.utils.trimslashes(path[1]);
 
                 if ((path == flm.utils.trimslashes(flm.currentPath)) && !forcedir) {
@@ -892,8 +997,8 @@ function FileManager () {
                     return false;
                 }
 
-                var funky = flm.utils.trimslashes(flm.currentPath) ? flm.utils.trimslashes(path.split(flm.utils.trimslashes(flm.currentPath)+'/')[1]).split('/').shift() : path.split('/').shift();
-                if (this.isChecked('fMan_' + diag, this.basename(path)) || this.fileExists(funky)) {
+                var funky = flm.utils.trimslashes(flm.currentPath) ? flm.utils.trimslashes(path.split(flm.utils.trimslashes(flm.currentPath) + '/')[1]).split('/').shift() : path.split('/').shift();
+                if (this.isChecked('fMan_' + diag, this.basedir(path)) || this.fileExists(funky)) {
                     alert(theUILang.fDiagNoPath);
                     return false;
                 }
@@ -901,58 +1006,39 @@ function FileManager () {
                 return '/' + path;
             },
 
+            enableStartButton: function (diag) {
+                $('#' + diag + ' .fMan_Start').attr('disabled', false);
+            },
+            disableStartButton: function (diag) {
+                $('#' + diag + ' .fMan_Start').attr('disabled', true);
+            },
 
-            updatePath: function(path) {
+            onStart: function (callback) {
+                this.onStartEvent = callback;
+            },
+
+            show: function (afterShow) {
+                theDialogManager.show(this.getDialogId('window'), afterShow);
+            },
+            hide: function (afterHide) {
+                theDialogManager.hide(this.getDialogId('window'), afterHide);
+            },
+            updateTargetPath: function (path) {
                 return $('#flm-diag-navigation-path').val(path);
             },
 
-            createDialogs: function() {
-
-                var buttons = '<div class="aright buttons-list">' + '<input type="button" class="fMan_Start Button" value="' + theUILang.fDiagStart + '" class="Button" />' + '<input type="button" class="Cancel Button" value="' + theUILang.fDiagClose + '"/>' + '</div>';
-                var consbut = '<div class="aright buttons-list">' + '<input type="button" id="fMan_ClearConsole" class="Button" value="Clear" class="Button" />' + '<input type="button" class="fMan_Stop Button" value="' + theUILang.fDiagStop + '" class="Button" disabled="true"/>' + '<input type="button" class="Cancel Button" value="' + theUILang.fDiagClose + '"/>' + '</div>';
-
-                var browsediags = {
-                    CreateSFV : theUILang.fDiagSFVHashfile,
-                    Move : theUILang.fDiagMoveTo,
-                    Copy : theUILang.fDiagCopyTo,
-                    Extract : theUILang.fDiagTo,
-                    Screenshots : 'Screens image:'
-                };
-
-                var pathbrowse;
-
-                for (i in this.forms) {
-
-                    var dcontent = this.forms[i].content;
-
-                    if ($type(browsediags[i])) {
-
-                        if ((i != 'Extract') || (i != 'Screenshots')) {
-                            dcontent = $(this.forms[i].content).append('<div id="fMan_' + i + 'list" class="checklist"><ul></ul></div>');
-                        }
-
-                        pathbrowse = $('<fieldset>').html($('<legend>').text(browsediags[i])).append($('<input type="text" style="width:350px;" autocomplete="off" />').attr('id', 'fMan_' + i + 'bpath').addClass('TextboxLarge')).append($('<input type="button" value="..." style="float: right;" />').attr('id', 'fMan_' + i + 'bbut').addClass('Button aright'));
-                    } else if (i == 'Delete') {
-                        dcontent = $(this.forms[i].content).append('<div id="fMan_' + i + 'list" class="checklist"><ul></ul></div>');
-                        pathbrowse = '';
-                    } else {
-                        pathbrowse = '';
-                    }
-
-                    var fcontent = $('<div>').html($('<div>').addClass('cont fxcaret').html(dcontent).append(pathbrowse)).append((i != 'Nfo') ? ((i == 'Console') ? consbut : buttons) : '').get(0);
-                    theDialogManager.make('fMan_' + i, theUILang[this.forms[i].title], fcontent, this.forms[i].modal);
-                };
+            createDialogs: function () {
 
                 /*
                  Dialogs button binds bellow:
                  */
 
-                $('.fMan_Start').click(function() {
+                $('.fMan_Start').click(function () {
 
                     var diagid = $(this).parents('.dlg-window:first').attr('id');
                     diagid = diagid.split('fMan_');
 
-                    switch(diagid[1]) {
+                    switch (diagid[1]) {
                         case 'CArchive':
                             theWebUI.fManager.doArchive(this, diagid[1]);
                             break;
@@ -972,7 +1058,7 @@ function FileManager () {
                             theWebUI.fManager.doExtract(this, diagid[1]);
                             break;
                         case 'mkdir':
-                           /// theWebUI.fManager.doNewDir();
+                            /// theWebUI.fManager.doNewDir();
                             break;
                         case 'Move':
                             theWebUI.fManager.doMove(this, diagid[1]);
@@ -987,7 +1073,7 @@ function FileManager () {
 
                 });
 
-                $('.fMan_Stop').click(function() {
+                $('.fMan_Stop').click(function () {
 
                     theWebUI.fManager.cmdlog(theUILang.fStops[theWebUI.fManager.activediag] + "\n");
                     theWebUI.fManager.actStop();
@@ -997,8 +1083,8 @@ function FileManager () {
                 if (thePlugins.isInstalled("_getdir")) {
 
                     browsediags.CArchive = 'arch';
-                    var closehandle = function(diagid) {
-                        theDialogManager.setHandler('fMan_' + diagid, 'afterHide', function() {
+                    var closehandle = function (diagid) {
+                        theDialogManager.setHandler('fMan_' + diagid, 'afterHide', function () {
                             plugin["bp" + diagid].hide();
                         });
                     };
@@ -1015,14 +1101,14 @@ function FileManager () {
                 }
 
 
-                $("#fMan_multiv").change(function() {
+                $("#fMan_multiv").change(function () {
 
                     var dis = $(this).is(':checked');
                     $("#fMan_vsize").attr("disabled", !dis);
                 });
 
 
-                $("#fMan_nfoformat").change(function() {
+                $("#fMan_nfoformat").change(function () {
 
                     var mode = $(this).val();
                     var nfofile = $("#fMan_nfofile").val();
@@ -1031,20 +1117,19 @@ function FileManager () {
                 });
 
 
-
                 if (!thePlugins.isInstalled('data')) {
 
                     $(document.body).append($("<iframe name='datafrm'/>").css({
-                        visibility : "hidden"
+                        visibility: "hidden"
                     }).attr({
-                        name : "datafrm",
-                        id : "datafrm"
-                    }).width(0).height(0).load(function() {
+                        name: "datafrm",
+                        id: "datafrm"
+                    }).width(0).height(0).load(function () {
                         var d = (this.contentDocument || this.contentWindow.document);
                         if (d.location.href != "about:blank")
                             try {
                                 eval(d.body.innerHTML);
-                            } catch(e) {
+                            } catch (e) {
                             }
                     }));
                 }
@@ -1052,75 +1137,55 @@ function FileManager () {
 
             },
 
-            getDialogId: function(what) {
+            getDialogId: function (what) {
                 return 'flm_popup_' + what;
             },
 
-            getDialogHeader: function(diagId) {
-                return $('#'+diagId+"-header");
+            getDialogHeader: function (diagId) {
+                return $('#' + diagId + "-header");
             },
             //makeVisbile
-            showDialog: function(what, viewEvents)
-            {
+            showDialog: function (what, viewEvents) {
 
-                if( !this.forms.hasOwnProperty(what))
-                {
+                if (!this.forms.hasOwnProperty(what)) {
                     console.error('No such dialog configured: ', what);
                     return;
                 }
 
-                var config = this.forms[what];
-                var diagId =  this.getDialogId(what);
+                var diagId = this.getDialogId('window');
                 var diags = this;
 
                 // create it
-                if(!theDialogManager.items.hasOwnProperty(diagId))
-                {
-                    flm.views.getView(config.template, function (html)
-                    {
+                if (!theDialogManager.items.hasOwnProperty(diagId)) {
 
-                            if(!theDialogManager.items.hasOwnProperty(diagId))
-                            {
-                                theDialogManager.make(diagId, theUILang[diagId], $(html).get(0), config.modal);
-                                diags.getDialogHeader(diagId).prepend('<span class="flm-sprite-diag flm-sprite sprite-'+ what +'"></span>');
+                    theDialogManager.make(diagId,
+                        '',
+                        $('<div class="cont fxcaret flm_popup-content"></div>').get(0),
+                        true); // prevent the user from changing table selection by default
 
-                                $.each(['beforeHide', 'beforeShow', 'afterHide', 'afterShow'], function(ndx, evName)
-                                {
-
-                                    theDialogManager.setHandler(diagId, evName, function(id)
-                                    {
-                                        $type(diags[evName])
-                                        && diags[evName].apply(diags, [id, what]);
-
-                                        viewEvents.hasOwnProperty(evName)
-                                        &&  viewEvents[evName].apply(diags, [id, what]);
-
-                                    });
-
-                                });
-                            }
-
-
-                            theDialogManager.show(diagId);
-                        },
-                        {
-                            apiUrl: flm.apiClient.endpoint,
-                            theUILang: theUILang,
-                            utils: flm.utils
-                        });
                 }
-                 else
-                //use it
-                {
-                    theDialogManager.show(diagId);
-                }
+                $.each(['beforeHide', 'beforeShow', 'afterHide', 'afterShow'], function (ndx, evName) {
+
+                    theDialogManager.setHandler(diagId, evName, function (id) {
+                        $type(diags[evName])
+                        && diags[evName].apply(diags, [id, what]);
+
+                        viewEvents.hasOwnProperty(evName)
+                        && viewEvents[evName].apply(diags, [id, what]);
+
+                    });
+
+                });
+                theDialogManager.show(diagId);
+
+            },
+
+            getTargetPath: function() {
+                return $('#flm-diag-navigation-path').val();
             }
         };
 
         // file operation dialogs
-
-
-        var browser  = fsBrowser();
 
         self.settings = {
             init: false,
@@ -1128,14 +1193,12 @@ function FileManager () {
                 console.log('flm.ui.settings on Show', arg);
                 // plugin config tab in UI settings
 
-                var self  = this;
+                var self = this;
                 // 1 dialog is enough :)
-                if(self.init)
-                {
+                if (self.init) {
                     self.updateSettings();
                 } else {
-                    flm.views.getView('settings-pane', function (view)
-                    {
+                    flm.views.getView('settings-pane', function (view) {
                         self.init = true;
                         getPlugin()
                             .attachPageToOptions($(view).get(0), theUILang.fManager);
@@ -1148,8 +1211,7 @@ function FileManager () {
             },
             updateSettings: function () {
                 $('#fMan_optPan').find('input, select')
-                    .each(function(index, ele)
-                    {
+                    .each(function (index, ele) {
                         var inid = ele.id.split('fMan_Opt');
 
                         if ($(ele).attr('type') == 'checkbox') {
@@ -1174,48 +1236,45 @@ function FileManager () {
 
             // operation dialogs
 
-            $('#fMan_ClearConsole').click(function() {
+            $('#fMan_ClearConsole').click(function () {
                 self.cleanlog();
             });
 
         };
 
-        self.cleanlog = function() {
+        self.cleanlog = function () {
 
             $('#fMan_ConsoleLog pre').empty();
         };
 
-        self.disableNavigation = function()
-        {
+        self.disableNavigation = function () {
             self.browser.disableTable();
         };
 
-        self.enableNavigation = function()
-        {
+        self.enableNavigation = function () {
             self.browser.enableTable();
         };
 
-        self.initFileBrowser = function()
-        {
+        self.initFileBrowser = function () {
             $('#tab_lcont').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
-            $('#fMan_showconsole').click(function() {
+            $('#fMan_showconsole').click(function () {
                 self.showConsole();
             });
             // file navigation
             browser.init();
         };
 
-        self.formatDate = function(timestamp) {
+        self.formatDate = function (timestamp) {
             return flm.utils.formatDate(timestamp, this.settings.timef || '%d.%M.%y %h:%m:%s')
         };
 
-        self.getPopupId = function(popupName) {
+        self.getPopupId = function (popupName) {
             return 'fMan_' + popupName;
         };
 
-        self.createDir = function() {
+        self.createDir = function () {
 
-            var diagId =  dialogs.getDialogId('mkdir');
+            var diagId = dialogs.getDialogId('mkdir');
             dialogs.showDialog('mkdir',
                 {
                     beforeShow: function () {
@@ -1223,17 +1282,17 @@ function FileManager () {
                         var currentPath = flm.getCurrentPath();
 
                         $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                           var dirname =  $('#fMan-ndirname').val();
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.createNewDir(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1252,7 +1311,7 @@ function FileManager () {
                 });
         };
 
-        self.doSel  = function(diag) {
+        self.doSel = function (diag) {
 
             diag = self.getPopupId(diag);
 
@@ -1266,9 +1325,8 @@ function FileManager () {
             this.makeVisbile(diag);
         };
 
-        self.showArchive = function(button)
-        {
-            var diagId =  dialogs.getDialogId('archive');
+        self.showArchive = function (button) {
+            var diagId = dialogs.getDialogId('archive');
 
 
             dialogs.showDialog('archive',
@@ -1276,26 +1334,26 @@ function FileManager () {
                     beforeShow: function () {
 
                         var currentPath = flm.getCurrentPath();
-                        var ext ='zip';
-                        $('#flm-diag-navigation-path').val(flm.currentPath + flm.manager.recname(name) + '.' +ext);
+                        var ext = 'zip';
+                        $('#flm-diag-navigation-path').val(flm.currentPath + flm.manager.recname(name) + '.' + ext);
 
-                      /*  var type = $('#fMan_archtype').empty();
+                        /*  var type = $('#fMan_archtype').empty();
 
-                        $.each(flm.utils.archive_types, function(index, value) {
-                            type.append((value === ext) ? $(opt).attr('selected', 'selected').get(0) : opt);
-                        });
+                          $.each(flm.utils.archive_types, function(index, value) {
+                              type.append((value === ext) ? $(opt).attr('selected', 'selected').get(0) : opt);
+                          });
 
-                        type.change();
-*/
+                          type.change();
+  */
 
-                        $("#fMan_archtype").change(function() {
+                        $("#fMan_archtype").change(function () {
 
                             var type = $(this).val();
                             var comp = $("#fMan_archcompr");
 
                             var ext;
 
-                            switch(flm.utils.archive_types[type]) {
+                            switch (flm.utils.archive_types[type]) {
                                 case 'gzip':
                                     ext = 'tar.gz';
                                     break;
@@ -1306,11 +1364,12 @@ function FileManager () {
                                     ext = flm.utils.archive_types[type];
                             }
 
-                         //   $('#flm-diag-navigation-path').val(
+                            //   $('#flm-diag-navigation-path').val(
                             //
                             //   );
 
-                            dialogs.updatePath(flm.manager.recname(flm.manager.recname($('#flm-diag-navigation-path').val())) + '.' + ext);;
+                            dialogs.updatePath(flm.manager.recname(flm.manager.recname($('#flm-diag-navigation-path').val())) + '.' + ext);
+                            ;
                             $("#fMan_vsize").attr("disabled", (!$("#fMan_multiv").attr("disabled", (type != 0)).is(':checked') || (type != 0)));
                             $('#fMan_apassword').attr("disabled", (type != 0));
                             comp.empty();
@@ -1322,8 +1381,7 @@ function FileManager () {
                         });
 
                         $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
 
 
                             var archive = this.checkInputs(diag);
@@ -1339,24 +1397,24 @@ function FileManager () {
                             var self = this;
 
                             var options = {
-                                format : self.settings.arcnscheme,
-                                type : type,
-                                compression : compression,
-                                vsize : vsize,
-                                password : password
+                                format: self.settings.arcnscheme,
+                                type: type,
+                                compression: compression,
+                                vsize: vsize,
+                                password: password
                             };
 
 
-                            var dirname =  $('#fMan-ndirname').val();
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doArchive(entries).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1375,7 +1433,7 @@ function FileManager () {
                 });
 
 
-            if (this.fileExists(this.basename(archive + '/'))) {
+            if (this.fileExists(this.basedir(archive + '/'))) {
                 alert(theUILang.fDiagArchempty);
                 return false;
             }
@@ -1385,23 +1443,21 @@ function FileManager () {
             }
 
 
-
             $(button).attr('disabled', true);
             this.actStart(diag);
 
             var actioncall = {
-                method : 'filesCompress',
-                target : archive,
-                mode : options,
+                method: 'filesCompress',
+                target: archive,
+                mode: options,
                 fls: theWebUI.fManager.actionlist
             };
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)});
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
 
         };
-        self.showCopy = function(button)
-        {
-            var diagId =  dialogs.getDialogId('copy');
+        self.showCopy = function (button) {
+            var diagId = dialogs.getDialogId('copy');
 
             dialogs.showDialog('copy',
                 {
@@ -1409,18 +1465,17 @@ function FileManager () {
 
                         var currentPath = flm.getCurrentPath();
 
-                        $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
+                        dialogs.onStart(function () {
+                            var dirname = dialogs.getTargetPath();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doCopy(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1434,98 +1489,50 @@ function FileManager () {
                         });
                     },
                     afterShow: function () {
-                        console.log('mkdir diag shown');
+                        console.log('copy diag shown');
                     }
                 });
 
-            var path = this.checkInputs(diag);
 
-            if (path === false) {
-                return false;
-            }
-            if (!this.buildList('fMan_' + diag)) {
-                return false;
-            }
+        };
 
-            $(button).attr('disabled', true);
+        self.showConsole = function () {
+            var diagId = dialogs.getDialogId('console');
+            var config = dialogs.forms['console'];
 
-            this.actStart(diag);
+            // create it
+            if (!theDialogManager.items.hasOwnProperty(diagId)) {
 
-            var actioncall = {
-                method : 'filesCopy',
-                to : path,
-                fls : theWebUI.fManager.actionlist
-            };
+                flm.views.getView(config.template, function (html) {
+
+                    theDialogManager.make(diagId, theUILang.flm_popup_console,
+                        $(html).get(0),
+                        config.modal); // prevent the user from changing table selection by default
 
 
+                    theDialogManager.setHandler(diagId, 'beforeShow', function (id) {
+                        $('#flm-diag-stop').click(function () {
+                            console.log('Current action stop triggered from console diags');
 
-            return flm.api.copy(target, destination)
-                .then(function(response) {
-                        flm.manager.inaction = false;
+                        });
 
-                        console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
-                        if ((flm.currentPath === lastPath)
-                            && !flm.manager.isErr(response.errcode, ndn))
-                        {
-                            flm.goToPath(flm.currentPath);
-                        }
-                        return response;
-                    },
-                    function (response) {
-                        return response;
                     });
 
+                    theDialogManager.setHandler(diagId, 'afterHide', function () {
+                        console.log('console diag closed');
+                    });
 
-            this.action.postRequest({
-                action : flm.utils.json_encode(actioncall)
-            });
+                    theDialogManager.show(diagId);
 
-            //this.action.request('action=cp&to='+encodeURIComponent(path)+'&fls='+this.encode_string(theWebUI.fManager.actionlist));
-        };
-
-        self.showConsole = function() {
-            var diagId =  dialogs.getDialogId('console');
-
-
-            dialogs.showDialog('console',
-                {
-                    beforeShow: function () {
-
-                        var currentPath = flm.getCurrentPath();
-
-                        $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
-
-                            if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
-                                return;
-                            }
-                            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-                            flm.manager.doCopy(dirname).then(
-                                function() {
-                                    theDialogManager.hide(diagId);
-
-                                },
-                                function (reason) {
-                                    console.log(reason);
-                                    log(reason);
-                                    theDialogManager.hide(diagId);
-
-                                }
-                            );
-                        });
-                    },
-                    afterShow: function () {
-                        console.log('mkdir diag shown');
-                    }
                 });
+            } else {
+                theDialogManager.show(diagId);
+            }
+
         };
 
-        self.showMove = function(button)
-        {
-            var diagId =  dialogs.getDialogId('move');
+        self.showMove = function (button) {
+            var diagId = dialogs.getDialogId('move');
 
 
             dialogs.showDialog('move',
@@ -1534,17 +1541,17 @@ function FileManager () {
 
                         var currentPath = flm.getCurrentPath();
 
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doCopy(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1576,21 +1583,19 @@ function FileManager () {
             this.actStart(diag);
 
             var actioncall = {
-                method : 'filesCopy',
-                to : path,
-                fls : theWebUI.fManager.actionlist
+                method: 'filesCopy',
+                to: path,
+                fls: theWebUI.fManager.actionlist
             };
 
 
-
             return flm.api.copy(target, destination)
-                .then(function(response) {
+                .then(function (response) {
                         flm.manager.inaction = false;
 
                         console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
                         if ((flm.currentPath === lastPath)
-                            && !flm.manager.isErr(response.errcode, ndn))
-                        {
+                            && !flm.manager.isErr(response.errcode, ndn)) {
                             flm.goToPath(flm.currentPath);
                         }
                         return response;
@@ -1601,97 +1606,52 @@ function FileManager () {
 
 
             this.action.postRequest({
-                action : flm.utils.json_encode(actioncall)
+                action: flm.utils.json_encode(actioncall)
             });
 
             //this.action.request('action=cp&to='+encodeURIComponent(path)+'&fls='+this.encode_string(theWebUI.fManager.actionlist));
         },
-        self.showRename= function(button)
-        {
-                var diagId =  dialogs.getDialogId('rename');
+        self.showPermissions = function (button) {
+                var diagId = dialogs.getDialogId('permissions');
 
 
-                dialogs.showDialog('rename',
+                dialogs.showDialog('permissions',
                     {
                         beforeShow: function () {
-
-                            var currentPath = flm.getCurrentPath();
-
-                            $('#flm_popup_mkdir-currentpath').text(currentPath);
-                            $('#flm_popup_mkdir .fMan_Start').click(function() {
-                                var dirname =  $('#fMan-ndirname').val();
-
-                                if (!flm.utils.validname(dirname)) {
-                                    alert( theUILang.fDiagInvalidname);
-                                    return;
-                                }
-                                dirname = flm.utils.buildPath([currentPath, dirname]);
-
-                                flm.manager.doCopy(dirname).then(
-                                    function() {
-                                        theDialogManager.hide(diagId);
-
-                                    },
-                                    function (reason) {
-                                        console.log(reason);
-                                        log(reason);
-                                        theDialogManager.hide(diagId);
-
-                                    }
-                                );
+                            dialogs.onStart(function () {
+                                console.log('self.showPermissions dialogs.onStart');
                             });
                         },
-                        afterShow: function () {
-                            console.log('mkdir diag shown');
+                        afterHide: function () {
+                            console.log('showPermissions closed');
                         }
                     });
 
-                var path = this.checkInputs(diag);
-
-                if (path === false) {
-                    return false;
-                }
-                if (!this.buildList('fMan_' + diag)) {
-                    return false;
-                }
-
-                $(button).attr('disabled', true);
-
-                this.actStart(diag);
-
-                var actioncall = {
-                    method : 'filesCopy',
-                    to : path,
-                    fls : theWebUI.fManager.actionlist
-                };
+            },
+        self.showRename = function (button) {
+            var diagId = dialogs.getDialogId('rename');
 
 
+            dialogs.showDialog('rename',
+                {
+                    beforeShow: function () {
 
-                return flm.api.copy(target, destination)
-                    .then(function(response) {
-                            flm.manager.inaction = false;
+                        var currentPath = flm.getCurrentPath();
 
-                            console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
-                            if ((flm.currentPath === lastPath)
-                                && !flm.manager.isErr(response.errcode, ndn))
-                            {
-                                flm.goToPath(flm.currentPath);
-                            }
-                            return response;
-                        },
-                        function (response) {
-                            return response;
+                        dialogs.onStart(function () {
+                            var dirname = $('#fMan-ndirname').val();
+
+
                         });
-
-
-                this.action.postRequest({
-                    action : flm.utils.json_encode(actioncall)
+                    },
+                    afterHide: function () {
+                        console.log('rename closed');
+                    }
                 });
 
-                //this.action.request('action=cp&to='+encodeURIComponent(path)+'&fls='+this.encode_string(theWebUI.fManager.actionlist));
-            },
-        self.showExtract = function(button, diag) {
-            var diagId =  dialogs.getDialogId('extract');
+        },
+        self.showExtract = function (button, diag) {
+            var diagId = dialogs.getDialogId('extract');
 
 
             dialogs.showDialog('extract',
@@ -1701,17 +1661,17 @@ function FileManager () {
                         var currentPath = flm.getCurrentPath();
 
                         $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doCopy(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1741,16 +1701,16 @@ function FileManager () {
             this.actStart(diag);
 
             var actioncall = {
-                method : 'fileExtract',
-                target : archive,
+                method: 'fileExtract',
+                target: archive,
                 to: path
             };
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)});
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
         };
 
-        self.showSFVcheck = function(button, diag) {
-            var diagId =  dialogs.getDialogId('sfv_check');
+        self.showSFVcheck = function (button, diag) {
+            var diagId = dialogs.getDialogId('sfv_check');
 
 
             dialogs.showDialog('sfv_check',
@@ -1760,17 +1720,17 @@ function FileManager () {
                         var currentPath = flm.getCurrentPath();
 
                         $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doCopy(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1796,18 +1756,18 @@ function FileManager () {
 
 
             var actioncall = {
-                method : 'svfCheck',
-                target : fparts.pop()
+                method: 'svfCheck',
+                target: fparts.pop()
             };
 
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)});
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
 
 
         };
 
-        self.showSFVcreate = function(button, diag) {
-            var diagId =  dialogs.getDialogId('sfv_create');
+        self.showSFVcreate = function (button, diag) {
+            var diagId = dialogs.getDialogId('sfv_create');
 
 
             dialogs.showDialog('sfv_create',
@@ -1817,17 +1777,17 @@ function FileManager () {
                         var currentPath = flm.getCurrentPath();
 
                         $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doCopy(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1848,7 +1808,7 @@ function FileManager () {
             if (file === false) {
                 return false;
             }
-            if (this.fileExists(this.basename(file + '/'))) {
+            if (this.fileExists(this.basedir(file + '/'))) {
                 alert(theUILang.fDiagSFVempty);
                 return false;
             }
@@ -1862,18 +1822,18 @@ function FileManager () {
 
 
             var actioncall = {
-                method : 'sfvCreate',
-                target : file,
+                method: 'sfvCreate',
+                target: file,
                 fls: theWebUI.fManager.actionlist
             };
 
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)});
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
 
         };
 
-        self.showDelete =function() {
-            var diagId =  dialogs.getDialogId('delete');
+        self.showDelete = function () {
+            var diagId = dialogs.getDialogId('delete');
 
             dialogs.showDialog('delete',
                 {
@@ -1882,17 +1842,17 @@ function FileManager () {
                         var currentPath = flm.getCurrentPath();
 
                         $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function() {
-                            var dirname =  $('#fMan-ndirname').val();
+                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dirname = $('#fMan-ndirname').val();
 
                             if (!flm.utils.validname(dirname)) {
-                                alert( theUILang.fDiagInvalidname);
+                                alert(theUILang.fDiagInvalidname);
                                 return;
                             }
                             dirname = flm.utils.buildPath([currentPath, dirname]);
 
                             flm.manager.doCopy(dirname).then(
-                                function() {
+                                function () {
                                     theDialogManager.hide(diagId);
 
                                 },
@@ -1910,7 +1870,7 @@ function FileManager () {
                     }
                 });
         };
-        self.resize = function(w, h) {
+        self.resize = function (w, h) {
 
             if (w !== null) {
                 w -= 8;
@@ -1939,11 +1899,9 @@ function FileManager () {
     flm.currentPath = '/';
 
 
-    flm.getCurrentPath = function(file)
-    {
-        var path = flm.currentPath+"";
-        if(file !== undefined)
-        {
+    flm.getCurrentPath = function (file) {
+        var path = flm.currentPath + "";
+        if (file !== undefined) {
             file = file.length > 0 && flm.utils.trimslashes(file) || '';
             path = flm.utils.buildPath([path, file]);
 
@@ -1957,11 +1915,11 @@ function FileManager () {
 
         promise: null,
         currentPath: null,
-        getDir: function(dir, callback) {
+        getDir: function (dir, callback) {
 
             var data = {
-                'method' : 'listDirectory',
-                'dir' : dir
+                'method': 'listDirectory',
+                'dir': dir
             };
 
             return flm.apiClient.post({action: flm.utils.json_encode(data)})
@@ -1971,7 +1929,7 @@ function FileManager () {
                         return response;
                     },
                     function (response) {
-                       // log(theUILang.fErrMsg[9]);
+                        // log(theUILang.fErrMsg[9]);
                         console.error(response);
 
                         log(theUILang.fErrMsg[10] + ' - ' + dir);
@@ -1980,16 +1938,18 @@ function FileManager () {
                 );
         },
 
-        mkDir(dir) {
+        mkDir: function(dir) {
 
             var data = {
-                method : 'newDirectory',
+                method: 'newDirectory',
                 target: dir
             };
 
             return flm.apiClient.post({action: flm.utils.json_encode(data)})
                 .then(
-                    function (response) {return response;},
+                    function (response) {
+                        return response;
+                    },
                     function (response) {
                         // log(theUILang.fErrMsg[9]);
                         console.error(response);
@@ -2000,15 +1960,15 @@ function FileManager () {
                 );
 
         },
-        stats : function(diag) {
+        stats: function (diag) {
 
             var actioncall = {
-                method : 'taskLog',
-                target : theWebUI.fManager.actiontoken,
-                to : theWebUI.fManager.actionlp
+                method: 'taskLog',
+                target: theWebUI.fManager.actiontoken,
+                to: theWebUI.fManager.actionlp
             };
 
-            var responseHandle = function(data) {
+            var responseHandle = function (data) {
                 theWebUI.fManager.actionstats = data.status;
                 theWebUI.fManager.actionlp = data.lp;
                 theWebUI.fManager.cmdlog(data.lines);
@@ -2024,82 +1984,81 @@ function FileManager () {
             };
 
 
-
             theWebUI.fManager.action.postRequest({
-                action : flm.utils.json_encode(actioncall)
+                action: flm.utils.json_encode(actioncall)
             }, responseHandle);
 
         }
     };
 
-    flm.goToPath  = function(dir)
-    {
+    flm.goToPath = function (dir) {
         flm.ui.disableNavigation();
         theWebUI.fManager.inaction = true;
 
         return flm.api.getDir(dir)
-            .then(function(response) {
-                theWebUI.fManager.inaction = false;
-                flm.ui.enableNavigation();
+            .then(function (response) {
+                    theWebUI.fManager.inaction = false;
+                    flm.ui.enableNavigation();
 
 
-           /*     if (this.isErr(response.errcode, dir)) {
-                    return false;
-                }*/
+                    /*     if (this.isErr(response.errcode, dir)) {
+                             return false;
+                         }*/
 
-                flm.currentPath = flm.utils.buildPath([dir]);
+                    flm.currentPath = flm.utils.buildPath([dir]);
 
-                flm.ui.browser.updateNavigationPath();
-                console.log('parseReply reply', response, dir);
-                flm.ui.browser.setTableEntries(response.listing);
+                    flm.ui.browser.updateNavigationPath();
+                    console.log('parseReply reply', response, dir);
+                    flm.ui.browser.setTableEntries(response.listing);
 
 
-        },
+                },
                 function () {
                     flm.ui.enableNavigation();
                 });
 
     };
 
-    flm.getFile = function(path) {
-       // $("#flm-get-data [name ='dir']").val(flm.currentPath);
+    flm.getFile = function (path) {
+        // $("#flm-get-data [name ='dir']").val(flm.currentPath);
         $("#flm-get-data [name ='target']").val(path);
         $("#flm-get-data").submit();
     };
 
     var instance = {
         archives: {},
-        paths : [],
-        curpath : '/',
-        workpath : '/',
-        settings : {
-            timef : '%d-%M-%y %h:%m:%s',
-            permf : 1,
-            histpath : 5,
-            stripdirs : true,
-            showhidden : true,
-            cleanlog : false,
-            arcnscheme : 'new',
-            scrows : 12,
-            sccols : 4,
-            scwidth : 300
+        paths: [],
+        curpath: '/',
+        workpath: '/',
+        settings: {
+            timef: '%d-%M-%y %h:%m:%s',
+            permf: 1,
+            histpath: 5,
+            stripdirs: true,
+            showhidden: true,
+            cleanlog: false,
+            arcnscheme: 'new',
+            scrows: 12,
+            sccols: 4,
+            scwidth: 300
         },
-        pathlists : 5,
-        permf : 0,
-        tformat : '%d-%M-%y %h:%m:%s',
-        inaction : false,
-        actionlist : {},
-        actionstats : 0,
-        actiontoken : 0,
-        actiontimeout : 0,
-        actionlp : 0,
-        activediag : '',
-        homedir : '',
+        pathlists: 5,
+        permf: 0,
+        tformat: '%d-%M-%y %h:%m:%s',
+        inaction: false,
+        actionlist: {},
+        actionstats: 0,
+        actiontoken: 0,
+        actiontimeout: 0,
+        actionlp: 0,
+        activediag: '',
+        homedir: '',
 
         forms: {},
-        actionCheck : function(diag) {
+        actionCheck: function (diag) {
 
-            return function() {};
+            return function () {
+            };
 
             if ((this.actiontimeout > 0) && (this.activediag != diag)) {
                 return null;
@@ -2113,11 +2072,11 @@ function FileManager () {
 
             var i = (arguments.length > 1) ? 1 : 0;
 
-            for ( i = i; i < arguments.length; i++) {
+            for (i = i; i < arguments.length; i++) {
 
                 var rg;
 
-                switch($type(arguments[i])) {
+                switch ($type(arguments[i])) {
                     case 'string':
                         rg = '"' + flm.utils.addslashes(arguments[i]) + '"';
 
@@ -2131,12 +2090,11 @@ function FileManager () {
             }
 
 
-
             return 'theWebUI.fManager.' + this.forms[diag].funct + '(' + args + ')';
 
         },
 
-        actStart : function(diag) {
+        actStart: function (diag) {
 
             this.makeVisbile('fMan_Console');
             var loader = './images/ajax-loader.gif';
@@ -2157,13 +2115,13 @@ function FileManager () {
             theDialogManager.hide('fMan_' + diag);
         },
 
-        actStop : function() {
+        actStop: function () {
             this.loaderHide();
             this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.fManager.actiontoken));
             this.cleanactions();
         },
 
-        Archive : function(name, ext) {
+        Archive: function (name, ext) {
 
             if (!(theWebUI.fManager.actiontoken.length > 1)) {
 
@@ -2173,7 +2131,7 @@ function FileManager () {
 
                 var type = $('#fMan_archtype').empty();
 
-                $.each(this.archives.types, function(index, value) {
+                $.each(this.archives.types, function (index, value) {
 
                     var opt = '<option value="' + index + '">' + value.toUpperCase() + '</option>';
                     type.append((index == ext) ? $(opt).attr('selected', 'selected').get(0) : opt);
@@ -2185,7 +2143,7 @@ function FileManager () {
             this.makeVisbile('fMan_CArchive');
         },
 
-        basename : function(str) {
+        basedir: function (str) {
 
             var isdir = flm.utils.isDir(str);
             var path = flm.utils.trimslashes(str);
@@ -2195,7 +2153,7 @@ function FileManager () {
             return ((isdir) ? bname + '/' : bname);
         },
 
-        buildList : function(diag) {
+        buildList: function (diag) {
 
             var checks = $('#' + diag + ' .checklist input:checked');
             if (checks.size() == 0) {
@@ -2203,7 +2161,7 @@ function FileManager () {
                 return false;
             }
 
-            checks.each(function(index, val) {
+            checks.each(function (index, val) {
                 theWebUI.fManager.actionlist[index] = flm.utils.addslashes(decodeURIComponent(val.value));
 
             });
@@ -2212,7 +2170,7 @@ function FileManager () {
         },
 
 
-        cleanactions : function() {
+        cleanactions: function () {
 
             $(".fMan_Stop").attr('disabled', true);
             clearTimeout(theWebUI.fManager.actiontimeout);
@@ -2226,8 +2184,7 @@ function FileManager () {
         },
 
 
-
-        cmdlog : function(text) {
+        cmdlog: function (text) {
 
             var console = $('#fMan_ConsoleLog');
 
@@ -2240,12 +2197,12 @@ function FileManager () {
             console[0].scrollTop = console[0].scrollHeight;
         },
 
-        changedir : function(target) {
+        changedir: function (target) {
 
             var dir;
 
-            if (target == flm.utils.basename(flm.currentPath)) {
-                dir = flm.utils.basename(flm.currentPath);
+            if (target == flm.utils.basedir(flm.currentPath)) {
+                dir = flm.utils.basedir(flm.currentPath);
             } else if (target == '/') {
                 dir = target;
             } else {
@@ -2255,15 +2212,14 @@ function FileManager () {
             this.action.getlisting(dir);
         },
 
-        Copy : function(diag) {
+        Copy: function (diag) {
             $('#fMan_' + diag + 'bpath').val(this.homedir + flm.currentPath);
             this.doSel(diag);
 
         },
 
 
-
-        createScreenshots : function(target) {
+        createScreenshots: function (target) {
 
             if (!(theWebUI.fManager.actiontoken.length > 1)) {
 
@@ -2275,7 +2231,7 @@ function FileManager () {
             this.makeVisbile('fMan_Screenshots');
         },
 
-        createT : function(target) {
+        createT: function (target) {
 
             $('#path_edit').val(this.homedir + flm.currentPath + target);
             if ($('#tcreate').css('display') == 'none') {
@@ -2284,9 +2240,7 @@ function FileManager () {
         },
 
 
-
-
-        doDelete : function(button, diag) {
+        doDelete: function (button, diag) {
 
             if (!this.buildList('fMan_' + diag)) {
                 return false;
@@ -2297,15 +2251,15 @@ function FileManager () {
             this.actStart(diag);
 
             var actioncall = {
-                method : 'filesRemove',
+                method: 'filesRemove',
                 fls: theWebUI.fManager.actionlist
             };
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)});
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
 
         },
 
-        doMove : function(button, diag) {
+        doMove: function (button, diag) {
 
             var path = this.checkInputs(diag);
 
@@ -2319,22 +2273,21 @@ function FileManager () {
             $(button).attr('disabled', true);
 
 
-
             this.actStart(diag);
 
             var actioncall = {
-                method : 'filesMove',
-                to : path,
-                fls : theWebUI.fManager.actionlist
+                method: 'filesMove',
+                to: path,
+                fls: theWebUI.fManager.actionlist
             };
 
             this.action.postRequest({
-                action : flm.utils.json_encode(actioncall)
+                action: flm.utils.json_encode(actioncall)
             });
 
         },
 
-        createNewDir : function(dirname) {
+        createNewDir: function (dirname) {
 
             var deferred = $.Deferred();
 
@@ -2342,7 +2295,7 @@ function FileManager () {
 
 
             if (!ndn.length) {
-                deferred.reject( theUILang.fDiagInvalidname);
+                deferred.reject(theUILang.fDiagInvalidname);
                 return deferred.promise();
             }
 
@@ -2352,16 +2305,15 @@ function FileManager () {
             }
 
 
-            var lastPath = flm.utils.basename(ndn)+"";
+            var lastPath = flm.utils.basedir(ndn) + "";
 
             return flm.api.mkDir(ndn)
-                .then(function(response) {
+                .then(function (response) {
                         flm.manager.inaction = false;
 
                         console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
                         if ((flm.currentPath === lastPath)
-                            && !flm.manager.isErr(response.errcode, ndn))
-                        {
+                            && !flm.manager.isErr(response.errcode, ndn)) {
                             flm.goToPath(flm.currentPath);
                         }
                         return response;
@@ -2373,7 +2325,7 @@ function FileManager () {
         },
 
         // 'do' prefix denotes an async operation
-        doCopy : function(button, diag) {
+        doCopy: function (button, diag) {
 
             var path = this.checkInputs(diag);
 
@@ -2389,21 +2341,19 @@ function FileManager () {
             this.actStart(diag);
 
             var actioncall = {
-                method : 'filesCopy',
-                to : path,
-                fls : theWebUI.fManager.actionlist
+                method: 'filesCopy',
+                to: path,
+                fls: theWebUI.fManager.actionlist
             };
 
 
-
             return flm.api.copy(target, destination)
-                .then(function(response) {
+                .then(function (response) {
                         flm.manager.inaction = false;
 
                         console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
                         if ((flm.currentPath === lastPath)
-                            && !flm.manager.isErr(response.errcode, ndn))
-                        {
+                            && !flm.manager.isErr(response.errcode, ndn)) {
                             flm.goToPath(flm.currentPath);
                         }
                         return response;
@@ -2414,17 +2364,17 @@ function FileManager () {
 
 
             this.action.postRequest({
-                action : flm.utils.json_encode(actioncall)
+                action: flm.utils.json_encode(actioncall)
             });
 
             //this.action.request('action=cp&to='+encodeURIComponent(path)+'&fls='+this.encode_string(theWebUI.fManager.actionlist));
         },
 
 
-        doRename : function() {
+        doRename: function () {
 
             var nn = $.trim($('#fMan-RenameTo').val());
-            var on = this.basename($('#fMan-RenameWhat').text());
+            var on = this.basedir($('#fMan-RenameWhat').text());
 
             if (!nn.length || (on == nn)) {
                 theDialogManager.hide('fMan_Rename');
@@ -2440,7 +2390,7 @@ function FileManager () {
                 return false;
             }
 
-            var callback = function(data) {
+            var callback = function (data) {
                 if ((flm.currentPath == theWebUI.fManager.workpath) && !theWebUI.fManager.isErr(data.errcode, on)) {
                     theWebUI.fManager.Refresh();
                 }
@@ -2448,24 +2398,24 @@ function FileManager () {
             };
 
             var actioncall = {
-                method : 'fileRename',
-                target : on,
-                to : nn,
+                method: 'fileRename',
+                target: on,
+                to: nn,
                 fls: theWebUI.fManager.actionlist
             };
 
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)},
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)},
                 callback,
-                function() {
+                function () {
                     log(theUILang.fErrMsg[11]);
-                }, function() {
+                }, function () {
                     log(theUILang.fErrMsg[12] + ' - Rename: ' + on);
                 });
 
         },
 
-        doScreenshots : function(button, diag) {
+        doScreenshots: function (button, diag) {
 
             var screen_file = this.checkInputs(diag);
             if (screen_file === false) {
@@ -2482,29 +2432,29 @@ function FileManager () {
 
 
             var actioncall = {
-                method : 'fileScreenSheet',
-                target : video,
-                to : screen_file
+                method: 'fileScreenSheet',
+                target: video,
+                to: screen_file
             };
 
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)} );
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
 
 
         },
 
 
-        extract : function(what, here) {
+        extract: function (what, here) {
             if (!(theWebUI.fManager.actiontoken.length > 1)) {
                 $('#fMang_Archfile').html(flm.currentPath + '<strong>' + what + '</strong>');
-                $('#fMan_Extractbpath').val(this.homedir + flm.currentPath + ( here ? '' : this.recname(what)));
+                $('#fMan_Extractbpath').val(this.homedir + flm.currentPath + (here ? '' : this.recname(what)));
                 $('#fMan_Extract .fMan_Start').attr('disabled', false);
             }
 
             this.makeVisbile('fMan_Extract');
         },
 
-        fileExists : function(what) {
+        fileExists: function (what) {
 
             var table = theWebUI.getTable("flm");
             var exists = false;
@@ -2515,7 +2465,7 @@ function FileManager () {
                 } else {
                     throw false;
                 }
-            } catch(dx) {
+            } catch (dx) {
                 if (dx === true) {
                     exists = dx;
                 }
@@ -2524,49 +2474,19 @@ function FileManager () {
             return exists;
         },
 
-
-        formatPerm : function(octal) {
+        formatPerm: function (octal) {
 
             var pmap = ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
             var arr = octal.split('');
 
             var out = '';
 
-            for ( i = 0; i < arr.length; i++) {
+            for (i = 0; i < arr.length; i++) {
                 out += pmap[arr[i]];
             }
             return out;
 
         },
-
-
-
-
-        generateSelection : function(holder, forcefiles) {
-
-            forcefiles = $type(forcefiles) ? forcefiles : $type(forcefiles);
-
-            var container = holder.children('ul');
-            container.empty();
-
-            var sr = theWebUI.getTable("flm").rowSel;
-            var topdir = flm.utils.basename(flm.currentPath);
-
-            for (i in sr) {
-                var name = i.split('_flm_');
-                name = name[1];
-
-                if (sr[i] && (name != topdir) && (!forcefiles || !flm.utils.isDir(name))) {
-                    container.append('<li><label><input type="checkbox" value="' + encodeURIComponent(name) + '" checked="checked" />' + name + '</label></li>');
-                }
-            }
-        },
-
-
-
-
-
-
 
         Init: function () {
 
@@ -2576,11 +2496,11 @@ function FileManager () {
         },
 
 
-        isChecked : function(diag, what) {
+        isChecked: function (diag, what) {
 
             var ret = false;
 
-            $('#' + diag + ' .checklist input:checked').each(function(index, val) {
+            $('#' + diag + ' .checklist input:checked').each(function (index, val) {
                 if ((what == decodeURIComponent(val.value)) || (what + '/' == decodeURIComponent(val.value))) {
                     ret = true;
                     return false;
@@ -2591,8 +2511,7 @@ function FileManager () {
         },
 
 
-
-        isErr : function(errcode, extra) {
+        isErr: function (errcode, extra) {
 
             if (!$type(extra)) {
                 extra = '';
@@ -2607,10 +2526,7 @@ function FileManager () {
         },
 
 
-
-
-
-        loadConfig: function() {
+        loadConfig: function () {
             var call = {
                 method: 'getConfig'
             };
@@ -2622,7 +2538,7 @@ function FileManager () {
                 console.log('got config data');
                 console.log(data);
 
-                for(var i in data) {
+                for (var i in data) {
 
                     self[i] = data[i];
                 }
@@ -2638,18 +2554,17 @@ function FileManager () {
 
             };
 
-            this.action.postRequest({action : flm.utils.json_encode(call)}, callback);
+            this.action.postRequest({action: flm.utils.json_encode(call)}, callback);
 
         },
 
-        loaderHide : function() {
+        loaderHide: function () {
 
             $('#fMan_Console .buttons-list').css("background", "none");
         },
 
 
-
-        doMediainfo : function(what) {
+        doMediainfo: function (what) {
 
 
             var calldata = {
@@ -2659,7 +2574,7 @@ function FileManager () {
 
             };
 
-            theWebUI.startConsoleTask( "mediainfo", plugin.name, calldata, { noclose: true } );
+            theWebUI.startConsoleTask("mediainfo", plugin.name, calldata, {noclose: true});
 
 
             /*
@@ -2690,7 +2605,7 @@ function FileManager () {
 
         },
 
-        optSet : function() {
+        optSet: function () {
 
             if (theWebUI.configured) {
                 uiTable.Init(); // table init
@@ -2715,18 +2630,17 @@ function FileManager () {
             }
         },
 
-        parseReply : function(reply, dir) {
-
+        parseReply: function (reply, dir) {
 
 
         },
 
-        Refresh : function() {
+        Refresh: function () {
 
             this.action.getlisting(flm.currentPath);
         },
 
-        rename : function(what) {
+        rename: function (what) {
 
             var type = (flm.utils.isDir(what)) ? 'Directory:' : 'File:';
             what = flm.utils.trimslashes(what);
@@ -2740,10 +2654,7 @@ function FileManager () {
         },
 
 
-
-
-
-        recname : function(what) {
+        recname: function (what) {
 
             if (flm.utils.isDir(what)) {
                 return flm.utils.trimslashes(what);
@@ -2766,14 +2677,14 @@ function FileManager () {
 
         },
 
-        sfvCreate : function(what) {
+        sfvCreate: function (what) {
 
             $('#fMan_CreateSFVbpath').val(this.homedir + flm.currentPath + this.recname(what) + '.sfv');
             theWebUI.fManager.doSel('CreateSFV');
 
         },
 
-        sfvCheck : function(what) {
+        sfvCheck: function (what) {
 
             if (!(theWebUI.fManager.actiontoken.length > 1)) {
                 $('#fMang_ChSFVfile').html(flm.currentPath + '<strong>' + what + '</strong>');
@@ -2784,9 +2695,7 @@ function FileManager () {
         },
 
 
-
-
-        TableRegenerate : function() {
+        TableRegenerate: function () {
             var td = theWebUI.getTable("flm").rowdata;
             var old = {};
 
@@ -2797,11 +2706,11 @@ function FileManager () {
                     continue;
                 }
                 old[x] = {
-                    name : td[i].data[0],
-                    size : td[i].data[1],
-                    time : td[i].data[2],
-                    type : td[i].data[3],
-                    perm : td[i].data[4]
+                    name: td[i].data[0],
+                    size: td[i].data[1],
+                    time: td[i].data[2],
+                    type: td[i].data[3],
+                    perm: td[i].data[4]
                 };
                 x++;
             }
@@ -2810,7 +2719,7 @@ function FileManager () {
         },
 
 
-        viewNFO : function(what, mode) {
+        viewNFO: function (what, mode) {
 
             this.makeVisbile('fMan_Nfo');
             $("#fMan_nfoformat option[value='" + mode + "']").attr('selected', 'selected');
@@ -2823,12 +2732,12 @@ function FileManager () {
 
 
             var actioncall = {
-                method : 'viewNfo',
-                target : what,
-                mode : mode
+                method: 'viewNfo',
+                target: what,
+                mode: mode
             };
 
-            var callback = function(data) {
+            var callback = function (data) {
 
                 if (theWebUI.fManager.isErr(data.errcode, what)) {
                     cont.text('Failed fetching .nfo data');
@@ -2843,7 +2752,7 @@ function FileManager () {
 
             };
 
-            this.action.postRequest({action : flm.utils.json_encode(actioncall)}, callback);
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)}, callback);
 
         }
 

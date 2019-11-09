@@ -52,6 +52,7 @@ theUILang.fErrMsg[24]	= 'Manipulation des archives désactivée (applications in
 theUILang.flm_popup_mkdir		= "Créer un nouveau dossier";
 theUILang.fDiagndirname	= "Nom du dossier";
 theUILang.fDiagnodirname 	= "Veuillez entrer un nom de dossier.";
+theUILang.flm_popup_permissions = 'Permissions';
 theUILang.flm_popup_rename 	= "Renommer un fichier / dossier";
 theUILang.fDiagRenameTo 	= "Renommer en :";
 theUILang.fDiagRenameBut	= "Renommer";
@@ -71,7 +72,7 @@ theUILang.flm_popup_delete	= "Supprimer des dossiers / fichiers";
 theUILang.fDiagDeleteSel	= "Fichiers marqués à supprimer :";
 theUILang.fDiagDeleteBut	= "Supprimer";
 
-theUILang.fDiagConsole	= "Console";
+theUILang.flm_popup_console	= "Console";
 
 theUILang.flm_popup_move		= "Déplacer des dossiers / fichiers";
 theUILang.fDiagMoveSel	= "Fichiers marqués à déplacer:";

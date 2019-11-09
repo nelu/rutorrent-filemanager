@@ -1,18 +1,16 @@
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-  {#  <legend>{{ theUILang.fDiagMoveSel  }}</legend>#}
+    <label>
+    <strong>{{ isDir(selectedTarget) ? 'Directory': 'File' }}</strong>
+    </label>
 {% endblock %}
 
 {% block content %}
-        <div id="fMan-RenameType">
-            <strong></strong>
-        </div>
-        <div id="fMan-RenameWhat" style="padding-top:3px; padding-bottom:4px;"></div>
+        <div id="fMan-RenameWhat" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
         <fieldset>
             <legend>{{ theUILang.fDiagRenameTo  }}</legend>
-            <input type="text" name="fMan-RenameTo" id="fMan-RenameTo" style="width:95%;" />
+            <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
+                   value="{{ basename(selectedTarget) }}"
+                   style="width:95%;" />
         </fieldset>
 {% endblock %}
-
-
-

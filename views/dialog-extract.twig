@@ -1,11 +1,12 @@
-{% set pathbrowse = true %}
+{% set pathbrowse = currentPath %}
+
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
     <legend>{{ theUILang.fDiagArchive }}</legend>
 {% endblock %}
 {% block content %}
 <fieldset>
-    <div id="fMang_Archfile" style="width:460px;"></div>
+    <div id="fMang_Archfile" style="width:460px;">{{ selectedTarget }}</div>
 </fieldset>
 {% endblock %}
 

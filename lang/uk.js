@@ -52,6 +52,7 @@ theUILang.fErrMsg[24]	= 'archive manipulation disabled (application not found)';
 theUILang.flm_popup_mkdir		= 'Create new directory';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
+theUILang.flm_popup_permissions = 'Permissions';
 theUILang.flm_popup_rename 	= 'Rename file / directory';
 theUILang.fDiagRenameTo 	= 'Rename to:';
 theUILang.fDiagRenameBut	= 'Rename';
@@ -71,7 +72,7 @@ theUILang.flm_popup_delete	= 'Delete files and folders';
 theUILang.fDiagDeleteSel	= 'Files marked for removal:';
 theUILang.fDiagDeleteBut	= 'Delete';
 
-theUILang.fDiagConsole	= 'Console';
+theUILang.flm_popup_console	= 'Console';
 
 theUILang.flm_popup_move		= 'Move files and folders';
 theUILang.fDiagMoveSel	= 'Files marked for relocation:';

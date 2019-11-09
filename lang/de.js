@@ -51,6 +51,7 @@ theUILang.fErrMsg[24]	= 'Archiv Manipulation deaktiviert (Anwendung nicht gefund
 theUILang.flm_popup_mkdir		= 'Erstelle neues Verzeichnis';
 theUILang.fDiagndirname	= 'Verzeichnis Name';
 theUILang.fDiagnodirname 	= 'Bitte Verzeichnisnamen eingeben!';
+theUILang.flm_popup_permissions = 'Permissions';
 theUILang.flm_popup_rename 	= 'Datei/Verzeichnis umbenennen';
 theUILang.fDiagRenameTo 	= 'Umbenennen zu:';
 theUILang.fDiagRenameBut	= 'Umbenennen';
@@ -70,7 +71,7 @@ theUILang.flm_popup_delete	= 'Lösche Datei und Verzeichnis';
 theUILang.fDiagDeleteSel	= 'Dateien markiert zum Löschen:';
 theUILang.fDiagDeleteBut	= 'Löschen';
 
-theUILang.fDiagConsole	= 'Konsole';
+theUILang.flm_popup_console	= 'Konsole';
 
 theUILang.flm_popup_move		= 'Verschiebe Datein und Verzeichnis';
 theUILang.fDiagMoveSel	= 'Dateien markiert zum Verschieben:';
