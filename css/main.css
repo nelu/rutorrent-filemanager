@@ -37,46 +37,19 @@ table.disabled_table {
     color: #DFDFDF;
 }
 
+#flm_popup_window.dlg-window
+{
+    min-width: 350px;
+    overflow: visible;
+}
+
 div[id^="flm_popup_"].dlg-header {
     padding-left: 2px;
 }
 
-div#fMan_Rename {
-
-    width: 350px;
-}
-
-div#fMan_Rename div.dlg-header {
-    background-image: url(images/rename.png);
-}
-
-div#fMan_Delete div.dlg-header {
-    background-image: url(images/delete.png);
-}
-
-
 div#fMan_Console div.dlg-header {
     background-image: url(images/console.gif);
 }
-
-div#fMan_Move div.dlg-header {
-    background-image: url(images/move.png);
-}
-
-div#fMan_Copy div.dlg-header {
-    background-image: url(images/copy.gif);
-}
-
-
-div#fMan_Extract div.dlg-header {
-    background-image: url(images/extract.png);
-}
-
-
-div#fMan_CArchive div.dlg-header {
-    background-image: url(images/archive.png);
-}
-
 
 .fMan_CArchiveRAR {
 
@@ -89,24 +62,11 @@ div#fMan_optPan {
     overflow: auto;
 }
 
-div#fMan_Nfo div.dlg-header {
-    background-image: url(images/nfo.gif)
-}
-
-div#fMan_CheckSFV div.dlg-header {
-    background-image: url(images/sfv.gif)
-}
-
-div#fMan_CreateSFV div.dlg-header {
-    background-image: url(images/sfv.gif)
-}
-
-
-#fMan_Nfo #nfo_content, #fMan_ConsoleLog {
+#flm_popup_nfo_view-content, #fMan_ConsoleLog {
     overflow: scroll;
     height: 400px;
 }
-#fMan_Nfo #nfo_content pre, #fMan_ConsoleLog pre {
+#flm_popup_nfo_view-content pre, #fMan_ConsoleLog pre {
     font-family: "Courier New", Courier, monospace;
     font-size: 9pt;
 }
@@ -215,7 +175,7 @@ div#fMan_CreateSFV div.dlg-header {
     background-position: -57px -57px !important;
 }
 
-.sprite-nfo {
+.sprite-nfo, .sprite-nfo_view {
     width: 16px;
     height: 16px;
     background-position: -83px -57px;

@@ -1,0 +1,32 @@
+{% extends "flm::dialog-window.twig" %}
+{% block heading %}
+    <legend>{{ isDir(selectedTarget) ? 'Directory': 'File' }}</legend>
+    <div style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
+{% endblock %}
+
+{% block content %}
+    <fieldset>
+        <legend>Permissions:</legend>
+        <table>
+          <tr>
+              <td><strong>Who</strong></td>
+              <td>Write</td><td>Read</td><td>Execute</td>
+          </tr>
+            <tr><td>User:</td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+            </tr>
+            <tr><td>Group:</td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+            </tr>
+            <tr><td>Everyone:</td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+                <td><input type="checkbox" value="1" checked="checked" /></td>
+            </tr>
+        </table>
+    </fieldset>
+{% endblock %}

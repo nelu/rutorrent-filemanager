@@ -11,7 +11,15 @@
                 <input name="fMan_nfofile" type="hidden" id="fMan_nfofile" value=""/></td>
         </tr>
     </table>
-    <div id="nfo_content" style="width: 549px;">
+    <div id="flm_popup_nfo_view-content" style="width: 549px;">
         <pre>Loading...</pre>
     </div>
+{% endblock %}
+
+{% block buttons %}
+<div class="aright buttons-list">
+
+<input type="button" class="flm-diag-cancel Button" value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
+</div>
+
 {% endblock %}

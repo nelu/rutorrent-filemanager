@@ -84,7 +84,7 @@ theUILang.flm_popup_copy		= 'Copy files and folders';
 theUILang.fDiagCopySel	= 'Files marked for duplication:';
 theUILang.fDiagCopyTo	= 'Copy files to:';
 
-theUILang.fDiagNFO		= '.NFO Viewer';
+theUILang.flm_popup_nfo_view		= '.NFO Viewer';
 theUILang.flm_popup_sfv_check	= 'Simple File Verification';
 theUILang.fDiagSFVCheckf	= 'Checksum file:';
 

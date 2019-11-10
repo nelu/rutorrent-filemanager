@@ -14,14 +14,25 @@
     </ul>
 {% endmacro %}
 
+{% macro pathBrowser(default="/", title = false) %}
+<fieldset>
+    <legend>{{ title }}</legend>
+
+    <input type="text" id="flm-diag-navigation-path" class="TextboxLarge" value="{{ default }}" style="width:350px;" autocomplete="off"/>
+    <input id="flm-diag-navigation-browse-but" class="Button aright" type="button" value="..." style="float: right;"/>
+</fieldset>
+{% endmacro %}
+
+{% import _self as window %}
+
 <div class="flm-popup-diag-content">
     {% if multiselect %}
         <fieldset>
             {% block heading %}
             {% endblock %}
             <div id="flm-diag-paths-list" class="checklist">
-                {% import _self as multi %}
-                {{ multi.showMultiple(selectedEntries, multiselectFilesOnly) }}
+
+                {{ window.showMultiple(selectedEntries, multiselectFilesOnly) }}
             </div>
         </fieldset>
     {% else %}
@@ -34,19 +45,15 @@
 </div>
 {% block navigation %}
     {% if pathbrowse %}
-    <fieldset>
-        <legend>To:</legend>
-
-        <input type="text" id="flm-diag-navigation-path" class="TextboxLarge" value="{{ pathbrowse }}" style="width:350px;" autocomplete="off"/>
-        <input id="flm-diag-navigation-browse-but" class="Button aright" type="button" value="..." style="float: right;"/>
-    </fieldset>
+        {{ window.pathBrowser(pathbrowse, 'To:') }}
    {% endif %}
 {% endblock %}
 
+{% block buttons %}
 <div class="aright buttons-list">
     <input type="button" class="flm-diag-start Button" value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}" disabled="disabled" class="Button" />
     <input type="button" class="flm-diag-cancel Button" value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
 </div>
-
+{% endblock %}
 
 

@@ -84,7 +84,7 @@ theUILang.flm_popup_copy		= "Copier des dossiers / fichiers";
 theUILang.fDiagCopySel	= "Fichiers marqués pour le copiage:";
 theUILang.fDiagCopyTo	= "Copier vers :";
 
-theUILang.fDiagNFO		= "Lecteur de .NFO";
+theUILang.flm_popup_nfo_view		= "Lecteur de .NFO";
 theUILang.flm_popup_sfv_check	= "Simple File Verification";
 theUILang.fDiagSFVCheckf	= "Fichier checksum :";
 

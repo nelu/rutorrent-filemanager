@@ -1,8 +1,9 @@
-{% set pathbrowse = currentPath %}
+{% set pathbrowse = false %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
 
 {% extends "flm::dialog-window.twig" %}
+{% import "flm::dialog-window.twig" as window %}
 
 {% block heading %}
     <legend>{{ theUILang.fDiagCArchiveSel }}</legend>
@@ -10,13 +11,9 @@
 
 {% block content %}
 
+ {{ window.pathBrowser(currentPath, theUILang.fDiagArchive) }}
 <fieldset>
     <legend>Options:</legend>
-    <label> {{ theUILang.fDiagArchive }}
-        <input type="text" id="flm-diag-navigation-path" name="flm-diag-navigation-path" class="TextboxLarge" style="width:320px;"
-               autocomplete="off"/>
-    </label>
-    <input type="button" value="..." id="fMan_CArchivebbut" class="Button aright"><br/>
     <label style="float: left;"> {{ theUILang.fDiagCArchType }}
         <select name="fMan_archtype" id="fMan_archtype">
             {% for type in utils.archive_types %}

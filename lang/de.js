@@ -83,7 +83,7 @@ theUILang.flm_popup_copy		= 'Kopiere Dateien und Ordner';
 theUILang.fDiagCopySel	= 'Dateien markiert zum Kopieren:';
 theUILang.fDiagCopyTo	= 'Kopiere Dateien nach:';
 
-theUILang.fDiagNFO		= '.NFO Viewer';
+theUILang.flm_popup_nfo_view		= '.NFO Viewer';
 theUILang.flm_popup_sfv_check	= 'Datei überprüfen';
 theUILang.fDiagSFVCheckf	= 'Prüfsumme der Datei:';
 
