@@ -315,7 +315,8 @@ class FLM {
 		    throw new Exception("no file", 6);
 			
 		 }
-		elseif ((Helper::getExt($nfofile) != 'nfo') 
+		elseif (
+		    (Helper::getExt($nfofile) != 'nfo' && Helper::getExt($nfofile) != 'txt')
 		      || (filesize($nfofile) > 50000)) 
 		 {
 		     throw new Exception("Invalid file", 18);

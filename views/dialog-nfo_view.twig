@@ -8,11 +8,29 @@
                     <option value="1" selected="selected">DOS</option>
                     <option value="0">WIN</option>
                 </select>
-                <input name="fMan_nfofile" type="hidden" id="fMan_nfofile" value=""/></td>
+                {% set nfoFile = buildPath([currentPath, selectedTarget]) %}
+                <input name="flm_popup_nfo_view-content-nfofile" type="hidden" id="flm_popup_nfo_view-content-nfofile" value="{{ nfoFile }}"/></td>
         </tr>
     </table>
     <div id="flm_popup_nfo_view-content" style="width: 549px;">
         <pre>Loading...</pre>
+
+{#        <div id="editor">function foo(items) {
+            var x = "All this is syntax highlighted";
+            return x;
+            }</div>
+
+        <script>
+            var editor;
+            $(document).ready(function() {
+                injectScript('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js',
+                function () {
+                    editor = ace.edit("editor");
+                    editor.setTheme("ace/theme/monokai");
+                    editor.session.setMode("ace/mode/javascript");
+                });
+            });
+        </script>#}
     </div>
 {% endblock %}
 

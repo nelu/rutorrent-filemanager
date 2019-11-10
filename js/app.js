@@ -170,19 +170,6 @@ function FileManagerUtils() {
         },
 
 
-        buildPath: function (parts) {
-
-            var res = [];
-            var item;
-            for (var i = 0; i < parts.length; i++) {
-                item = this.trimslashes(parts[i]);
-                if (item !== "") {
-                    res.push(item);
-                }
-            }
-            return '/' + res.join('/');
-
-        },
         encode_string: function (str) {
 
             return encodeURIComponent(this.json_encode(str));
@@ -262,23 +249,7 @@ function FileManagerUtils() {
             return str.slice(lastIndexOfChar)
 
         },
-        trimslashes: function (str) {
 
-            if (!$type(str)) {
-                return '';
-            }
-
-            var ar = str.split('/');
-            var rar = [];
-
-            for (var i = 0; i < ar.length; i++) {
-                if (ar[i]) {
-                    rar.push(ar[i]);
-                }
-            }
-
-            return (rar.join('/'));
-        },
         addslashes: function (str) {
             // http://phpjs.org/functions/addslashes:303
             return (str + '').replace(/[\\"\/]/g, '\\$&').replace(/\u0000/g, '\\0');
@@ -303,6 +274,37 @@ function FileManagerUtils() {
     utils.basename = function(what)
     {
         return utils.trimslashes(what).split('/').pop();
+    };
+
+    utils.buildPath= function (parts) {
+
+        var res = [];
+        var item;
+        for (var i = 0; i < parts.length; i++) {
+            item = utils.trimslashes(parts[i]);
+            if (item !== "") {
+                res.push(item);
+            }
+        }
+        return '/' + res.join('/');
+
+    };
+    utils.trimslashes= function (str) {
+
+        if (!$type(str)) {
+            return '';
+        }
+
+        var ar = str.split('/');
+        var rar = [];
+
+        for (var i = 0; i < ar.length; i++) {
+            if (ar[i]) {
+                rar.push(ar[i]);
+            }
+        }
+
+        return (rar.join('/'));
     };
 
     return utils;
@@ -742,11 +744,11 @@ function FileManager() {
 
                 if (!browse.isTopDir(path)) {
 
-                    flm.workpath = flm.currentPath;
+                   // flm.workpath = flm.currentPath;
 
                     var fext = utils.getExt(path);
 
-                    if (fext === 'nfo') {
+                    if (fext.match(/nfo|txt/ )) {
                         context.add([CMENU_SEP]);
                         context.add([theUILang.fView,
                             function () {
@@ -1652,12 +1654,12 @@ function FileManager() {
 
             var diagId = dialogs.getDialogId('nfo_view');
 
+            var selection =  flm.getCurrentPath(what);
+            mode = mode || 'dos';
             dialogs.showDialog('nfo_view',
                 {
                     beforeShow: function () {
 
-                        var selection = $type(what) && what || browser.getSelection();
-                        mode = mode || 'dos';
 
                         $("#fMan_nfoformat option[value='" + mode + "']").attr('selected', 'selected');
                         $("#fMan_nfoformat").change(function () {
@@ -1668,10 +1670,6 @@ function FileManager() {
                             flm.ui.viewNFO(null, mode);
                         });
 
-
-
-
-                        $("#fMan_nfofile").val(selection);
 
                         flm.api.getNfo(selection, mode).then(
                             function (data) {
@@ -1909,7 +1907,6 @@ function FileManager() {
     flm.api = {
 
         promise: null,
-        currentPath: null,
         getDir: function (dir, callback) {
 
             var data = {

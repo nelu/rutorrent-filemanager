@@ -47,6 +47,13 @@ div[id^="flm_popup_"].dlg-header {
     padding-left: 2px;
 }
 
+#editor {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
 
 .fMan_CArchiveRAR {
 
