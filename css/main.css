@@ -47,9 +47,6 @@ div[id^="flm_popup_"].dlg-header {
     padding-left: 2px;
 }
 
-div#fMan_Console div.dlg-header {
-    background-image: url(images/console.gif);
-}
 
 .fMan_CArchiveRAR {
 
@@ -58,7 +55,7 @@ div#fMan_Console div.dlg-header {
 
 
 }
-div#fMan_optPan {
+div#flm-settings-pane {
     overflow: auto;
 }
 

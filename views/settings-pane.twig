@@ -1,34 +1,45 @@
-<div id="fMan_optPan">
     <fieldset>
         <legend>Display Settings</legend>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
                 <td>Paths history number of values:</td>
-                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Opthistpath" value=""/></td>
+                <td><input type="text" name="flm-settings-opt-histpath" class="Textbox num1" id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/></td>
             </tr>
             <tr>
                 <td>Strip trailing slashes from directory names:</td>
-                <td><input type="checkbox" name="fMan_Optstripdirs" id="fMan_Optstripdirs" value="true"/></td>
+                <td><input type="checkbox"
+                           name="flm-settings-opt-stripdirs"
+                           id="flm-settings-opt-stripdirs"
+                           value="{{ opts.stripdirs }}"
+                           {{ (opts.stripdirs) ? 'checked': '' }}
+                    /></td>
             </tr>
             <tr>
                 <td>Show hidden files:</td>
-                <td><input type="checkbox" name="fMan_Optshowhidden" id="fMan_Optshowhidden" value="true"/></td>
+                <td><input type="checkbox" name="flm-settings-opt-showhidden" id="flm-settings-opt-showhidden"
+                            {{ (opts.showhidden) ? 'checked': '' }}
+                           value="{{ opts.showhidden }}"/></td>
             </tr>
             <tr>
                 <td>Clean console log automatically:</td>
-                <td><input type="checkbox" name="fMan_Optcleanlog" id="fMan_Optcleanlog" value="true"/></td>
+                <td><input type="checkbox" name="flm-settings-opt-cleanlog" id="flm-settings-opt-cleanlog"
+                            {{ (opts.cleanlog) ? 'checked': '' }}
+                           value="{{ opts.cleanlog }}"/></td>
             </tr>
             <tr>
                 <td>Permissions format:</td>
-                <td><select name="fMan_Optpermf" id="fMan_Optpermf">
-                        <option value="1">Octal (0755)</option>
-                        <option value="2">Symbolic (-rw)</option>
+                <td><select name="flm-settings-opt-permf" id="flm-settings-opt-permf">
+                        <option value="1"{% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
+                        <option value="2"{% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)</option>
                     </select></td>
             </tr>
             <tr>
                 <td>Date - Time format:</td>
-                <td><input type="text" name="fMan_Opttimef" class="TextboxLarge" style="width: 160px;" id="fMan_Opttimef"
-                           value=""/></td>
+                <td><input type="text" name="flm-settings-opt-timef"
+                           class="TextboxLarge" style="width: 160px;"
+                           id="flm-settings-opt-timef"
+                           value="{{ opts.timef }}"/>
+                </td>
             </tr>
             <tr>
                 <td>
@@ -67,28 +78,27 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
                 <td>Multi-volume format:</td>
-                <td><select name="fMan_Optarcnscheme" id="fMan_Optarcnscheme">
-                        <option value="new" selected="selected">NEW - .part1.rar</option>
-                        <option value="old">OLD - .r01</option>
+                <td><select name="flm-settings-opt-arcnscheme" id="flm-settings-opt-arcnscheme">
+                        <option value="new" {% if opts.arcnscheme == "new" %}selected="selected"{% endif %}>NEW - .part1.rar</option>
+                        <option value="old" {% if opts.arcnscheme == "old" %}selected="selected"{% endif %}>OLD - .r01</option>
                     </select></td>
             </tr>
         </table>
     </fieldset>
-    <fieldset>
+{#    <fieldset>
         <legend>Screenshot Settings</legend>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
                 <td>Screens rows:</td>
-                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Optscrows" value=""/></td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="flm-settings-opt-scrows" value=""/></td>
             </tr>
             <tr>
                 <td>Screens columns:</td>
-                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Optsccols" value=""/></td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="flm-settings-opt-sccols" value=""/></td>
             </tr>
             <tr>
                 <td>Thumbnail width:</td>
-                <td><input type="text" name="textfield" class="Textbox num1" id="fMan_Optscwidth" value=""/></td>
+                <td><input type="text" name="textfield" class="Textbox num1" id="flm-settings-opt-scwidth" value=""/></td>
             </tr>
         </table>
-    </fieldset>
-</div>
+    </fieldset>#}

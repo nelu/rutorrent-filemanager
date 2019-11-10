@@ -312,7 +312,11 @@ function FileManagerUtils() {
 
 function FileManager() {
 
-    var flm = {};
+    var flm = {
+        getConfig: function () {
+            return theWebUI.settings["webui.flm.config"];
+        }
+    };
 
     var pluginUrl = 'plugins/filemanager';
 
@@ -378,7 +382,7 @@ function FileManager() {
             }
         }
 
-        self.getView = function (name, fn, options) {
+        self.getView = function (name, options, fn) {
             //
             options = options || {};
 
@@ -409,6 +413,102 @@ function FileManager() {
 
         var self = {};
 
+        self.settings = {
+            defaults: {
+                "stripdirs": false,
+                "showhidden": true,
+                "histpath": 5,
+                "timef": '%d-%M-%y %h:%m:%s',
+                "permf": 1,
+                "cleanlog": false,
+                "arcnscheme": 'new',
+                "scrows": 12,
+                "sccols": 4,
+                "scwidth": 300
+            },
+            init: false,
+            getSettingValue: function(name)
+            {
+                return $type(theWebUI.settings["webui.flm.settings." + name])
+                    && theWebUI.settings["webui.flm.settings." + name]
+                    || this.defaults[name];
+            },
+
+            getSettings: function() {
+
+                var all = {};
+
+                $.each(self.settings.defaults, function (i,v) {
+                        all[i] = self.settings.getSettingValue(i);
+                });
+
+                return all;
+            },
+
+            onShow: function (arg) {
+                console.log('flm.ui.settings on Show', arg);
+                // plugin config tab in UI settings
+
+                var self = this;
+                // 1 dialog is enough :)
+
+                flm.views.getView('settings-pane', {'opts': this.getSettings()}, function (view) {
+                    if (!self.init) {
+                        self.init = true;
+                        getPlugin()
+                            .attachPageToOptions($('<div id="flm-settings-pane"></div>').get(0), theUILang.fManager);
+                    }
+
+                    $('#flm-settings-pane').html(view);
+                 //   self.updateSettings();
+
+                });
+
+            },
+            onSave: function (arg) {
+                var needsave = false;
+
+                $('#flm-settings-pane').find('input,select').each(function(index, ele) {
+                    var inid = $(ele).attr('id').split('flm-settings-opt-');
+                    var inval;
+
+                    if ($(ele).attr('type') == 'checkbox') {
+                        inval = $(ele).is(':checked') ? true : false;
+                    } else {
+                        inval = $(ele).val();
+                    }
+
+                    if (inval !== self.settings.getSettingValue(inid[1]))
+                    {
+                        theWebUI.settings["webui.flm.settings." + inid[1]] = inval;
+                        needsave = true;
+                    }
+                });
+
+                if (needsave) {
+                    theWebUI.save();
+                    self.browser.table().refreshRows();
+                }
+            },
+            updateSettings: function () {
+                $('#flm-settings-pane').find('input, select')
+                    .each(function (index, ele) {
+                        var inid = ele.id.split('flm-settings-opt-');
+
+                        if ($(ele).attr('type') == 'checkbox') {
+                            if (self.settings.getSettingValue(inid[1])) {
+                                $(ele).attr('checked', 'checked');
+                            }
+                        } else if ($(ele).is("select")) {
+                            $(ele).children('option[value="' + self.settings.getSettingValue(inid[1]) + '"]').attr('selected', 'selected');
+                        } else {
+                            $(ele).val(self.settings.getSettingValue(inid[1]));
+                        }
+                    });
+
+            }
+        };
+
         var fsBrowser = function () {
 
             var browse = {
@@ -435,10 +535,12 @@ function FileManager() {
                             switch (table.getIdByCol(i)) {
                                 case 'name':
                                     if (flm.ui.browser.isTopDir(arr[i])) {
+                                        console.log('istopdir', arr[i]);
                                         arr[i] = '../';
                                     }
-                                    if (theWebUI.fManager.settings.stripdirs
-                                        && flm.utils.isDir(arr[i])) {
+                                    if (self.settings.getSettingValue('stripdirs')
+                                        && flm.utils.isDir(arr[i]))
+                                    {
                                         arr[i] = flm.utils.trimslashes(arr[i]);
                                     }
                                     break;
@@ -456,7 +558,7 @@ function FileManager() {
                                     arr[i] = flm.ui.formatDate(arr[i]);
                                     break;
                                 case 'perm':
-                                    if (theWebUI.fManager.settings.permf > 1) {
+                                    if (self.settings.getSettingValue('permf') > 1) {
                                         arr[i] = flm.utils.formatPermissions(arr[i]);
                                     }
                                     break;
@@ -552,7 +654,8 @@ function FileManager() {
 
             browse.loadNavigation = function () {
                 if (!browse.navigationLoaded) {
-                    flm.views.getView('table-header', function (view) {
+                    flm.views.getView('table-header',{apiUrl: flm.apiClient.endpoint},
+                        function (view) {
                             browse.navigationLoaded = true;
                             var plugin = getPlugin();
                             $('#' + plugin.ui.fsBrowserContainer).prepend(view);
@@ -569,8 +672,8 @@ function FileManager() {
                             $('#flm-nav-refresh').click(function () {
                                 flm.goToPath(flm.currentPath);
                             });
-                        },
-                        {apiUrl: flm.apiClient.endpoint});
+                        }
+                       );
                 }
             };
 
@@ -785,7 +888,7 @@ function FileManager() {
 
                     table.addRowById(entry, hash, flm.utils.getICO(file.name));
 
-                    if (!theWebUI.fManager.settings.showhidden && (file.name.charAt(0) === '.')) {
+                    if (!self.settings.getSettingValue('showhidden') && (file.name.charAt(0) === '.')) {
                         table.hideRow(hash);
                     }
                 });
@@ -802,7 +905,7 @@ function FileManager() {
 
                 var cpath = $('#flm-navpath');
 
-                var historySize = 5;
+                var historySize = self.settings.getSettingValue('histpath');
 
                 var entries = [];
 
@@ -944,7 +1047,8 @@ function FileManager() {
                     currentPath: flm.getCurrentPath('/')
                 };
 
-                flm.views.getView(config.template, function (html) {
+                flm.views.getView(config.template, data,
+                    function (html) {
                         var newContent = $('#' + id + ' .flm_popup-content')
                             .html(html);
 
@@ -963,15 +1067,11 @@ function FileManager() {
                                 if ($type(diags.onStartEvent) === "function") {
                                     diags.onStartEvent.apply(diags, arguments);
                                 }
-                            })
+                            });
 
                         $type(config.pathbrowse) && diags.setDirBrowser();
-
-
-
-
-                    },
-                    data);
+                    }
+                    );
 
 
             },
@@ -1032,81 +1132,6 @@ function FileManager() {
             },
             updateTargetPath: function (path) {
                 return $('#flm-diag-navigation-path').val(path);
-            },
-            createDialogs: function () {
-
-                /*
-                 Dialogs button binds bellow:
-                 */
-
-                $('.fMan_Start').click(function () {
-
-                    var diagid = $(this).parents('.dlg-window:first').attr('id');
-                    diagid = diagid.split('fMan_');
-
-                    switch (diagid[1]) {
-                        case 'CArchive':
-                            theWebUI.fManager.doArchive(this, diagid[1]);
-                            break;
-                        case 'CheckSFV':
-                            theWebUI.fManager.showSFVcheck(this, diagid[1]);
-                            break;
-                        case 'CreateSFV':
-                            theWebUI.fManager.showSFVcreate(this, diagid[1]);
-                            break;
-                        case 'Copy':
-                            theWebUI.fManager.doCopy(this, diagid[1]);
-                            break;
-                        case 'Delete':
-                            theWebUI.fManager.doDelete(this, diagid[1]);
-                            break;
-                        case 'Extract':
-                            theWebUI.fManager.doExtract(this, diagid[1]);
-                            break;
-                        case 'mkdir':
-                            /// theWebUI.fManager.doNewDir();
-                            break;
-                        case 'Move':
-                            theWebUI.fManager.doMove(this, diagid[1]);
-                            break;
-                        case 'Rename':
-                            theWebUI.fManager.doRename();
-                            break;
-                        case 'Screenshots':
-                            theWebUI.fManager.doScreenshots(this, diagid[1]);
-                            break;
-                    }
-
-                });
-
-
-                $("#fMan_multiv").change(function () {
-
-                    var dis = $(this).is(':checked');
-                    $("#fMan_vsize").attr("disabled", !dis);
-                });
-
-
-
-
-                if (!thePlugins.isInstalled('data')) {
-
-                    $(document.body).append($("<iframe name='datafrm'/>").css({
-                        visibility: "hidden"
-                    }).attr({
-                        name: "datafrm",
-                        id: "datafrm"
-                    }).width(0).height(0).load(function () {
-                        var d = (this.contentDocument || this.contentWindow.document);
-                        if (d.location.href != "about:blank")
-                            try {
-                                eval(d.body.innerHTML);
-                            } catch (e) {
-                            }
-                    }));
-                }
-
-
             },
 
             getDialogId: function (what) {
@@ -1175,46 +1200,6 @@ function FileManager() {
 
         // file operation dialogs
 
-        self.settings = {
-            init: false,
-            onShow: function (arg) {
-                console.log('flm.ui.settings on Show', arg);
-                // plugin config tab in UI settings
-
-                var self = this;
-                // 1 dialog is enough :)
-                if (self.init) {
-                    self.updateSettings();
-                } else {
-                    flm.views.getView('settings-pane', function (view) {
-                        self.init = true;
-                        getPlugin()
-                            .attachPageToOptions($(view).get(0), theUILang.fManager);
-                        self.updateSettings();
-
-                    });
-                }
-
-
-            },
-            updateSettings: function () {
-                $('#fMan_optPan').find('input, select')
-                    .each(function (index, ele) {
-                        var inid = ele.id.split('fMan_Opt');
-
-                        if ($(ele).attr('type') == 'checkbox') {
-                            if (theWebUI.settings["webui.fManager." + inid[1]]) {
-                                $(ele).attr('checked', 'checked');
-                            }
-                        } else if ($(ele).is("select")) {
-                            $(ele).children('option[value="' + theWebUI.settings["webui.fManager." + inid[1]] + '"]').attr('selected', 'selected');
-                        } else {
-                            $(ele).val(theWebUI.settings["webui.fManager." + inid[1]]);
-                        }
-                    });
-
-            }
-        };
 
         self.init = function () {
             console.log('flm.ui.init', this);
@@ -1405,9 +1390,15 @@ function FileManager() {
                             }
 
                         });
+                        $("#fMan_multiv").change(function () {
 
-                        $('#flm_popup_mkdir-currentpath').text(currentPath);
-                        $('#flm_popup_mkdir .fMan_Start').click(function () {
+                            var dis = $(this).is(':checked');
+                            $("#fMan_vsize").attr("disabled", !dis);
+                        });
+
+
+
+                        dialogs.onStart(function () {
 
 
                             var archive = this.checkInputs(diag);
@@ -1530,7 +1521,7 @@ function FileManager() {
             // create it
             if (!theDialogManager.items.hasOwnProperty(diagId)) {
 
-                flm.views.getView(config.template, function (html) {
+                flm.views.getView(config.template, {}, function (html) {
 
                     theDialogManager.make(diagId, theUILang.flm_popup_console,
                         $(html).get(0),
@@ -1684,9 +1675,6 @@ function FileManager() {
 
                         $("#fMan_nfofile").val(selection);
 
-
-
-
                         var actioncall = {
                             method: 'viewNfo',
                             target: what,
@@ -1712,7 +1700,7 @@ function FileManager() {
 
                     },
                     afterShow: function () {
-                        console.log('mkdir diag shown');
+                        theDialogManager.center(dialogs.getDialogId('window'));
                     }
                 });
 
@@ -1731,7 +1719,7 @@ function FileManager() {
                         }
                     });
 
-            };
+        };
         self.showRename = function (button) {
             var diagId = dialogs.getDialogId('rename');
 
@@ -2422,10 +2410,8 @@ function FileManager() {
         Init: function () {
 
             this.loadConfig();
-            this.optSet(); // plugins settings page
 
         },
-
 
         isChecked: function (diag, what) {
 
@@ -2441,7 +2427,6 @@ function FileManager() {
             return ret;
         },
 
-
         isErr: function (errcode, extra) {
 
             if (!$type(extra)) {
@@ -2455,7 +2440,6 @@ function FileManager() {
 
             return false;
         },
-
 
         loadConfig: function () {
             var call = {
@@ -2493,7 +2477,6 @@ function FileManager() {
 
             $('#fMan_Console .buttons-list').css("background", "none");
         },
-
 
         doMediainfo: function (what) {
 
@@ -2536,32 +2519,6 @@ function FileManager() {
 
         },
 
-        optSet: function () {
-
-            if (theWebUI.configured) {
-                uiTable.Init(); // table init
-
-                var needsave = false;
-
-                for (var set in theWebUI.fManager.settings) {
-                    if ($type(theWebUI.settings["webui.fManager." + set])) {
-                        theWebUI.fManager.settings[set] = theWebUI.settings["webui.fManager." + set];
-                    } else {
-                        theWebUI.settings["webui.fManager." + set] = theWebUI.fManager.settings[set];
-                        needsave = true;
-                    }
-                }
-
-                if (needsave) {
-                    theWebUI.save();
-                }
-
-            } else {
-                setTimeout(arguments.callee, 500);
-            }
-        },
-
-
         Refresh: function () {
 
             this.action.getlisting(flm.currentPath);
@@ -2595,30 +2552,7 @@ function FileManager() {
             $('#fMan_CreateSFVbpath').val(this.homedir + flm.currentPath + this.recname(what) + '.sfv');
             theWebUI.fManager.doSel('CreateSFV');
 
-        },
-
-        TableRegenerate: function () {
-            var td = theWebUI.getTable("flm").rowdata;
-            var old = {};
-
-            var x = 0;
-
-            for (i in td) {
-                if (td[i].icon == 'flm-sprite-dir_up') {
-                    continue;
-                }
-                old[x] = {
-                    name: td[i].data[0],
-                    size: td[i].data[1],
-                    time: td[i].data[2],
-                    type: td[i].data[3],
-                    perm: td[i].data[4]
-                };
-                x++;
-            }
-
-            this.TableData(old);
-        },
+        }
 
     };
 

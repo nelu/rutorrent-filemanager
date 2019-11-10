@@ -68,7 +68,7 @@ plugin.ui.setConfig = function ()
 			.addClass('table_tab')
 			.html('<div id="'+plugin.ui.fsBrowserTableContainer+'" class="stable"></div>')
 			.get(0),
-		"filemanager", );
+		"filemanager");
 
 	theWebUI.tables.flm = tableSchema;
 };
@@ -79,9 +79,6 @@ plugin.ui.init = function () {
 
 	console.log('plugin.ui.init translations loaded');
 
-
-
-
 	plugin.resizeBottom = theWebUI.resizeBottom;
 	theWebUI.resizeBottom = function (w, h) {
 		plugin.resizeBottom.call(this, w, h);
@@ -89,17 +86,28 @@ plugin.ui.init = function () {
 		window.flm.ui.resize(w, h);
 	};
 
+	if (!thePlugins.isInstalled('data')) {
 
-
-
+		$(document.body).append($("<iframe name='datafrm'/>").css({
+			visibility: "hidden"
+		}).attr({
+			name: "datafrm",
+			id: "datafrm"
+		}).width(0).height(0).load(function () {
+			var d = (this.contentDocument || this.contentWindow.document);
+			if (d.location.href != "about:blank")
+				try {
+					eval(d.body.innerHTML);
+				} catch (e) {
+				}
+		}));
+	}
 
 	if(plugin.canChangeTabs())
 	{
         plugin.renameTab(plugin.ui.fsBrowserContainer,theUILang.fManager);
         window.flm.ui.init();
 	}
-
-
 
 	plugin.addAndShowSettings = theWebUI.addAndShowSettings;
 	theWebUI.addAndShowSettings = function(arg) {
@@ -109,46 +117,22 @@ plugin.ui.init = function () {
 		plugin.addAndShowSettings.call(theWebUI, arg);
 	};
 
+	plugin.flmSetSettings = theWebUI.setSettings;
+	theWebUI.setSettings = function(arg) {
 
+		if (plugin.enabled) {
+			window.flm.ui.settings.onSave(arg);
+		}
+		plugin.flmSetSettings.call(this);
+
+	};
 
 };
+
+
 
 
 // hooks
-plugin.setSettings = theWebUI.setSettings;
-theWebUI.setSettings = function() {
-
-	if (plugin.enabled) {
-		var needsave = false;
-
-		$('#fMan_optPan').find('input,select').each(function(index, ele) {
-			var inid = $(ele).attr('id').split('fMan_Opt');
-			var inval;
-
-			if ($(ele).attr('type') == 'checkbox') {
-				inval = $(ele).is(':checked') ? true : false;
-			} else {
-				inval = $(ele).val();
-			}
-
-			if (inval != theWebUI.settings["webui.fManager." + inid[1]]) {
-				theWebUI.settings["webui.fManager." + inid[1]] = theWebUI.fManager.settings[inid[1]] = inval;
-				needsave = true;
-			}
-		});
-
-		if (needsave) {
-			theWebUI.save();
-			theWebUI.fManager.TableRegenerate();
-		}
-	}
-
-	plugin.setSettings.call(this);
-
-};
-
-
-
 plugin.flmOnShow = theTabs.onShow;
 theTabs.onShow = function(id) {
 
@@ -163,9 +147,6 @@ theTabs.onShow = function(id) {
 		plugin.flmOnShow.call(this, id);
 	}
 };
-
-
-
 
 plugin.onRemove = function() {
 	theWebUI.fManager.cleanactions();
