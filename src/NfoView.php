@@ -11,6 +11,7 @@ class NfoView {
     }
     
    public static function dos_format ($ibm_437, $swedishmagic = false) {
+
         $table437 = array(  "\200", "\201", "\202", "\203", "\204", "\205", "\206", "\207",
                     "\210", "\211", "\212", "\213", "\214", "\215", "\216", "\217", "\220",
                     "\221", "\222", "\223", "\224", "\225", "\226", "\227", "\230", "\231",
@@ -50,7 +51,8 @@ class NfoView {
                     "&#x2248;", "&#x00b0;", "&#x2219;", "&#x00b7;", "&#x221a;", "&#x207f;",
                     "&#x00b2;", "&#x25a0;", "&#x00a0;");
 
-        $s = htmlspecialchars($ibm_437);
+        $s = htmlspecialchars($ibm_437, ENT_COMPAT | ENT_HTML401,  'ISO-8859-1');
+
 
         $control = array(   "\000", "\001", "\002", "\003", "\004", "\005", "\006", "\007",
                     "\010", "\011", /*"\012",*/ "\013", "\014", /*"\015",*/ "\016", "\017",
@@ -66,15 +68,15 @@ class NfoView {
             $s = str_replace("\366","\224",$s); // Code windows "�" to dos.
 
 
-            $s = ereg_replace("([ -~])\305([ -~])", "\\1\217\\2", $s); // ?
-            $s = ereg_replace("([ -~])\304([ -~])", "\\1\216\\2", $s); // �
-            $s = ereg_replace("([ -~])\326([ -~])", "\\1\231\\2", $s); // �
+            $s = preg_replace("/([ -~])\305([ -~])/", '${1}\217${2}', $s); // ?
+            $s = preg_replace("/([ -~])\304([ -~])/", '${1}\216${2}', $s); // �
+            $s = preg_replace("/([ -~])\326([ -~])/", '${1}\231${2}', $s); // �
 
             $s = str_replace("\311", "\220", $s); // �
             $s = str_replace("\351", "\202", $s); // �
         }
 
-        $s = str_replace($table437, $tablehtml, $s);
+       $s = str_replace($table437, $tablehtml, $s);
         return $s;
     }
     
@@ -89,7 +91,8 @@ class NfoView {
 
 
         $output = $dos ? self::dos_format($contents, TRUE) : htmlentities($contents);
-        
+
+
         return $output;
     }
     

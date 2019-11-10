@@ -1025,7 +1025,6 @@ function FileManager() {
             beforeShow: function (id, what) {
                 var diagId = this.getDialogId(what);
                 var diags = this;
-                diags.getDialogHeader(diagId);
 
                 diags.getDialogHeader(id)
                     .empty()
@@ -1526,7 +1525,8 @@ function FileManager() {
                     theDialogManager.make(diagId, theUILang.flm_popup_console,
                         $(html).get(0),
                         config.modal); // prevent the user from changing table selection by default
-
+                    dialogs.getDialogHeader(diagId)
+                .prepend('<span class="flm-sprite-diag flm-sprite sprite-console"></span>');
 
                     theDialogManager.setHandler(diagId, 'beforeShow', function () {
                         $('#flm-diag-stop').click(function () {
@@ -1669,32 +1669,32 @@ function FileManager() {
                         });
 
 
-                        var cont = $('#nfo_content pre');
-                        cont.empty();
-                        cont.text('			Loading...');
+
 
                         $("#fMan_nfofile").val(selection);
 
-                        var actioncall = {
-                            method: 'viewNfo',
-                            target: what,
-                            mode: mode
-                        };
+                        flm.api.getNfo(selection, mode).then(
+                            function (data) {
+                                var cont = $('#flm_popup_nfo_view-content pre');
+                                cont.empty();
+                                ;
+                                if (browser.isIE) {
+                                    document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
+                                } else {
+                                    cont.html(data.nfo);
+                                }
 
-                        var callback = function (data) {
+                                if (theWebUI.fManager.isErr(data.errcode, what)) {
+                                    cont.text('Failed fetching .nfo data');
+                                }
 
-                            if (theWebUI.fManager.isErr(data.errcode, what)) {
+                            },
+                            function (reason) {
                                 cont.text('Failed fetching .nfo data');
-                                return false;
+                                log(reason);
                             }
+                        );
 
-                            if (browser.isIE) {
-                                document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
-                            } else {
-                                cont.html(data.nfo);
-                            }
-
-                        };
 
                    //     this.action.postRequest({action: flm.utils.json_encode(actioncall)}, callback);
 
@@ -1932,6 +1932,28 @@ function FileManager() {
                     }
                 );
         },
+        getNfo: function (file, mode) {
+
+            var data = {
+                method: 'viewNfo',
+                target: file,
+                mode: mode
+            };
+
+            return flm.apiClient.post({action: flm.utils.json_encode(data)})
+                .then(
+                    function (response) {
+                        return response;
+                    },
+                    function (response) {
+                        // log(theUILang.fErrMsg[9]);
+                        console.error(response);
+                        return response;
+                    }
+                );
+
+        },
+
         mkDir: function(dir) {
 
             var data = {

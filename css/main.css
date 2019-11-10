@@ -52,16 +52,16 @@ div[id^="flm_popup_"].dlg-header {
 
     margin-top:5px;
     margin-bottom:5px;
-
-
 }
 div#flm-settings-pane {
     overflow: auto;
 }
-
-#flm_popup_nfo_view-content, #fMan_ConsoleLog {
+#flm_popup_window.dlg-window
+#flm_popup_nfo_view-content pre, #fMan_ConsoleLog {
     overflow: scroll;
-    height: 400px;
+    height: 380px;
+    min-height: 420px;
+    width:100%;
 }
 #flm_popup_nfo_view-content pre, #fMan_ConsoleLog pre {
     font-family: "Courier New", Courier, monospace;
