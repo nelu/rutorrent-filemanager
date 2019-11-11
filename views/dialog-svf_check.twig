@@ -4,9 +4,54 @@
 {% endblock %}
 
 {% block content %}
-    <fieldset>
-        <div id="fMang_ChSFVfile" style="width:440px;"></div>
-    </fieldset>'
+<fieldset>
+    <div id="fMang_ChSFVfile" style="width:440px;"></div>
+</fieldset>
+<script>
+    (function (global) {
+        var dialogs = flm.ui.getDialogs();
+
+        var diagId = dialogs.getDialogId('sfv_check');
+
+        dialogs.onStart(function () {
+            var dirname = $('#fMan-ndirname').val();
+
+            if (!flm.utils.validname(dirname)) {
+                alert(theUILang.fDiagInvalidname);
+                return;
+            }
+            dirname = flm.utils.buildPath([currentPath, dirname]);
+
+            flm.manager.doCopy(dirname).then(
+                function () {
+                    theDialogManager.hide(diagId);
+
+                },
+                function (reason) {
+                    console.log(reason);
+                    log(reason);
+                    theDialogManager.hide(diagId);
+
+                }
+            );
+        });
+        var sfvfile = $('#fMang_ChSFVfile').text();
+        $(button).attr('disabled', true);
+
+        var fparts = sfvfile.split('/');
+
+        this.actStart(diag);
+
+
+        var actioncall = {
+            method: 'svfCheck',
+            target: fparts.pop()
+        };
+
+
+    })
+    (window);
+</script>
 {% endblock %}
 
 

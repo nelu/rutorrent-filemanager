@@ -7,5 +7,27 @@
     <legend>{{ theUILang.fDiagMoveSel  }}</legend>
 {% endblock %}
 
+{% block content %}
+<script>
+(function (global) {
+    var dialogs = flm.ui.getDialogs();
+
+    dialogs.onStart(function () {
+
+        flm.manager.doMove(dialogs.getCheckedList(), dialogs.getTargetPath()).then(
+            function () { dialogs.hide();},
+            function (reason) {
+                console.log(reason);
+                log(reason);
+                dialogs.hide();
+            }
+        );
+    });
+
+})
+(window);
+</script>
+{% endblock %}
+
 {% set startButtonValue = theUILang.fDiagMoveBut %}
 

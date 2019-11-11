@@ -15,6 +15,39 @@
                style="width:200px;"/>
     </fieldset>
 </div>
+
+<script>
+(function (global) {
+
+    flm.ui.getDialogs().onStart(function () {
+        console.log('hello from dialog new dir twig');
+        var dirname = flm.getCurrentPath($('#fMan-ndirname').val());
+        var currentPath = $('#flm_popup_mkdir-currentpath').val();
+        dirname = flm.utils.buildPath([currentPath, dirname]);
+
+        if (!flm.utils.validname(dirname)) {
+            alert(theUILang.fDiagInvalidname);
+            return;
+        }
+
+        flm.manager.createNewDir(dirname).then(
+            function () {
+                flm.ui.getDialogs().hide();
+
+            },
+            function (reason) {
+                console.log(reason);
+                log(reason);
+                flm.ui.getDialogs().hide();
+
+            }
+        );
+    });
+
+
+})
+(window);
+</script>
 {% endblock %}
 
 

@@ -7,5 +7,68 @@
     <legend>{{ theUILang.fDiagSFVCreateSel }}</legend>
 {% endblock %}
 
+{% block content %}
+    <script>
+        (function (global) {
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId('sfv_create');
 
+            dialogs.onStart(function () {
+
+                var currentPath = flm.getCurrentPath();
+
+                $('#flm_popup_mkdir-currentpath').text(currentPath);
+                $('#flm_popup_mkdir .fMan_Start').click(function () {
+                    var dirname = $('#fMan-ndirname').val();
+
+                    if (!flm.utils.validname(dirname)) {
+                        alert(theUILang.fDiagInvalidname);
+                        return;
+                    }
+                    dirname = flm.utils.buildPath([currentPath, dirname]);
+
+                    flm.manager.doCopy(dirname).then(
+                        function () {
+                            theDialogManager.hide(diagId);
+
+                        },
+                        function (reason) {
+                            console.log(reason);
+                            log(reason);
+                            theDialogManager.hide(diagId);
+
+                        }
+                    );
+                });
+            });
+
+            var file = this.checkInputs(diag);
+            if (file === false) {
+                return false;
+            }
+            if (this.fileExists(this.basedir(file + '/'))) {
+                alert(theUILang.fDiagSFVempty);
+                return false;
+            }
+
+            if (!this.buildList('fMan_' + diag)) {
+                return false;
+            }
+
+            $(button).attr('disabled', true);
+            this.actStart(diag);
+
+
+            var actioncall = {
+                method: 'sfvCreate',
+                target: file,
+                fls: theWebUI.fManager.actionlist
+            };
+
+
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
+        })
+        (window);
+    </script>
+{% endblock %}
 

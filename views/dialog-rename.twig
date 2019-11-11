@@ -1,19 +1,46 @@
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
     <label>
-    <strong>{{ isDir(selectedTarget) ? 'Directory': 'File' }}</strong>
+        <strong>{{ isDir(selectedTarget) ? 'Directory': 'File' }}</strong>
     </label>
 {% endblock %}
 
 {% block content %}
-        <div id="flm-diag-navigation-path" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
-        <fieldset>
-            <legend>{{ theUILang.fDiagRenameTo  }}</legend>
-            <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
-                   value="{{ basename(selectedTarget) }}"
-                   style="width:95%;" />
-        </fieldset>
+    <div id="flm-diag-navigation-path" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
+    <fieldset>
+        <legend>{{ theUILang.fDiagRenameTo }}</legend>
+        <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
+               value="{{ basename(selectedTarget) }}"
+               style="width:95%;"/>
+    </fieldset>
 {% endblock %}
 
+{% block content %}
+<script>
+(function (global) {
+    var dialogs = flm.ui.getDialogs();
+    // snapshot when trigerring
+    var currentPath = flm.getCurrentPath();
+
+    dialogs.onStart(function () {
+
+        var destination = dialogs.getTargetPath('#fMan-RenameTo');
+
+        dialogs.disableStartButton();
+
+        flm.manager.doRename(dialogs.getTargetPath(), flm.utils.buildPath([currentPath, destination])).then(
+            function () {
+                dialogs.hide();
+            },
+            function (reason) {
+                console.log(reason);
+                log(reason);
+                dialogs.hide();
+            }
+        );
+    });
+
+})(window);
+</script>
 {% set startButtonValue = theUILang.fDiagRenameBut %}
 

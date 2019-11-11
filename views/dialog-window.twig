@@ -1,17 +1,17 @@
 
 {% macro showMultiple(entries, filesOnly = false) %}
-    <ul>
-    {% for path in entries %}
-        {% if not (filesOnly and isDir(path)) %}
-            <li>
-                <label>
-                    <input type="checkbox" value="{{ window.encodeURIComponent(path) }}" checked="checked" />{{ path }}
-                </label>
-            </li>
-        {% endif %}
+<ul>
+{% for path in entries %}
+    {% if not (filesOnly and isDir(path)) %}
+        <li>
+            <label>
+                <input type="checkbox" value="{{ path }}" checked="checked" />{{ path }}
+            </label>
+        </li>
+    {% endif %}
 
-    {% endfor %}
-    </ul>
+{% endfor %}
+</ul>
 {% endmacro %}
 
 {% macro pathBrowser(default="/", title = false) %}

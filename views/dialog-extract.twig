@@ -8,6 +8,54 @@
 <fieldset>
     <div id="fMang_Archfile" style="width:460px;">{{ selectedTarget }}</div>
 </fieldset>
+    <script>
+        (function (global) {
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId('extract');
+
+            dialogs.onStart(function () {
+                var dirname = $('#fMan-ndirname').val();
+
+                if (!flm.utils.validname(dirname)) {
+                    alert(theUILang.fDiagInvalidname);
+                    return;
+                }
+                dirname = flm.utils.buildPath([currentPath, dirname]);
+
+                flm.manager.doCopy(dirname).then(
+                    function () {
+                        theDialogManager.hide(diagId);
+
+                    },
+                    function (reason) {
+                        console.log(reason);
+                        log(reason);
+                        theDialogManager.hide(diagId);
+
+                    }
+                );
+            });
+
+            var path = this.checkInputs(diag, true);
+            if (path === false) {
+                return false;
+            }
+
+            var archive = $('#fMang_Archfile').text();
+
+            $(button).attr('disabled', true);
+
+            this.actStart(diag);
+
+            var actioncall = {
+                method: 'fileExtract',
+                target: archive,
+                to: path
+            };
+
+        })
+        (window);
+    </script>
 {% endblock %}
 
 

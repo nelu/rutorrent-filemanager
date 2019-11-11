@@ -7,4 +7,27 @@
         <legend>{{ theUILang.fDiagCopySel }} </legend>
 {% endblock %}
 
+{% block content %}
+<script>
+(function (global) {
+    var dialogs = flm.ui.getDialogs();
+
+    dialogs.onStart(function () {
+        dialogs.disableStartButton();
+        flm.manager.doCopy(dialogs.getTargetPath(), dialogs.getCheckedList()).then(
+                function () { dialogs.hide();},
+                function (reason) {
+                        console.log(reason);
+                        log(reason);
+                        dialogs.hide();
+                }
+        );
+    });
+
+
+})
+(window);
+</script>
+{% endblock %}
+
 {% set startButtonValue = theUILang.fDiagCopyBut %}

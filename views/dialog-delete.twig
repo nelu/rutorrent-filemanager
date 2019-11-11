@@ -8,6 +8,29 @@
     <legend>{{ theUILang.fDiagDeleteSel  }}</legend>
 {% endblock %}
 
+{% block content %}
+<script>
+(function (global) {
+    var dialogs = flm.ui.getDialogs();
 
+    var diagId = dialogs.getDialogId('delete');
 
+    dialogs.onStart(function () {
 
+        var checklist = dialogs.getCheckedList();
+        dialogs.disableStartButton();
+
+        flm.manager.doDelete(checklist).then(
+            function () { dialogs.hide();},
+            function (reason) {
+                console.log(reason);
+                log(reason);
+                dialogs.hide(diagId);
+            }
+        );
+    });
+
+})
+(window);
+</script>
+{% endblock %}

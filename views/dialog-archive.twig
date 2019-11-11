@@ -41,3 +41,129 @@
 </fieldset>
 <div style="clear:both;"></div>
 {% endblock %}
+<script>
+    (function (global) {
+        var dialogs = flm.ui.getDialogs();
+        var diagId = dialogs.getDialogId('archive');
+
+        dialogs.onStart(function () {
+
+            /*  var type = $('#fMan_archtype').empty();
+
+              $.each(flm.utils.archive_types, function(index, value) {
+                  type.append((value === ext) ? $(opt).attr('selected', 'selected').get(0) : opt);
+              });
+
+              type.change();
+*/
+
+            var archive = this.checkInputs(diag);
+            if (archive === false) {
+                return false;
+            }
+
+            var type = $("#fMan_archtype").val();
+            var vsize = ((this.archives.types[type] != 'zip') && $("#fMan_multiv").is(':checked') && $("#fMan_vsize").val().match(/^\d+$/)) ? $("#fMan_vsize").val() : 0;
+            var compression = $('#fMan_archcompr').val();
+            var password = $('#fMan_apassword').val();
+
+            var self = this;
+
+            var options = {
+                format: self.settings.arcnscheme,
+                type: type,
+                compression: compression,
+                vsize: vsize,
+                password: password
+            };
+
+
+            var dirname = $('#fMan-ndirname').val();
+
+            if (!flm.utils.validname(dirname)) {
+                alert(theUILang.fDiagInvalidname);
+                return;
+            }
+            dirname = flm.utils.buildPath([currentPath, dirname]);
+
+            flm.manager.doArchive(entries).then(
+                function () {
+                    theDialogManager.hide(diagId);
+
+                },
+                function (reason) {
+                    console.log(reason);
+                    log(reason);
+                    theDialogManager.hide(diagId);
+
+                }
+            );
+        });
+
+
+        $("#fMan_multiv").change(function () {
+
+            var dis = $(this).is(':checked');
+            $("#fMan_vsize").attr("disabled", !dis);
+        });
+
+        $("#fMan_archtype").change(function () {
+
+            var type = $(this).val();
+            var comp = $("#fMan_archcompr");
+
+            var ext;
+
+            switch (window.flm.utils.archive_types[type]) {
+                case 'gzip':
+                    ext = 'tar.gz';
+                    break;
+                case 'bzip2':
+                    ext = 'tar.bz2';
+                    break;
+                default:
+                    ext = window.flm.utils.archive_types[type];
+            }
+
+            //   $('#flm-diag-navigation-path').val(
+            //
+            //   );
+
+            dialogs.updatePath(flm.manager.recname(flm.manager.recname($('#flm-diag-navigation-path').val())) + '.' + ext);
+            ;
+            $("#fMan_vsize").attr("disabled", (!$("#fMan_multiv").attr("disabled", (type != 0)).is(':checked') || (type != 0)));
+            $('#fMan_apassword').attr("disabled", (type != 0));
+            comp.empty();
+
+            for (var i = 0; i < theWebUI.fManager.archives.compress[type].length; i++) {
+                comp.append('<option value="' + i + '">' + theUILang.fManArComp[type][i] + '</option>');
+            }
+
+        });
+
+
+
+        if (this.fileExists(this.basedir(archive + '/'))) {
+            alert(theUILang.fDiagArchempty);
+            return false;
+        }
+
+        if (!this.buildList('fMan_' + diag)) {
+            return false;
+        }
+
+
+        $(button).attr('disabled', true);
+        this.actStart(diag);
+
+        /*    var actioncall = {
+                method: 'filesCompress',
+                target: archive,
+                mode: options,
+                fls: theWebUI.fManager.actionlist
+            };
+
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});*/
+    })
+    (window);
+</script>
