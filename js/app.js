@@ -359,7 +359,9 @@ function FileManager() {
                         deferred.reject({'response': [XMLHttpRequest, textStatus, errorThrown]});
                     },
                     success: function (data) {
-                        if (data.hasOwnProperty('error') && data.error) {
+                        if (data.hasOwnProperty('errcode')
+                            || (data.hasOwnProperty('error') && data.error))
+                        {
                             deferred.reject({'response': data});
 
                         } else {
@@ -1294,7 +1296,7 @@ function FileManager() {
             //makeVisbile
             showDialog: function (what, viewEvents) {
 
-                viewEvents = $type(viewEvents) || {};
+                viewEvents = viewEvents || {};
 
                 if (!this.forms.hasOwnProperty(what)) {
                     console.error('No such dialog configured: ', what);
@@ -1543,7 +1545,6 @@ function FileManager() {
             dialogs.onStart(function () {
 
                 var checklist = dialogs.getCheckedList();
-                debugger;
                 flm.manager.doDelete(checklist).then(
                     function () { dialogs.hide();},
                     function (reason) {
@@ -1857,53 +1858,47 @@ function FileManager() {
 
             var diagId = dialogs.getDialogId('nfo_view');
 
-            var selection =  flm.getCurrentPath(what);
             mode = mode || 'dos';
-            dialogs.showDialog('nfo_view',
-                {
-                    beforeShow: function () {
+            var selection =  flm.getCurrentPath(what);
 
+            var setNfo = function (mode) {
+                flm.api.getNfo(selection, mode).then(
+                    function (data) {
+                        var cont = $('#flm_popup_nfo_view-content pre');
+                        cont.empty();
 
-                        $("#fMan_nfoformat option[value='" + mode + "']").attr('selected', 'selected');
-                        $("#fMan_nfoformat").change(function () {
-
-                            var mode = $(this).val();
-                            var nfofile = $("#fMan_nfofile").val();
-
-                            flm.ui.viewNFO(null, mode);
-                        });
-
-
-                        flm.api.getNfo(selection, mode).then(
-                            function (data) {
-                                var cont = $('#flm_popup_nfo_view-content pre');
-                                cont.empty();
-                                ;
-                                if (browser.isIE) {
-                                    document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
-                                } else {
-                                    cont.html(data.nfo);
-                                }
-
-                                if (theWebUI.fManager.isErr(data.errcode, what)) {
-                                    cont.text('Failed fetching .nfo data');
-                                }
-
-                            },
-                            function (reason) {
-                                cont.text('Failed fetching .nfo data');
-                                log(reason);
-                            }
-                        );
-
-
-                   //     this.action.postRequest({action: flm.utils.json_encode(actioncall)}, callback);
+                        if (browser.isIE) {
+                            document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
+                        } else {
+                            cont.html(data.nfo);
+                        }
+                        theDialogManager.center(dialogs.getDialogId('window'));
 
                     },
-                    afterShow: function () {
-                        theDialogManager.center(dialogs.getDialogId('window'));
+                    function (reason) {
+                        cont.text('Failed fetching .nfo data');
+                        log(reason);
                     }
-                });
+                );
+            };
+            var events = {
+                beforeShow: function () {
+
+                    //$("#fMan_nfoformat option[value='" + mode + "']").attr('selected', 'selected');
+                    $("#fMan_nfoformat").change(function () {
+                        var mode = $(this).val();
+                        setNfo(mode);
+                    });
+                    setNfo(mode);
+
+                },
+                afterShow: function () {
+                    // and off we go :)
+
+                }
+            };
+
+            dialogs.showDialog('nfo_view',events);
 
         };
 
