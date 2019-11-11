@@ -63,18 +63,26 @@ div[id^="flm_popup_"].dlg-header {
 div#flm-settings-pane {
     overflow: auto;
 }
-#flm_popup_window.dlg-window
-#flm_popup_nfo_view-content pre, #fMan_ConsoleLog {
+#flm_popup_window.dlg-window #flm_popup_nfo_view-content pre, #flm_popup_console-log-container {
     overflow: scroll;
     height: 380px;
     min-height: 420px;
     width:100%;
 }
-#flm_popup_nfo_view-content pre, #fMan_ConsoleLog pre {
+#flm_popup_nfo_view-content pre, #flm_popup_console-log-container pre {
     font-family: "Courier New", Courier, monospace;
     font-size: 9pt;
 }
 
+#flm_popup_console .flm-sprite-loading-create
+{
+    background: transparent url( ../../create/images/ajax-loader.gif) no-repeat 15px 2px
+}
+
+#flm_popup_console .flm-sprite-loading-default
+{
+    background: transparent url(../../../images/ajax-loader.gif ) no-repeat 15px 2px
+}
 .checklist {
     width:460px;
     height: 120px;

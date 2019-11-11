@@ -1,7 +1,8 @@
 plugin = plugin || {}; // shut up
 
 plugin.ui = {
-	fsBrowserContainer: "flm-browser"
+	fsBrowserContainer: "flm-browser",
+	readyPromise: $.Deferred()
 };
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer+"-table";
 
@@ -187,5 +188,5 @@ injectScript('/plugins/filemanager/js/twig.min.js',
 					});
 
 });
-plugin.loadMainCSS();
+plugin.loadCSS('css/main');
 

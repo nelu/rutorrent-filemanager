@@ -117,13 +117,13 @@ theUILang.fDiagExtDo		= 'Extract';
 theUILang.fDiagArchempty	= 'Please name an archive file';
 
 theUILang.fStarts = { 
-	Delete: 	'File removal started',
-	Extract:	'Archive extraction started',
-	CArchive: 	'File archiving started',
-	CheckSFV: 	'File checking started',
-	CreateSFV:	'File hashing started',
-	Move:		'File relocation started',
-	Copy:		'File duplication started',
+	delete: 	'File removal started',
+	extract:	'Archive extraction started',
+	archive: 	'File archiving started',
+	check_sfv: 	'File checking started',
+	create_sfv:	'File hashing started',
+	move:		'File relocation started',
+	copy:		'File duplication started',
 	Screenshots:	'Video screenshots creation started. Please wait this could take some time'
 };
 

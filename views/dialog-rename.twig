@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-        <div id="fMan-RenameWhat" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
+        <div id="flm-diag-navigation-path" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
         <fieldset>
             <legend>{{ theUILang.fDiagRenameTo  }}</legend>
             <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
@@ -14,3 +14,6 @@
                    style="width:95%;" />
         </fieldset>
 {% endblock %}
+
+{% set startButtonValue = theUILang.fDiagRenameBut %}
+
