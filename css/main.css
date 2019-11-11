@@ -217,7 +217,7 @@ div#flm-settings-pane {
     background-position: -83px -83px;
 }
 
-.sprite-sfv {
+.sprite-sfv, .sprite-sfv_create, .sprite-sfv_check {
     width: 16px;
     height: 16px;
     background-position: -109px -5px;

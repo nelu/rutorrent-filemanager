@@ -386,6 +386,15 @@ function FileManager() {
 
         };
 
+        client.move  = function(files, to) {
+
+            return client.post({
+                method: 'filesMove',
+                to: to,
+                fls: files
+            });
+
+        };
         client.removeFiles = function(paths) {
             return client.post({
                 method: 'filesRemove',
@@ -751,6 +760,13 @@ function FileManager() {
             };
             browse.enableTable = function () {
                 uiTable.table.removeClass('disabled_table');
+            };
+
+            browse.disableRefresh = function () {
+                $('#flm-nav-refresh').attr('disabled' , true);
+            };
+            browse.enableRefresh = function () {
+                $('#flm-nav-refresh').attr('disabled' , false);
             };
 
             browse.getSelection = function () {
@@ -1318,7 +1334,7 @@ function FileManager() {
                 $.each(['beforeHide', 'beforeShow', 'afterHide', 'afterShow'], function (ndx, evName) {
 
                     theDialogManager.setHandler(diagId, evName, function (id) {
-                        $type(diags[evName])
+                        var promise = $type(diags[evName])
                         && diags[evName].apply(diags, [id, what]);
 
                         viewEvents.hasOwnProperty(evName)
@@ -1486,10 +1502,13 @@ function FileManager() {
 
         self.disableNavigation = function () {
             self.browser.disableTable();
+            self.browser.disableRefresh();
         };
 
         self.enableNavigation = function () {
             self.browser.enableTable();
+            self.browser.enableRefresh();
+
         };
 
         self.formatDate = function (timestamp) {
@@ -1720,41 +1739,19 @@ function FileManager() {
         self.showCopy = function () {
             var diagId = dialogs.getDialogId('copy');
 
-            dialogs.showDialog('copy',
-                {
-                    beforeShow: function () {
+            dialogs.onStart(function () {
 
-                        var currentPath = flm.getCurrentPath();
-
-                        dialogs.onStart(function () {
-                            var dirname = dialogs.getTargetPath();
-
-                            if (!flm.utils.validname(dirname)) {
-                                alert(theUILang.fDiagInvalidname);
-                                return;
-                            }
-                            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-                            flm.manager.doCopy(dirname).then(
-                                function () {
-                                    theDialogManager.hide(diagId);
-
-                                },
-                                function (reason) {
-                                    console.log(reason);
-                                    log(reason);
-                                    theDialogManager.hide(diagId);
-
-                                }
-                            );
-                        });
-                    },
-                    afterShow: function () {
-                        console.log('copy diag shown');
+                flm.manager.doCopy(dialogs.getTargetPath(), dialogs.getCheckedList()).then(
+                    function () { dialogs.hide();},
+                    function (reason) {
+                        console.log(reason);
+                        log(reason);
+                        dialogs.hide(diagId);
                     }
-                });
+                );
+            });
 
-
+            dialogs.showDialog('copy');
         };
 
         self.showExtract = function (button, diag) {
@@ -1819,39 +1816,20 @@ function FileManager() {
         self.showMove = function (button) {
             var diagId = dialogs.getDialogId('move');
 
-            dialogs.showDialog('move',
-                {
-                    beforeShow: function () {
 
-                        var currentPath = flm.getCurrentPath();
+            dialogs.onStart(function () {
 
-                        $('#flm_popup_mkdir .fMan_Start').click(function () {
-                            var dirname = $('#fMan-ndirname').val();
-
-                            if (!flm.utils.validname(dirname)) {
-                                alert(theUILang.fDiagInvalidname);
-                                return;
-                            }
-                            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-                            flm.manager.doCopy(dirname).then(
-                                function () {
-                                    theDialogManager.hide(diagId);
-
-                                },
-                                function (reason) {
-                                    console.log(reason);
-                                    log(reason);
-                                    theDialogManager.hide(diagId);
-
-                                }
-                            );
-                        });
-                    },
-                    afterShow: function () {
-                        console.log('mkdir diag shown');
+                flm.manager.doMove(dialogs.getCheckedList(), dialogs.getTargetPath()).then(
+                    function () { dialogs.hide();},
+                    function (reason) {
+                        console.log(reason);
+                        log(reason);
+                        dialogs.hide(diagId);
                     }
-                });
+                );
+            });
+
+            dialogs.showDialog('move');
         };
 
         self.viewNFO= function (what, mode) {
@@ -1872,7 +1850,6 @@ function FileManager() {
                         } else {
                             cont.html(data.nfo);
                         }
-                        theDialogManager.center(dialogs.getDialogId('window'));
 
                     },
                     function (reason) {
@@ -1880,20 +1857,24 @@ function FileManager() {
                         log(reason);
                     }
                 );
+
+                theDialogManager.center(dialogs.getDialogId('window'));
+
             };
             var events = {
                 beforeShow: function () {
 
                     //$("#fMan_nfoformat option[value='" + mode + "']").attr('selected', 'selected');
-                    $("#fMan_nfoformat").change(function () {
-                        var mode = $(this).val();
-                        setNfo(mode);
-                    });
+
                     setNfo(mode);
 
                 },
                 afterShow: function () {
                     // and off we go :)
+                    $("#fMan_nfoformat").change(function () {
+                        var mode = $(this).val();
+                        setNfo(mode);
+                    });
 
                 }
             };
@@ -2234,8 +2215,14 @@ function FileManager() {
             theWebUI.fManager.actionlp = 0;
         },
 
+        getFullPaths: function(entries) {
+            for (var i = 0; i<entries.length; i++)
+            {
+                entries[i] = flm.getCurrentPath(entries[i]);
+            }
 
-
+            return entries;
+        },
 
         Archive: function (name, ext) {
 
@@ -2284,31 +2271,41 @@ function FileManager() {
 
         },
 
-        doMove: function (button, diag) {
+        doMove: function (filePaths, destination) {
 
-            var path = this.checkInputs(diag);
+            destination = $.trim(destination);
 
-            if (path === false) {
-                return false;
+            var deferred = $.Deferred();
+            flm.manager.logStart(theUILang.fStarts.move);
+
+            if (!destination.length) {
+                // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                deferred.reject( theUILang.fDiagInvalidname);
+                return deferred.promise();
             }
-            if (!this.buildList('fMan_' + diag)) {
-                return false;
+
+            if(!$type(filePaths) || filePaths.length === 0)
+            {
+                deferred.reject('Empty paths');
+                return deferred.promise();
             }
 
-            $(button).attr('disabled', true);
+            if (!flm.utils.validname(destination)) {
+                // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                deferred.reject( theUILang.fDiagInvalidname);
+                return deferred.promise();
+            }
 
+            return flm.api.move(flm.manager.getFullPaths(filePaths), destination)
+                .then(function (response) {
+                        flm.manager.logAction('move', filePaths.length + ' files -> ' +destination)
+                        flm.Refresh(flm.getCurrentPath());
+                        return response;
+                    },
+                    function (response) {
+                        return response;
+                    });
 
-            this.actStart(diag);
-
-            var actioncall = {
-                method: 'filesMove',
-                to: path,
-                fls: theWebUI.fManager.actionlist
-            };
-
-            this.action.postRequest({
-                action: flm.utils.json_encode(actioncall)
-            });
 
         },
 
@@ -2348,38 +2345,42 @@ function FileManager() {
 
         },
 
-        // 'do' prefix denotes an async operation
-        doCopy: function (button, diag) {
+        doCopy: function (destination, filePaths) {
 
-            var path = this.checkInputs(diag);
+          //  var path = this.checkInputs(diag);
 
-            if (path === false) {
-                return false;
+            destination = $.trim(destination);
+
+            var deferred = $.Deferred();
+            flm.manager.logStart(theUILang.fStarts.copy);
+
+            if (!destination.length) {
+               // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                deferred.reject( theUILang.fDiagInvalidname);
+                return deferred.promise();
             }
-            if (!this.buildList('fMan_' + diag)) {
-                return false;
+
+            if(!$type(filePaths) || filePaths.length === 0)
+            {
+                deferred.reject('Empty paths');
+                return deferred.promise();
             }
 
-            $(button).attr('disabled', true);
+            if (!flm.utils.validname(destination)) {
+               // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                deferred.reject( theUILang.fDiagInvalidname);
+                return deferred.promise();
+            }
 
-            this.actStart(diag);
-
-
-            return flm.api.copy(files, path)
-                .then(function (response) {
-                        flm.manager.inaction = false;
-
-                        console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
-                        if ((flm.currentPath === lastPath)
-                            && !flm.manager.isErr(response.errcode, ndn)) {
-                            flm.goToPath(flm.currentPath);
-                        }
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-
+            return flm.api.copy(flm.manager.getFullPaths(filePaths), destination)
+            .then(function (response) {
+                    flm.manager.logAction('copy', filePaths.length + ' files -> ' +destination)
+                    flm.Refresh(flm.getCurrentPath());
+                    return response;
+                },
+                function (response) {
+                    return response;
+                });
         },
 
         doRename: function (source, destination) {
@@ -2460,6 +2461,17 @@ function FileManager() {
             }
 
             return exists;
+        },
+
+        handleResult: function(action, promise)
+        {
+
+            return promise.then(function() {
+
+            },
+                function() {
+
+                })
         },
 
         isChecked: function (diag, what) {

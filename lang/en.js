@@ -68,6 +68,9 @@ theUILang.fDiagTo		= 'To:';
 theUILang.fDiagNoPath	= 'Destination not permitted';
 
 
+theUILang.fDiagCopyBut	= 'Copy';
+theUILang.fDiagMoveBut = ' Move';
+
 theUILang.flm_popup_delete	= 'Delete files and folders';
 theUILang.fDiagDeleteSel	= 'Files marked for removal:';
 theUILang.fDiagDeleteBut	= 'Delete';
