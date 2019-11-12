@@ -46,7 +46,7 @@
             if (file === false) {
                 return false;
             }
-            if (this.fileExists(this.basedir(file + '/'))) {
+            if (flm.ui.browser.fileExists(this.basedir(file + '/'))) {
                 alert(theUILang.fDiagSFVempty);
                 return false;
             }
