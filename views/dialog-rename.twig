@@ -13,34 +13,34 @@
                value="{{ basename(selectedTarget) }}"
                style="width:95%;"/>
     </fieldset>
-
-    <script>
-        (function (global) {
-            var dialogs = flm.ui.getDialogs();
-            // snapshot when trigerring
-            var currentPath = flm.getCurrentPath();
-
-            dialogs.onStart(function () {
-
-                var destination = dialogs.getTargetPath('#fMan-RenameTo');
-
-                dialogs.disableStartButton();
-
-                flm.manager.doRename(dialogs.getTargetPath(), flm.utils.buildPath([currentPath, destination])).then(
-                    function () {
-                        dialogs.hide();
-                    },
-                    function (reason) {
-                        console.log(reason);
-                        log(reason);
-                        dialogs.hide();
-                    }
-                );
-            });
-
-        })(window);
-    </script>
 {% endblock %}
+{% block scripts %}
+<script>
+    (function (global) {
+        var dialogs = flm.ui.getDialogs();
+        // snapshot when trigerring
+        var currentPath = flm.getCurrentPath();
 
+        dialogs.onStart(function () {
+
+            var destination = dialogs.getTargetPath('#fMan-RenameTo');
+
+            dialogs.disableStartButton();
+
+            flm.manager.doRename(dialogs.getTargetPath(), flm.utils.buildPath([currentPath, destination])).then(
+                function () {
+                    dialogs.hide();
+                },
+                function (reason) {
+                    console.log(reason);
+                    log(reason);
+                    dialogs.hide();
+                }
+            );
+        });
+
+    })(window);
+</script>
+{% endblock %}
 {% set startButtonValue = theUILang.fDiagRenameBut %}
 

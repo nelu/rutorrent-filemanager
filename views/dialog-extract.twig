@@ -8,54 +8,57 @@
 <fieldset>
     <div id="fMang_Archfile" style="width:460px;">{{ selectedTarget }}</div>
 </fieldset>
-    <script>
-        (function (global) {
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId('extract');
+{% endblock %}
 
-            dialogs.onStart(function () {
-                var dirname = $('#fMan-ndirname').val();
+{% block scripts %}
+<script>
+    (function (global) {
+        var dialogs = flm.ui.getDialogs();
+        var diagId = dialogs.getDialogId('extract');
 
-                if (!flm.utils.validname(dirname)) {
-                    alert(theUILang.fDiagInvalidname);
-                    return;
-                }
-                dirname = flm.utils.buildPath([currentPath, dirname]);
+        dialogs.onStart(function () {
+            var dirname = $('#fMan-ndirname').val();
 
-                flm.manager.doCopy(dirname).then(
-                    function () {
-                        theDialogManager.hide(diagId);
-
-                    },
-                    function (reason) {
-                        console.log(reason);
-                        log(reason);
-                        theDialogManager.hide(diagId);
-
-                    }
-                );
-            });
-
-            var path = this.checkInputs(diag, true);
-            if (path === false) {
-                return false;
+            if (!flm.utils.validname(dirname)) {
+                alert(theUILang.fDiagInvalidname);
+                return;
             }
+            dirname = flm.utils.buildPath([currentPath, dirname]);
 
-            var archive = $('#fMang_Archfile').text();
+            flm.manager.doCopy(dirname).then(
+                function () {
+                    theDialogManager.hide(diagId);
 
-            $(button).attr('disabled', true);
+                },
+                function (reason) {
+                    console.log(reason);
+                    log(reason);
+                    theDialogManager.hide(diagId);
 
-            this.actStart(diag);
+                }
+            );
+        });
 
-            var actioncall = {
-                method: 'fileExtract',
-                target: archive,
-                to: path
-            };
+        var path = this.checkInputs(diag, true);
+        if (path === false) {
+            return false;
+        }
 
-        })
-        (window);
-    </script>
+        var archive = $('#fMang_Archfile').text();
+
+        $(button).attr('disabled', true);
+
+        this.actStart(diag);
+
+        var actioncall = {
+            method: 'fileExtract',
+            target: archive,
+            to: path
+        };
+
+    })
+    (window);
+</script>
 {% endblock %}
 
 

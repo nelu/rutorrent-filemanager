@@ -1,3 +1,6 @@
+(function (global) {
+
+
 function FileManagerUtils() {
 
     var utils = {
@@ -932,9 +935,6 @@ function FileManager() {
                         create_sub.push([theUILang.fcSFV, "flm.ui.showSFVcreate()"]);
                     }
 
-
-                    //    create_sub.push([theUILang.fcScreens, (thePlugins.isInstalled('screenshots') && !pathIsDir && utils.getExt(path).match(new RegExp("^(" + thePlugins.get('screenshots').extensions.join('|') + ")$", "i")) && !(this.actiontimeout > 0)) ? flm.actionCheck('Screenshots', path) : null]);
-
                     context.add([CMENU_CHILD, theUILang.fcreate, create_sub]);
 
 
@@ -976,9 +976,8 @@ function FileManager() {
             };
 
             // table
-
             browse.setSorting = function () {
-                var table = theWebUI.getTable("flm");
+                var table = browser.table();
 
                 table.initialFileSortNumeric = table.sortNumeric;
                 table.sortNumeric = uiTable.sortNumeric;
@@ -1046,7 +1045,6 @@ function FileManager() {
                 return theWebUI.getTable("flm");
             };
 
-
             browse.updateNavigationPath = function () {
 
                 var cpath = $('#flm-navpath');
@@ -1103,9 +1101,9 @@ function FileManager() {
 
             };
 
-
             return browse;
         };
+
         var browser = fsBrowser();
 
         // file operation dialogs
@@ -1370,7 +1368,6 @@ function FileManager() {
 
         };
 
-
         self.console = {
 
             loader: thePlugins.isInstalled('create')
@@ -1621,7 +1618,6 @@ function FileManager() {
 
 
     flm.api = apiClient();
-    flm.currentPath = '/';
 
     flm.getCurrentPath = function (file) {
         var path = flm.currentPath + "";
@@ -1631,7 +1627,6 @@ function FileManager() {
 
         }
         return path;
-
     };
 
     flm.goToPath = function (dir) {
@@ -1680,14 +1675,6 @@ function FileManager() {
         archives: {},
         paths: [],
         inaction: false,
-        actionlist: {},
-        actionstats: 0,
-        actiontoken: 0,
-        actiontimeout: 0,
-        actionlp: 0,
-        activediag: '',
-
-
         logStart: function (message) {
 
             $("#flm-diag-console-stop").attr('disabled', false);
@@ -1829,7 +1816,7 @@ function FileManager() {
 
             this.logStart(theUILang.fStarts['delete']);
 
-           return flm.api.removeFiles(paths)
+           return flm.api.removeFiles(flm.manager.getFullPaths(paths))
                .then(function (response) {
                    flm.manager.logAction('delete', paths.length )
                    flm.Refresh(flm.getCurrentPath());
@@ -2083,6 +2070,8 @@ function FileManager() {
 
 // namespace
 
-window.flm = FileManager();
+global.flm = FileManager();
 theWebUI.FileManager = window.flm.ui;
 theWebUI.fManager = window.flm.manager;
+})
+(window);

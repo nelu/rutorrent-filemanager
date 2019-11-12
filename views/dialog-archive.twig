@@ -41,10 +41,16 @@
 </fieldset>
 <div style="clear:both;"></div>
 {% endblock %}
+
+{% block scripts %}
 <script>
     (function (global) {
+        console.log('dialog-arhive');
         var dialogs = flm.ui.getDialogs();
         var diagId = dialogs.getDialogId('archive');
+        var settings = flm.getConfig();
+        //settings);
+
 
         dialogs.onStart(function () {
 
@@ -55,7 +61,7 @@
               });
 
               type.change();
-*/
+    */
 
             var archive = this.checkInputs(diag);
             if (archive === false) {
@@ -129,8 +135,8 @@
             //
             //   );
 
-            dialogs.updatePath(flm.manager.recname(flm.manager.recname($('#flm-diag-navigation-path').val())) + '.' + ext);
-            ;
+            //   dialogs.updatePath(flm.manager.recname(flm.manager.recname($('#flm-diag-navigation-path').val())) + '.' + ext);
+
             $("#fMan_vsize").attr("disabled", (!$("#fMan_multiv").attr("disabled", (type != 0)).is(':checked') || (type != 0)));
             $('#fMan_apassword').attr("disabled", (type != 0));
             comp.empty();
@@ -167,3 +173,5 @@
     })
     (window);
 </script>
+{% endblock %}
+

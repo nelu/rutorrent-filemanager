@@ -33,40 +33,6 @@
         </script>#}
     </div>
 
-<script>
-(function (global) {
-
-    var cont = $('#flm_popup_nfo_view-content pre');
-
-    function getNfo(selection, mode) {
-
-        return flm.api.getNfo(selection, mode).then(
-            function (data) {
-                cont.empty();
-
-                if (browser.isIE) {
-                    document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
-                } else {
-                    cont.html(data.nfo);
-                }
-
-            },
-            function (reason) {
-                cont.text('Failed fetching .nfo data');
-                log(reason);
-            }
-        );
-    }
-
-    $("#fMan_nfoformat").change(function () {
-        var mode = $(this).val();
-        getNfo($('#flm-diag-navigation-path').val(), mode);
-    });
-
-    getNfo($('#flm-diag-navigation-path').val(), $('#fMan_nfoformat').val());
-})
-(window);
-</script>
 {% endblock %}
 
 {% block buttons %}
@@ -75,5 +41,42 @@
 <input type="button" class="flm-diag-cancel Button" value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function (global) {
+
+        var cont = $('#flm_popup_nfo_view-content pre');
+
+        function getNfo(selection, mode) {
+
+            return flm.api.getNfo(selection, mode).then(
+                function (data) {
+                    cont.empty();
+
+                    if (browser.isIE) {
+                        document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
+                    } else {
+                        cont.html(data.nfo);
+                    }
+
+                },
+                function (reason) {
+                    cont.text('Failed fetching .nfo data');
+                    log(reason);
+                }
+            );
+        }
+
+        $("#fMan_nfoformat").change(function () {
+            var mode = $(this).val();
+            getNfo($('#flm-diag-navigation-path').val(), mode);
+        });
+
+        getNfo($('#flm-diag-navigation-path').val(), $('#fMan_nfoformat').val());
+    })
+    (window);
+</script>
 {% endblock %}
 
