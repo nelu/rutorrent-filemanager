@@ -26,7 +26,7 @@
                 var currentPath = $('#flm_popup_mkdir-currentpath').val();
                 dirname = flm.utils.buildPath([currentPath, dirname]);
 
-                if (!flm.utils.validname(dirname)) {
+                if (!flm.utils.isValidPath(dirname)) {
                     alert(theUILang.fDiagInvalidname);
                     return;
                 }

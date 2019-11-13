@@ -101,16 +101,16 @@ theUILang.flm_popup_archive	= 'Create Archive';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
 
-theUILang.fManArComp = []; 
+theUILang.fManArComp = {};
 
 // rar
-theUILang.fManArComp[0] = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'];
+theUILang.fManArComp.rar = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'];
 
 // zip
-theUILang.fManArComp[1] = ['Store', 'Fast', 'Better'];
+theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 
 // tar
-theUILang.fManArComp[2]	= theUILang.fManArComp[3] = theUILang.fManArComp[4] = ['Default'];
+theUILang.fManArComp.tar	= ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
 theUILang.flm_popup_extract	= 'Extract Archive';

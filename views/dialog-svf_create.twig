@@ -21,7 +21,7 @@
                 $('#flm_popup_mkdir .fMan_Start').click(function () {
                     var dirname = $('#fMan-ndirname').val();
 
-                    if (!flm.utils.validname(dirname)) {
+                    if (!flm.utils.isValidPath(dirname)) {
                         alert(theUILang.fDiagInvalidname);
                         return;
                     }

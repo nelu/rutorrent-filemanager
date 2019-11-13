@@ -63,6 +63,16 @@ div[id^="flm_popup_"].dlg-header {
 div#flm-settings-pane {
     overflow: auto;
 }
+
+.aright {
+    float:right;
+}
+
+input.text-long {
+    min-width: 351px;
+    width: 88%;
+}
+
 #flm_popup_window.dlg-window #flm_popup_nfo_view-content pre, #flm_popup_console-log-container {
     overflow: scroll;
     height: 380px;

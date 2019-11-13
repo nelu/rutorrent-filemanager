@@ -26,9 +26,7 @@ $config['archive']['type'] = [
         ],
     'tar' => [
         'bin' =>'tar',
-        'compression' => [0],
+        'compression' => [0, 'gzip', 'bzip2'],
     ]
 ];
-
-$config['archive']['type']['gzip'] = $config['archive']['type']['bzip2'] = $config['archive']['type']['tar'];
 

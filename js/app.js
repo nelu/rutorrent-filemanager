@@ -6,6 +6,7 @@ function FileManagerUtils() {
     var utils = {
         perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'],
         archive_types: ["zip", "rar", "tar", "gz", "bz2"],
+
         isArchive: function (element) {
             var fext = this.getExt(element);
             return (this.archive_types.indexOf(fext) > -1);
@@ -269,7 +270,7 @@ function FileManagerUtils() {
             }
         },
 
-        validname: function (what) {
+        isValidPath: function (what) {
             //starts with /
             return (what.split('/').length > 1);
         }
@@ -310,7 +311,33 @@ function FileManagerUtils() {
 
         return (rar.join('/'));
     };
+    utils.stripFileExtension = function (currentPath, exts) {
+        exts = exts || [];
+        var ext;
+        // can be call recursively to strip all present extensions
+        currentPath = flm.utils.basename(currentPath);
+        var fileName = currentPath+"";
 
+        // escape regex: tar.gz
+
+        //strip current extensions if present
+        for (var i = 0; i < exts.length; i++) {
+            ext = exts[i];
+            var tempExt = ext.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+            currentPath = currentPath.replace(new RegExp('\.' + tempExt + '$'), "");
+        }
+
+        //generic ext removal
+        if (fileName === currentPath) {
+            tempExt = flm.utils.getExt(fileName);
+            if(tempExt)
+            {
+                currentPath = currentPath.replace(new RegExp('\.' + tempExt + '$'), "");
+            }
+        }
+
+        return currentPath;
+    };
     return utils;
 
 }
@@ -788,6 +815,11 @@ function FileManager() {
 
                 return exists;
             };
+
+            browse.getSelectedEntry = function()
+            {
+                return browse.selectedTarget;
+            },
 
             browse.getSelection = function () {
                 var selectedEntries = [];
@@ -1310,7 +1342,8 @@ function FileManager() {
             },
 
             updateTargetPath: function (path) {
-                return $('#flm-diag-navigation-path').val(path);
+                var ele = $('#flm-diag-navigation-path');
+                return ele.val(path);
             },
 
             setDirBrowser: function() {
@@ -1560,23 +1593,12 @@ function FileManager() {
             browser.init();
         };
 
-        self.showArchive = function (button) {
-
-            return dialogs.showDialog('archive',
-                {
-                    beforeShow: function () {
-
-                        var currentPath = flm.getCurrentPath();
-                        var ext = 'zip';
-                        $('#flm-diag-navigation-path').val(flm.currentPath + flm.manager.recname(name) + '.' + ext);
-
-                    }
-                });
-
-
+        self.showArchive = function () {
+            return dialogs.showDialog('archive');
         };
 
         self.viewNFO= function (file) {
+            file && (browser.selectedTarget = file);
             dialogs.showDialog('nfo_view');
         };
 
@@ -1741,6 +1763,70 @@ function FileManager() {
 
         doArchive: function (name, ext) {
 
+            var archive = this.checkInputs(diag);
+            if (archive === false) {
+                return false;
+            }
+
+            var type = archiveType.val();
+            var vsize = ((this.archives.types[type] != 'zip') && $("#fMan_multiv").is(':checked') && volumeSize.val().match(/^\d+$/)) ? volumeSize.val() : 0;
+            var compression = compression.val();
+            var password = password.val();
+
+            var self = this;
+
+            var options = {
+                format: self.settings.arcnscheme,
+                type: type,
+                compression: compression,
+                vsize: vsize,
+                password: password
+            };
+
+
+            var dirname = $('#fMan-ndirname').val();
+
+            if (!flm.utils.isValidPath(dirname)) {
+                alert(theUILang.fDiagInvalidname);
+                return;
+            }
+            dirname = flm.utils.buildPath([currentPath, dirname]);
+
+            flm.manager.doArchive(entries).then(
+                function () {
+                    theDialogManager.hide(diagId);
+
+                },
+                function (reason) {
+                    console.log(reason);
+                    log(reason);
+                    theDialogManager.hide(diagId);
+
+                }
+            );
+
+            if (flm.ui.browser.fileExists(this.basedir(archive + '/'))) {
+                alert(theUILang.fDiagArchempty);
+                return false;
+            }
+
+            if (!this.buildList('fMan_' + diag)) {
+                return false;
+            }
+
+
+            $(button).attr('disabled', true);
+            this.actStart(diag);
+
+            /*    var actioncall = {
+                    method: 'filesCompress',
+                    target: archive,
+                    mode: options,
+                    fls: theWebUI.fManager.actionlist
+                };
+
+                this.action.postRequest({action: flm.utils.json_encode(actioncall)});*/
+
             if (!(theWebUI.fManager.actiontoken.length > 1)) {
 
                 this.doSel('CArchive');
@@ -1760,6 +1846,7 @@ function FileManager() {
 
             this.makeVisbile('fMan_CArchive');
         },
+
         createNewDir: function (dirname) {
 
             var ndn = $.trim(dirname);
@@ -1847,7 +1934,7 @@ function FileManager() {
                 return deferred.promise();
             }
 
-            if (!flm.utils.validname(destination)) {
+            if (!flm.utils.isValidPath(destination)) {
                 // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
                 deferred.reject( theUILang.fDiagInvalidname);
                 return deferred.promise();
@@ -1887,7 +1974,7 @@ function FileManager() {
                 return deferred.promise();
             }
 
-            if (!flm.utils.validname(destination)) {
+            if (!flm.utils.isValidPath(destination)) {
                // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
                 deferred.reject( theUILang.fDiagInvalidname);
                 return deferred.promise();
@@ -1919,7 +2006,7 @@ function FileManager() {
                 return deferred.promise();
             }
 
-            if (!flm.utils.validname(destination)) {
+            if (!flm.utils.isValidPath(destination)) {
                 flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
                 deferred.reject(theUILang.fDiagInvalidname);
                 return deferred.promise();

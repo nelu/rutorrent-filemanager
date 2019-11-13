@@ -11,14 +11,12 @@
 
 {% block content %}
 
- {{ window.pathBrowser(currentPath, theUILang.fDiagArchive) }}
+ {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
 <fieldset>
     <legend>Options:</legend>
     <label style="float: left;"> {{ theUILang.fDiagCArchType }}
         <select name="fMan_archtype" id="fMan_archtype">
-            {% for type in utils.archive_types %}
-                <option {{ type=='zip' ? 'selected="selected"': '' }}value="{{ type }}"> {{ type|upper }}</option>
-            {% endfor %}
+
         </select>
     </label>
     <label style="float: left; margin-left: 10px;">
@@ -28,7 +26,7 @@
     <label style="float: right;">
         {{ theUILang.fDiagCArchVsize }}
         <input name="fMan_vsize" class="fMan_CArchiveRAR Textbox num1" type="text" value="" id="fMan_vsize"
-               disabled="true"/>
+               disabled="disabled"/>
     </label>
     <label style="float: right;">
         <input name="fMan_multiv" type="checkbox" value="1" class="fMan_CArchiveRAR" id="fMan_multiv"
@@ -48,128 +46,114 @@
         console.log('dialog-arhive');
         var dialogs = flm.ui.getDialogs();
         var diagId = dialogs.getDialogId('archive');
-        var settings = flm.getConfig();
-        //settings);
+        var settings = flm.getConfig().archives;
 
+        var archiveType = $("#fMan_archtype");
+        var compression = $("#fMan_archcompr");
+        var password = $("#fMan_apassword");
+        var volumeSize = $("#fMan_vsize");
+
+        var compressExtMap  = {
+            'gzip': 'tar.gz',
+            'bzip2': 'tar.bz2'
+        };
 
         dialogs.onStart(function () {
 
-            /*  var type = $('#fMan_archtype').empty();
+            dialogs.disableStartButton();
 
-              $.each(flm.utils.archive_types, function(index, value) {
-                  type.append((value === ext) ? $(opt).attr('selected', 'selected').get(0) : opt);
-              });
-
-              type.change();
-    */
-
-            var archive = this.checkInputs(diag);
-            if (archive === false) {
-                return false;
-            }
-
-            var type = $("#fMan_archtype").val();
-            var vsize = ((this.archives.types[type] != 'zip') && $("#fMan_multiv").is(':checked') && $("#fMan_vsize").val().match(/^\d+$/)) ? $("#fMan_vsize").val() : 0;
-            var compression = $('#fMan_archcompr').val();
-            var password = $('#fMan_apassword').val();
-
-            var self = this;
-
-            var options = {
-                format: self.settings.arcnscheme,
-                type: type,
-                compression: compression,
-                vsize: vsize,
-                password: password
-            };
-
-
-            var dirname = $('#fMan-ndirname').val();
-
-            if (!flm.utils.validname(dirname)) {
-                alert(theUILang.fDiagInvalidname);
-                return;
-            }
-            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-            flm.manager.doArchive(entries).then(
-                function () {
-                    theDialogManager.hide(diagId);
-
-                },
+            flm.manager.doArchive(
+                {
+                    target: dialogs.getTargetPath(),
+                    filePaths: dialogs.getCheckedList(),
+                    type: archiveType.val(),
+                    compression: compression.val(),
+                    password: password.val(),
+                    volumeSize: volumeSize.val()
+                }
+            ).then(
+                function () { dialogs.hide();},
                 function (reason) {
                     console.log(reason);
                     log(reason);
-                    theDialogManager.hide(diagId);
-
+                    dialogs.hide(diagId);
                 }
             );
+
         });
 
+
+        var updateArchiveName = function () {
+
+            var type, ext;
+            type
+                = ext
+                = archiveType.val().toLowerCase();
+            var level = settings[type].compression[ compression.val()];
+
+
+
+            if(type === 'tar')
+            {
+                ext = compressExtMap.hasOwnProperty(level) ? compressExtMap[level] : ext;
+            }
+
+            var file  = $('#flm-diag-navigation-path').val();
+
+            var archives = Object.keys(settings);
+            archives = $.uniqueSort(archives.concat(Object.values(compressExtMap)));
+
+            file = flm.utils.buildPath([
+                flm.utils.basedir(file),
+                flm.utils.stripFileExtension(file, archives)
+            ]);
+
+            file = flm.utils.trimslashes(file) === "" || flm.utils.trimslashes(file) === flm.utils.trimslashes(flm.getCurrentPath())
+                ? flm.ui.browser.getSelectedEntry()
+                : file;
+            var fileName = file+ '.' + ext;
+
+            dialogs.updateTargetPath(fileName);
+        };
+
+        var updateCompression = function () {
+
+            var type  = archiveType.val().toLowerCase();
+
+            updateArchiveName();
+
+            var notRar = (type !== 'rar');
+            $("#fMan_vsize").attr("disabled", (!$("#fMan_multiv").attr("disabled", notRar).is(':checked') || notRar));
+            $('#fMan_apassword').attr("disabled", notRar);
+
+            compression.empty();
+            for (var i = 0; i < settings[type].compression.length; i++) {
+                compression.append('<option value="' + i + '">' + theUILang.fManArComp[type][i] + '</option>');
+            }
+        };
+
+        if(!archiveType.find('option').length)
+        {
+            for (var type in settings) {
+                archiveType.append('<option value="' + type + '">' + type.toUpperCase() + '</option>');
+            }
+        }
 
         $("#fMan_multiv").change(function () {
-
             var dis = $(this).is(':checked');
-            $("#fMan_vsize").attr("disabled", !dis);
+            volumeSize.attr("disabled", !dis);
         });
 
-        $("#fMan_archtype").change(function () {
-
-            var type = $(this).val();
-            var comp = $("#fMan_archcompr");
-
-            var ext;
-
-            switch (window.flm.utils.archive_types[type]) {
-                case 'gzip':
-                    ext = 'tar.gz';
-                    break;
-                case 'bzip2':
-                    ext = 'tar.bz2';
-                    break;
-                default:
-                    ext = window.flm.utils.archive_types[type];
-            }
-
-            //   $('#flm-diag-navigation-path').val(
-            //
-            //   );
-
-            //   dialogs.updatePath(flm.manager.recname(flm.manager.recname($('#flm-diag-navigation-path').val())) + '.' + ext);
-
-            $("#fMan_vsize").attr("disabled", (!$("#fMan_multiv").attr("disabled", (type != 0)).is(':checked') || (type != 0)));
-            $('#fMan_apassword').attr("disabled", (type != 0));
-            comp.empty();
-
-            for (var i = 0; i < theWebUI.fManager.archives.compress[type].length; i++) {
-                comp.append('<option value="' + i + '">' + theUILang.fManArComp[type][i] + '</option>');
-            }
-
+        archiveType.change(function () {
+            updateCompression()
         });
 
+        compression.change(function () {
+            updateArchiveName();
+        });
 
+        updateCompression();
 
-        if (flm.ui.browser.fileExists(this.basedir(archive + '/'))) {
-            alert(theUILang.fDiagArchempty);
-            return false;
-        }
-
-        if (!this.buildList('fMan_' + diag)) {
-            return false;
-        }
-
-
-        $(button).attr('disabled', true);
-        this.actStart(diag);
-
-        /*    var actioncall = {
-                method: 'filesCompress',
-                target: archive,
-                mode: options,
-                fls: theWebUI.fManager.actionlist
-            };
-
-            this.action.postRequest({action: flm.utils.json_encode(actioncall)});*/
     })
     (window);
 </script>

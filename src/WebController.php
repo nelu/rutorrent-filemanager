@@ -95,28 +95,20 @@ class WebController {
   public function getConfig() {
       global $topDirectory;
       
-      $archive = $this->config['archive'];
+      $archive = [];
       $bins = [];
 
-      $archive['types'] = [];
-
-      $archive['compress'] = [];
-
-      $i =0;
-      foreach ($archive['type'] as $ext => $conf) {
+      foreach ($this->config['archive']['type'] as $ext => $conf) {
           if(!isset($bins[$conf['bin']]))
           {
               $bins[$conf['bin']] = findEXE($conf['bin']);
-
           }
           if(!$bins[$conf['bin']])
           {
-              $archive['type'][$ext] = false;
+              $archive[$ext] = false;
+          } else {
+              $archive[$ext] = $conf;
           }
-
-          $archive['types'][] = $ext;
-          $archive['compress'][$i] = $conf['compression'];
-            $i++;
       }
 
     $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);
