@@ -463,7 +463,7 @@ function FileManager() {
             });
         };
 
-        client.createArchive = function(archive, files) {
+        client.createArchive = function(archive, files, options) {
 
             return client.post({
                 method: 'filesCompress',
@@ -1250,7 +1250,13 @@ function FileManager() {
                         newContent.find('.flm-diag-start').attr('disabled', false)
                             .click(function () {
                                 if ($type(diags.onStartEvent) === "function") {
-                                    diags.onStartEvent.apply(diags, arguments);
+                                    var promise = diags.onStartEvent.apply(diags, arguments);
+                                    promise.then(        function () { dialogs.hide();},
+                                        function (reason) {
+                                            dialogs.hide();
+                                            console.log(reason);
+                                            log('filemanager: ' + reason);
+                                    });
                                 }
                             });
 
@@ -1258,38 +1264,6 @@ function FileManager() {
                     }
                     );
 
-            },
-
-            checkInputs: function (diag, forcedir) {
-
-                forcedir = $type(forcedir) ? true : false;
-
-                var path = $.trim($('#flm-diag-navigation-path').val());
-
-                if (!path) {
-                    alert(theUILang.fDiagNoPath);
-                    return false;
-                }
-                if (path.length < this.homedir.length) {
-                    alert(theUILang.fDiagNoPath);
-                    return false;
-                }
-
-                //       path = path.split(this.homedir);
-                path = flm.utils.trimslashes(path[1]);
-
-                if ((path == flm.utils.trimslashes(flm.currentPath)) && !forcedir) {
-                    alert(theUILang.fDiagNoPath);
-                    return false;
-                }
-
-                var funky = flm.utils.trimslashes(flm.currentPath) ? flm.utils.trimslashes(path.split(flm.utils.trimslashes(flm.currentPath) + '/')[1]).split('/').shift() : path.split('/').shift();
-                if (this.isChecked('fMan_' + diag, this.basedir(path)) || this.fileExists(funky)) {
-                    alert(theUILang.fDiagNoPath);
-                    return false;
-                }
-
-                return '/' + path;
             },
 
             disableStartButton: function (diag) {
@@ -1315,6 +1289,7 @@ function FileManager() {
 
                 return list;
             },
+
             getDialogId: function (what) {
                 return 'flm_popup_' + what;
             },
@@ -1693,9 +1668,7 @@ function FileManager() {
         }
     };
 
-    var instance = {
-        archives: {},
-        paths: [],
+    var manager = {
         inaction: false,
         logStart: function (message) {
 
@@ -1712,21 +1685,6 @@ function FileManager() {
             flm.ui.console.showProgress();
 
             flm.ui.getDialogs().hide();
-        },
-
-
-        logStop: function () {
-            flm.ui.console.hideProgress();
-            this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.fManager.actiontoken));
-            this.cleanactions();
-        },
-
-        logAction: function (action, text) {
-            flm.ui.console.show(action + ': ' + text);
-        },
-
-        logConsole: function (action, text) {
-            flm.ui.console.log(action + ': ' + text);
         },
 
         basedir: function (str) {
@@ -1761,90 +1719,36 @@ function FileManager() {
             return entries;
         },
 
-        doArchive: function (name, ext) {
+        doArchive: function (archive, files, options) {
 
-            var archive = this.checkInputs(diag);
-            if (archive === false) {
-                return false;
+            var deferred = $.Deferred();
+            flm.manager.logStart(theUILang.fStarts.archive);
+
+            if (!archive.length) {
+                deferred.reject( theUILang.fDiagNoPath);
+                return deferred.promise();
             }
 
-            var type = archiveType.val();
-            var vsize = ((this.archives.types[type] != 'zip') && $("#fMan_multiv").is(':checked') && volumeSize.val().match(/^\d+$/)) ? volumeSize.val() : 0;
-            var compression = compression.val();
-            var password = password.val();
-
-            var self = this;
-
-            var options = {
-                format: self.settings.arcnscheme,
-                type: type,
-                compression: compression,
-                vsize: vsize,
-                password: password
-            };
-
-
-            var dirname = $('#fMan-ndirname').val();
-
-            if (!flm.utils.isValidPath(dirname)) {
-                alert(theUILang.fDiagInvalidname);
-                return;
-            }
-            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-            flm.manager.doArchive(entries).then(
-                function () {
-                    theDialogManager.hide(diagId);
-
-                },
-                function (reason) {
-                    console.log(reason);
-                    log(reason);
-                    theDialogManager.hide(diagId);
-
-                }
-            );
-
-            if (flm.ui.browser.fileExists(this.basedir(archive + '/'))) {
-                alert(theUILang.fDiagArchempty);
-                return false;
+            if(!$type(files) || files.length === 0)
+            {
+                deferred.reject('Empty paths');
+                return deferred.promise();
             }
 
-            if (!this.buildList('fMan_' + diag)) {
-                return false;
+            if (!flm.utils.isValidPath(archive)) {
+                deferred.reject( theUILang.fDiagInvalidname);
+                return deferred.promise();
             }
 
-
-            $(button).attr('disabled', true);
-            this.actStart(diag);
-
-            /*    var actioncall = {
-                    method: 'filesCompress',
-                    target: archive,
-                    mode: options,
-                    fls: theWebUI.fManager.actionlist
-                };
-
-                this.action.postRequest({action: flm.utils.json_encode(actioncall)});*/
-
-            if (!(theWebUI.fManager.actiontoken.length > 1)) {
-
-                this.doSel('CArchive');
-
-                $('#flm-diag-navigation-path').val(this.homedir + flm.currentPath + this.recname(name) + '.' + this.archives.types[ext]);
-
-                var type = $('#fMan_archtype').empty();
-
-                $.each(this.archives.types, function (index, value) {
-
-                    var opt = '<option value="' + index + '">' + value.toUpperCase() + '</option>';
-                    type.append((index == ext) ? $(opt).attr('selected', 'selected').get(0) : opt);
-                });
-
-                type.change();
-            }
-
-            this.makeVisbile('fMan_CArchive');
+            return flm.api.createArchive(archive, flm.manager.getFullPaths(files), options)
+                .then(function (response) {
+                        flm.manager.logAction('archive', files.length + ' files -> ' +files)
+                        flm.Refresh(flm.getCurrentPath());
+                        return response;
+                    },
+                    function (response) {
+                        return response;
+                    });
         },
 
         createNewDir: function (dirname) {
@@ -1924,19 +1828,19 @@ function FileManager() {
 
             if (!destination.length) {
                 // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                deferred.reject( theUILang.fDiagInvalidname);
+                deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
                 return deferred.promise();
             }
 
             if(!$type(filePaths) || filePaths.length === 0)
             {
-                deferred.reject('Empty paths');
+                deferred.reject('move: ' + 'Empty paths');
                 return deferred.promise();
             }
 
             if (!flm.utils.isValidPath(destination)) {
                 // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                deferred.reject( theUILang.fDiagInvalidname);
+                deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
                 return deferred.promise();
             }
 
@@ -1949,8 +1853,6 @@ function FileManager() {
                     function (response) {
                         return response;
                     });
-
-
         },
 
         doCopy: function (destination, filePaths) {
@@ -1982,7 +1884,7 @@ function FileManager() {
 
             return flm.api.copy(flm.manager.getFullPaths(filePaths), destination)
             .then(function (response) {
-                    flm.manager.logAction('copy', filePaths.length + ' files -> ' +destination)
+                    flm.manager.logAction('copy', filePaths.length + ' files -> ' +destination);
                     flm.Refresh(flm.getCurrentPath());
                     return response;
                 },
@@ -2047,22 +1949,9 @@ function FileManager() {
             theWebUI.fManager.doSel('CreateSFV');
 
         },
+
         doExtract: function (what, here) {
 
-        },
-
-        isChecked: function (diag, what) {
-
-            var ret = false;
-
-            $('#' + diag + ' .checklist input:checked').each(function (index, val) {
-                if ((what == decodeURIComponent(val.value)) || (what + '/' == decodeURIComponent(val.value))) {
-                    ret = true;
-                    return false;
-                }
-            });
-
-            return ret;
         },
 
         isErr: function (errcode, extra) {
@@ -2077,6 +1966,20 @@ function FileManager() {
             }
 
             return false;
+        },
+
+        logStop: function () {
+            flm.ui.console.hideProgress();
+            this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.fManager.actiontoken));
+            this.cleanactions();
+        },
+
+        logAction: function (action, text) {
+            flm.ui.console.show(action + ': ' + text);
+        },
+
+        logConsole: function (action, text) {
+            flm.ui.console.log(action + ': ' + text);
         },
 
         doMediainfo: function (what) {
@@ -2120,7 +2023,6 @@ function FileManager() {
 
         },
 
-
         recname: function (what) {
 
             if (flm.utils.isDir(what)) {
@@ -2142,7 +2044,7 @@ function FileManager() {
 
             return (recf.join(''));
 
-        },
+        }
 
     };
 
@@ -2150,7 +2052,7 @@ function FileManager() {
     flm.views = views();
     flm.ui = userInterface();
 
-    flm.manager = instance;
+    flm.manager = manager;
 
     return flm;
 }

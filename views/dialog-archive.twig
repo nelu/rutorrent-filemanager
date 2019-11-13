@@ -62,7 +62,7 @@
 
             dialogs.disableStartButton();
 
-            flm.manager.doArchive(
+            return flm.manager.doArchive(
                 {
                     target: dialogs.getTargetPath(),
                     filePaths: dialogs.getCheckedList(),
@@ -70,13 +70,6 @@
                     compression: compression.val(),
                     password: password.val(),
                     volumeSize: volumeSize.val()
-                }
-            ).then(
-                function () { dialogs.hide();},
-                function (reason) {
-                    console.log(reason);
-                    log(reason);
-                    dialogs.hide(diagId);
                 }
             );
 

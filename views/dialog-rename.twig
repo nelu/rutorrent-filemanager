@@ -27,16 +27,7 @@
 
             dialogs.disableStartButton();
 
-            flm.manager.doRename(dialogs.getTargetPath(), flm.utils.buildPath([currentPath, destination])).then(
-                function () {
-                    dialogs.hide();
-                },
-                function (reason) {
-                    console.log(reason);
-                    log(reason);
-                    dialogs.hide();
-                }
-            );
+            return flm.manager.doRename(dialogs.getTargetPath(), flm.utils.buildPath([currentPath, destination]));
         });
 
     })(window);

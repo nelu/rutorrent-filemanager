@@ -31,7 +31,7 @@
                     return;
                 }
 
-                flm.manager.createNewDir(dirname).then(
+                return flm.manager.createNewDir(dirname).then(
                     function () {
                         flm.ui.getDialogs().hide();
 
