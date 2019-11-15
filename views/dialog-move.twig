@@ -11,9 +11,11 @@
 <script>
 (function (global) {
     var dialogs = flm.ui.getDialogs();
+    var diagId = dialogs.getDialogId('move');
+
 
     dialogs.onStart(function () {
-        return flm.manager.doMove(dialogs.getCheckedList(), dialogs.getTargetPath());
+        return flm.manager.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
     });
 
 })

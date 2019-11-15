@@ -9,10 +9,10 @@
                     <option value="win">WIN</option>
                 </select>
                 {% set nfoFile = buildPath([currentPath, selectedTarget]) %}
-                <input name="flm-diag-navigation-path" type="hidden" id="flm-diag-navigation-path" value="{{ selectedTarget }}"/></td>
+                <input name="flm-diag-nav-path" type="hidden" class="flm-diag-nav-path" value="{{ selectedTarget }}"/></td>
         </tr>
     </table>
-    <div id="flm_popup_nfo_view-content" style="width: 549px;">
+    <div id="flm_popup_nfo_view-content" >
         <pre>Loading...</pre>
 
 {#        <div id="editor">function foo(items) {
@@ -46,8 +46,11 @@
 {% block scripts %}
 <script>
     (function (global) {
-
+        var dialogs = flm.ui.getDialogs();
+        var diagId = dialogs.getDialogId('nfo_view');
         var cont = $('#flm_popup_nfo_view-content pre');
+
+        theDialogManager.center(flm.utils.ltrim(diagId, '#'));
 
         function getNfo(selection, mode) {
 
@@ -63,18 +66,17 @@
 
                 },
                 function (reason) {
-                    cont.text('Failed fetching .nfo data');
-                    log(reason);
+                    cont.text('Failed fetching .nfo data: ' + JSON.stringify(reason));
                 }
             );
         }
 
         $("#fMan_nfoformat").change(function () {
             var mode = $(this).val();
-            getNfo($('#flm-diag-navigation-path').val(), mode);
+            getNfo(dialogs.getTargetPath(diagId), mode);
         });
 
-        getNfo($('#flm-diag-navigation-path').val(), $('#fMan_nfoformat').val());
+        getNfo(dialogs.getTargetPath(diagId), $('#fMan_nfoformat').val());
     })
     (window);
 </script>

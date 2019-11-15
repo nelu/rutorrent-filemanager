@@ -37,13 +37,14 @@ table.disabled_table {
     color: #DFDFDF;
 }
 
-#flm_popup_window.dlg-window
+div[id^="flm_popup_"].dlg-window
 {
     min-width: 350px;
     overflow: visible;
 }
 
 div[id^="flm_popup_"].dlg-header {
+    margin-left: 1px;
     padding-left: 2px;
 }
 
@@ -71,6 +72,12 @@ div#flm-settings-pane {
 input.text-long {
     min-width: 351px;
     width: 88%;
+}
+
+#flm_popup_nfo_view-content {
+    width: 589px;
+    height: 600px;
+    overflow: scroll;
 }
 
 #flm_popup_window.dlg-window #flm_popup_nfo_view-content pre, #flm_popup_console-log-container {

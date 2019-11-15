@@ -1,4 +1,3 @@
-{% set pathbrowse = false %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
 
@@ -12,11 +11,12 @@
 <script>
 (function (global) {
     var dialogs = flm.ui.getDialogs();
+    var diagId = dialogs.getDialogId();
 
     dialogs.onStart(function () {
 
-        var checklist = dialogs.getCheckedList();
-        dialogs.disableStartButton();
+        var checklist = dialogs.getCheckedList(diagId);
+        dialogs.disableStartButton(diagId);
 
         return flm.manager.doDelete(checklist);
     });

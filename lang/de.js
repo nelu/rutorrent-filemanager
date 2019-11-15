@@ -111,7 +111,7 @@ theUILang.fDiagCArchiveSel	= 'Zum Archiv hinzufügen:';
 theUILang.fDiagExtract	= 'Entpacke Archive';
 theUILang.fDiagArchive	= 'Archiv:';
 theUILang.fDiagCompression	= 'Kompression:';
-theUILang.fDiagExtDo		= 'Entpacke';
+theUILang.flm_diag_extract_button		= 'Entpacke';
 theUILang.fDiagArchempty	= 'Bitte Archivnamen eingeben!';
 
 theUILang.fStarts = { 

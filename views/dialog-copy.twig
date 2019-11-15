@@ -11,10 +11,11 @@
 <script>
 (function (global) {
     var dialogs = flm.ui.getDialogs();
+    var diagId = dialogs.getDialogId();
 
     dialogs.onStart(function () {
         dialogs.disableStartButton();
-        return flm.manager.doCopy(dialogs.getTargetPath(), dialogs.getCheckedList()).then(
+        return flm.manager.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId)).then(
 
         );
     });

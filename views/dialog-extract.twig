@@ -1,63 +1,16 @@
 {% set pathbrowse = currentPath %}
+{% set multiselect = true %}
+{% set multiselectFilesOnly = false %}
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
     <legend>{{ theUILang.fDiagArchive }}</legend>
 {% endblock %}
-{% block content %}
-<fieldset>
-    <div id="fMang_Archfile" style="width:460px;">{{ selectedTarget }}</div>
-</fieldset>
-{% endblock %}
+{% set startButtonValue = theUILang.flm_diag_extract_button %}
 
 {% block scripts %}
 <script>
-    (function (global) {
-        var dialogs = flm.ui.getDialogs();
-        var diagId = dialogs.getDialogId('extract');
-
-        dialogs.onStart(function () {
-            var dirname = $('#fMan-ndirname').val();
-
-            if (!flm.utils.isValidPath(dirname)) {
-                alert(theUILang.fDiagInvalidname);
-                return;
-            }
-            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-            flm.manager.doCopy(dirname).then(
-                function () {
-                    theDialogManager.hide(diagId);
-
-                },
-                function (reason) {
-                    console.log(reason);
-                    log(reason);
-                    theDialogManager.hide(diagId);
-
-                }
-            );
-        });
-
-        var path = this.checkInputs(diag, true);
-        if (path === false) {
-            return false;
-        }
-
-        var archive = $('#fMang_Archfile').text();
-
-        $(button).attr('disabled', true);
-
-        this.actStart(diag);
-
-        var actioncall = {
-            method: 'fileExtract',
-            target: archive,
-            to: path
-        };
-
-    })
-    (window);
+    injectScript(flm.pluginUrl+'js/extract.js');
 </script>
 {% endblock %}
 

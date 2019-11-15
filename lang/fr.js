@@ -113,7 +113,7 @@ theUILang.fDiagCArchiveSel	= "Ajouter à l'archive :";
 theUILang.fDiagExtract	= "Extraire une archive";
 theUILang.fDiagArchive	= "Archive :";
 theUILang.fDiagCompression	= "Compression :";
-theUILang.fDiagExtDo		= "Extraire";
+theUILang.flm_diag_extract_button		= "Extraire";
 theUILang.fDiagArchempty	= "Veuillez entrer un nom d'archive.";
 
 theUILang.fStarts = { 

@@ -116,7 +116,7 @@ theUILang.fDiagCArchiveSel	= 'Add to archive:';
 theUILang.flm_popup_extract	= 'Extract Archive';
 theUILang.fDiagArchive	= 'Archive:';
 theUILang.fDiagCompression	= 'Compression:';
-theUILang.fDiagExtDo		= 'Extract';
+theUILang.flm_diag_extract_button		= 'Extract';
 theUILang.fDiagArchempty	= 'Please name an archive file';
 
 theUILang.fStarts = { 

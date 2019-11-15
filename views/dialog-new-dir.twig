@@ -31,18 +31,7 @@
                     return;
                 }
 
-                return flm.manager.createNewDir(dirname).then(
-                    function () {
-                        flm.ui.getDialogs().hide();
-
-                    },
-                    function (reason) {
-                        console.log(reason);
-                        log(reason);
-                        flm.ui.getDialogs().hide();
-
-                    }
-                );
+                return flm.manager.createNewDir(dirname);
             });
 
         })

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <div id="flm-diag-navigation-path" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
+    <div class="flm-diag-nav-path" style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>
     <fieldset>
         <legend>{{ theUILang.fDiagRenameTo }}</legend>
         <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
@@ -18,16 +18,18 @@
 <script>
     (function (global) {
         var dialogs = flm.ui.getDialogs();
+        var diagId = dialogs.getDialogId();
+
         // snapshot when trigerring
         var currentPath = flm.getCurrentPath();
 
         dialogs.onStart(function () {
 
-            var destination = dialogs.getTargetPath('#fMan-RenameTo');
+            var destination = $('#fMan-RenameTo').val();
 
             dialogs.disableStartButton();
 
-            return flm.manager.doRename(dialogs.getTargetPath(), flm.utils.buildPath([currentPath, destination]));
+            return flm.manager.doRename(dialogs.getTargetPath(diagId), flm.utils.buildPath([currentPath, destination]));
         });
 
     })(window);
