@@ -69,7 +69,7 @@ plugin.ui.setConfig = function ()
 			.addClass('table_tab')
 			.html('<div id="'+plugin.ui.fsBrowserTableContainer+'" class="stable"></div>')
 			.get(0),
-		"filemanager");
+		"filemanager", "lcont");
 
 	theWebUI.tables.flm = tableSchema;
 };
