@@ -1310,7 +1310,7 @@ function FileManager() {
                                 dialogs.hide(diagId);
                             });
 
-                        diags.enableStartButton(diagId);
+                        dialogs.disableStartButton();
 
                         newContent.find('.flm-diag-start').attr('disabled', false)
                             .click(function () {

@@ -71,7 +71,40 @@
 
 {% block scripts %}
 <script>
-    injectScript(flm.pluginUrl+'js/nfo.js');
+    (function (global) {
+        var dialogs = flm.ui.getDialogs();
+        var diagId = dialogs.getDialogId('nfo_view');
+        var cont = $('#flm_popup_nfo_view-content pre');
+
+        theDialogManager.center(flm.utils.ltrim(diagId, '#'));
+
+        function getNfo(selection, mode) {
+
+            return flm.api.getNfo(selection, mode).then(
+                function (data) {
+                    cont.empty();
+
+                    if (browser.isIE) {
+                        document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
+                    } else {
+                        cont.html(data.nfo);
+                    }
+
+                },
+                function (reason) {
+                    cont.text('Failed fetching .nfo data: ' + JSON.stringify(reason));
+                }
+            );
+        }
+
+        $("#fMan_nfoformat").change(function () {
+            var mode = $(this).val();
+            getNfo(dialogs.getTargetPath(diagId), mode);
+        });
+
+        getNfo(dialogs.getTargetPath(diagId), $('#fMan_nfoformat').val());
+    })
+    (window);
 </script>
 {% endblock %}
 
