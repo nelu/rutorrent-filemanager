@@ -128,6 +128,8 @@ plugin.ui.init = function () {
 
 	};
 
+	plugin.markLoaded();
+
 };
 
 

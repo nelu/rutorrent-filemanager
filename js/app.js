@@ -475,6 +475,23 @@ function FileManager() {
             });
         };
 
+        client.sfvCheck = function(path){
+            return client.post({
+                method: 'sfv_check',
+                target: path
+            });
+        };
+
+        client.sfvCreate = function(path, files)
+        {
+            return client.post({
+                method: 'sfvCreate',
+                target: path,
+                fls: files
+            });
+        };
+
+
         client.createArchive = function(archive, files, options) {
 
             return client.post({
@@ -1040,6 +1057,7 @@ function FileManager() {
 
                     (fext === 'sfv')
                     && context.add([theUILang.fcheckSFV, "flm.ui.getDialogs().showDialog('sfv_check')"]);
+
                     (!pathIsDir && thePlugins.isInstalled('mediainfo'))
                     && context.add([theUILang.fMediaI, function () {
                         flm.doMediainfo(path);
@@ -1256,7 +1274,7 @@ function FileManager() {
                 },
                 sfv_check: {
                     modal: true,
-                    template: "dialog-sfv-check"
+                    template: "dialog-svf_check"
                 },
                 sfv_create: {
                     modal: true,
@@ -2037,10 +2055,65 @@ function FileManager() {
 
         },
 
-        doSfvCreate: function (what) {
+        doSfvCreate: function (checksumFile, files) {
 
-            $('#fMan_CreateSFVbpath').val(this.homedir + flm.currentPath + this.recname(what) + '.sfv');
-            theWebUI.fManager.doSel('CreateSFV');
+
+            var file = this.checkInputs(diag);
+            if (file === false) {
+                return false;
+            }
+            if (flm.ui.browser.fileExists(this.basedir(file + '/'))) {
+                alert(theUILang.fDiagSFVempty);
+                return false;
+            }
+
+            if (!this.buildList('fMan_' + diag)) {
+                return false;
+            }
+
+            $(button).attr('disabled', true);
+            this.actStart(diag);
+
+
+            var actioncall = {
+                method: 'sfvCreate',
+                target: file,
+                fls: theWebUI.fManager.actionlist
+            };
+
+
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
+
+        },
+
+        doSfvCheck: function (file) {
+
+
+            var file = this.checkInputs(diag);
+            if (file === false) {
+                return false;
+            }
+            if (flm.ui.browser.fileExists(this.basedir(file + '/'))) {
+                alert(theUILang.fDiagSFVempty);
+                return false;
+            }
+
+            if (!this.buildList('fMan_' + diag)) {
+                return false;
+            }
+
+            $(button).attr('disabled', true);
+            this.actStart(diag);
+
+
+            var actioncall = {
+                method: 'sfvCreate',
+                target: file,
+                fls: theWebUI.fManager.actionlist
+            };
+
+
+            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
 
         },
 
@@ -2066,27 +2139,6 @@ function FileManager() {
             flm.ui.console.hideProgress();
             this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.fManager.actiontoken));
             this.cleanactions();
-        },
-
-        logAction: function (action, text) {
-            flm.ui.console.show(action + ': ' + text);
-        },
-
-        logConsole: function (action, text) {
-            flm.ui.console.logMsg(action + ': ' + text);
-        },
-
-        doMediainfo: function (what) {
-
-
-            var calldata = {
-                'action': 'fileMediaInfo',
-                'target': what,
-                'dir': flm.currentPath
-
-            };
-
-            theWebUI.startConsoleTask("mediainfo", plugin.name, calldata, {noclose: true});
 
 
             /*
@@ -2113,8 +2165,24 @@ function FileManager() {
                     });
 
                                 flm.ui.console.hideProgress();*/
+        },
 
+        logAction: function (action, text) {
+            flm.ui.console.show(action + ': ' + text);
+        },
 
+        logConsole: function (action, text) {
+            flm.ui.console.logMsg(action + ': ' + text);
+        },
+
+        doMediainfo: function (what) {
+
+            theWebUI.startConsoleTask("mediainfo", getPlugin().name, {
+                'action': 'fileMediaInfo',
+                'target': what,
+                'dir': flm.currentPath
+
+            }, {noclose: true});
         },
 
         recname: function (what) {

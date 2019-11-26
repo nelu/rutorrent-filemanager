@@ -11,62 +11,24 @@
     <script>
         (function (global) {
             var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId('sfv_create');
+            var diagId = dialogs.getDialogId('window');
+            var ext = 'sfv';
 
             dialogs.onStart(function () {
 
-                var currentPath = flm.getCurrentPath();
-
-                $('#flm_popup_mkdir-currentpath').text(currentPath);
-                $('#flm_popup_mkdir .fMan_Start').click(function () {
-                    var dirname = $('#fMan-ndirname').val();
-
-                    if (!flm.utils.isValidPath(dirname)) {
-                        alert(theUILang.fDiagInvalidname);
-                        return;
-                    }
-                    dirname = flm.utils.buildPath([currentPath, dirname]);
-
-                    flm.manager.doCopy(dirname).then(
-                        function () {
-                            theDialogManager.hide(diagId);
-
-                        },
-                        function (reason) {
-                            console.log(reason);
-                            log(reason);
-                            theDialogManager.hide(diagId);
-
-                        }
-                    );
-                });
+                return flm.manager.doSfvCreate(
+                    dialogs.getTargetPath(diagId),
+                    dialogs.getCheckedList(diagId)
+                );
             });
 
-            var file = this.checkInputs(diag);
-            if (file === false) {
-                return false;
-            }
-            if (flm.ui.browser.fileExists(this.basedir(file + '/'))) {
-                alert(theUILang.fDiagSFVempty);
-                return false;
-            }
+            var file  = flm.ui.browser.getSelectedEntry();
 
-            if (!this.buildList('fMan_' + diag)) {
-                return false;
-            }
+            file = flm.getCurrentPath(flm.utils.stripFileExtension(file, [ext]));
 
-            $(button).attr('disabled', true);
-            this.actStart(diag);
+            var fileName = file+ '.' + ext;
 
-
-            var actioncall = {
-                method: 'sfvCreate',
-                target: file,
-                fls: theWebUI.fManager.actionlist
-            };
-
-
-            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
+            dialogs.updateTargetPath(diagId, fileName);
         })
         (window);
     </script>

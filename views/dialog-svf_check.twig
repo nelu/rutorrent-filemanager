@@ -1,11 +1,13 @@
 {% extends "flm::dialog-window.twig" %}
+{% set startButtonValue = theUILang.fDiagStart %}
+
 {% block heading %}
     <legend>{{ theUILang.fDiagSFVCheckf  }}</legend>
 {% endblock %}
 
 {% block content %}
 <fieldset>
-    <div id="fMang_ChSFVfile" style="width:440px;"></div>
+    <div class="flm-diag-nav-path" style="padding-top:3px; padding-bottom:4px; width:440px;">{{ selectedTarget }}</div>
 </fieldset>
 {% endblock %}
 {% block scripts %}
@@ -16,40 +18,8 @@
         var diagId = dialogs.getDialogId('sfv_check');
 
         dialogs.onStart(function () {
-            var dirname = $('#fMan-ndirname').val();
-
-            if (!flm.utils.isValidPath(dirname)) {
-                alert(theUILang.fDiagInvalidname);
-                return;
-            }
-            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-            flm.manager.doCopy(dirname).then(
-                function () {
-                    theDialogManager.hide(diagId);
-
-                },
-                function (reason) {
-                    console.log(reason);
-                    log(reason);
-                    theDialogManager.hide(diagId);
-
-                }
-            );
+            return flm.manager.doSfvCheck(dialogs.getTargetPath(diagId));
         });
-        var sfvfile = $('#fMang_ChSFVfile').text();
-        $(button).attr('disabled', true);
-
-        var fparts = sfvfile.split('/');
-
-        this.actStart(diag);
-
-
-        var actioncall = {
-            method: 'svfCheck',
-            target: fparts.pop()
-        };
-
 
     })
     (window);
