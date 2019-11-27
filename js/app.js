@@ -573,7 +573,7 @@ function FileManager() {
                 'twig options': {
                     namespaces: self.namespaces,
                     name: filename,
-                    href: self.viewsPath + '/' + filename
+                    href:  filename
                 }
             };
 
@@ -635,7 +635,7 @@ function FileManager() {
                 var self = this;
                 // 1 dialog is enough :)
 
-                flm.views.getView('settings-pane', {'opts': this.getSettings()}, function (view) {
+                flm.views.getView(flm.views.viewsPath + '/' +'settings-pane', {'opts': this.getSettings()}, function (view) {
                     if (!self.init) {
                         self.init = true;
                         getPlugin()
@@ -903,7 +903,7 @@ function FileManager() {
 
             browse.loadNavigation = function () {
                 if (!browse.navigationLoaded) {
-                    flm.views.getView('table-header',{apiUrl: flm.api.endpoint},
+                    flm.views.getView(flm.views.viewsPath + '/' +'table-header',{apiUrl: flm.api.endpoint},
                         function (view) {
                             browse.navigationLoaded = true;
                             var plugin = getPlugin();
@@ -993,6 +993,14 @@ function FileManager() {
                 }
             };
 
+            browse.onSetEntryMenu = function(call)
+            {
+                $(document).on("flm.onSetEntryMenu", function (e, menu, path) {
+                   call(menu, path);
+                });
+
+            };
+
             browse.setEntryMenu = function (context, path) {
                 var utils = FileManagerUtils();
 
@@ -1071,7 +1079,7 @@ function FileManager() {
               /*  context.add(["Permissions", "flm.ui.showPermissions()"]);*/
 
                 context.add([theUILang.fRefresh, "flm.goToPath(flm.currentPath)"]);
-
+                $(document).trigger("flm.onSetEntryMenu", [context, path]);
 
                 return context;
             };
@@ -1311,14 +1319,15 @@ function FileManager() {
                     theDialogManager.clearModalState();
                 }*/
 
-                var data = {
-                    apiUrl: flm.api.endpoint,
-                    selectedEntries: browser.selectedEntries,
-                    selectedTarget: flm.getCurrentPath(browser.selectedTarget),
-                    currentPath: flm.getCurrentPath('/')
-                };
 
-                flm.views.getView(config.template, data,
+             var options = $type(config.options) ? config.options : {};
+                options.apiUrl = flm.api.endpoint;
+                options.selectedEntries = browser.selectedEntries;
+                options.selectedTarget = flm.getCurrentPath(browser.selectedTarget);
+                options.currentPath =  flm.getCurrentPath('/');
+
+
+                flm.views.getView( $type(config.options) ? config.template : flm.views.viewsPath + '/' + config.template, options,
                     function (html) {
                         var newContent = $(diagId + ' .flm_popup-content')
                             .html(html);
@@ -1527,7 +1536,7 @@ function FileManager() {
                 if (!theDialogManager.items.hasOwnProperty(diagId))
                 {
                     // create it
-                    flm.views.getView(config.template, {}, function (html)
+                    flm.views.getView(flm.views.viewsPath + '/' + config.template, {}, function (html)
                     {
                         theDialogManager.make(diagId, theUILang.flm_popup_console,
                             $(html).get(0),
