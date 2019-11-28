@@ -227,35 +227,7 @@ class WebController {
 
     }
 
-    public function fileScreenSheet($params) {
-        
 
-        
-        if (!isset($params->to)) {
-            Helper::jsonError(2);
-        }
-
-        if (!isset($params->target)) {
-            Helper::jsonError(2);
-        }
-
-        try {
-                    
-
-        
-            $temp = $this->flm->videoScreenshots($params->target, $params->to);
-
-        } catch (\Exception $err) {
-            var_dump($err);
-            Helper::jsonError($err->getCode());
-            return false;
-        }
-
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
-        
-        
-        $e->screenshots($e->postlist['target'], $e->postlist['to']);
-    }
 
     public function filesCompress($params) {
         if (!isset($params->fls) || (count($params->fls) < 1)) {

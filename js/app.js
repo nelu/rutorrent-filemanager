@@ -366,7 +366,7 @@ function FileManager() {
     var flm = {
         pluginUrl: pluginUrl,
         getConfig: function () {
-            return theWebUI.settings["webui.flm.config"];
+            return getPlugin().config;
         }
     };
 

@@ -14,12 +14,11 @@ if(function_exists('findRemoteEXE')) {
     //bootstrap
     foreach (((object)Helper::getConfig())->archive['type'] as $conf) {
         findRemoteEXE($conf['bin'], "thePlugins.get('filemanager').showError(\"theUILang.fErrMsg[24] +'" . $conf['bin'] . "' \");", $remoteRequests);
-
     }
 
-    $c = new WebController(Helper::getConfig());
-
-    echo 'theWebUI.settings["webui.flm.config"] = '.json_encode($c->getConfig()) . ';';
     $theSettings->registerPlugin("filemanager");
+
+    $c = new WebController(Helper::getConfig());
+    $jResult .= 'plugin.config = '.json_encode($c->getConfig()) . ';';
 }
 
