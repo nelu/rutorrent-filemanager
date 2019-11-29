@@ -1637,7 +1637,7 @@ function FileManager() {
         };
 
         self.init = function () {
-            console.log('flm.ui.init', this);
+            console.log('init', this);
 
             // file navigation
             self.initFileBrowser();
