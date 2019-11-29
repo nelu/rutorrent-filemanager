@@ -17,7 +17,6 @@ theUILang.fcNewDir		= 'New Directory';
 theUILang.fcNewArchive		= 'New Archive';
 theUILang.fcNewTor		= 'New .torrent';
 theUILang.fcSFV		= 'SFV file...';
-theUILang.fcScreens		= 'Screenshots';
 theUILang.fRefresh		= 'Refresh';
 
 theUILang.fErrMsg = [];
@@ -126,19 +125,17 @@ theUILang.fStarts = {
 	check_sfv: 	'File checking started',
 	create_sfv:	'File hashing started',
 	move:		'File relocation started',
-	copy:		'File duplication started',
-	Screenshots:	'Video screenshots creation started. Please wait this could take some time'
+	copy:		'File duplication started'
 };
 
-theUILang.fStops = { 
+theUILang.fStops = {
 	Delete: 	'File removal stopped',
 	Extract:	'Extraction stopped',
 	CArchive: 	'Archive creation stopped',
 	CheckSFV: 	'SFV check stopped',
 	CreateSFV:	'SFV creation stopped',
 	Move:		'File relocation stopped',
-	Copy:		'File duplication stopped',
-	Screenshots:		'Video screenshots creation stopped'
+	Copy:		'File duplication stopped'
 };
 
 

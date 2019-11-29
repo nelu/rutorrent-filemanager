@@ -642,6 +642,8 @@ function FileManager() {
                             .attachPageToOptions($('<div id="flm-settings-pane"></div>').get(0), theUILang.fManager);
                     }
 
+                    $(document).trigger("flm.settingsOnShow", view);
+
                     $('#flm-settings-pane').html(view);
                  //   self.updateSettings();
 
@@ -1686,6 +1688,14 @@ function FileManager() {
             });
             // file navigation
             browser.init();
+        };
+
+        self.onSettingsShow = function(call)
+        {
+            $(document).on("flm.settingsOnShow", function (view) {
+                call(view);
+            });
+
         };
 
         self.showArchive = function () {
