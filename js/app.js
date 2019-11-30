@@ -374,7 +374,6 @@ function FileManager() {
     flm.utils = FileManagerUtils();
     var apiClient = function (endpoint) {
 
-        endpoint = endpoint || getPlugin().path + 'action.php';
         var client = {
             endpoint: endpoint,
             get: function (data) {
@@ -1325,7 +1324,7 @@ function FileManager() {
              var options = $type(config.options) ? config.options : {};
                 options.apiUrl = flm.api.endpoint;
                 options.selectedEntries = browser.selectedEntries;
-                options.selectedTarget = flm.getCurrentPath(browser.selectedTarget);
+                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
                 options.currentPath =  flm.getCurrentPath('/');
 
 
@@ -1431,18 +1430,18 @@ function FileManager() {
                 return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path) ;
             },
 
-            setDirBrowser: function(diagId) {
+            setDirBrowser: function(diagIdm, withFiles) {
                 var buttonSelector = $(diagId + ' .flm-diag-nav-browse-but');
                 var inputSelector =  $(diagId + ' .flm-diag-nav-path');
 
-
+                withFiles = withFiles || false;
                 if (thePlugins.isInstalled("_getdir")) {
 
                     this.dirBrowser = new theWebUI.rDirBrowser(
                         flm.utils.ltrim(diagId, '#'),
                         inputSelector[0].id,
                         buttonSelector[0].id,
-                        null, false);
+                        null, withFiles);
 
                 } else {
                     buttonSelector.hide();
@@ -1744,7 +1743,12 @@ function FileManager() {
     };
 
 
-    flm.api = apiClient();
+    flm.api = apiClient(getPlugin().path + 'action.php');
+
+    flm.client = function(endpoint)
+    {
+        return apiClient(endpoint);
+    };
 
     flm.getCurrentPath = function (file) {
         var path = flm.currentPath + "";

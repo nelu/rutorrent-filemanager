@@ -4,7 +4,7 @@
     padding-top: 1px;
 }
 
-#flm-nav-refresh {
+input.flm-nav-refresh {
     margin-left: 2px;
     margin-right: 2px;
     margin-top: 0px;
@@ -21,7 +21,7 @@
 
     border: 1px solid #FBFBFC;
 }
-#flm-nav-refresh:hover {
+input.flm-nav-refresh:hover {
     background-position: -57px -83px;
     border-top-style: outset;
     border-right-style: outset;
