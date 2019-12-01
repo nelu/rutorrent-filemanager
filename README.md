@@ -11,7 +11,8 @@ Javascript web client with php endpoint with file operations methods
 Modal dialogs (false) support not fully supported: New Directory, NFO View
 Write operations are UI blocking (modal=true), mostly multiple file operations are ui blocking (modal=true)
 
-
-Note: Video screenshots functionality is available in filemanager-media plugin - see: https://github.com/nelu/rutorrent-filemanager-media
+Additional filemanager plugins:
+- filemanager-media: Media view and screenshots - see: https://github.com/nelu/rutorrent-filemanager-media
+- filemanager-share: Share functionality - see: https://github.com/nelu/rutorrent-filemanager-share
 
 Feel fee to contribute with commits and docs
