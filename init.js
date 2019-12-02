@@ -74,7 +74,137 @@ plugin.ui.setConfig = function ()
 	theWebUI.tables.flm = tableSchema;
 };
 
+
+plugin.ui.onTorrentFilesMenu = function(call)
+{
+	$(document).on("flm.onTorrentFilesMenu", function (e, menu, table) {
+		call(menu, table);
+	});
+
+};
+
+plugin.ui.getContextMenuEntryPosition = function(menu, what, atIndex)
+{
+	atIndex = atIndex || 0;
+	var pos = -1;
+	$.each(menu, function (i, value) {
+
+		if(value[atIndex] === what)
+		{
+			pos = i;
+			return false;
+		}
+	});
+
+	return pos;
+};
+
 // final stage:
+plugin.ui.handleTorrentFilesMenu = function (e, selected) {
+
+	plugin.fno = null;
+	plugin.mode = null;
+	var table = theWebUI.getTable("fls");
+
+
+	var fid = table.getFirstSelected();
+	var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
+
+	var torrentPath = theWebUI.dID &&
+	$type(theWebUI.torrents[theWebUI.dID])
+		? theWebUI.torrents[theWebUI.dID].base_path
+		: '/';
+
+	var selectedPath = flm.utils.buildPath([torrentPath, selected ? selected.name :  theWebUI.dirs[theWebUI.dID].current]) ;
+
+	if(selectIsDir)
+	{
+		selectedPath += '/';
+	}
+
+	selectedPath = flm.utils.stripBasePath(selectedPath, flm.getConfig().homedir);
+
+	var selectedEntries = [];
+	var rows = table.rowSel;
+
+	var entry;
+	var entryPath;
+	for(var i in rows)
+	{
+			if(rows[i])
+			{
+				entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
+				if(entry)
+				{
+					entryPath = flm.utils.buildPath([torrentPath, entry.name]);
+					if(theWebUI.dirs[theWebUI.dID].isDirectory(i))
+					{
+						entryPath +=  '/';
+					}
+					entryPath = flm.utils.stripBasePath(entryPath, flm.getConfig().homedir);
+					selectedEntries.push(entryPath);
+				}
+			}
+	}
+
+	flm.ui.browser.selectedTarget = selectedPath;
+	flm.ui.browser.selectedEntries = selectedEntries;
+
+	var fileManagerSubmenu = flm.ui.browser.getEntryMenu(selectedPath,selectedEntries);
+
+	$(document).trigger("flm.onSetEntryMenu", [fileManagerSubmenu, selectedPath]);
+
+
+	var remove = [
+		theUILang.fOpen,
+		theUILang.fCopy,
+		theUILang.fMove,
+		theUILang.fDelete,
+		theUILang.fRename,
+		theUILang.fcNewDir,
+
+		theUILang.fMediaI,
+		theUILang.fRefresh];
+		var subCreateMenu = null;
+
+	fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function(menuEntry, index) {
+
+		if(menuEntry[0] === CMENU_SEP)
+		{
+			return false;
+		}
+
+		if(menuEntry[1] === theUILang.fcreate)
+		{
+			//subCreateMenuPos = lastElement+"";
+			subCreateMenu = menuEntry[2];
+			return false;
+		}
+
+		var inRemove = remove.indexOf(menuEntry[0]);
+		return (inRemove < 0);
+	});
+
+	 fileManagerSubmenu.unshift([theUILang.fOpen, function() {
+
+		flm.showPath(!selectIsDir ? flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]) : selectedPath);
+	}
+	]);
+
+	fileManagerSubmenu = fileManagerSubmenu.concat(subCreateMenu);
+
+	// round 2 of filtering :\
+	// with entries from create sub menu
+	fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function(menuEntry, index) {
+		var inRemove = remove.indexOf(menuEntry[0]);
+		return (inRemove < 0);
+	});
+
+	theContextMenu.add([CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
+
+	$(document).trigger("flm.onTorrentFilesMenu", [theContextMenu, selectedPath, selectedEntries, table]);
+
+};
 //  update/initialize rest ui elements, when localisation is loaded
 plugin.ui.init = function () {
 
@@ -128,6 +258,24 @@ plugin.ui.init = function () {
 
 	};
 
+	if(plugin.canChangeMenu())
+	{
+		plugin.createTorrentFileMenu = theWebUI.createFileMenu;
+		theWebUI.createFileMenu = function( e, id )
+		{
+			if(plugin.createTorrentFileMenu.call(this, e, id))
+			{
+				if(plugin.enabled)
+				{
+					plugin.ui.handleTorrentFilesMenu(e, id);
+				}
+				return(true);
+			}
+			return(false);
+		}
+	}
+
+
 	plugin.markLoaded();
 
 };
@@ -152,7 +300,6 @@ theTabs.onShow = function(id) {
 };
 
 plugin.onRemove = function() {
-	theWebUI.fManager.cleanactions();
 	this.removePageFromTabs(plugin.ui.fsBrowserContainer);
 	$('#fMan_showconsole').remove();
 	$('[id^="fMan_"]').remove();

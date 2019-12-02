@@ -69,13 +69,18 @@ class FLM {
         return fullpath($path, $this->userdir);
     }
 
-    public function getJailPath($path) {
+    public function extractChrootPath($fullPath) {
         
-        $f = explode($this->userdir, $path);
-        
-        var_dump('got to find', $f, $path);
-        
-        return fullpath($path, $this->userdir);
+        $f = explode($this->userdir, $fullPath);
+
+        $relative = $fullPath;
+
+        if(count($f) > 1)
+        {
+            $relative = $f[1];
+        }
+
+        return '/'. rtrim($relative, '/');
     }
     
     public function getUserDir($relative_path) {
