@@ -24,7 +24,7 @@
 
             var file  = flm.ui.browser.getSelectedEntry();
 
-            file = flm.getCurrentPath(flm.utils.stripFileExtension(file, [ext]));
+            file = flm.utils.buildPath([flm.utils.basedir(file), flm.utils.stripFileExtension(file, [ext])]);
 
             var fileName = file+ '.' + ext;
 

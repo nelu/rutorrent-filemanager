@@ -1,4 +1,4 @@
-{% set pathbrowse = currentPath %}
+{% set pathbrowse = isValidPath(currentPath)? currentPath : '/' %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
 

@@ -297,6 +297,7 @@ function FileManagerUtils() {
         },
 
         isValidPath: function (what) {
+            what = what || '';
             //starts with /
             return (what.split('/').length > 1);
         }
@@ -378,6 +379,7 @@ function FileManager() {
 
     var pluginUrl = getPlugin().path; //'plugins/filemanager';
     var flm = {
+        currentPath: null,
         pluginUrl: pluginUrl,
         getConfig: function () {
             return getPlugin().config;
@@ -849,6 +851,11 @@ function FileManager() {
                 browse.updateTableConfig();
                 browse.setSorting();
                 bindKeys();
+                browse.loadNavigation();
+            };
+
+            browse.isVisibile = function(){
+                return isVisible;
             };
 
             // up dir path check
@@ -941,25 +948,26 @@ function FileManager() {
                     return;
                 }
                 isVisible = true;
-                browse.loadNavigation();
-                var table = browse.table();
-                if (table) {
-                    flm.goToPath(flm.currentPath).then(function () {
+
+                if(!flm.currentPath)
+                {
+                    var table = browse.table();
+                    if (table) {
+                        flm.goToPath(flm.currentPath).then(function () {
+                            table.refreshRows();
+                            theWebUI.resize();
+                        });
+
+                        $('#fMan_showconsole').show();
+                        // display table columns
                         table.refreshRows();
-                        theWebUI.resize();
-                    });
 
-                    $('#fMan_showconsole').show();
-                    // display table columns
-                    table.refreshRows();
-
+                    }
                 }
+
             };
 
             browse.onHide = function () {
-                console.log('Filemanager ui broswer onhide');
-                isVisible = false;
-
                 $('#fMan_showconsole').hide();
             };
 
@@ -975,7 +983,7 @@ function FileManager() {
                     theContextMenu.clear();
                     browse.selectedEntries = browse.getSelection(false);
 
-                    var menuEntries = browse.getEntryMenu(target, browse.selectedEntries);
+                    var menuEntries = browse.getEntryMenu(browse.selectedTarget, browse.selectedEntries);
                     $(document).trigger("flm.onSetEntryMenu", [menuEntries, target]);
 
                     $.each(menuEntries,function (index, value) {
@@ -1016,6 +1024,7 @@ function FileManager() {
             };
 
             browse.getEntryMenu = function (path, entries) {
+
                 var utils = FileManagerUtils();
 
                 var pathIsDir = utils.isDir(path);
@@ -1052,26 +1061,28 @@ function FileManager() {
                     menu.push([theUILang.fMove, "flm.ui.getDialogs().showDialog('move')"]);
                     menu.push([theUILang.fDelete, "flm.ui.getDialogs().showDialog('delete')"]);
 
-                    if (!(table.selCount > 1)) {
+                    if (!(entries.length > 1)) {
                         menu.push([theUILang.fRename, "flm.ui.getDialogs().showDialog('rename')"]);
                     }
                     menu.push([CMENU_SEP]);
 
-                    if (utils.isArchive(path) && !(table.selCount > 1)) {
+                    if (utils.isArchive(path) && !(entries.length > 1)) {
                         menu.push([theUILang.fExtracta, "flm.ui.getDialogs().showDialog('extract')"]);
                         menu.push([CMENU_SEP]);
                     }
 
                     var create_sub = [];
 
-                    create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && !(table.selCount > 1) ? function () {
+                    create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && entries.length ? function () {
+
                         flm.createTorrent(path);
                     } : null]);
                     create_sub.push([CMENU_SEP]);
                     create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
                     create_sub.push([theUILang.fcNewArchive, "flm.ui.showArchive()"]);
 
-                    if (!utils.hasDir(browse.getSelection())) {
+                    if (!utils.hasDir(entries)) {
+
                         create_sub.push([CMENU_SEP]);
                         create_sub.push([theUILang.fcSFV, "flm.ui.showSFVcreate()"]);
                     }
@@ -1358,8 +1369,6 @@ function FileManager() {
 
                         newContent.find('.flm-diag-start').attr('disabled', false)
                             .click(function () {
-                                console.log('start triggered');
-
                                 if ($type(diags.onStartEvent) === "function") {
                                     dialogs.disableStartButton();
 
@@ -1567,7 +1576,6 @@ function FileManager() {
 
                         theDialogManager.setHandler(diagId, 'beforeShow', function () {
                             $('#flm-diag-stop').click(function () {
-                                console.log('Current action stop triggered from console diags');
                                 self.console.logMsg(theUILang.fStops[theWebUI.fManager.activediag] + "\n");
                                 theWebUI.fManager.logStop();
 
@@ -1793,8 +1801,12 @@ function FileManager() {
     flm.showPath = function(dir)
     {
         dir = flm.utils.stripBasePath(dir, flm.getConfig().homedir);
-        flm.goToPath(dir);
-        theTabs.show(getPlugin().ui.fsBrowserContainer);
+        return flm.goToPath(dir).then(function (value) {
+            theTabs.show(getPlugin().ui.fsBrowserContainer);
+            return value;
+        });
+
+
     };
 
     flm.getFile = function (path) {
@@ -1917,7 +1929,6 @@ function FileManager() {
                 .then(function (response) {
                         flm.manager.inaction = false;
 
-                        console.log('parseReply reply', response, ndn, dirname, flm.currentPath, lastPath);
                         if ((flm.currentPath === lastPath)
                             && !flm.manager.isErr(response.errcode, ndn)) {
                             flm.goToPath(flm.currentPath);
@@ -1932,8 +1943,15 @@ function FileManager() {
 
         createTorrent: function (target) {
 
-            var homedir = flm.getConfig()['homedir'];
-            $('#path_edit').val(homedir + flm.getCurrentPath(target));
+            var homedir = flm.getConfig().homedir;
+            var relative = flm.utils.stripBasePath(target, homedir);
+            var isRelative = (relative !== target);
+
+            var path = flm.utils.buildPath([ homedir, isRelative ? relative : target]);
+
+
+            $('#path_edit').val(path);
+
             if ($('#tcreate').css('display') == 'none') {
                 theWebUI.showCreate();
             }
