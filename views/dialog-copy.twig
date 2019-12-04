@@ -20,6 +20,20 @@
         );
     });
 
+    var updateName = function(prefix, entry) {
+
+        var path =dialogs.getTargetPath(diagId);
+
+        dialogs.updateTargetPath(diagId, flm.utils.buildPath([flm.utils.basedir(path), prefix + flm.utils.basename(entry)]) );
+    };
+
+    var entries = dialogs.getCheckedList(diagId);
+
+    if(entries.length == 1)
+    {
+        updateName('Copy of ', entries[0]);
+    }
+
 })
 (window);
 </script>

@@ -30,11 +30,18 @@ class Filesystem {
          $task = $temp['dir'].'task';    
             
         file_put_contents($task, json_encode($args));
-        
 
-      //  var_dump(Helper::getTaskCmd(), escapeshellarg($task));
-        RemoteShell::get()->execBackground(Helper::getTaskCmd(), $task );
-        
+        $task_opts = array  ( 'requester'=>'filemanager',
+            'name'=>'copy',
+            'parms' => count($files) . ' files'
+        );
+
+        $rtask = new \rTask( $task_opts );
+        $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
+        $ret = $rtask->start($commands, 0);
+
+       // var_dump(__METHOD__, $task, $files, $to, $task_opts,$ret);
+
         return $temp;
 
     }
@@ -107,9 +114,7 @@ class Filesystem {
     }
      
     public function remove($files) {
-            
-            
-                
+
         $temp = Helper::getTempDir();
         
         
@@ -120,25 +125,16 @@ class Filesystem {
          $task = $temp['dir'].'task';    
             
         file_put_contents($task, json_encode($args));
-/*
-        
 
-      //  var_dump(Helper::getTaskCmd(), escapeshellarg($task));
-        RemoteShell::get()->execBackground(Helper::getTaskCmd(), $task );
-        
-        return $temp;*/
+        $task_opts = array  ( 'requester'=>'filemanager',
+                        'name'=>'remove',
+                    );
 
-            
-            $task_opts = array  ( 'requester'=>'filemanager',
-                            'name'=>'remove', 
-                        );
-                        
-             $rtask = new \rTask( $task_opts );
-             $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
-                    $ret = $rtask->start($commands, 0);    
-             
-          //   var_dump($ret);
-             return $temp;
+         $rtask = new \rTask( $task_opts );
+         $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
+         $ret = $rtask->start($commands, 0);
+
+         return $temp;
     }
      
     public function rename($from, $to) {

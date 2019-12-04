@@ -16,16 +16,18 @@ class FsUtils {
     );
 
     public static function getCopyCmd($source, $to) {
-        $source = escapeshellarg($source);
-        $to = escapeshellarg($to);
+        $source = Helper::mb_escapeshellarg($source);
+        $to = Helper::mb_escapeshellarg($to);
+      /*  $source = escapeshellarg($source);
+        $to = escapeshellarg($to);*/
         return <<<CMD
-cp -rf {$source} {$to} 
+cp -rpv {$source} {$to} 
 CMD;
 
     }
 
     public static function getRemoveCmd($file) {
-        $file = escapeshellarg($file);
+        $file = Helper::mb_escapeshellarg($file);
         return <<<CMD
 rm -rf {$file} 
 CMD;
@@ -62,24 +64,6 @@ CMD;
 
         return $cmd;
     }
-    
-    public static function ffmpegScreensheetCmd($params) {
-        
-        $options = $params->options;
-        $video_file = Helper::mb_escapeshellarg($params->file);
-        $screenfile = Helper::mb_escapeshellarg($params->imgfile);
-
-        var_dump(__METHOD__, $params);
-        
-        $filters = //'drawtext="timecode=\'00\:00\:00\:00\' :rate=24 :fontcolor=white :fontsize=21 :shadowcolor=black :x=5 :y=5",' .
-                    'scale="min('. $options->scwidth. '\, iw*3/2):-1",' .
-                    'select="not(mod(n\,' . $options->frame_step . ')),tile=' . $options->scrows. 'x'. $options->sccols .'"';
-
-        return <<<CMD
-{$params->binary} -i {$video_file} -an -vf {$filters} -vsync 0 -frames:v 1 {$screenfile} 2>&1 | sed -u 's/^/0:  /'
-CMD;
-    }
-    
 
     public static function getArchiveExtractCmd($args) {
 
@@ -219,7 +203,7 @@ CMD;
 CMD;
     }
 
-    public static function isoExtractCmd() {
+    public static function isoExtractCmd($params) {
         return <<<CMD
 {$params->binary} x -bd -y -o {$to} {$file} 2>&1 | sed -u 's/^/0: Extracting /'
 CMD;

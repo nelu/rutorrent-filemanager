@@ -153,6 +153,7 @@ class FileManager {
          }
 
         $task_info = $fs->copy($files, $to);
+
         return $task_info;
 	}
 

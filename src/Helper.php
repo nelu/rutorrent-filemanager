@@ -112,7 +112,6 @@ class Helper {
         foreach ($log['slice'] as $line) {
             $output['lines'] .= trim(substr($line, 2, -1))."\n";
         }
-       // var_dump('found log lines:', $output);
         return $output;
     }
     

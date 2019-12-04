@@ -17,28 +17,6 @@ class TaskController {
     
     public function run(){
 
-/*
-        $this->log = '/tmp/sfv-test.log';
-                
-                
-                
-        $this->info->params->target = '/tmp/sfv-test.sfv';
-        
-        $this->info->params->files = array('/tmp/me', '/tmp/you');
-        
-        $this->info->params->workdir = '/tmp';
-        
-     
-        $this->sfvCreate();   
-        $this->sfvCheck();
-        
-        
-        return true;
-        
-        
-        
-        
-        */
 
         
         if(isset($this->info->params->workdir)
@@ -52,13 +30,12 @@ class TaskController {
      //   $this->writeLog("\n0: Started ");
         
         if(method_exists($this, $this->info->action)) {
-            call_user_func(array($this,  $this->info->action));
-            
-          $this->writeLog("\n1: Done ");
+           $success= call_user_func(array($this,  $this->info->action));
+
+            $this->writeLog("\n--- Done");
         }
-        
-        sleep(3);
-        
+
+
         $this->recursiveRemove(array($this->info->temp->dir), false);
       // rmdir($this->info->temp->dir);
     }
@@ -89,22 +66,26 @@ class TaskController {
     }
     
     public function recursiveCopy() {
-        
-          
-      foreach ($this->info->params->files as $file) {
+
+      $total = count($this->info->params->files);
+        $hasFail = false;
+      foreach ($this->info->params->files as $i => $file) {
           
           
           $copycmd = FsUtils::getCopyCmd($file, $this->info->params->to);
-          
+
           try {
                 $this->LogCmdExec($copycmd);
-                $this->writeLog('0: OK: '.$this->info->params->to. ' ');
+                $this->writeLog('OK: ('.++$i.'/'.$total.') -> '.$this->info->params->to);
           } catch (Exception $err) {
-              
-              $this->writeLog('0: Failed: '.$file);
+
+              $this->writeLog('Failed: '.$file . ' -> ' . $this->info->params->to);
+              $hasFail = true;
           }
+
       }
-            
+
+        return $hasFail === false;
     }
     
     public function recursiveMove() {
@@ -239,31 +220,35 @@ class TaskController {
         }
     
     public function LogCmdExec($cmd) {
-       $cmd =  $cmd.' >> '.$this->log.' 2>&1';
-        
-        //var_dump($cmd);
-        $res = exec($cmd, $output, $fail);
-        
-        if($fail) {
-            $logdata = $this->readLog();
-            $output = $logdata ? $logdata['lines'] : $output;;
-            
-            var_dump($output);
-            throw new Exception('Command error: '. implode("\n",$output), $fail);
+     //    $cmd =  $cmd.' > '.$this->log.' 2>&1';
+        $cmd =  $cmd;
+
+        $res = exec($cmd, $output, $exitCode);
+
+        if($exitCode > 0) {
+            $logdata = [];
+           // $logdata =  $this->readLog();
+
+
+            if(isset($logdata['lines']))
+            {
+                $output = array_merge($output, is_array($logdata['lines']) ? $logdata['lines'] : [$logdata['lines']]);
+            }
+         //   var_dump(__METHOD__, '$cmd', $cmd, '$res',$res, '$exitCode', $exitCode, '$output', $output, '$logdata', $logdata);
+
+            throw new Exception('Command error: '. implode("\n",$output), $exitCode);
             
         }
-    //var_dump($output);
+
         return $output;
     }
 
     public function readLog($lpos = 0) {
-    
-            var_dump('readdding log....');
-        
+
         return is_file($this->log) ? Helper::readTaskLog($this->log, $lpos) : false;
     }
     public function writeLog($line, $console_output = true) {
         if($console_output) {echo $line."\n";}
-        return file_put_contents($this->log, $line."\n", FILE_APPEND );
+      //  return file_put_contents($this->log, $line."\n", FILE_APPEND );
     }
 }
