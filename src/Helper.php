@@ -9,17 +9,7 @@ class Helper {
     protected static $tmpdir;
     
     protected static $config;
-    
-    public static function jsonError($errcode) {
-        self::jsonOut(array('errcode' => $errcode));
-    }
-        
-    public static function jsonOut($data) {
-        
-         cachedEcho(json_encode($data), 'application/json', false );
-    
-    }
-    
+
     protected static function newTempDir() {
 
         
@@ -146,10 +136,7 @@ class Helper {
      
         return !is_null($section) ? self::$config[$section] : self::$config;
      }
-    
-    
-        
-        
+
     public static function getTorrentHashFilepath($hash, $fno) {
         
             $fno = intval($fno);

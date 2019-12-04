@@ -1404,8 +1404,8 @@ function FileManager() {
                 var checks = $(diag + ' .checklist input:checked');
 
                 checks.each(function (index, val) {
-                    list.push(flm.utils.addslashes(decodeURIComponent(val.value)));
-
+                    //list.push(flm.utils.addslashes(decodeURIComponent(val.value)));
+                    list.push(decodeURIComponent(val.value));
                 });
 
                 return list;
@@ -1800,7 +1800,7 @@ function FileManager() {
 
     flm.showPath = function(dir)
     {
-        dir = flm.utils.stripBasePath(dir, flm.getConfig().homedir);
+        dir = flm.manager.stripHomePath(dir);
         return flm.goToPath(dir).then(function (value) {
             theTabs.show(getPlugin().ui.fsBrowserContainer);
             return value;
@@ -1865,10 +1865,14 @@ function FileManager() {
             theWebUI.fManager.actionlp = 0;
         },
 
+        stripHomePath: function(entry)
+        {
+            return flm.utils.stripBasePath(entry, flm.getConfig().homedir);
+        },
         getFullPaths: function(entries) {
             for (var i = 0; i<entries.length; i++)
             {
-                entries[i] = flm.getCurrentPath(entries[i]);
+                entries[i] = flm.getCurrentPath(this.stripHomePath(entries[i]));
             }
 
             return entries;
@@ -1944,7 +1948,7 @@ function FileManager() {
         createTorrent: function (target) {
 
             var homedir = flm.getConfig().homedir;
-            var relative = flm.utils.stripBasePath(target, homedir);
+            var relative = flm.manager.stripHomePath(target);
             var isRelative = (relative !== target);
 
             var path = flm.utils.buildPath([ homedir, isRelative ? relative : target]);
@@ -2044,7 +2048,7 @@ function FileManager() {
                 return deferred.promise();
             }
 
-            return flm.api.copy(flm.manager.getFullPaths(filePaths), destination)
+            return flm.api.copy(flm.manager.getFullPaths(filePaths), flm.manager.stripHomePath(destination))
             .then(function (response) {
                     flm.manager.logAction('copy', filePaths.length + ' files -> ' +destination);
                     flm.Refresh(flm.getCurrentPath());

@@ -7,8 +7,6 @@ plugin.ui = {
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer+"-table";
 
 
-
-
 // will be updated on languageLoad
 // with missing localisations and methods
 var tableSchema = {
@@ -117,7 +115,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 
 	var selectedPath = flm.utils.buildPath([torrentPath, selected ? selected.name :  theWebUI.dirs[theWebUI.dID].current]) ;
 
-	selectedPath = flm.utils.stripBasePath(selectedPath, flm.getConfig().homedir);
+	selectedPath = flm.manager.stripHomePath(selectedPath);
 	if(selectIsDir)
 	{
 		selectedPath += '/';
@@ -136,7 +134,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 				if(entry)
 				{
 					entryPath = flm.utils.buildPath([torrentPath, entry.name]);
-					entryPath = flm.utils.stripBasePath(entryPath, flm.getConfig().homedir);
+					entryPath = flm.manager.stripHomePath(entryPath);
 					if(theWebUI.dirs[theWebUI.dID].isDirectory(i))
 					{
 						entryPath +=  '/';

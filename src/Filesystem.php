@@ -14,9 +14,6 @@ class Filesystem {
             }
         return self::$instance;
     }
-    
-
-    
 
     public function copy($files, $to) {
         
@@ -41,8 +38,6 @@ class Filesystem {
         return $temp;
 
     }
-    
-    
 
     public function listDir($directory_path) {
 
@@ -79,10 +74,8 @@ class Filesystem {
         
         return $output;
     }
-    
 
-        
-     public function move($files, $to) {
+    public function move($files, $to) {
          
          
                        
@@ -146,10 +139,9 @@ class Filesystem {
              
           //   var_dump($ret);
              return $temp;
-  }
+    }
      
-     
-     public function rename($from, $to) {
+    public function rename($from, $to) {
 
         if (!RemoteShell::test($from,'e') 
               || RemoteShell::test($to,'e')) {
@@ -193,7 +185,7 @@ class Filesystem {
 
     }
     
-    public function fileExists() {
+    public function fileExists($file) {
       return  RemoteShell::test($file,'e');  
     }
     public function isFile($file) {

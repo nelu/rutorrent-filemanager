@@ -1,11 +1,11 @@
 <?php
+namespace Flm;
+
 use Flm\RemoteShell as Remote;
 use Flm\Filesystem as Fs;
-use Flm\Archive;
-use Flm\Helper;
 use Flm\mediainfoSettings;
 
-class FLM {
+class FileManager {
 
 
 	public $workdir;
@@ -21,14 +21,7 @@ class FLM {
     public $config;
 
 	public function __construct( $directory) {
-		/*
-		 * Construct function - initialises the objects properties 
-		 * 
-		 * $userdir - current user home directory (jail)
-		 * $workdir - the directory where filemanager is working at the time of call
-		 * $settings - array with filemager current configuration
-		 * 
-		 */
+
 		global $topDirectory, $fm;
         
         
@@ -41,13 +34,13 @@ class FLM {
         //new remote shell
 		Remote::get();
 
-		if( !\Flm\Helper::remote_test($this->workdir, 'd')) {
+		if( !Helper::remote_test($this->workdir, 'd')) {
 		    throw new Exception("Error Processing Request".$this->workdir, 2);
         }
 
         // instantiating filesystem
         Fs::get();
-        $config = Flm\Helper::getConfig();
+        $config = Helper::getConfig();
         
         if(!is_dir($config['tempdir'])) {
             throw new Exception("Error Processing Request", 17);
@@ -322,9 +315,9 @@ class FLM {
 		     throw new Exception("Invalid file", 18);
          }
 
-        require_once dirname(__FILE__).'/src/NfoView.php';
+        require_once dirname(__FILE__) . '/src/NfoView.php';
         
-        $nfo =new Flm\NfoView($nfofile);
+        $nfo =new NfoView($nfofile);
         
         return $nfo->get($dos);
 
@@ -338,7 +331,7 @@ class FLM {
 	public function readTaskLogFromPos($token, $lpos) {
 	    
         
-        $tmp = \Flm\Helper::getTempDir($token);
+        $tmp = Helper::getTempDir($token);
         
         
         $file = $tmp['dir'].'log';
@@ -348,7 +341,7 @@ class FLM {
             return false;
         }
         
-        $log = \Flm\Helper::readTaskLog($file, $lpos);
+        $log = Helper::readTaskLog($file, $lpos);
         // relative paths
         $log['lines'] = str_replace($this->userdir, '/', $log['lines']);
         
@@ -461,6 +454,5 @@ class FLM {
            
              return $temp;
 	}
-
 
 }
