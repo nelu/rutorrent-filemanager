@@ -1,6 +1,7 @@
 <?php
 namespace Flm;
 
+use Exception;
 use Flm\RemoteShell as Remote;
 use Flm\Filesystem as Fs;
 use Flm\mediainfoSettings;
@@ -300,25 +301,23 @@ class FileManager {
 
 	}
 
-	public function nfo_get($nfofile, $dos = TRUE) {
+	public function nfo_get($file, $dos = TRUE)
+    {
 
-        $nfofile = $this->getWorkDir($nfofile);
-     //   var_dump($nfofile);
-        
-		if (!is_file($nfofile)) 	{
+        $file = $this->getWorkDir($file);
+
+		if (!is_file($file)) 	{
 		    throw new Exception("no file", 6);
-			
-		 }
-		elseif (
-		    (Helper::getExt($nfofile) != 'nfo' && Helper::getExt($nfofile) != 'txt')
-		      || (filesize($nfofile) > 50000)) 
+		}
+		elseif (!preg_match('/'.$this->config['textExtensions'].'/', Helper::getExt($file) )
+		      || (filesize($file) > 50000))
 		 {
 		     throw new Exception("Invalid file", 18);
          }
 
-        require_once dirname(__FILE__) . '/src/NfoView.php';
+        require_once dirname(__FILE__) . '/NfoView.php';
         
-        $nfo =new NfoView($nfofile);
+        $nfo =new NfoView($file);
         
         return $nfo->get($dos);
 

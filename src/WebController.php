@@ -12,6 +12,10 @@ class WebController extends BaseController {
       $archive = [];
       $bins = [];
 
+      $settings = [
+          'textExtensions' => $this->config['textExtensions']
+      ];
+
       foreach ($this->config['archive']['type'] as $ext => $conf) {
           if(!isset($bins[$conf['bin']]))
           {

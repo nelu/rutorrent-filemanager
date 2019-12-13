@@ -2,7 +2,15 @@ plugin = plugin || {}; // shut up
 
 plugin.ui = {
 	fsBrowserContainer: "flm-browser",
-	readyPromise: $.Deferred()
+	readyPromise: $.Deferred(),
+	EVENTS: {
+		'delete': 'flm.filesDelete',
+		'move': 'flm.filesDelete',
+		'settingsShow':  "flm.settingsOnShow",
+		'entryMenu': "flm.onSetEntryMenu",
+		'rename': 'flm.filesDelete',
+		'torrentFileEntryMenu': 'torrentFileEntryMenu'
+	}
 };
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer+"-table";
 
@@ -152,7 +160,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 	{
 		 fileManagerSubmenu = flm.ui.browser.getEntryMenu(selectedPath,selectedEntries);
 
-		$(document).trigger("flm.onSetEntryMenu", [fileManagerSubmenu, selectedPath]);
+		$(document).trigger(plugin.ui.EVENTS.entryMenu, [fileManagerSubmenu, selectedPath]);
 
 
 		var remove = [
@@ -204,7 +212,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 	]);
 	theContextMenu.add([CMENU_CHILD, theUILang.fManager, fileManagerSubmenu ]);
 
-	$(document).trigger("flm.onTorrentFilesMenu", [theContextMenu, selected, selectedPath, selectedEntries, table]);
+	$(document).trigger(plugin.ui.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
 
 };
 //  update/initialize rest ui elements, when localisation is loaded

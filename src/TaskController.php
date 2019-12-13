@@ -67,19 +67,19 @@ class TaskController {
     
     public function recursiveCopy() {
 
-      $total = count($this->info->params->files);
+        $total = count($this->info->params->files);
         $hasFail = false;
       foreach ($this->info->params->files as $i => $file) {
-          
-          
+
+
           $copycmd = FsUtils::getCopyCmd($file, $this->info->params->to);
 
           try {
                 $this->LogCmdExec($copycmd);
-                $this->writeLog('OK: ('.++$i.'/'.$total.') -> '.$this->info->params->to);
+                $this->writeLog('OK: ('.++$i.'/'.$total.') -> '. $file);
           } catch (Exception $err) {
 
-              $this->writeLog('Failed: '.$file . ' -> ' . $this->info->params->to);
+              $this->writeLog('Failed: '.$file . ' -> ' . $file);
               $hasFail = true;
           }
 
@@ -89,7 +89,7 @@ class TaskController {
     }
     
     public function recursiveMove() {
-              foreach ($this->info->params->files as $file) {
+        foreach ($this->info->params->files as $file) {
           
           
           $renamecmd = 'mv -f '.Helper::mb_escapeshellarg($file) . ' ' . Helper::mb_escapeshellarg($this->info->params->to);
@@ -97,10 +97,10 @@ class TaskController {
           try {
               
                 $this->LogCmdExec($renamecmd);
-                $this->writeLog('0: OK: '.$file. ' ');
+                $this->writeLog('OK: '.$file. ' ');
           } catch (Exception $err) {
               
-              $this->writeLog('0: Failed: '.$file);
+              $this->writeLog('Failed: '.$file);
           }
       }
         
