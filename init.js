@@ -83,7 +83,7 @@ plugin.ui.setConfig = function ()
 
 plugin.ui.onTorrentFilesMenu = function(call)
 {
-	$(document).on("flm.onTorrentFilesMenu", function (e, menu, table) {
+	$(document).on(plugin.ui.EVENTS.torrentFileEntryMenu, function (e, menu, table) {
 		call(menu, table);
 	});
 
