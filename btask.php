@@ -6,6 +6,8 @@ require_once $pluginDir . '/src/FsUtils.php';
 require_once $pluginDir . '/src/Archive.php';
 require_once $pluginDir . '/src/SFV.php';
 require_once $pluginDir . '/src/TaskController.php';
+require_once( dirname(__FILE__)."/../../php/util.php" );
+
 
 $task = new TaskController($argv[1]);
 

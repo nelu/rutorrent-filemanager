@@ -5,6 +5,7 @@ use Exception;
 use Flm\RemoteShell as Remote;
 use Flm\Filesystem as Fs;
 use Flm\mediainfoSettings;
+use rTask;
 
 class FileManager {
 
@@ -105,12 +106,12 @@ class FileManager {
       //  var_dump('arch path', $this->workdir.$paths['archive'], $archive_file);
 
 
-        $options = is_null($paths->mode) ? stdClass () : $paths->mode ;
+        $options = is_null($paths->mode) ? [] : (array)$paths->mode ;
 
         $config = Helper::getConfig('archive');
 
-       if(!isset($options->type) 
-       || !isset($config['types'][$options->type ]) )
+       if(!isset($options['type'])
+       || !isset($config['type'][$options['type']]) )
        {
            throw new Exception("invalid type", 1);
            
@@ -127,12 +128,9 @@ class FileManager {
            throw new Exception("dest is file", 16);      
         } 
 
-              
-     
-       $options->workdir = $this->workdir;
-       
        $archive = new Archive($archive_file);  
-       
+
+        $options['workdir'] = $this->getWorkDir('');
        $archive->setOptions((array)$options);
        
 
@@ -241,11 +239,11 @@ class FileManager {
 	}
 
 	public function mediainfo ($paths) {
-        
-        $filename = $this->getWorkDir($paths->target);
 
-		if(!Fs::get()->isFile($filename))  {
-		    throw new Exception("Error Processing Request", 6);
+        $filename =  $this->getWorkDir(basename($paths->target));
+
+        if(!Fs::get()->isFile($filename))  {
+		    throw new Exception("Invalid path: " . $filename, 6);
         }
         
         
@@ -254,7 +252,7 @@ class FileManager {
         $st = mediainfoSettings::load();
         $task = new rTask( array
         ( 
-            'arg'=>call_user_func('end',explode('/',$filename)),                    
+            'arg'=>basename($filename),
             'requester'=>'mediainfo',
             'name'=>'mediainfo', 
            // 'hash'=>$_REQUEST['hash'], 

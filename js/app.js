@@ -199,11 +199,6 @@ function FileManagerUtils() {
             return relative;
         },
 
-        encode_string: function (str) {
-
-            return encodeURIComponent(this.json_encode(str));
-
-        },
 
         json_encode: function (obj) {
             var self = this;
@@ -687,8 +682,7 @@ function FileManager() {
                 selectedTarget: null,
                 navigationLoaded: false,
                 initialFilesSortAlphaNumeric: null,
-                initialFileSortNumeric: null,
-
+                initialFileSortNumeric: null
             };
             var isVisible = false;
 
@@ -1870,11 +1864,12 @@ function FileManager() {
                 deferred.reject( theUILang.fDiagInvalidname);
                 return deferred.promise();
             }
+            var cPath = flm.getCurrentPath();
 
-            return flm.api.createArchive(archive, flm.manager.getFullPaths(files), options)
+            return flm.api.createArchive(flm.manager.stripHomePath(archive), flm.manager.getFullPaths(files), options)
                 .then(function (response) {
-                        flm.manager.logAction('archive', files.length + ' files -> ' +files)
-                        flm.Refresh(flm.getCurrentPath());
+                        flm.manager.logAction('archive', files.length + ' files -> ' +archive);
+                        flm.Refresh(cPath);
                         return response;
                     },
                     function (response) {
@@ -1928,7 +1923,7 @@ function FileManager() {
 
             $('#path_edit').val(path);
 
-            if ($('#tcreate').css('display') == 'none') {
+            if ($('#tcreate').css('display') === 'none') {
                 theWebUI.showCreate();
             }
         },

@@ -16,10 +16,11 @@ class Archive {
     public function setOptions($options) {
         
         $aopts =  Helper::getConfig('archive');
-
-        $a['type'] = $aopts['types'][(int)$options['type']];
-        $a['comp'] = $aopts['compress'][$options['type']][$options['compression']];
-        $a['volume'] = (intval($options['vsize'])*1024);
+        $aopts = $aopts['type'][$options['type']];
+        
+        $a['type'] = $options['type'];
+        $a['comp'] = $aopts['compression'][$options['compression']];
+        $a['volume'] = (intval($options['volumeSize'])*1024);
         $a['multif'] = (($a['type'] == 'rar') && ($options['format'] == 'old')) ? '-vn' : '';
         
         $a['workdir'] = $options['workdir'];

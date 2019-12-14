@@ -114,8 +114,8 @@ class WebController extends BaseController {
             $temp = $this->flm()->mediainfo((object)$data);
 
         } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
+            self::jsonError($err->getCode(), $err->getMessage());
+           // var_dump($err->getTraceAsString());
             return false;
         }
 
@@ -165,8 +165,10 @@ class WebController extends BaseController {
             $temp = $this->flm()->archive($params);
 
         } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
+            var_dump($err->getTraceAsString(), $params);
+
+            self::jsonError($err->getCode(), $err->getMessage());
+
             return false;
         }
 

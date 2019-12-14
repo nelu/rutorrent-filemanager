@@ -1,6 +1,8 @@
 <?php
 namespace Flm;
 
+use function getPluginConf;
+
 class Helper {
     
     
