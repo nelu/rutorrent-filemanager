@@ -491,7 +491,7 @@ function FileManager() {
 
         client.sfvCheck = function(path){
             return client.post({
-                method: 'sfv_check',
+                method: 'svfCheck',
                 target: path
             });
         };
@@ -2129,34 +2129,33 @@ function FileManager() {
 
         },
 
-        doSfvCheck: function (file) {
+        doSfvCheck: function (checksumFile) {
 
+            checksumFile = $.trim(checksumFile);
 
-            var file = this.checkInputs(diag);
-            if (file === false) {
-                return false;
-            }
-            if (flm.ui.browser.fileExists(this.basedir(file + '/'))) {
-                alert(theUILang.fDiagSFVempty);
-                return false;
-            }
+            var deferred = $.Deferred();
 
-            if (!this.buildList('fMan_' + diag)) {
-                return false;
+            if (!checksumFile.length) {
+                deferred.reject(theUILang.fDiagSFVempty);
+                return deferred.promise();
             }
 
-            $(button).attr('disabled', true);
-            this.actStart(diag);
 
+            if (!flm.utils.isValidPath(checksumFile)) {
+                deferred.reject( theUILang.fDiagInvalidname);
+                return deferred.promise();
+            }
 
-            var actioncall = {
-                method: 'sfvCreate',
-                target: file,
-                fls: theWebUI.fManager.actionlist
-            };
+            flm.manager.logStart(theUILang.fStarts.sfv_check);
 
-
-            this.action.postRequest({action: flm.utils.json_encode(actioncall)});
+            return flm.api.sfvCheck(flm.manager.stripHomePath(checksumFile))
+                .then(function (response) {
+                        flm.manager.logAction('sfvcheck', ' checksum file ' +checksumFile);
+                        return response;
+                    },
+                    function (response) {
+                        return response;
+                    });
 
         },
 

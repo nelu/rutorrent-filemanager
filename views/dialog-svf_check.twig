@@ -15,7 +15,7 @@
     (function (global) {
         var dialogs = flm.ui.getDialogs();
 
-        var diagId = dialogs.getDialogId('sfv_check');
+        var diagId = dialogs.getDialogId('window');
 
         dialogs.onStart(function () {
             return flm.manager.doSfvCheck(dialogs.getTargetPath(diagId));

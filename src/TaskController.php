@@ -146,7 +146,7 @@ class TaskController {
         foreach ($check_files as $i => $sfvinstance) {
             
             $file = $sfvinstance->getCurFile();
-            $msg = '0: ('.$i.'/'.$fcount. ') Hashing '.$file.' ... ';
+            $msg = '('.$i.'/'.$fcount. ') Hashing '.$file.' ... ';
 
            try {
               $hash = SFV::getFileHash($file);
@@ -181,7 +181,7 @@ class TaskController {
             
             $file = $item->getCurFile();
 
-            $msg = '0: ('.$i.'/'.$fcount. ') Checking '.trim($file).' ... ';
+            $msg = '('.$i.'/'.$fcount. ') Checking '.trim($file).' ... ';
 
            try {
                    
@@ -198,13 +198,12 @@ class TaskController {
           }
         
 
-    $this->writeLog("0: OK: files match\n");
-        
+        $this->writeLog("OK: files match\n");
     }
+
     public function extract ()
     {
-        
-     
+
             $cmd = FsUtils::getArchiveExtractCmd($this->info->params);
 
             try {
