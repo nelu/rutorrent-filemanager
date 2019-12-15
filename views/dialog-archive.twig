@@ -21,21 +21,32 @@
     </label>
     <label style="float: left; margin-left: 10px;">
         {{ theUILang.fDiagCompression }}
-        <select name="fMan_archcompr" id="fMan_archcompr"> </select>
+        <select name="fman-archive-archcompr" id="fman-archive-archcompr"> </select>
     </label>
-    <label style="float: right;">
+    <label style="float: right;" for="fman-archive-multiv"  class="fman-archive-settings-rar">
         {{ theUILang.fDiagCArchVsize }}
-        <input name="fMan_vsize" class="fMan_CArchiveRAR Textbox num1" type="text" value="" id="fMan_vsize"
-               disabled="disabled"/>
+        <input name="fman-archive-vsize" id="fman-archive-vsize" class="Textbox num1" type="text" value=""/>
     </label>
-    <label style="float: right;">
-        <input name="fMan_multiv" type="checkbox" value="1" class="fMan_CArchiveRAR" id="fMan_multiv"
+    <label style="float: right;" class="fman-archive-settings-rar">
+        <input name="fman-archive-multiv" id="fman-archive-multiv" type="checkbox" value="1"
                style="margin-right: 5px; margin-top:8px;"/>
     </label>
-    <label style="clear:both; float: left;">
-        Password: <input name="fMan_apassword" class="TextboxLarge fMan_CArchiveRAR" type="text" value=""
-                         id="fMan_apassword"/>
-    </label>
+
+    <div>
+        <label style="clear:both; float: left; display:none;" class="fman-archive-settings-pass fman-archive-settings-rar">
+            Password: <input name="fman-archive-apassword" class="TextboxLarge" type="text" value=""
+                             id="fman-archive-apassword"/>
+        </label>
+
+        <label style=" float: right; display:none;" class="fman-archive-settings-rar">
+            Multi-volume format:
+            <select name="fman-archive-arcnscheme" id="fman-archive-arcnscheme" disabled="disabled">
+                <option value="new" selected="selected">NEW - .part1.rar</option>
+                <option value="old">OLD - .r01</option>
+            </select>
+        </label>
+    </div>
+
 </fieldset>
 <div style="clear:both;"></div>
 {% endblock %}
@@ -49,9 +60,11 @@
         var settings = flm.getConfig().archives;
 
         var archiveType = $("#fMan_archtype");
-        var compression = $("#fMan_archcompr");
-        var password = $("#fMan_apassword");
-        var volumeSize = $("#fMan_vsize");
+        var compression = $("#fman-archive-archcompr");
+        var password = $("#fman-archive-apassword");
+        var volumeSize = $("#fman-archive-vsize");
+        var format =  $('#fman-archive-arcnscheme');
+
 
         var compressExtMap  = {
             'gzip': 'tar.gz',
@@ -68,7 +81,8 @@
                     type: archiveType.val(),
                     compression: compression.val(),
                     password: password.val(),
-                    volumeSize: volumeSize.val()
+                    volumeSize: volumeSize.val(),
+                    format: format.val()
                 }
             );
 
@@ -113,8 +127,23 @@
             updateArchiveName();
 
             var notRar = (type !== 'rar');
-            $("#fMan_vsize").attr("disabled", (!$("#fMan_multiv").attr("disabled", notRar).is(':checked') || notRar));
-            $('#fMan_apassword').attr("disabled", notRar);
+
+            if(!notRar || type === 'zip')
+            {
+
+                if(type === 'rar')
+                {
+                    $('.fman-archive-settings-rar').show();
+                    $("#fman-archive-vsize").attr("disabled", (!$("#fman-archive-multiv").attr("disabled", notRar).is(':checked') || notRar));
+
+                }
+              }
+            else
+            {
+                $('.fman-archive-settings-pass,.fman-archive-settings-rar').hide();
+            }
+
+
 
             compression.empty();
             for (var i = 0; i < settings[type].compression.length; i++) {
@@ -129,9 +158,10 @@
             }
         }
 
-        $("#fMan_multiv").change(function () {
+        $("#fman-archive-multiv").change(function () {
             var dis = $(this).is(':checked');
             volumeSize.attr("disabled", !dis);
+            format.attr("disabled", !dis);
         });
 
         archiveType.change(function () {

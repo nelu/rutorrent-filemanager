@@ -17,16 +17,17 @@ class Archive {
         
         $aopts =  Helper::getConfig('archive');
         $aopts = $aopts['type'][$options['type']];
-        
+
         $a['type'] = $options['type'];
         $a['comp'] = $aopts['compression'][$options['compression']];
         $a['volume'] = (intval($options['volumeSize'])*1024);
-        $a['multif'] = (($a['type'] == 'rar') && ($options['format'] == 'old')) ? '-vn' : '';
+        $a['multif'] = (($a['type'] == 'rar') && (isset($options['format']) && $options['format'] == 'old')) ? '-vn' : '';
         
         $a['workdir'] = $options['workdir'];
         
-          if(($options['password'] != '') 
-                && ($a['type'] == 'rar'))
+          if(isset($options['password']) && !empty($options['password'])
+                && ($a['type'] == 'rar' || $a['type'] == 'zip')
+          )
             { 
             $a['password'] = $options['password']; 
         }
@@ -46,8 +47,9 @@ class Archive {
 
         switch($this->options['type']) {
                 
-                case 'gzip': 
-                case 'bzip2': 
+                case 'gzip':
+                case 'tar':
+                case 'bzip2':
                     $bin = 'tar';
                     break;
                 case 'rar':
@@ -71,7 +73,7 @@ class Archive {
         
         $args = array('action' => 'compressFiles',
                         'params' => array(
-                            'files' => $files,
+                            'files' => array_map(function($e) {return ltrim($e,'/');}, $files),
                             'archive' => $this->file,
                             'options' => $this->options,
                              'binary'=>getExternal($bin)

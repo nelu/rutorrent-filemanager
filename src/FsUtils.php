@@ -4,6 +4,7 @@ namespace Flm;
 class FsUtils {
 
     public static $format_methods = array(
+        'tar' => 'tarExtractCmd',
         'tar.gz' => 'tgzExtractCmd',
         'gz' => 'tgzExtractCmd',
         'tgz' => 'tgzExtractCmd',
@@ -74,8 +75,6 @@ CMD;
 
         $ext = pathinfo($params->file, PATHINFO_EXTENSION);
 
-        var_dump('Archive extension', $ext);
-
         if (isset($format_methods[$ext])) {
 
             $method_name = $format_methods[$ext];
@@ -96,9 +95,16 @@ CMD;
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
 
-        return <<<CMD
-{$params->binary} -r {$options->compression} -y {$archive} {$files} 2>&1 | sed -u 's/^/0: /'
-CMD;
+        $cmd = <<<CMD
+{$params->binary} -r {$options->compression} -y {$archive} {$files}CMD;
+
+        if(isset($options->password))
+        {
+            $cmd .= ' -p ' . Helper::mb_escapeshellarg($options->password);
+        }
+        return $cmd;
+
+        return $cmd . " 2>&1 | sed -u 's/^/0: /' ";
     }
 
     public static function zipExtractCmd($params) {
@@ -172,14 +178,21 @@ CMD;
 
     public static function rarCompressCmd($params) {
 
-        $options = $params->options;
+        $options = (object)Helper::escapeCmdArgs($params->options);
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
-  
- // var_dump('ESCAPED FILE NAMES: ', $files, (array)Helper::escapeCmdArgs($params->files), Helper::escapeCmdArgs($params->files));
 
-        return <<<CMD
-{$params->binary} a -ep1 -m{$options->comp} -ol {$options->multif} -v{$options->multif}- {$archive} {$files} 2>&1 | awk -F '[\\b[:blank:]]+' 'BEGIN {OFS=", "} {for (i=1;i<=NF;i++) { if ((i-1)%10==0) printf "\\n0: "; printf "%s ",\$i} fflush()}'
+        $cmd = "{$params->binary} a -ep1 -m{$options->comp} -ol {$options->multif} -v{$options->volume}";
+        if(isset($options->password))
+        {
+            $cmd .= ' -hp' . $options->password;
+        }
+
+
+        $cmd =  $cmd . "- {$archive} {$files}";
+
+                return $cmd .<<<CMD
+ | awk -F '[\\b[:blank:]]+' 'BEGIN {OFS=", "} {for (i=1;i<=NF;i++) { if ((i-1)%10==0) printf "\\n"; printf "%s ",\$i} fflush()}';
 CMD;
     }
 
@@ -205,7 +218,7 @@ CMD;
 
     public static function isoExtractCmd($params) {
         return <<<CMD
-{$params->binary} x -bd -y -o {$to} {$file} 2>&1 | sed -u 's/^/0: Extracting /'
+{$params->binary} x -bd -y -o {$params->to} {$params->file} 2>&1 | sed -u 's/^/0: Extracting /'
 CMD;
 
     }

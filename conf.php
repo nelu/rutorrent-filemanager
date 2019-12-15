@@ -22,7 +22,7 @@ $config['archive']['type'] = [
                 'compression' => range(0, 5),
     ],
     'zip' => [
-        'bin' =>'unzip',
+        'bin' =>'zip',
         'compression' => ['-0', '-1', '-9'],
         ],
     'tar' => [

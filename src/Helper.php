@@ -51,7 +51,7 @@ class Helper {
     public static function escapeCmdArgs( $args) {
        
        // bjects only 
-        $args = is_array($args) ? (object) $args : clone $args; 
+        $args = !is_array($args) ? (array) $args : $args;
         
        
         foreach ($args as $key => $value) {
@@ -59,12 +59,16 @@ class Helper {
             {
                 continue;
             }
-            
-             if( !is_string($value)) {
+
+            if( is_array($value) || is_object($value)) {
+                $args[$key] =  self::escapeCmdArgs($value);
+                continue;
+            }
+     /*       else if( !is_string($value)) {
                 var_dump($value);
                 throw new \Exception("bad value submitted", 1);
-             }
-            $args->$key = self::mb_escapeshellarg($value);
+             }*/
+            $args[$key] = self::mb_escapeshellarg($value);
         }
         
         return $args;

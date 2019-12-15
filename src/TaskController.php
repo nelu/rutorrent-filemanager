@@ -44,27 +44,22 @@ class TaskController {
     {
 
         chdir ($this->info->params->options->workdir);
-        
+        $hasFail = false;
             try {
            $cmd = FsUtils::getArchiveCompressCmd($this->info->params);
-            var_dump($cmd);
                 $output =  $this->LogCmdExec($cmd);
-            }
-            catch (Exception $err) {
-                var_dump($err);
-            }
-    }
-    public function  makeScreensheet() {
-                    $cmd = FsUtils::ffmpegScreensheetCmd(clone $this->info->params);
 
-            try {
-                $output =  $this->LogCmdExec($cmd);
+            //    var_dump(__METHOD__, $cmd, $output);
+
             }
             catch (Exception $err) {
-                var_dump($err);
+                var_dump($err->getMessage(), $err->getTraceAsString());
             }
+
+        return $hasFail === false;
+
     }
-    
+
     public function recursiveCopy() {
 
         $total = count($this->info->params->files);
@@ -221,20 +216,19 @@ class TaskController {
     public function LogCmdExec($cmd) {
      //    $cmd =  $cmd.' > '.$this->log.' 2>&1';
         $cmd =  $cmd;
-
+        $output = [];
         $res = exec($cmd, $output, $exitCode);
+
+    //    passthru($cmd, $exitCode);
 
         if($exitCode > 0) {
             $logdata = [];
            // $logdata =  $this->readLog();
 
-
             if(isset($logdata['lines']))
             {
                 $output = array_merge($output, is_array($logdata['lines']) ? $logdata['lines'] : [$logdata['lines']]);
             }
-         //   var_dump(__METHOD__, '$cmd', $cmd, '$res',$res, '$exitCode', $exitCode, '$output', $output, '$logdata', $logdata);
-
             throw new Exception('Command error: '. implode("\n",$output), $exitCode);
             
         }

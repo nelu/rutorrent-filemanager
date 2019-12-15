@@ -50,7 +50,7 @@
 
 {% block buttons %}
 <div class="aright buttons-list">
-    <input type="button" class="flm-diag-start Button" value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}" disabled="disabled" class="Button" />
+    <input type="submit" class="flm-diag-start Button" value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}" disabled="disabled" class="Button" />
     <input type="button" class="flm-diag-cancel Button" value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
 </div>
 {% endblock %}
@@ -58,3 +58,5 @@
 
 {% block scripts %}
 {% endblock %}
+
+

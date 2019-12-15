@@ -1337,19 +1337,29 @@ function FileManager() {
                             .click(function () {
                                 if ($type(diags.onStartEvent) === "function") {
                                     dialogs.disableStartButton();
+                                    dialogs.hide(diagId);
 
                                     var promise = diags.onStartEvent.apply(diags, arguments);
                                     promise.then(        function () { dialogs.hide(diagId);},
                                         function (reason) {
-                                            dialogs.hide(diagId);
                                             flm.utils.logSystem(JSON.stringify(reason));
                                     });
                                 }
                             });
 
+                        diags.afterLoad(diagId, what);
                         $type(config.pathbrowse) && config.pathbrowse && diags.setDirBrowser(diagId);
                     }
                     );
+
+            },
+
+            afterLoad: function(id, what) {
+                console.log('dialog content loaded.', id, what, $('.flm-diag-start'));
+                setTimeout(function () {
+                    $('.flm-diag-start').focus();
+
+                }, 100);
 
             },
 
