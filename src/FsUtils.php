@@ -94,23 +94,22 @@ CMD;
         $options = $params->options;
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
+        $compression = trim($options->comp, '-');
 
         $cmd = <<<CMD
-{$params->binary} -y -r -{$options->compression}
+{$params->binary} -y -r -{$compression}
 CMD;
 
         if(isset($options->password))
         {
             $cmd .= ' -P ' . Helper::mb_escapeshellarg($options->password);
         }
-        return $cmd . " -y {$archive} {$files}";
+        return $cmd . " {$archive} {$files}";
     }
 
     public static function zipExtractCmd($params) {
 
         $paths = Helper::escapeCmdArgs($params);
-
-        var_dump(__METHOD__, $params);
 
         return <<<CMD
 {$paths->binary} -o {$paths->file} -d {$paths->to} 2>&1 | sed -u 's/^/0: Extracting /' 
