@@ -107,6 +107,7 @@
             var archives = Object.keys(settings);
             archives = $.uniqueSort(archives.concat(Object.values(compressExtMap)));
 
+
             file = flm.utils.buildPath([
                 flm.utils.basedir(file),
                 flm.utils.stripFileExtension(file, archives)
@@ -128,19 +129,22 @@
 
             var notRar = (type !== 'rar');
 
-            if(!notRar || type === 'zip')
+
+
+            if(type === 'rar')
             {
+                $('.fman-archive-settings-rar').show();
+                $("#fman-archive-vsize").attr("disabled", (!$("#fman-archive-multiv").attr("disabled", notRar).is(':checked') || notRar));
+            }
 
-                if(type === 'rar')
-                {
-                    $('.fman-archive-settings-rar').show();
-                    $("#fman-archive-vsize").attr("disabled", (!$("#fman-archive-multiv").attr("disabled", notRar).is(':checked') || notRar));
-
-                }
-              }
             else
             {
                 $('.fman-archive-settings-pass,.fman-archive-settings-rar').hide();
+
+               if(type === 'zip')
+                {
+                    $('.fman-archive-settings-pass').show();
+                }
             }
 
 

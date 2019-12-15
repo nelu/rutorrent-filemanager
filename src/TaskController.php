@@ -1,6 +1,7 @@
 <?php
 namespace Flm;
 use \Exception;
+use Throwable;
 
 class TaskController {
     
@@ -17,54 +18,45 @@ class TaskController {
     
     public function run(){
 
-
-        
         if(isset($this->info->params->workdir)
             && !empty($this->info->params->workdir)) {
             
             chdir ($this->info->params->workdir);
         }
         
-      //  var_dump('Task info: -------', $this->info);
-        
-     //   $this->writeLog("\n0: Started ");
-        
         if(method_exists($this, $this->info->action)) {
            $success= call_user_func(array($this,  $this->info->action));
 
-            $this->writeLog("\n--- Done");
+            $success && $this->writeLog("\n--- Done");
         }
 
 
         $this->recursiveRemove(array($this->info->temp->dir), false);
-      // rmdir($this->info->temp->dir);
     }
     
     public function compressFiles()
     {
-
         chdir ($this->info->params->options->workdir);
         $hasFail = false;
-            try {
+        try {
            $cmd = FsUtils::getArchiveCompressCmd($this->info->params);
-                $output =  $this->LogCmdExec($cmd);
 
-            //    var_dump(__METHOD__, $cmd, $output);
+           $this->LogCmdExec($cmd);
+        }
+        catch (Throwable $err) {
+            self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
+            $hasFail = $err;
+        }
 
-            }
-            catch (Exception $err) {
-                var_dump($err->getMessage(), $err->getTraceAsString());
-            }
-
-        return $hasFail === false;
-
+        return empty($hasFail);
     }
 
-    public function recursiveCopy() {
+    public function recursiveCopy() :bool
+    {
 
         $total = count($this->info->params->files);
-        $hasFail = false;
-      foreach ($this->info->params->files as $i => $file) {
+        $hasFail = null;
+        foreach ($this->info->params->files as $i => $file) {
 
 
           $copycmd = FsUtils::getCopyCmd($file, $this->info->params->to);
@@ -72,54 +64,72 @@ class TaskController {
           try {
                 $this->LogCmdExec($copycmd);
                 $this->writeLog('OK: ('.++$i.'/'.$total.') -> '. $file);
-          } catch (Exception $err) {
-
-              $this->writeLog('Failed: '.$file . ' -> ' . $file);
-              $hasFail = true;
+          } catch (Throwable $err) {
+              self::errorLog($file .': ' . $err->getMessage() );
+              $hasFail = $err;
           }
 
-      }
+        }
 
-        return $hasFail === false;
+        if($hasFail)
+        {
+            self::errorLog( 'Last error trace: ' .  $hasFail->getTraceAsString());
+        }
+
+        return empty($hasFail);
     }
     
-    public function recursiveMove() {
-        foreach ($this->info->params->files as $file) {
-          
-          
-          $renamecmd = 'mv -f '.Helper::mb_escapeshellarg($file) . ' ' . Helper::mb_escapeshellarg($this->info->params->to);
-          
-          try {
-              
+    public function recursiveMove() : bool
+    {
+        $hasFail = null;
+
+        foreach ($this->info->params->files as $file)
+        {
+            $renamecmd = 'mv -f ' . Helper::mb_escapeshellarg($file) . ' ' . Helper::mb_escapeshellarg($this->info->params->to);
+            $hasFail = null;
+
+            try {
+
                 $this->LogCmdExec($renamecmd);
-                $this->writeLog('OK: '.$file. ' ');
-          } catch (Exception $err) {
-              
-              $this->writeLog('Failed: '.$file);
-          }
-      }
-        
+                $this->writeLog('OK: ' . $file . ' -> ' . $this->info->params->to);
+            } catch (Throwable $err) {
+                $hasFail = $err;
+                self::errorLog($file . ' failed: ' . $err->getMessage());
+            }
+        }
+
+        if($hasFail)
+        {
+            self::errorLog( 'Last error trace: ' . $hasFail->getTraceAsString());
+        }
+        return empty($hasFail);
     }
     
-   public function recursiveRemove($files = null, $verbose = true) {
+   public function recursiveRemove($files = null, $verbose = true) :bool
+   {
         
-      $files = is_null($files) ? $this->info->params->files : $files;
-      
-      foreach ($files as $file) {
-          
-          
+        $files = is_null($files) ? $this->info->params->files : $files;
+        $hasFail = null;
+
+        foreach ($files as $file) {
+
           $rmcmd = FsUtils::getRemoveCmd($file);
-     
+
           try {
                 $this->LogCmdExec($rmcmd);
-               if($verbose) {$this->writeLog('0: OK: '.$file. ' ');}
-          } catch (Exception $err) {
-              
-            if($verbose) {  $this->writeLog('0: Failed: '.$file); }
+               if($verbose) {$this->writeLog('Removed: '.$file. ' ');}
+          } catch (Throwable $err) {
+              $hasFail = $err;
+              self::errorLog($file . ' failed: ' . $err->getMessage());
           }
-      }
-            
-    }
+        }
+       if($hasFail)
+       {
+           self::errorLog( 'Last error trace: ' . $hasFail->getTraceAsString());
+       }
+       return empty($hasFail);
+
+   }
     
     
     public function sfvCreate ()
@@ -215,25 +225,21 @@ class TaskController {
     
     public function LogCmdExec($cmd) {
      //    $cmd =  $cmd.' > '.$this->log.' 2>&1';
-        $cmd =  $cmd;
-        $output = [];
-        $res = exec($cmd, $output, $exitCode);
 
-    //    passthru($cmd, $exitCode);
+        // capture first pipe exitcode and enable buffering using sed -u
+        $cmd =  '/bin/bash -o pipefail -c ' .Helper::mb_escapeshellarg($cmd .<<<CMD
+ | sed -u 's/^//'
+CMD
+            );
+        $output = [];
+
+        passthru($cmd, $exitCode);
 
         if($exitCode > 0) {
-            $logdata = [];
-           // $logdata =  $this->readLog();
-
-            if(isset($logdata['lines']))
-            {
-                $output = array_merge($output, is_array($logdata['lines']) ? $logdata['lines'] : [$logdata['lines']]);
-            }
-            throw new Exception('Command error: '. implode("\n",$output), $exitCode);
-            
+            throw new Exception('Command error: '. $cmd, $exitCode);
         }
 
-        return $output;
+        return $exitCode;
     }
 
     public function readLog($lpos = 0) {
@@ -243,5 +249,10 @@ class TaskController {
     public function writeLog($line, $console_output = true) {
         if($console_output) {echo $line."\n";}
       //  return file_put_contents($this->log, $line."\n", FILE_APPEND );
+    }
+
+    public static function errorLog($line)
+    {
+       return fwrite(STDERR, $line . PHP_EOL);
     }
 }

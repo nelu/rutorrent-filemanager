@@ -17,16 +17,16 @@ class WebController extends BaseController {
       ];
 
       foreach ($this->config['archive']['type'] as $ext => $conf) {
-          if(!isset($bins[$conf['bin']]))
+/*          if(!isset($bins[$conf['bin']]))
           {
               $bins[$conf['bin']] = findEXE($conf['bin']);
           }
           if(!$bins[$conf['bin']])
           {
               $archive[$ext] = false;
-          } else {
+          } else {*/
               $archive[$ext] = $conf;
-          }
+        //  }
       }
 
     $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);

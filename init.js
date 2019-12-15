@@ -218,8 +218,6 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 //  update/initialize rest ui elements, when localisation is loaded
 plugin.ui.init = function () {
 
-	console.log('plugin.ui.init translations loaded');
-
 	plugin.resizeBottom = theWebUI.resizeBottom;
 	theWebUI.resizeBottom = function (w, h) {
 		plugin.resizeBottom.call(this, w, h);
@@ -236,7 +234,7 @@ plugin.ui.init = function () {
 			id: "datafrm"
 		}).width(0).height(0).load(function () {
 			var d = (this.contentDocument || this.contentWindow.document);
-			if (d.location.href != "about:blank")
+			if (d.location.href !== "about:blank")
 				try {
 					eval(d.body.innerHTML);
 				} catch (e) {
@@ -334,10 +332,10 @@ if(plugin.canChangeTabs())
 
 // 2. delayed loading of the lib
 // load view dependencies, first (hopefully)
-injectScript('/plugins/filemanager/js/twig.min.js',
+injectScript(plugin.path+'js/twig.min.js',
     // view engine
     function() {
-				injectScript('/plugins/filemanager/js/app.js',
+				injectScript(plugin.path+'js/app.js',
 					function() {
 
 					// localisation + app

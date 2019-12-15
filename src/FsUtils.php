@@ -96,15 +96,14 @@ CMD;
         $archive = Helper::mb_escapeshellarg($params->archive);
 
         $cmd = <<<CMD
-{$params->binary} -r {$options->compression} -y {$archive} {$files}CMD;
+{$params->binary} -y -r -{$options->compression}
+CMD;
 
         if(isset($options->password))
         {
-            $cmd .= ' -p ' . Helper::mb_escapeshellarg($options->password);
+            $cmd .= ' -P ' . Helper::mb_escapeshellarg($options->password);
         }
-        return $cmd;
-
-        return $cmd . " 2>&1 | sed -u 's/^/0: /' ";
+        return $cmd . " -y {$archive} {$files}";
     }
 
     public static function zipExtractCmd($params) {
@@ -125,7 +124,7 @@ CMD;
         $workdir = Helper::mb_escapeshellarg($params->options->workdir);
 
         return <<<CMD
-{$params->binary} -C {$workdir} -czvf {$archive} {$files} | sed -u 's/^/0: Adding /'
+{$params->binary} -C {$workdir} -czvf {$archive} {$files}'
 CMD;
     }
     
@@ -161,11 +160,9 @@ CMD;
         $workdir = Helper::mb_escapeshellarg($params->options->workdir);
         
         return <<<CMD
-{$params->binary} -C {$workdir} -cvf {$archive} {$files} | sed -u 's/^/0: Adding /'
+{$params->binary} -C {$workdir} -cvf {$archive} {$files}
 CMD;
     }
-
-
 
     public static function rarExtractCmd($params) {
 
@@ -188,12 +185,9 @@ CMD;
             $cmd .= ' -hp' . $options->password;
         }
 
-
         $cmd =  $cmd . "- {$archive} {$files}";
 
-                return $cmd .<<<CMD
- | awk -F '[\\b[:blank:]]+' 'BEGIN {OFS=", "} {for (i=1;i<=NF;i++) { if ((i-1)%10==0) printf "\\n"; printf "%s ",\$i} fflush()}';
-CMD;
+        return $cmd;
     }
 
     public static function bzipExtractCmd($params) {
@@ -212,7 +206,7 @@ CMD;
         $workdir = Helper::mb_escapeshellarg($params->options->workdir);
         
         return <<<CMD
-{$params->binary} -C {$workdir} -cjvf {$archive} {$files} | sed -u 's/^/0: Adding /'
+{$params->binary} -C {$workdir} -cjvf {$archive} {$files}
 CMD;
     }
 

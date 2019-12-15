@@ -912,7 +912,6 @@ function FileManager() {
             };
 
             browse.onShow = function () {
-                console.log('Filemanager ui broswer onshow');
                 if (isVisible) {
                     return;
                 }
@@ -1355,7 +1354,6 @@ function FileManager() {
             },
 
             afterLoad: function(id, what) {
-                console.log('dialog content loaded.', id, what, $('.flm-diag-start'));
                 setTimeout(function () {
                     $('.flm-diag-start').focus();
 
