@@ -1,6 +1,7 @@
 <?php
 namespace Flm;
 use \Exception;
+use rTask;
 use Throwable;
 
 class TaskController {
@@ -54,7 +55,7 @@ class TaskController {
                 FsUtils::getArchiveCompressCmd($this->info->params)
             ];
 
-            $rtask = new \rTask( $task_opts );
+            $rtask = new rTask( $task_opts );
             $ret = $rtask->start($cmds, 0);
         }
         catch (Throwable $err) {
@@ -226,17 +227,27 @@ class TaskController {
         $task_opts = [
             'requester'=>'filemanager',
             'name'=>'unpack',
-            'arg' => '1 files to ' . $this->info->params->to
+            'arg' => count($this->info->params->files).' files to ' . $this->info->params->to
         ];
 
         try {
             $cmds = [
+                '{',
                 'mkdir -p ' . Helper::mb_escapeshellarg($this->info->params->to),
-                FsUtils::getArchiveExtractCmd($this->info->params)
+                '}',
+                '{','cd ' . Helper::mb_escapeshellarg($this->info->params->to), '}',
             ];
 
-            $rtask = new \rTask( $task_opts );
-            $ret = $rtask->start($cmds, 0);
+            foreach ($this->info->params->files as $file)
+            {
+                $params = clone $this->info->params;
+                $params->file = $file;
+                $params->to = './';
+                $cmds[] = FsUtils::getArchiveExtractCmd($params);
+            }
+
+            $rtask = new rTask( $task_opts );
+            $ret = $rtask->start($cmds, rTask::FLG_DEFAULT & rTask::FLG_ECHO_CMD);
         }
         catch (Throwable $err) {
             self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());

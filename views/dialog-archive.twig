@@ -96,7 +96,7 @@
 
                 return flm.api.createArchive(flm.manager.stripHomePath(archive), flm.manager.getFullPaths(files), options)
                     .then(function (response) {
-                            flm.manager.logAction('archive', files.length + ' files -> ' + archive);
+                            flm.manager.logConsole('archive', files.length + ' files -> ' + archive);
                             flm.Refresh(cPath);
                             return response;
                         },

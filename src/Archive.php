@@ -48,38 +48,16 @@ class Archive {
             throw new Exception("Please load setOptions first", 1);
         }
 
-        switch($this->options['type']) {
-                
-                case 'gzip':
-                case 'tar':
-                case 'bzip2':
-                    $bin = 'tar';
-                    break;
-                case 'rar':
-                    $bin = 'rar';
-                    break;
-                case 'zip':
-                    $bin = 'zip';
-                    break;
-                default: 
-                    $bin = false;
-        }
-        
-        if(!$bin) {
-            throw new Exception("Unsupported archive format ".$this->options['type'], 16);
-        }
-
         $temp = [];
-        
-        
-        $args = array('action' => 'compressFiles',
+
+        $args = ['action' => 'compressFiles',
                         'params' => array(
                             'files' => array_map(function($e) {return ltrim($e,'/');}, $files),
                             'archive' => $this->file,
                             'options' => $this->options,
-                             'binary'=>getExternal($bin)
-                            ),
-                        'temp' => $temp );
+                             'binary'=> $this->getBin($this->options)
+                            )
+        ];
 
 
         $this->taskController->info = json_decode(json_encode($args));
@@ -89,23 +67,50 @@ class Archive {
         return $temp;
     }
 
-    public  function extract($to) {
+    public function getBin($compress = null) {
 
+        if($compress)
+        {
+            switch($compress['type']) {
 
-        $formatBin = self::getFormatBinary($this->file);
+                case 'gzip':
+                case 'tar':
+                case 'bzip2':
+                $formatBin = 'tar';
+                    break;
+                case 'rar':
+                    $formatBin = 'rar';
+                    break;
+                case 'zip':
+                    $formatBin = 'zip';
+                    break;
+                default:
+                    throw new Exception("Unsupported archive format ".$this->options['type'], 16);
+
+            }
+        } else {
+            $formatBin = self::getExtractBinary($this->file);
+
+        }
 
         if(!$formatBin) {
             throw new Exception("Error Processing Request", 18);
         }
 
+        return getExternal($formatBin);
+
+    }
+    public  function extract($to)
+    {
+
         $temp = [];
 
-
-        $args = array('action' => 'extract',
-            'params' => array('file' => $this->file,
+        $args = ['action' => 'extract',
+            'params' => array('files' => [$this->file],
                 'to' => $to,
-                'binary'=>getExternal($formatBin)),
-            'temp' => $temp );
+                'binary'=> $this->getBin()
+            )
+        ];
 
         $this->taskController->info = json_decode(json_encode($args));
         $temp['tok'] = $this->taskController->run();
@@ -114,7 +119,7 @@ class Archive {
         return $temp;
     }
 
-    public static function getFormatBinary($file) {
+    public static function getExtractBinary($file) {
         
        switch(pathinfo($file, PATHINFO_EXTENSION)) {
             case 'rar':

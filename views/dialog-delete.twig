@@ -30,7 +30,7 @@
         paths = flm.manager.getFullPaths(paths);
         return flm.api.removeFiles(paths)
             .then(function (response) {
-                    flm.manager.logAction('delete', 'Removing selected entries: ' + paths.length );
+                    flm.manager.logConsole('delete', 'Removing selected entries: ' + paths.length );
                     flm.Refresh(flm.getCurrentPath());
                     $(document).trigger(flm.EVENTS.delete, [paths]);
 

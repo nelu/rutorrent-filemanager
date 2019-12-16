@@ -38,7 +38,7 @@ if(function_exists('findRemoteEXE')) {
     }
 
 
-
+    $theSettings->registerEventHook($plugin["name"],"remove");
     $theSettings->registerPlugin("filemanager");
 
     $c = new WebController($pluginConfig);
