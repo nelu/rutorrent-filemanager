@@ -9,9 +9,13 @@ class Archive {
                         'extract' => '');
     public $file;
     public $options;
+
+    protected $taskController;
     
     public function __construct($archive_file) {
         $this->file=$archive_file;
+        $this->taskController = new TaskController();
+
     }
     
     public function setOptions($options) {
@@ -42,9 +46,7 @@ class Archive {
         if(is_null($this->options)) {
             
             throw new Exception("Please load setOptions first", 1);
-            
         }
-
 
         switch($this->options['type']) {
                 
@@ -64,11 +66,9 @@ class Archive {
         }
         
         if(!$bin) {
-            throw new Exception("Unsuported archive format ".$this->options['type'], 16);
+            throw new Exception("Unsupported archive format ".$this->options['type'], 16);
         }
-        
-                 
-                       
+
         $temp = [];
         
         
@@ -80,17 +80,40 @@ class Archive {
                              'binary'=>getExternal($bin)
                             ),
                         'temp' => $temp );
-                        
 
-        $c = new TaskController();
-        $c->info = json_decode(json_encode($args));
-        $temp['tok'] = $c->run();
+
+        $this->taskController->info = json_decode(json_encode($args));
+        $temp['tok'] = $this->taskController->run();
 
 
         return $temp;
     }
 
-   
+    public  function extract($to) {
+
+
+        $formatBin = self::getFormatBinary($this->file);
+
+        if(!$formatBin) {
+            throw new Exception("Error Processing Request", 18);
+        }
+
+        $temp = [];
+
+
+        $args = array('action' => 'extract',
+            'params' => array('file' => $this->file,
+                'to' => $to,
+                'binary'=>getExternal($formatBin)),
+            'temp' => $temp );
+
+        $this->taskController->info = json_decode(json_encode($args));
+        $temp['tok'] = $this->taskController->run();
+
+
+        return $temp;
+    }
+
     public static function getFormatBinary($file) {
         
        switch(pathinfo($file, PATHINFO_EXTENSION)) {
@@ -115,49 +138,4 @@ class Archive {
        return $bin;
         
     }
-
-    public  function extract($to) {
-
-             
-        $formatBin = self::getFormatBinary($this->file);
-        
-        if(!$formatBin) {
-            throw new Exception("Error Processing Request", 18);
-        }
-    
-        $temp = Helper::getTempDir();
-        
-        
-        $args = array('action' => 'extract',
-                        'params' => array('file' => $this->file,
-                                            'to' => $to,
-                                            'binary'=>getExternal($formatBin)),
-                        'temp' => $temp );
-                        
-         $task = $temp['dir'].'task';    
-            
-        file_put_contents($task, json_encode($args));
-        
-
-
-            $task_opts = [
-                'requester'=>'filemanager',
-                            'name'=>'unpack',
-                'arg' => '1 files to ' . $to
-                        ];
-                    
-         $rtask = new \rTask( $task_opts );
-
-
-
-         $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
-         $ret = $rtask->start($commands, 0);   
-
-
-
-        return $temp;
-    
-    }
-
-   
 }

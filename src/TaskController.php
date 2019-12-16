@@ -223,23 +223,27 @@ class TaskController {
     public function extract ()
     {
 
-            $cmd = FsUtils::getArchiveExtractCmd($this->info->params);
-            $hasFail = false;
-            try {
-      
-              if(!is_dir($this->info->params->to)) {
-                    mkdir($this->info->params->to);
-                }
-                $output =  $this->LogCmdExec($cmd);
-            }
-            catch (Throwable $err) {
+        $task_opts = [
+            'requester'=>'filemanager',
+            'name'=>'unpack',
+            'arg' => '1 files to ' . $this->info->params->to
+        ];
 
-                var_dump(__METHOD__, $this->info);
-                self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
-                $hasFail = $err;
-            }
+        try {
+            $cmds = [
+                'mkdir -p ' . Helper::mb_escapeshellarg($this->info->params->to),
+                FsUtils::getArchiveExtractCmd($this->info->params)
+            ];
 
-        return empty($hasFail);
+            $rtask = new \rTask( $task_opts );
+            $ret = $rtask->start($cmds, 0);
+        }
+        catch (Throwable $err) {
+            self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
+            $ret = $err;
+        }
+
+        return $ret;
         }
     
     public function LogCmdExec($cmd) {
