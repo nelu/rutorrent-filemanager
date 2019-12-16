@@ -126,9 +126,11 @@ class Filesystem {
             
         file_put_contents($task, json_encode($args));
 
-        $task_opts = array  ( 'requester'=>'filemanager',
-                        'name'=>'remove',
-                    );
+        $task_opts = [
+            'requester'=>'filemanager',
+            'name'=>'remove',
+            'arg' =>  count($files) . ' files'
+            ];
 
          $rtask = new \rTask( $task_opts );
          $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );

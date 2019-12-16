@@ -65,7 +65,7 @@ div#flm-settings-pane {
     overflow: auto;
 }
 
-.aright {
+div[id^="flm_popup_"].aright {
     float:right;
 }
 

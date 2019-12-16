@@ -71,6 +71,41 @@
             'bzip2': 'tar.bz2'
         };
 
+        if(!flm.manager.hasOwnProperty('doArchive')) {
+            // service
+            flm.manager.doArchive = function (archive, files, options) {
+
+                var deferred = $.Deferred();
+                flm.manager.logStart(theUILang.fStarts.archive);
+
+                if (!archive.length) {
+                    deferred.reject(theUILang.fDiagNoPath);
+                    return deferred.promise();
+                }
+
+                if (!$type(files) || files.length === 0) {
+                    deferred.reject('Empty paths');
+                    return deferred.promise();
+                }
+
+                if (!flm.utils.isValidPath(archive)) {
+                    deferred.reject(theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
+                var cPath = flm.getCurrentPath();
+
+                return flm.api.createArchive(flm.manager.stripHomePath(archive), flm.manager.getFullPaths(files), options)
+                    .then(function (response) {
+                            flm.manager.logAction('archive', files.length + ' files -> ' + archive);
+                            flm.Refresh(cPath);
+                            return response;
+                        },
+                        function (response) {
+                            return response;
+                        });
+            };
+        }
+
         dialogs.onStart(function () {
 
 

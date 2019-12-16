@@ -187,24 +187,32 @@ class FileManager {
 
 	public function extractFile($paths) {
 	    
-        $archive_file = $this->getUserDir($paths['archive']);
       //  var_dump('arch path', $this->workdir.$paths['archive'], $archive_file);
 
         $to = $this->getUserDir($paths['to']);        
 
-        $fs = Fs::get();  
+        $fs = Fs::get();
 
-       if (!$fs->isFile($archive_file) ) {
-           throw new Exception("Error Processing Request", 6);  
-       }else  if($fs->isFile($to)) {
-           throw new Exception("dest is file", 16);      
-        }  else if(!Remote::test(dirname($to), 'w') ) {
-              throw new Exception("Not writable", 300);
+        if($fs->isFile($to)) {
+            throw new Exception("dest is file", 16);
+        }  else if(!Remote::test($to, 'w') ) {
+            throw new Exception("Not writable: " . dirname($to), 300);
         }
-        
-       $archive = new Archive($archive_file);  
-                
-       return   $archive->extract($to);
+
+        $res = [];
+
+        foreach ($paths['archives'] as $archive_file)
+        {
+            $archive_file = $this->getUserDir($archive_file);
+            if (!$fs->isFile($archive_file) ) {
+                throw new Exception("File missing: " . $archive_file, 6);
+            }
+
+            $archive = new Archive($archive_file);
+            $res[] = $archive->extract($to);
+        }
+
+       return $res;
 	}
 
 	public function get_session() {
@@ -353,11 +361,8 @@ class FileManager {
 		$from = $this->workdir.$paths['from'];
 		$to = $this->workdir.$paths['to'];
 
-        
         return Fs::get()->rename($from, $to );
-
 	}
-
 
 	public function remove($paths) {
 	    
@@ -369,8 +374,6 @@ class FileManager {
         $task_info = $fs->remove($files);
         return $task_info;
     }
-
-
 
 	public function sfv_check ($paths) {
 
@@ -399,20 +402,16 @@ class FileManager {
             
         file_put_contents($task, json_encode($args));
 
-            $task_opts = array  ( 'requester'=>'filemanager',
-                            'name'=>'SFV check', 
-                        );
-                        
-             $rtask = new \rTask( $task_opts );
-             $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
-                    $ret = $rtask->start($commands, 0);    
-             
-           //var_dump($ret);
-           
-             return $temp;
+        $task_opts = array  ( 'requester'=>'filemanager',
+                        'name'=>'SFV check',
+                    );
+
+         $rtask = new \rTask( $task_opts );
+         $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
+         $ret = $rtask->start($commands, 0);
+
+         return $temp;
 	}
-
-
 
 	public function sfvCreate ($paths) {
           

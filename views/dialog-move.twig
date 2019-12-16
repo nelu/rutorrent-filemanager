@@ -14,6 +14,51 @@
     var diagId = dialogs.getDialogId('window');
 
 
+
+    if(!flm.manager.hasOwnProperty('doMove')) {
+        // service
+        flm.manager.doMove = function (filePaths, destination) {
+
+        destination = $.trim(destination);
+
+        var deferred = $.Deferred();
+        flm.manager.logStart(theUILang.fStarts.move);
+
+        if (!destination.length) {
+            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+            deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
+            return deferred.promise();
+        }
+
+        if(!$type(filePaths) || filePaths.length === 0)
+        {
+            deferred.reject('move: ' + 'Empty paths');
+            return deferred.promise();
+        }
+
+        if (!flm.utils.isValidPath(destination)) {
+            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+            deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
+            return deferred.promise();
+        }
+        var cPath = flm.getCurrentPath();
+
+        var paths = flm.manager.getFullPaths(filePaths);
+        destination = flm.manager.stripHomePath(destination);
+        return flm.api.move(paths, destination)
+            .then(function (response) {
+                    flm.manager.logAction('move', filePaths.length + ' files -> ' +destination);
+                    flm.Refresh(cPath);
+                    $(document).trigger(flm.EVENTS.move, [paths, destination]);
+
+                    return response;
+                },
+                function (response) {
+                    return response;
+                });
+    };
+    }
+
     dialogs.onStart(function () {
         return flm.manager.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
     });

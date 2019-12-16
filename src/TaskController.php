@@ -210,7 +210,7 @@ class TaskController {
     {
 
             $cmd = FsUtils::getArchiveExtractCmd($this->info->params);
-
+            $hasFail = false;
             try {
       
               if(!is_dir($this->info->params->to)) {
@@ -218,9 +218,14 @@ class TaskController {
                 }
                 $output =  $this->LogCmdExec($cmd);
             }
-            catch (Exception $err) {
-                var_dump($err);
+            catch (Throwable $err) {
+
+                var_dump(__METHOD__, $this->info);
+                self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
+                $hasFail = $err;
             }
+
+        return empty($hasFail);
         }
     
     public function LogCmdExec($cmd) {
@@ -228,7 +233,7 @@ class TaskController {
 
         // capture first pipe exitcode and enable buffering using sed -u
         $cmd =  '/bin/bash -o pipefail -c ' .Helper::mb_escapeshellarg($cmd .<<<CMD
- | sed -u 's/^//'
+ 2>&1 | sed -u 's/^//'
 CMD
             );
         $output = [];

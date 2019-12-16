@@ -17,26 +17,65 @@
 </div>
 {% endblock %}
 {% block scripts %}
-    <script>
-        (function (global) {
+<script>
+    (function (global) {
 
-            flm.ui.getDialogs().onStart(function () {
-                console.log('hello from dialog new dir twig');
-                var dirname = flm.getCurrentPath($('#fMan-ndirname').val());
-                var currentPath = $('#flm_popup_mkdir-currentpath').val();
-                dirname = flm.utils.buildPath([currentPath, dirname]);
 
-                if (!flm.utils.isValidPath(dirname)) {
-                    alert(theUILang.fDiagInvalidname);
-                    return;
+        if(!flm.manager.hasOwnProperty('createNewDir')) {
+                // service
+                flm.manager.createNewDir= function (dirname) {
+
+                var ndn = $.trim(dirname);
+                var deferred = $.Deferred();
+
+                if (!ndn.length) {
+                    deferred.reject(theUILang.fDiagInvalidname);
+                    return deferred.promise();
                 }
 
-                return flm.manager.createNewDir(dirname);
-            });
+                if (flm.ui.browser.fileExists(ndn) || flm.ui.browser.fileExists(ndn + '/')) {
+                    deferred.reject(theUILang.fDiagAexist);
+                    return deferred.promise();
+                }
 
-        })
-        (window);
-    </script>
+
+                var lastPath = flm.utils.basedir(ndn) + "";
+
+                return flm.api.mkDir(ndn)
+                    .then(function (response) {
+                            flm.manager.inaction = false;
+
+                            if ((flm.currentPath === lastPath)
+                                && !flm.manager.isErr(response.errcode, ndn)) {
+                                flm.goToPath(flm.currentPath);
+                            }
+                            return response;
+                        },
+                        function (response) {
+                            return response;
+                        });
+
+            };
+        }
+
+
+        flm.ui.getDialogs().onStart(function () {
+            console.log('hello from dialog new dir twig');
+            var dirname = flm.getCurrentPath($('#fMan-ndirname').val());
+            var currentPath = $('#flm_popup_mkdir-currentpath').val();
+            dirname = flm.utils.buildPath([currentPath, dirname]);
+
+            if (!flm.utils.isValidPath(dirname)) {
+                alert(theUILang.fDiagInvalidname);
+                return;
+            }
+
+            return flm.manager.createNewDir(dirname);
+        });
+
+    })
+    (window);
+</script>
 {% endblock %}
 
 

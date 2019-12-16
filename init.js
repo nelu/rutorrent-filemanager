@@ -222,7 +222,19 @@ plugin.ui.init = function () {
 	theWebUI.resizeBottom = function (w, h) {
 		plugin.resizeBottom.call(this, w, h);
 
-		window.flm.ui.resize(w, h);
+		if(w!==null)
+		{	w-=16; }
+		if(h!==null)
+		{
+			h -= ($("#fMan_navpath").outerHeight());
+			h-=($("#tabbar").outerHeight());
+			h-= TR_HEIGHT+2;
+		}
+
+		var table = flm.ui.browser.table();
+		if (table) {
+			table.resize(w, h);
+		}
 	};
 
 	if (!thePlugins.isInstalled('data')) {

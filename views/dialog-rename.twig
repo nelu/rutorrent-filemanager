@@ -23,6 +23,65 @@
         // snapshot when trigerring
         var currentPath = flm.getCurrentPath();
 
+
+
+        if(!flm.manager.hasOwnProperty('doRename')) {
+            // service
+            flm.manager.doRename = function (source, destination) {
+
+                source = $.trim(source);
+                destination = $.trim(destination);
+
+                var deferred = $.Deferred();
+
+                if (!source.length || (destination === source)) {
+
+                    flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
+
+                    deferred.reject(theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
+
+                if (!flm.utils.isValidPath(destination)) {
+                    flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
+                    deferred.reject(theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
+
+                if (flm.ui.browser.fileExists(source)
+                    || flm.ui.browser.fileExists(source + '/')) //dir check
+                {
+                    flm.manager.logAction('rename'.toString(), theUILang.fDiagAexist);
+                    deferred.reject(theUILang.fDiagAexist);
+                    return deferred.promise();
+                }
+                var cPath = flm.getCurrentPath();
+
+                return flm.api.rename(source, destination).then(
+                    function (response) {
+                        flm.manager.logAction('rename', source + ' -> ' + destination);
+                        flm.Refresh(cPath);
+                        $(document).trigger(flm.EVENTS.rename, [source, destination]);
+
+                        return response;
+
+                    }
+                );
+
+
+                /*
+                            this.action.postRequest({action: flm.utils.json_encode(actioncall)},
+                                callback,
+                                function () {
+                                    log(theUILang.fErrMsg[11]);
+                                }, function () {
+                                    log(theUILang.fErrMsg[12] + ' - Rename: ' + destination);
+                                });*/
+
+            };
+        }
+
+
         dialogs.onStart(function () {
 
             var destination = $('#fMan-RenameTo').val();

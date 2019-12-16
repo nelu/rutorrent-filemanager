@@ -3,13 +3,24 @@ rTorrent file management plugin for ruTorrent webUI running with shell/javascrip
 Javascript web client with php endpoint with file operations methods
 
 ***UI:***
-- multiple file support for basic file operations: copy/move/delete/archive/sfv create
+- support for file operations: copy/move/delete/rename
 - hotkeys for copy/move actions (ctrl/cmd-c/x/v)
+- integrated operations in torrent Files tab
 - using twigjs for views
-- async js load for dialogs: archive, extract
+- sfv checksum functionality 
+- text/nfo viewer, with configurable text extensions in conf.php
+``
+$config['textExtensions'] = 'txt|nfo|sfv|xml|html';
+``
+- file archive support for extract/create operations
 
-Additional filemanager plugins:
+See these additional filemanager plugins for extended functionality:
 - filemanager-media: Media view and screenshots - see: https://github.com/nelu/rutorrent-filemanager-media
 - filemanager-share: Share functionality - see: https://github.com/nelu/rutorrent-filemanager-share
 
-Feel fee to contribute with commits and docs
+Feel free to contribute with commits and docs
+
+TODO:
+- fix utf8 files paths for RAR compression
+- remove rar multipart format option in create dialog
+- implement listeners for operation events (move, rename, delete)

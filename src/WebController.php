@@ -84,27 +84,6 @@ class WebController extends BaseController {
         }
     }
 
-    public function fileExtract($params) {
-
-
-        if (!isset($params->to)) {
-            self::jsonError(2);
-        }
-
-        if (!isset($params->target)) {
-            self::jsonError(18);
-        }
-
-        try {
-            $temp = $this->flm()->extractFile(array('archive' => $params->target, 'to' => $params->to));
-        } catch (Exception $err) {
-            self::jsonError($err->getCode());
-            return false;
-        }
-
-        return array('error' => 0, 'tmpdir' => $temp['tok']);
-
-    }
 
     public function fileMediaInfo() {
 
@@ -174,6 +153,28 @@ class WebController extends BaseController {
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
     }
+
+    public function filesExtract($params) {
+
+
+        if (!isset($params->to)) {
+            self::jsonError(2);
+        }
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
+            self::jsonError(22);
+        }
+
+        try {
+            $temp = $this->flm()->extractFile(array('archives' => $params->fls, 'to' => $params->to));
+        } catch (\Throwable $err) {
+            self::jsonError($err->getCode(), $err->getMessage());
+            return false;
+        }
+
+        return array('error' => 0, 'tmpdir' => $temp[0]['tok']);
+
+    }
+
 
     public function filesCopy($params) {
 

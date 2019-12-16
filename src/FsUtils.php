@@ -109,10 +109,10 @@ CMD;
 
     public static function zipExtractCmd($params) {
 
-        $paths = Helper::escapeCmdArgs($params);
+        $paths = (object)Helper::escapeCmdArgs($params);
 
         return <<<CMD
-{$paths->binary} -o {$paths->file} -d {$paths->to} 2>&1 | sed -u 's/^/0: Extracting /' 
+{$params->binary} -o {$paths->file} -d {$paths->to}
 CMD;
     }
 
@@ -123,35 +123,32 @@ CMD;
         $workdir = Helper::mb_escapeshellarg($params->options->workdir);
 
         return <<<CMD
-{$params->binary} -C {$workdir} -czvf {$archive} {$files}'
+{$params->binary} -C {$workdir} -czvf {$archive} {$files}
 CMD;
     }
     
     public static function tgzExtractCmd($params) {
 
-        $paths = Helper::escapeCmdArgs($params);
-        //extract($params);
-
-        var_dump(__METHOD__, $params);
+        $paths = (object)Helper::escapeCmdArgs($params);
 
         return <<<CMD
-{$params->binary} -xzvf {$paths->file} -C {$paths->to} 2>&1 | sed -u 's/^/0: Extracting /' 
+{$params->binary} -xzvf {$paths->file} -C {$paths->to}
 CMD;
 
     }
 
     public static function tarExtractCmd($params) {
 
-        $paths = Helper::escapeCmdArgs($params);
+        $paths = (object)Helper::escapeCmdArgs($params);
         return <<<CMD
-{$params->binary} -xvf {$paths->file} -C {$paths->to} 2>&1 | sed -u 's/^/0: Extracting /' 
+{$params->binary} -xvf {$paths->file} -C {$paths->to}
 CMD;
 
     }
 
     public static function tarCompressCmd($params) {
 
-        //$paths = Helper::escapeCmdArgs($params);
+        //$paths = (object)Helper::escapeCmdArgs($params);
 
         $options = $params->options;
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
@@ -165,9 +162,9 @@ CMD;
 
     public static function rarExtractCmd($params) {
 
-        $paths = Helper::escapeCmdArgs($params);
+        $paths = (object)Helper::escapeCmdArgs($params);
         return <<<CMD
-{$paths->binary} x -ol -p- -or- {$paths->file} {$paths->to} 2>&1 | awk -F '[\\b[:blank:]]+' 'BEGIN {OFS=", "} {for (i=1;i<=NF;i++) { if ((i-1)%10==0) printf "\\n0: "; printf "%s ",\$i} fflush()}'
+{$params->binary} x -ol -p- -or- {$paths->file} {$paths->to}
 CMD;
 
     }
@@ -190,10 +187,10 @@ CMD;
     }
 
     public static function bzipExtractCmd($params) {
-        $paths = Helper::escapeCmdArgs($params);
+        $paths = (object)Helper::escapeCmdArgs($params);
 
         return <<<CMD
-{$params->binary} -xjvf  {$paths->file} -C {$paths->to} 2>&1 | sed -u 's/^/0: Extracting /'
+{$params->binary} -xjvf  {$paths->file} -C {$paths->to}
 CMD;
 
     }
@@ -211,7 +208,7 @@ CMD;
 
     public static function isoExtractCmd($params) {
         return <<<CMD
-{$params->binary} x -bd -y -o {$params->to} {$params->file} 2>&1 | sed -u 's/^/0: Extracting /'
+{$params->binary} x -bd -y -o {$params->to} {$params->file}
 CMD;
 
     }

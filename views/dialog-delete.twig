@@ -13,6 +13,36 @@
     var dialogs = flm.ui.getDialogs();
     var diagId = dialogs.getDialogId();
 
+    if(!flm.manager.hasOwnProperty('doDelete')) {
+        // service
+        flm.manager.doDelete= function (paths) {
+
+        var deferred = $.Deferred();
+
+        if(!$type(paths) || paths.length === 0)
+        {
+            deferred.reject('Empty paths');
+            return deferred.promise();
+        }
+
+        this.logStart(theUILang.fStarts['delete']);
+
+        paths = flm.manager.getFullPaths(paths);
+        return flm.api.removeFiles(paths)
+            .then(function (response) {
+                    flm.manager.logAction('delete', 'Removing selected entries: ' + paths.length );
+                    flm.Refresh(flm.getCurrentPath());
+                    $(document).trigger(flm.EVENTS.delete, [paths]);
+
+                    return response;
+                },
+                function (response) {
+                    return response;
+                });
+
+    }; }
+
+
     dialogs.onStart(function () {
 
         var checklist = dialogs.getCheckedList(diagId);

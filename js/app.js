@@ -510,6 +510,16 @@ function FileManager() {
                 fls: files
             });
         };
+
+        client.extractFiles = function(archiveFiles, toDir) {
+
+            return flm.api.post({
+                method: 'filesExtract',
+                fls: archiveFiles,
+                to: toDir
+            });
+        };
+
         client.mkDir= function(dir) {
                 return client.post({
                     method: 'newDirectory',
@@ -769,7 +779,7 @@ function FileManager() {
                 },
 
                 onDoubleClick: function (obj) {
-                    /*    if (theWebUI.fManager.inaction) {
+                    /*    if (theWebUI.FileManager.inaction) {
                             return false;
                         }*/
                     var target = obj.id.slice(5, obj.id.length);
@@ -998,7 +1008,7 @@ function FileManager() {
                 var pathIsDir = utils.isDir(path);
                 path = '/' + utils.ltrim(path, '/');
 
-                var flm = theWebUI.fManager;
+                var flm = theWebUI.FileManager;
                 var menu = [];
 
                 menu.push([theUILang.fOpen, (entries.length > 1) ? null : (pathIsDir ? function () {
@@ -1550,8 +1560,8 @@ function FileManager() {
 
                         theDialogManager.setHandler(diagId, 'beforeShow', function () {
                             $('#flm-diag-stop').click(function () {
-                                self.console.logMsg(theUILang.fStops[theWebUI.fManager.activediag] + "\n");
-                                theWebUI.fManager.logStop();
+                                self.console.logMsg(theUILang.fStops[theWebUI.FileManager.activediag] + "\n");
+                                theWebUI.FileManager.logStop();
 
                             });
                         });
@@ -1703,24 +1713,6 @@ function FileManager() {
                 });
         };
 
-        self.resize = function (w, h) {
-
-            if (w !== null) {
-                w -= 8;
-            }
-
-            if (h !== null) {
-                h -= ($("#tabbar").height());
-                h -= ($("#fMan_navpath").height());
-                h -= 2;
-            }
-
-            var table = self.browser.table();
-            if (table) {
-                table.resize(w, h);
-            }
-        };
-
         self.browser = browser;
 
         return self;
@@ -1746,11 +1738,11 @@ function FileManager() {
 
     flm.goToPath = function (dir) {
         flm.ui.disableNavigation();
-        theWebUI.fManager.inaction = true;
+        theWebUI.FileManager.inaction = true;
 
         return flm.api.getDir(dir)
             .then(function (response) {
-                    theWebUI.fManager.inaction = false;
+                    theWebUI.FileManager.inaction = false;
                     flm.ui.enableNavigation();
 
 
@@ -1829,14 +1821,14 @@ function FileManager() {
         cleanactions: function () {
 
             $(".fMan_Stop").attr('disabled', true);
-            clearTimeout(theWebUI.fManager.actiontimeout);
+            clearTimeout(theWebUI.FileManager.actiontimeout);
             flm.ui.console.hideProgress();
-            theWebUI.fManager.activediag = '';
-            theWebUI.fManager.actionlist = {};
-            theWebUI.fManager.actionstats = 0;
-            theWebUI.fManager.actiontoken = 0;
-            theWebUI.fManager.actiontimeout = 0;
-            theWebUI.fManager.actionlp = 0;
+            theWebUI.FileManager.activediag = '';
+            theWebUI.FileManager.actionlist = {};
+            theWebUI.FileManager.actionstats = 0;
+            theWebUI.FileManager.actiontoken = 0;
+            theWebUI.FileManager.actiontimeout = 0;
+            theWebUI.FileManager.actionlp = 0;
         },
 
         stripHomePath: function(entry)
@@ -1850,74 +1842,6 @@ function FileManager() {
             }
 
             return entries;
-        },
-
-        doArchive: function (archive, files, options) {
-
-            var deferred = $.Deferred();
-            flm.manager.logStart(theUILang.fStarts.archive);
-
-            if (!archive.length) {
-                deferred.reject( theUILang.fDiagNoPath);
-                return deferred.promise();
-            }
-
-            if(!$type(files) || files.length === 0)
-            {
-                deferred.reject('Empty paths');
-                return deferred.promise();
-            }
-
-            if (!flm.utils.isValidPath(archive)) {
-                deferred.reject( theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-            var cPath = flm.getCurrentPath();
-
-            return flm.api.createArchive(flm.manager.stripHomePath(archive), flm.manager.getFullPaths(files), options)
-                .then(function (response) {
-                        flm.manager.logAction('archive', files.length + ' files -> ' +archive);
-                        flm.Refresh(cPath);
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-        },
-
-        createNewDir: function (dirname) {
-
-            var ndn = $.trim(dirname);
-            var deferred = $.Deferred();
-
-            if (!ndn.length) {
-                deferred.reject(theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            if (flm.ui.browser.fileExists(ndn) || flm.ui.browser.fileExists(ndn + '/'))
-            {
-                deferred.reject(theUILang.fDiagAexist);
-                return deferred.promise();
-            }
-
-
-            var lastPath = flm.utils.basedir(ndn) + "";
-
-            return flm.api.mkDir(ndn)
-                .then(function (response) {
-                        flm.manager.inaction = false;
-
-                        if ((flm.currentPath === lastPath)
-                            && !flm.manager.isErr(response.errcode, ndn)) {
-                            flm.goToPath(flm.currentPath);
-                        }
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-
         },
 
         createTorrent: function (target) {
@@ -1936,236 +1860,6 @@ function FileManager() {
             }
         },
 
-        doDelete: function (paths) {
-
-            var deferred = $.Deferred();
-
-            if(!$type(paths) || paths.length === 0)
-            {
-                deferred.reject('Empty paths');
-                return deferred.promise();
-            }
-
-            this.logStart(theUILang.fStarts['delete']);
-
-            paths = flm.manager.getFullPaths(paths);
-            return flm.api.removeFiles(paths)
-               .then(function (response) {
-                   flm.manager.logAction('delete', 'Removing selected entries: ' + paths.length );
-                   flm.Refresh(flm.getCurrentPath());
-                   $(document).trigger(flm.EVENTS.delete, [paths]);
-
-                   return response;
-               },
-               function (response) {
-                   return response;
-               });
-
-        },
-
-        doMove: function (filePaths, destination) {
-
-            destination = $.trim(destination);
-
-            var deferred = $.Deferred();
-            flm.manager.logStart(theUILang.fStarts.move);
-
-            if (!destination.length) {
-                // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            if(!$type(filePaths) || filePaths.length === 0)
-            {
-                deferred.reject('move: ' + 'Empty paths');
-                return deferred.promise();
-            }
-
-            if (!flm.utils.isValidPath(destination)) {
-                // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-            var cPath = flm.getCurrentPath();
-
-            var paths = flm.manager.getFullPaths(filePaths);
-            destination = flm.manager.stripHomePath(destination);
-            return flm.api.move(paths, destination)
-                .then(function (response) {
-                        flm.manager.logAction('move', filePaths.length + ' files -> ' +destination);
-                        flm.Refresh(cPath);
-                        $(document).trigger(flm.EVENTS.move, [paths, destination]);
-
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-        },
-
-        doCopy: function (destination, filePaths) {
-
-            destination = $.trim(destination);
-
-            var deferred = $.Deferred();
-            flm.manager.logStart(theUILang.fStarts.copy);
-
-            if (!destination.length) {
-               // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                deferred.reject( theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            if(!$type(filePaths) || filePaths.length === 0)
-            {
-                deferred.reject('Empty paths');
-                return deferred.promise();
-            }
-
-            if (!flm.utils.isValidPath(destination)) {
-               // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                deferred.reject( theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            // snapshotvalue
-            var cPath = flm.getCurrentPath();
-            return flm.api.copy(flm.manager.getFullPaths(filePaths), flm.manager.stripHomePath(destination))
-            .then(function (response) {
-                    flm.manager.logAction('copy', filePaths.length + ' files -> ' +destination);
-                    flm.Refresh(cPath);
-                    return response;
-                },
-                function (response) {
-                    return response;
-                });
-        },
-
-        doRename: function (source, destination) {
-
-             source = $.trim(source);
-             destination = $.trim(destination);
-
-            var deferred = $.Deferred();
-
-            if (!source.length || (destination === source)) {
-
-                flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
-
-                deferred.reject(theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            if (!flm.utils.isValidPath(destination)) {
-                flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
-                deferred.reject(theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            if (flm.ui.browser.fileExists(source)
-                || flm.ui.browser.fileExists(source + '/')) //dir check
-            {
-                flm.manager.logAction('rename'.toString(), theUILang.fDiagAexist);
-                deferred.reject(theUILang.fDiagAexist);
-                return deferred.promise();
-            }
-            var cPath = flm.getCurrentPath();
-
-            return flm.api.rename(source, destination).then(
-                    function (response) {
-                        flm.manager.logAction('rename', source + ' -> ' +destination);
-                        flm.Refresh(cPath);
-                        $(document).trigger(flm.EVENTS.rename, [source, destination]);
-
-                        return response;
-
-                    }
-            );
-
-
-/*
-            this.action.postRequest({action: flm.utils.json_encode(actioncall)},
-                callback,
-                function () {
-                    log(theUILang.fErrMsg[11]);
-                }, function () {
-                    log(theUILang.fErrMsg[12] + ' - Rename: ' + destination);
-                });*/
-
-        },
-
-        doSfvCreate: function (checksumFile, filePaths) {
-
-            checksumFile = $.trim(checksumFile);
-
-            var deferred = $.Deferred();
-
-            if (!checksumFile.length) {
-                deferred.reject(theUILang.fDiagSFVempty);
-                return deferred.promise();
-            }
-
-            if(!$type(filePaths) || filePaths.length === 0)
-            {
-                deferred.reject('Empty paths');
-                return deferred.promise();
-            }
-
-            if (!flm.utils.isValidPath(checksumFile)) {
-                deferred.reject( theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            flm.manager.logStart(theUILang.fStarts.sfv_create);
-
-            var cPath = flm.getCurrentPath();
-            return flm.api.sfvCreate(flm.manager.stripHomePath(checksumFile), flm.manager.getFullPaths(filePaths))
-                .then(function (response) {
-                        flm.manager.logAction('sfvcreate', filePaths.length + ' files -> ' +checksumFile);
-                        flm.Refresh(cPath);
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-
-        },
-
-        doSfvCheck: function (checksumFile) {
-
-            checksumFile = $.trim(checksumFile);
-
-            var deferred = $.Deferred();
-
-            if (!checksumFile.length) {
-                deferred.reject(theUILang.fDiagSFVempty);
-                return deferred.promise();
-            }
-
-
-            if (!flm.utils.isValidPath(checksumFile)) {
-                deferred.reject( theUILang.fDiagInvalidname);
-                return deferred.promise();
-            }
-
-            flm.manager.logStart(theUILang.fStarts.sfv_check);
-
-            return flm.api.sfvCheck(flm.manager.stripHomePath(checksumFile))
-                .then(function (response) {
-                        flm.manager.logAction('sfvcheck', ' checksum file ' +checksumFile);
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-
-        },
-
-        doExtract: function (what, here) {
-
-        },
-
         isErr: function (errcode, extra) {
 
             if (!$type(extra)) {
@@ -2182,7 +1876,7 @@ function FileManager() {
 
         logStop: function () {
             flm.ui.console.hideProgress();
-            this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.fManager.actiontoken));
+            this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.FileManager.actiontoken));
             this.cleanactions();
 
 
@@ -2201,7 +1895,7 @@ function FileManager() {
                     $(".fMan_Stop").attr('disabled', true);
 
                     this.action.request('action=minfo&target=' + encodeURIComponent(what), function(data) {
-                        if (theWebUI.fManager.isErr(data.errcode, what)) {
+                        if (theWebUI.FileManager.isErr(data.errcode, what)) {
                             self.cmdlog('Failed fetching data');
                             return false;
                         }
@@ -2267,7 +1961,6 @@ function FileManager() {
 // namespace
 
 global.flm = FileManager();
-theWebUI.FileManager = window.flm.ui;
-theWebUI.fManager = window.flm.manager;
+theWebUI.FileManager = window.flm.manager;
 })
 (window);

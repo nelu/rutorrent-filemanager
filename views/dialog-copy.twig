@@ -13,6 +13,47 @@
     var dialogs = flm.ui.getDialogs();
     var diagId = dialogs.getDialogId();
 
+
+    if(!flm.manager.hasOwnProperty('doCopy')) {
+        // service
+        flm.manager.doCopy = function (destination, filePaths) {
+
+        destination = $.trim(destination);
+
+        var deferred = $.Deferred();
+        flm.manager.logStart(theUILang.fStarts.copy);
+
+        if (!destination.length) {
+            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+            deferred.reject(theUILang.fDiagInvalidname);
+            return deferred.promise();
+        }
+
+        if (!$type(filePaths) || filePaths.length === 0) {
+            deferred.reject('Empty paths');
+            return deferred.promise();
+        }
+
+        if (!flm.utils.isValidPath(destination)) {
+            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+            deferred.reject(theUILang.fDiagInvalidname);
+            return deferred.promise();
+        }
+
+        // snapshotvalue
+        var cPath = flm.getCurrentPath();
+        return flm.api.copy(flm.manager.getFullPaths(filePaths), flm.manager.stripHomePath(destination))
+            .then(function (response) {
+                    flm.manager.logAction('copy', filePaths.length + ' files -> ' + destination);
+                    flm.Refresh(cPath);
+                    return response;
+                },
+                function (response) {
+                    return response;
+                });
+    }
+}
+
     dialogs.onStart(function () {
         dialogs.disableStartButton();
         return flm.manager.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId)).then(

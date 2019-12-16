@@ -10,7 +10,55 @@
 
 {% block scripts %}
 <script>
-    injectScript(flm.pluginUrl+'js/extract.js');
+    (function (global) {
+        console.log('doing extract');
+        var dialogs = flm.ui.getDialogs();
+        var diagId = dialogs.getDialogId('window');
+
+        if(!flm.manager.hasOwnProperty('doExtract'))
+        {
+            // service
+            flm.manager.doExtract = function(archiveFiles, toDir) {
+
+
+                var deferred = $.Deferred();
+
+                if (!toDir.length || !flm.utils.isDir(toDir)) {
+                    deferred.reject( theUILang.fDiagNoPath + ' : ' + toDir);
+                    return deferred.promise();
+                }
+
+                if(!$type(archiveFiles) || archiveFiles.length === 0)
+                {
+                    deferred.reject('Empty paths');
+                    return deferred.promise();
+                }
+
+                var cPath = flm.getCurrentPath();
+
+                flm.manager.logStart(theUILang.fStarts.extract);
+
+                return flm.api.extractFiles( flm.manager.getFullPaths(archiveFiles),  flm.manager.stripHomePath(toDir))
+                    .then(function (response) {
+                        flm.manager.logConsole('extract', archiveFiles.length + ' files -> ' +toDir);
+                        flm.Refresh(cPath);
+                        return response;
+                    },
+                    function (response) {
+                        return response;
+                    });
+            };
+        }
+
+
+        // form submit
+        dialogs.onStart(function () {
+
+            return flm.manager.doExtract(dialogs.getCheckedList(diagId),  dialogs.getTargetPath(diagId)+'/');
+        });
+
+    })
+    (window);
 </script>
 {% endblock %}
 

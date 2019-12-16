@@ -14,6 +14,45 @@
             var diagId = dialogs.getDialogId('window');
             var ext = 'sfv';
 
+            if(!flm.manager.hasOwnProperty('doSfvCreate')) {
+                // service
+                flm.manager.doSfvCreate = function (checksumFile, filePaths) {
+
+                    checksumFile = $.trim(checksumFile);
+
+                    var deferred = $.Deferred();
+
+                    if (!checksumFile.length) {
+                        deferred.reject(theUILang.fDiagSFVempty);
+                        return deferred.promise();
+                    }
+
+                    if (!$type(filePaths) || filePaths.length === 0) {
+                        deferred.reject('Empty paths');
+                        return deferred.promise();
+                    }
+
+                    if (!flm.utils.isValidPath(checksumFile)) {
+                        deferred.reject(theUILang.fDiagInvalidname);
+                        return deferred.promise();
+                    }
+
+                    flm.manager.logStart(theUILang.fStarts.sfv_create);
+
+                    var cPath = flm.getCurrentPath();
+                    return flm.api.sfvCreate(flm.manager.stripHomePath(checksumFile), flm.manager.getFullPaths(filePaths))
+                        .then(function (response) {
+                                flm.manager.logAction('sfvcreate', filePaths.length + ' files -> ' + checksumFile);
+                                flm.Refresh(cPath);
+                                return response;
+                            },
+                            function (response) {
+                                return response;
+                            });
+
+                };
+            }
+
             dialogs.onStart(function () {
 
                 return flm.manager.doSfvCreate(

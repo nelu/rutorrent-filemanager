@@ -17,6 +17,40 @@
 
         var diagId = dialogs.getDialogId('window');
 
+        if(!flm.manager.hasOwnProperty('doSfvCheck'))
+        {
+            // service
+            flm.manager.doSfvCheck = function (checksumFile) {
+
+            checksumFile = $.trim(checksumFile);
+
+            var deferred = $.Deferred();
+
+            if (!checksumFile.length) {
+                deferred.reject(theUILang.fDiagSFVempty);
+                return deferred.promise();
+            }
+
+
+            if (!flm.utils.isValidPath(checksumFile)) {
+                deferred.reject(theUILang.fDiagInvalidname);
+                return deferred.promise();
+            }
+
+            flm.manager.logStart(theUILang.fStarts.sfv_check);
+
+            return flm.api.sfvCheck(flm.manager.stripHomePath(checksumFile))
+                .then(function (response) {
+                        flm.manager.logAction('sfvcheck', ' checksum file ' + checksumFile);
+                        return response;
+                    },
+                    function (response) {
+                        return response;
+                    });
+
+        };
+        }
+
         dialogs.onStart(function () {
             return flm.manager.doSfvCheck(dialogs.getTargetPath(diagId));
         });

@@ -84,9 +84,11 @@ class Archive {
             
         file_put_contents($task, json_encode($args));
 
-            $task_opts = array  ( 'requester'=>'filemanager',
-                            'name'=>'compress', 
-                        );
+            $task_opts = [
+                'requester'=>'filemanager',
+                'name'=>'compress',
+                'arg' =>  count($files) . ' files in ' .  $this->file
+            ];
                         
              $rtask = new \rTask( $task_opts );
              $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
@@ -147,9 +149,11 @@ class Archive {
         
 
 
-            $task_opts = array  ( 'requester'=>'filemanager',
-                            'name'=>'unpack', 
-                        );
+            $task_opts = [
+                'requester'=>'filemanager',
+                            'name'=>'unpack',
+                'arg' => '1 files to ' . $to
+                        ];
                     
          $rtask = new \rTask( $task_opts );
          $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
