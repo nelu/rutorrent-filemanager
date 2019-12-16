@@ -196,7 +196,7 @@ class FileManager {
         if($fs->isFile($to)) {
             throw new Exception("dest is file", 16);
         }  else if(!Remote::test($to, 'w') ) {
-            throw new Exception("Not writable: " . dirname($to), 300);
+            throw new Exception("Not writable: " . $to, 300);
         }
 
         $res = [];

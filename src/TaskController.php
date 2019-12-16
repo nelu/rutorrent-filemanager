@@ -52,14 +52,13 @@ class TaskController {
         try {
             $cmds = [
                 'cd ' . Helper::mb_escapeshellarg($this->info->params->options->workdir),
-                FsUtils::getArchiveCompressCmd($this->info->params)
+                '{', FsUtils::getArchiveCompressCmd($this->info->params),  '}',
             ];
 
             $rtask = new rTask( $task_opts );
-            $ret = $rtask->start($cmds, 0);
+            $ret = $rtask->start($cmds, rTask::FLG_DEFAULT & rTask::FLG_ECHO_CMD);
         }
         catch (Throwable $err) {
-            self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
             $ret = $err;
         }
 
@@ -232,9 +231,8 @@ class TaskController {
 
         try {
             $cmds = [
-                '{',
+
                 'mkdir -p ' . Helper::mb_escapeshellarg($this->info->params->to),
-                '}',
                 '{','cd ' . Helper::mb_escapeshellarg($this->info->params->to), '}',
             ];
 
@@ -250,7 +248,6 @@ class TaskController {
             $ret = $rtask->start($cmds, rTask::FLG_DEFAULT & rTask::FLG_ECHO_CMD);
         }
         catch (Throwable $err) {
-            self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
             $ret = $err;
         }
 

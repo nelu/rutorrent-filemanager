@@ -1753,7 +1753,6 @@ function FileManager() {
                     flm.currentPath = flm.utils.buildPath([dir]);
 
                     flm.ui.browser.updateNavigationPath();
-                    console.log('parseReply reply', response, dir);
                     flm.ui.browser.setTableEntries(response.listing);
 
 
