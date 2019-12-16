@@ -11,4 +11,4 @@ require_once( $pluginDir."/../../php/util.php" );
 
 $task = new TaskController($argv[1]);
 
-$task->run();
+$task->handle();

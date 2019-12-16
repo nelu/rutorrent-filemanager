@@ -1,6 +1,7 @@
 <?php
 namespace Flm;
 use \Exception;
+use Throwable;
 
 class Archive {
     
@@ -68,7 +69,7 @@ class Archive {
         
                  
                        
-        $temp = Helper::getTempDir();
+        $temp = [];
         
         
         $args = array('action' => 'compressFiles',
@@ -80,23 +81,13 @@ class Archive {
                             ),
                         'temp' => $temp );
                         
-         $task = $temp['dir'].'task';    
-            
-        file_put_contents($task, json_encode($args));
 
-            $task_opts = [
-                'requester'=>'filemanager',
-                'name'=>'compress',
-                'arg' =>  count($files) . ' files in ' .  $this->file
-            ];
-                        
-             $rtask = new \rTask( $task_opts );
-             $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
-                    $ret = $rtask->start($commands, 0);    
-             
-           //var_dump($ret);
-           
-             return $temp;
+        $c = new TaskController();
+        $c->info = json_decode(json_encode($args));
+        $temp['tok'] = $c->run();
+
+
+        return $temp;
     }
 
    
@@ -156,6 +147,9 @@ class Archive {
                         ];
                     
          $rtask = new \rTask( $task_opts );
+
+
+
          $commands = array( Helper::getTaskCmd() ." ". escapeshellarg($task) );
          $ret = $rtask->start($commands, 0);   
 

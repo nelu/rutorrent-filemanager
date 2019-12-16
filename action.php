@@ -9,6 +9,8 @@ require_once( dirname(__FILE__)."/../../php/util.php" );
 
 require_once ($pluginDir . '/src/RemoteShell.php');
 require_once ($pluginDir . '/src/Filesystem.php');
+require_once $pluginDir . '/src/FsUtils.php';
+require_once $pluginDir . '/src/TaskController.php';
 require_once ($pluginDir . '/src/Archive.php');
 require_once ($pluginDir . '/src/WebController.php');
 require_once ($pluginDir . '/../_task/task.php');

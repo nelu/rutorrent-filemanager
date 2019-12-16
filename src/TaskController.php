@@ -15,40 +15,54 @@ class TaskController {
             umask(0);
          }
     }
-    
-    public function run(){
 
+    public function handle() {
         if(isset($this->info->params->workdir)
             && !empty($this->info->params->workdir)) {
-            
+
             chdir ($this->info->params->workdir);
         }
-        
-        if(method_exists($this, $this->info->action)) {
-           $success= call_user_func(array($this,  $this->info->action));
 
-            $success && $this->writeLog("\n--- Done");
+
+        $success = $this->run();
+
+        $success && $this->writeLog("\n--- Done");
+        $this->recursiveRemove(array($this->info->temp->dir), false);
+    }
+    public function run(){
+        $success = false;
+        if(method_exists($this, $this->info->action)) {
+            $success= call_user_func(array($this,  $this->info->action));
         }
 
-
-        $this->recursiveRemove(array($this->info->temp->dir), false);
+        return $success;
     }
     
     public function compressFiles()
     {
-        chdir ($this->info->params->options->workdir);
-        $hasFail = false;
-        try {
-           $cmd = FsUtils::getArchiveCompressCmd($this->info->params);
 
-           $this->LogCmdExec($cmd);
+        $task_opts = [
+            'requester'=>'filemanager',
+            'name'=>'compress',
+            'arg' =>  count($this->info->params->files) . ' files in ' .  $this->info->params->archive
+        ];
+
+        $ret = false;
+        try {
+            $cmds = [
+                'cd ' . Helper::mb_escapeshellarg($this->info->params->options->workdir),
+                FsUtils::getArchiveCompressCmd($this->info->params)
+            ];
+
+            $rtask = new \rTask( $task_opts );
+            $ret = $rtask->start($cmds, 0);
         }
         catch (Throwable $err) {
             self::errorLog($err->getMessage() . PHP_EOL . $err->getTraceAsString());
-            $hasFail = $err;
+            $ret = $err;
         }
 
-        return empty($hasFail);
+        return $ret;
     }
 
     public function recursiveCopy() :bool
