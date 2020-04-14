@@ -116,12 +116,18 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 	var fid = table.getFirstSelected();
 	var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
 
-	var torrentPath = theWebUI.dID &&
-	$type(theWebUI.torrents[theWebUI.dID])
-		? theWebUI.torrents[theWebUI.dID].base_path
+	var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID])
+        ? theWebUI.torrents[theWebUI.dID]
+		: null;
+
+	var torrentPath = selectedTorrent
+		? selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path
 		: '/';
 
-	var selectedPath = flm.utils.buildPath([torrentPath, selected ? selected.name :  theWebUI.dirs[theWebUI.dID].current]) ;
+	var relativeSelectedPath = selected ?  theWebUI.dirs[theWebUI.dID].current + '/' + selected.name : theWebUI.dirs[theWebUI.dID].current ;
+
+	var selectedPath = flm.utils.buildPath([torrentPath, relativeSelectedPath]) ;
+
 
 	selectedPath = flm.manager.stripHomePath(selectedPath);
 	if(selectIsDir)
