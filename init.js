@@ -117,7 +117,9 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 	var fid = table.getFirstSelected();
 	var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
 
-	var selectedName = selectIsDir ? selected.name += '/' : selected.name;
+	var selectedName = selected
+        ? selectIsDir ? selected.name += '/' : selected.name
+        : '/';
 
 	var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID])
         ? theWebUI.torrents[theWebUI.dID]
