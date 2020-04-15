@@ -8,6 +8,7 @@ plugin.ui = {
 		'move': 'flm.filesDelete',
 		'settingsShow':  "flm.settingsOnShow",
 		'entryMenu': "flm.onSetEntryMenu",
+        'browserVisible': "flm.onBrowserVisible",
 		'rename': 'flm.filesDelete',
 		'torrentFileEntryMenu': 'torrentFileEntryMenu'
 	}
@@ -116,26 +117,21 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 	var fid = table.getFirstSelected();
 	var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
 
+	var selectedName = selectIsDir ? selected.name += '/' : selected.name;
+
 	var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID])
         ? theWebUI.torrents[theWebUI.dID]
 		: null;
 
-	var torrentPath = selectedTorrent
-		? selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path
-		: '/';
+	var torrentPath =  selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
+    var currentTorrentDirPath =  flm.manager.stripHomePath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
 
-	var relativeSelectedPath = selected ?  theWebUI.dirs[theWebUI.dID].current + '/' + selected.name : theWebUI.dirs[theWebUI.dID].current ;
-
-	var selectedPath = flm.utils.buildPath([torrentPath, relativeSelectedPath]) ;
-
+	var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]) ;
 
 	selectedPath = flm.manager.stripHomePath(selectedPath);
-	if(selectIsDir)
-	{
-		selectedPath += '/';
-	}
 
-	var selectedEntries = [];
+
+    var selectedEntries = [];
 	var rows = table.rowSel;
 
 	var entry;
@@ -213,7 +209,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 
 	fileManagerSubmenu.unshift([theUILang.fOpen, function() {
 
-		flm.showPath(selected && selectIsDir ? selectedPath : torrentPath);
+		flm.showPath(currentTorrentDirPath, selectedName);
 	}
 	]);
 	theContextMenu.add([CMENU_CHILD, theUILang.fManager, fileManagerSubmenu ]);
@@ -314,13 +310,23 @@ theTabs.onShow = function(id) {
 	if (id === plugin.ui.fsBrowserContainer) {
 		window.flm.ui.browser.onShow();
 
-	} else {
-		if(window.flm)
-		{
-			window.flm.ui.browser.onHide();
-		}
-		plugin.flmOnShow.call(this, id);
 	}
+    plugin.flmOnShow.call(this, id);
+
+};
+
+
+plugin.flmTabsShow = theTabs.show;
+theTabs.show = function(id) {
+
+    if (id !== plugin.ui.fsBrowserContainer) {
+        if(window.flm)
+        {
+            window.flm.ui.browser.onHide();
+        }
+    }
+    plugin.flmTabsShow.call(this, id);
+
 };
 
 plugin.onRemove = function() {

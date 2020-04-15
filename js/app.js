@@ -686,6 +686,7 @@ function FileManager() {
         var fsBrowser = function () {
 
             var browse = {
+                tableEntryPrefix: "_flm_",
                 clipaboardEvent: null,
                 clipboardEntries: [],
                 selectedEntries: [],
@@ -747,8 +748,8 @@ function FileManager() {
 
                 sortAlphaNumeric: function (x, y) {
 
-                    var xVal = x.key.split('_flm_')[1];
-                    var yVal = y.key.split('_flm_')[1];
+                    var xVal = x.key.split(browse.tableEntryPrefix)[1];
+                    var yVal = y.key.split(browse.tableEntryPrefix)[1];
 
                     if (flm.ui.browser.isTopDir(xVal)
                         || flm.ui.browser.isTopDir(yVal)
@@ -769,8 +770,8 @@ function FileManager() {
 
                 sortNumeric: function (x, y) {
 
-                    if (flm.ui.browser.isTopDir(x.key.split('_flm_')[1])
-                        || flm.ui.browser.isTopDir(y.key.split('_flm_')[1])
+                    if (flm.ui.browser.isTopDir(x.key.split(browse.tableEntryPrefix)[1])
+                        || flm.ui.browser.isTopDir(y.key.split(browse.tableEntryPrefix)[1])
                     ) {
                         return !this.reverse ? 1 : -1;
                     }
@@ -862,7 +863,7 @@ function FileManager() {
                 var exists = false;
 
                 try {
-                    return (browse.table().getValueById('_flm_' + what, 'name'));
+                    return (browse.table().getValueById(browse.tableEntryPrefix + what, 'name'));
                 } catch (dx) {
                    console.log(dx);
                 }
@@ -881,7 +882,7 @@ function FileManager() {
                 var rows = browse.table().rowSel;
                 var entryName;
                 for (var i in rows) {
-                    entryName = i.split('_flm_')[1];
+                    entryName = i.split(browse.tableEntryPrefix)[1];
                     if ((!rows[i]) || browse.isTopDir(entryName)) {
                         continue;
                     }
@@ -927,13 +928,17 @@ function FileManager() {
                 }
                 isVisible = true;
 
+
+
                 if(!flm.currentPath)
                 {
                     var table = browse.table();
                     if (table) {
                         flm.goToPath(flm.currentPath).then(function () {
                             table.refreshRows();
+                            $(document).trigger(flm.EVENTS.browserVisible, browse);
                             theWebUI.resize();
+
                         });
 
                         $('#fMan_showconsole').show();
@@ -942,17 +947,22 @@ function FileManager() {
 
                     }
                 }
+                else {
+                    $(document).trigger(flm.EVENTS.browserVisible, browse);
+                }
 
             };
 
             browse.onHide = function () {
                 $('#fMan_showconsole').hide();
+                isVisible = false;
+
             };
 
             // executed outside the browse/this scope
             browse.onSelectEntry = function (e, id) {
 
-                var target = id.split('_flm_')[1];
+                var target = id.split(browse.tableEntryPrefix)[1];
                 browse.selectedTarget = flm.getCurrentPath(target);
 
                 // handles right/left click events
@@ -1113,6 +1123,11 @@ function FileManager() {
                 table.sortAlphaNumeric = uiTable.sortAlphaNumeric;
             };
 
+            browse.getEntryHash = function(fileName)
+            {
+                return browse.tableEntryPrefix + fileName;
+            };
+
             browse.setTableEntries = function (data) {
 
                 var table = browse.table();
@@ -1128,7 +1143,7 @@ function FileManager() {
                             type: '/',
                             perm: ''
                         },
-                        "_flm_" + path,
+                        browse.getEntryHash(path),
                         'flm-sprite flm-sprite-dir_up');
                 } else {
                     if (data.length < 1) {
@@ -1156,7 +1171,7 @@ function FileManager() {
                         perm: file.perm
                     };
 
-                    var hash = "_flm_" + file.name;
+                    var hash = browse.getEntryHash(file.name);
 
                     table.addRowById(entry, hash, flm.utils.getICO(file.name));
 
@@ -1763,11 +1778,41 @@ function FileManager() {
 
     };
 
-    flm.showPath = function(dir)
+    flm.showPathPromise = null;
+
+    $(document).on(flm.EVENTS.browserVisible, function (e)
+    {
+        if(flm.showPathPromise)
+        {
+            flm.showPathPromise.resolve();
+            flm.showPathPromise = null;
+        }
+
+    });
+
+    flm.showPath = function(dir, hilight)
     {
         dir = flm.manager.stripHomePath(dir);
+        hilight = hilight ||  null;
+
         return flm.goToPath(dir).then(function (value) {
+
+            if(hilight)
+            {
+                flm.showPathPromise = $.Deferred();
+
+                flm.showPathPromise.promise().then(
+                    function () {
+                         $(document.getElementById(flm.ui.browser.getEntryHash(hilight)))
+                             .trigger( "mousedown" );
+                    }
+                );
+
+            }
+
             theTabs.show(getPlugin().ui.fsBrowserContainer);
+
+
             return value;
         });
 
