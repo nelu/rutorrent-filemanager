@@ -6,6 +6,7 @@ use Flm\RemoteShell as Remote;
 use Flm\Filesystem as Fs;
 use Flm\mediainfoSettings;
 use rTask;
+use Utility;
 
 class FileManager {
 
@@ -272,7 +273,7 @@ class FileManager {
             file_put_contents( $randName, $st->data["mediainfotemplate"] );
             $flags = "--Inform=file://".escapeshellarg($randName);
         }
-        $commands[] = getExternal("mediainfo")." ".$flags." ".Helper::mb_escapeshellarg($filename);
+        $commands[] = Utility::getExternal("mediainfo")." ".$flags." ".Helper::mb_escapeshellarg($filename);
         $ret = $task->start($commands, rTask::FLG_WAIT);
 
 
