@@ -1,6 +1,7 @@
 <?php
 namespace Flm;
 
+use FileUtil;
 
 class Filesystem {
 
@@ -23,7 +24,7 @@ class Filesystem {
         
         $args = array('action' => 'recursiveCopy',
                         'params' => array('files' => $files,
-                                            'to' => addslash($to)
+                                            'to' => FileUtil::addslash($to)
                                             ),
                         'temp' => $temp );
                         
@@ -92,7 +93,7 @@ class Filesystem {
         $args = array('action' => 'recursiveMove',
                         'params' => array(
                             'files' => $files,
-                            'to' => addslash($to)),
+                            'to' => FileUtil::addslash($to)),
                         'temp' => $temp );
                         
          $task = $temp['dir'].'task';    

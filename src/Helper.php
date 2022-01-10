@@ -3,6 +3,7 @@ namespace Flm;
 
 use FileUtil;
 use Utility;
+use User;
 
 class Helper {
     
@@ -16,7 +17,7 @@ class Helper {
     protected static function newTempDir() {
 
         
-        $tmp['tok'] = getUser().time().rand(5, 20);
+        $tmp['tok'] = User::getUser().time().rand(5, 20);
         $tmp['dir'] = FileUtil::addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$tmp['tok'].'/';
        
         
