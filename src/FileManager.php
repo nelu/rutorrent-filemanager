@@ -93,7 +93,7 @@ class FileManager {
 
         $dir = FileUtil::addslash($this->userdir. trim($directory, DIRECTORY_SEPARATOR)); 
         
-        $path_check = explode($this->userdir, FileUtil::addslash(fullpath(  $dir, $this->userdir)));
+        $path_check = explode($this->userdir, FileUtil::addslash(FileUtil::fullpath(  $dir, $this->userdir)));
         if( count($path_check)  < 2 )
         {
             $dir = $this->userdir;
