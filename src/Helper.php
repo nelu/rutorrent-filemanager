@@ -1,7 +1,9 @@
 <?php
 namespace Flm;
 
-use function getPluginConf;
+use FileUtil;
+use Utility;
+use User;
 
 class Helper {
     
@@ -15,8 +17,8 @@ class Helper {
     protected static function newTempDir() {
 
         
-        $tmp['tok'] = getUser().time().rand(5, 20);
-        $tmp['dir'] = addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$tmp['tok'].'/';
+        $tmp['tok'] = User::getUser().time().rand(5, 20);
+        $tmp['dir'] = FileUtil::addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$tmp['tok'].'/';
        
         
         Filesystem::get()->mkdir($tmp['dir'], true, 777);
@@ -30,7 +32,7 @@ class Helper {
         
          if($token !== null) {
                 return array('tok' => $token, 
-                             'dir' => addslash( addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$token ),
+                             'dir' => FileUtil::addslash( FileUtil::addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$token ),
                              );
          }
 
@@ -45,7 +47,7 @@ class Helper {
         return (pathinfo($file, PATHINFO_EXTENSION));
     }
     public static function getTaskCmd() {
-        return getExternal("php"). ' '. dirname(__FILE__) .'/..'. DIRECTORY_SEPARATOR. self::task_file;
+        return Utility::getPHP(). ' '. dirname(__FILE__) .'/..'. DIRECTORY_SEPARATOR. self::task_file;
     }
     
     public static function escapeCmdArgs( $args) {
@@ -127,7 +129,7 @@ class Helper {
 
      //       var_dump(__METHOD__, 'loaoding config');
 
-            eval(getPluginConf('filemanager'));
+            eval(FileUtil::getPluginConf('filemanager'));
 
             if(!isset($config))
             {

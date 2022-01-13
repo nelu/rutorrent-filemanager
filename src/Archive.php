@@ -2,6 +2,7 @@
 namespace Flm;
 use \Exception;
 use Throwable;
+use Utility;
 
 class Archive {
     
@@ -97,7 +98,7 @@ class Archive {
             throw new Exception("Error Processing Request", 18);
         }
 
-        return getExternal($formatBin);
+        return Utility::getExternal($formatBin);
 
     }
     public  function extract($to)

@@ -1,6 +1,7 @@
 <?php
 namespace Flm;
 use Exception;
+use CachedEcho;
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '/BaseController.php';
 // web controller
@@ -80,7 +81,7 @@ class WebController extends BaseController {
         $sf = $this->flm()->getWorkDir($data['target']);
         
         if (!sendFile($sf)) {
-            cachedEcho('log(theUILang.fErrMsg[6]+" - ' . $sf . ' / "+theUILang.fErrMsg[3]);', "text/html");
+            CachedEcho::send('log(theUILang.fErrMsg[6]+" - ' . $sf . ' / "+theUILang.fErrMsg[3]);', "text/html");
         }
     }
 

@@ -6,6 +6,9 @@ use Flm\RemoteShell as Remote;
 use Flm\Filesystem as Fs;
 use Flm\mediainfoSettings;
 use rTask;
+use Utility;
+use User;
+use FileUtil;
 
 class FileManager {
 
@@ -29,7 +32,7 @@ class FileManager {
         
        // $this->config = $config;
 
-		$this->userdir = addslash($topDirectory);
+		$this->userdir = FileUtil::addslash($topDirectory);
       
         $this->setWorkDir($directory);
 
@@ -56,12 +59,12 @@ class FileManager {
 
     
     public function getWorkDir($relative_path) {
-        return fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->workdir);
+        return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->workdir);
     }
     
     public function getDirPath($path) {
         
-        return fullpath($path, $this->userdir);
+        return FileUtil::fullpath($path, $this->userdir);
     }
 
     public function extractChrootPath($fullPath) {
@@ -79,7 +82,7 @@ class FileManager {
     }
     
     public function getUserDir($relative_path) {
-         return fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->userdir);
+         return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->userdir);
     }
 
     public function setFilelist($filelist) {
@@ -88,9 +91,9 @@ class FileManager {
     
     public function setWorkDir($directory) {
 
-        $dir = addslash($this->userdir. trim($directory, DIRECTORY_SEPARATOR)); 
+        $dir = FileUtil::addslash($this->userdir. trim($directory, DIRECTORY_SEPARATOR)); 
         
-        $path_check = explode($this->userdir, addslash(fullpath(  $dir, $this->userdir)));
+        $path_check = explode($this->userdir, FileUtil::addslash(FileUtil::fullpath(  $dir, $this->userdir)));
         if( count($path_check)  < 2 )
         {
             $dir = $this->userdir;
@@ -220,7 +223,7 @@ class FileManager {
 		
 		if(empty($sid)) {
 			session_start();
-			$_SESSION['uname'] = getUser();
+			$_SESSION['uname'] = User::getUser();
 			$sid = session_id();
 		}
 
@@ -231,7 +234,7 @@ class FileManager {
 
 		if($token === FALSE) {$this->sdie('No token');}
 
-		$k['tmp'] = addslash($this->settings['tempdir']).'.rutorrent/.fman/'.$token;
+		$k['tmp'] = FileUtil::addslash($this->settings['tempdir']).'.rutorrent/.fman/'.$token;
 		$k['pid'] = $k['tmp'].'/pid';
 		
 		if(!is_file($k['pid'])) {$this->output['errcode'] = 19; return false;};
@@ -272,7 +275,7 @@ class FileManager {
             file_put_contents( $randName, $st->data["mediainfotemplate"] );
             $flags = "--Inform=file://".escapeshellarg($randName);
         }
-        $commands[] = getExternal("mediainfo")." ".$flags." ".Helper::mb_escapeshellarg($filename);
+        $commands[] = Utility::getExternal("mediainfo")." ".$flags." ".Helper::mb_escapeshellarg($filename);
         $ret = $task->start($commands, rTask::FLG_WAIT);
 
 
@@ -286,7 +289,7 @@ class FileManager {
         $files = array_map(array($this, 'getWorkDir'), (array)$paths->fls);
         
         // destination dir requires ending /
-        $to = addslash($this->getUserDir($paths->to));
+        $to = FileUtil::addslash($this->getUserDir($paths->to));
       //  var_dump($paths,  $files);
         
         $fs =Fs::get(); 

@@ -6,6 +6,7 @@ namespace Flm;
 use Exception;
 use ReflectionMethod;
 use RuntimeException;
+use CachedEcho;
 
 abstract class BaseController
 {
@@ -99,7 +100,7 @@ abstract class BaseController
 
     public static function jsonOut($data) {
 
-        cachedEcho(json_encode($data), 'application/json', false );
+        CachedEcho::send(json_encode($data), 'application/json', false );
     }
 
     public static function jsonError($errcode, $msg = 'Internal error') {
