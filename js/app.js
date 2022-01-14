@@ -814,15 +814,22 @@ function FileManager() {
 
                 // Document Ctrl + C/V/X
                 $(document).keydown(function(e) {
-                    if (ctrlDown && (e.keyCode == cKey)) {
-                        browse.handleKeyCopy();
+
+                    if(browse.isVisible() && theDialogManager.visible.length === 0)
+                    {
+                        // only if the tab is visible and no dialogs are open
+
+                        if (ctrlDown && (e.keyCode == cKey)) {
+                            browse.handleKeyCopy();
+                        }
+                        if (ctrlDown && (e.keyCode == vKey)) {
+                            browse.handleKeyPaste();
+                        }
+                        if (ctrlDown && (e.keyCode == xKey)) {
+                            browse.handleKeyMove();
+                        }
                     }
-                    if (ctrlDown && (e.keyCode == vKey)) {
-                        browse.handleKeyPaste();
-                    }
-                    if (ctrlDown && (e.keyCode == xKey)) {
-                        browse.handleKeyMove();
-                    }
+
                 });
 
             };
@@ -834,7 +841,7 @@ function FileManager() {
                 browse.loadNavigation();
             };
 
-            browse.isVisibile = function(){
+            browse.isVisible = function(){
                 return isVisible;
             };
 
