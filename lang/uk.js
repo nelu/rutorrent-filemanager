@@ -137,5 +137,5 @@ theUILang.fStops = {
 	Move:		'File relocation stopped',
 	Copy:		'File duplication stopped',
 	Screenshots:		'Video screenshots creation stopped'
-};thePlugins.get("filemanager").langLoaded();
+};
 thePlugins.get("filemanager").langLoaded();
