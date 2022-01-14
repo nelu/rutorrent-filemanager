@@ -2,6 +2,8 @@
 namespace Flm;
 use Exception;
 use CachedEcho;
+use SendFile;
+use Throwable;
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '/BaseController.php';
 // web controller
@@ -80,7 +82,7 @@ class WebController extends BaseController {
         
         $sf = $this->flm()->getWorkDir($data['target']);
         
-        if (!sendFile($sf)) {
+        if (!SendFile::send($sf)) {
             CachedEcho::send('log(theUILang.fErrMsg[6]+" - ' . $sf . ' / "+theUILang.fErrMsg[3]);', "text/html");
         }
     }
@@ -167,7 +169,7 @@ class WebController extends BaseController {
 
         try {
             $temp = $this->flm()->extractFile(array('archives' => $params->fls, 'to' => $params->to));
-        } catch (\Throwable $err) {
+        } catch (Throwable $err) {
             self::jsonError($err->getCode(), $err->getMessage());
             return false;
         }
