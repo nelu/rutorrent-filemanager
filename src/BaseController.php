@@ -10,7 +10,11 @@ use CachedEcho;
 
 abstract class BaseController
 {
+    /**
+     * @var FileManager
+     */
     protected $flm;
+
     protected $config;
     protected $currentDirectory;
 
