@@ -27,7 +27,8 @@ class Filesystem
         $temp = Helper::getTempDir();
 
 
-        $args = ['action' => 'recursiveCopy',
+        $args = [
+            'action' => 'recursiveCopy',
             'params' => ['files' => $files,
                 'to' => FileUtil::addslash($to)
             ],
@@ -99,7 +100,8 @@ class Filesystem
         $temp = Helper::getTempDir();
 
 
-        $args = ['action' => 'recursiveMove',
+        $args = [
+            'action' => 'recursiveMove',
             'params' => [
                 'files' => $files,
                 'to' => FileUtil::addslash($to)],
@@ -129,7 +131,8 @@ class Filesystem
         $temp = Helper::getTempDir();
 
 
-        $args = ['action' => 'recursiveRemove',
+        $args = [
+            'action' => 'recursiveRemove',
             'params' => ['files' => $files],
             'temp' => $temp];
 

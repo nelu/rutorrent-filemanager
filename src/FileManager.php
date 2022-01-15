@@ -384,7 +384,7 @@ class FileManager
      * @return array|mixed
      * @throws Exception
      */
-    public function sfv_check($paths)
+    public function sfvCheck($paths)
     {
 
         $sfvfile = $this->getWorkDir($paths->target);
@@ -402,7 +402,8 @@ class FileManager
         $temp = Helper::getTempDir();
 
 
-        $args = ['action' => 'sfvCheck',
+        $args = [
+            'action' => 'sfvCheck',
             'params' => [
                 'target' => $sfvfile,
                 'workdir' => $this->workdir
@@ -444,7 +445,8 @@ class FileManager
         $temp = Helper::getTempDir();
 
 
-        $args = ['action' => 'sfvCreate',
+        $args = [
+            'action' => 'sfvCreate',
             'params' => [
                 'files' => $files,
                 'target' => $sfvfile,

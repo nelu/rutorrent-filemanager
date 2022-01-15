@@ -1,63 +1,72 @@
 <?php
+
 namespace Flm;
+
 use \Exception;
 use Throwable;
 use Utility;
 
-class Archive {
-    
+class Archive
+{
+
     static $rar = ['compress' => '',
-                        'extract' => ''];
+        'extract' => ''];
     public $file;
     public $options;
 
     protected $taskController;
-    
-    public function __construct($archive_file) {
-        $this->file=$archive_file;
+
+    public function __construct($archive_file)
+    {
+        $this->file = $archive_file;
         $this->taskController = new TaskController();
 
     }
-    
-    public function setOptions($options) {
-        
-        $aopts =  Helper::getConfig('archive');
+
+    public function setOptions($options)
+    {
+
+        $aopts = Helper::getConfig('archive');
         $aopts = $aopts['type'][$options['type']];
 
         $a['type'] = $options['type'];
         $a['comp'] = $aopts['compression'][$options['compression']];
-        $a['volume'] = (intval($options['volumeSize'])*1024);
+        $a['volume'] = (intval($options['volumeSize']) * 1024);
         $a['multif'] = (($a['type'] == 'rar') && (isset($options['format']) && $options['format'] == 'old')) ? '-vn' : '';
-        
+
         $a['workdir'] = $options['workdir'];
-        
-          if(isset($options['password']) && !empty($options['password'])
-                && ($a['type'] == 'rar' || $a['type'] == 'zip')
-          )
-            { 
-            $a['password'] = $options['password']; 
+
+        if (isset($options['password']) && !empty($options['password'])
+            && ($a['type'] == 'rar' || $a['type'] == 'zip')
+        ) {
+            $a['password'] = $options['password'];
         }
 
         $this->options = $a;
-        
+
         return $this;
     }
-    public function create ($files) {
 
-        if(is_null($this->options)) {
-            
+    public function create($files)
+    {
+
+        if (is_null($this->options)) {
+
             throw new Exception("Please load setOptions first", 1);
         }
 
         $temp = [];
 
-        $args = ['action' => 'compressFiles',
-                        'params' => [
-                            'files' => array_map(function($e) {return ltrim($e,'/');}, $files),
-                            'archive' => $this->file,
-                            'options' => $this->options,
-                             'binary'=> $this->getBin($this->options)
-                        ]
+        $args = [
+            'action' => 'compressFiles',
+            'params' => [
+                'files' => array_map(function ($e) {
+                    return ltrim($e, '/');
+                }, $files),
+                'archive' => $this->file,
+                'options' => $this->options,
+                'binary' => $this->getBin($this->options)
+            ]
         ];
 
 
@@ -68,16 +77,16 @@ class Archive {
         return $temp;
     }
 
-    public function getBin($compress = null) {
+    public function getBin($compress = null)
+    {
 
-        if($compress)
-        {
-            switch($compress['type']) {
+        if ($compress) {
+            switch ($compress['type']) {
 
                 case 'gzip':
                 case 'tar':
                 case 'bzip2':
-                $formatBin = 'tar';
+                    $formatBin = 'tar';
                     break;
                 case 'rar':
                     $formatBin = 'rar';
@@ -86,7 +95,7 @@ class Archive {
                     $formatBin = 'zip';
                     break;
                 default:
-                    throw new Exception("Unsupported archive format ".$this->options['type'], 16);
+                    throw new Exception("Unsupported archive format " . $this->options['type'], 16);
 
             }
         } else {
@@ -94,35 +103,18 @@ class Archive {
 
         }
 
-        if(!$formatBin) {
+        if (!$formatBin) {
             throw new Exception("Error Processing Request", 18);
         }
 
         return Utility::getExternal($formatBin);
 
     }
-    public  function extract($to)
+
+    public static function getExtractBinary($file)
     {
 
-        $temp = [];
-
-        $args = ['action' => 'extract',
-            'params' => ['files' => [$this->file],
-                'to' => $to,
-                'binary'=> $this->getBin()
-            ]
-        ];
-
-        $this->taskController->info = json_decode(json_encode($args));
-        $temp['tok'] = $this->taskController->run();
-
-
-        return $temp;
-    }
-
-    public static function getExtractBinary($file) {
-        
-       switch(pathinfo($file, PATHINFO_EXTENSION)) {
+        switch (pathinfo($file, PATHINFO_EXTENSION)) {
             case 'rar':
                 $bin = 'rar';
                 break;
@@ -138,10 +130,30 @@ class Archive {
                 $bin = 'tar';
                 break;
             default:
-                $bin = false;  
+                $bin = false;
         }
-       
-       return $bin;
-        
+
+        return $bin;
+
+    }
+
+    public function extract($to)
+    {
+
+        $temp = [];
+
+        $args = [
+            'action' => 'extract',
+            'params' => ['files' => [$this->file],
+                'to' => $to,
+                'binary' => $this->getBin()
+            ]
+        ];
+
+        $this->taskController->info = json_decode(json_encode($args));
+        $temp['tok'] = $this->taskController->run();
+
+
+        return $temp;
     }
 }

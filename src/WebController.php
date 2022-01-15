@@ -48,12 +48,7 @@ class WebController extends BaseController
     public function taskLog($params)
     {
 
-        try {
-            $output = $this->flm()->readTaskLogFromPos($params->target, $params->to);
-        } catch (Exception $err) {
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $output = $this->flm()->readTaskLogFromPos($params->target, $params->to);
 
         $output['error'] = 0;
 
@@ -71,14 +66,8 @@ class WebController extends BaseController
         if (!isset($params->target)) {
             self::jsonError(16);
         }
-        try {
 
-            $this->flm()->mkdir($params->target);
-
-        } catch (Exception $err) {
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $this->flm()->mkdir($params->target);
 
         return ['error' => 0];
 
@@ -101,15 +90,7 @@ class WebController extends BaseController
     {
 
         $data = $this->_getPostData(['target' => 16], false);
-
-        try {
-            $temp = $this->flm()->mediainfo((object)$data);
-
-        } catch (Exception $err) {
-            self::jsonError($err->getCode(), $err->getMessage());
-            // var_dump($err->getTraceAsString());
-            return false;
-        }
+        $temp = $this->flm()->mediainfo((object)$data);
 
         return $temp;
 
@@ -117,7 +98,6 @@ class WebController extends BaseController
 
     public function fileRename($params)
     {
-
 
         if (!isset($params->to)) {
             self::jsonError(2);
@@ -127,17 +107,11 @@ class WebController extends BaseController
             self::jsonError(18);
         }
 
-        try {
-            $result = $this->flm()->rename(['from' => $params->target, 'to' => $params->to]);
-        } catch (Exception $err) {
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $this->flm()->rename(['from' => $params->target, 'to' => $params->to]);
 
         return ['error' => 0];
 
     }
-
 
     public function filesCompress($params)
     {
@@ -171,7 +145,6 @@ class WebController extends BaseController
     public function filesExtract($params)
     {
 
-
         if (!isset($params->to)) {
             self::jsonError(2);
         }
@@ -179,12 +152,8 @@ class WebController extends BaseController
             self::jsonError(22);
         }
 
-        try {
-            $temp = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
-        } catch (Throwable $err) {
-            self::jsonError($err->getCode(), $err->getMessage());
-            return false;
-        }
+        $temp = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
+
 
         return ['error' => 0, 'tmpdir' => $temp[0]['tok']];
 
@@ -202,14 +171,7 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        try {
-
-            $temp = $this->flm()->copy($params);
-        } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $temp = $this->flm()->copy($params);
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
     }
@@ -225,14 +187,8 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        try {
+        $temp = $this->flm()->move($params);
 
-            $temp = $this->flm()->move($params);
-        } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
-            return false;
-        }
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
 
@@ -245,14 +201,7 @@ class WebController extends BaseController
             self::jsonError(22);
         }
 
-        try {
-
-            $temp = $this->flm()->remove($params);
-        } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $temp = $this->flm()->remove($params);
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
 
@@ -279,14 +228,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        try {
-            $temp = $this->flm()->sfv_check($params);
 
-        } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $temp = $this->flm()->sfvCheck($params);
+
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
 
@@ -302,14 +246,7 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        try {
-            $temp = $this->flm()->sfvCreate($params);
-
-        } catch (Exception $err) {
-            var_dump($err);
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $temp = $this->flm()->sfvCreate($params);
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
 
@@ -322,15 +259,7 @@ class WebController extends BaseController
 
     public function listDirectory($params)
     {
-
-        try {
-            $contents = $this->flm()->dirlist($params);
-
-        } catch (Exception $err) {
-            self::jsonError($err->getCode());
-            return false;
-        }
-
+        $contents = $this->flm()->dirlist($params);
         return ['listing' => $contents];
     }
 
@@ -345,13 +274,7 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        try {
-            $contents = $this->flm()->nfo_get($params->target, $params->mode);
-
-        } catch (Exception $err) {
-            self::jsonError($err->getCode());
-            return false;
-        }
+        $contents = $this->flm()->nfo_get($params->target, $params->mode);
 
         return ['error' => 0, 'nfo' => $contents];
 
