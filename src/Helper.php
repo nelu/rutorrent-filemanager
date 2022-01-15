@@ -16,24 +16,21 @@ class Helper {
 
     protected static function newTempDir() {
 
-        
-        $tmp['tok'] = User::getUser().time().rand(5, 20);
-        $tmp['dir'] = FileUtil::addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$tmp['tok'].'/';
-       
-        
+        $tmp['dir'] = FileUtil::getTempFilename('fman').DIRECTORY_SEPARATOR;
+        $tmp['tok'] = basename($tmp['dir']);
+
         Filesystem::get()->mkdir($tmp['dir'], true, 777);
 
         return $tmp;         
     }
     
     public static function getTempDir($token = null) {
-        
 
-        
          if($token !== null) {
-                return array('tok' => $token, 
-                             'dir' => FileUtil::addslash( FileUtil::addslash(self::$config['tempdir']).'.rutorrent/.fman/'.$token ),
-                             );
+             return [
+                 'tok' => $token,
+                 'dir' => FileUtil::addslash( FileUtil::getTempDirectory().$token ),
+                ];
          }
 
         if(is_null(self::$tmpdir)) {
