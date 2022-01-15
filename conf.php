@@ -8,8 +8,6 @@ $pathToExternals['unzip'] = '/usr/bin/unzip';
 $pathToExternals['tar'] = '';
 
 
-
-$config['tempdir'] = '/tmp';		// path were to store temporary data ; must be writable
 $config['mkdperm'] = 755; 		// default permission to set to new created directories
 $config['show_fullpaths'] = false; // wheter to show userpaths or full system paths in the UI
 

@@ -43,9 +43,6 @@ class FileManager
         // instantiating filesystem
         Fs::get();
 
-        if (!is_dir($config['tempdir'])) {
-            throw new Exception("Invalid `tempdir` " . $config['tempdir'], 17);
-        }
 
         $this->settings = $config;
 

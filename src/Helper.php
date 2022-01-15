@@ -124,16 +124,12 @@ class Helper {
 
         if(is_null(self::$config)) {
 
-     //       var_dump(__METHOD__, 'loaoding config');
-
             eval(FileUtil::getPluginConf('filemanager'));
 
             if(!isset($config))
             {
                require_once(dirname(__FILE__). '/../conf.php');
             }
-
-            // var_dump(__METHOD__, 'loaoding config', $config);
 
             self::$config = $config;
         }
