@@ -1041,7 +1041,6 @@ function FileManager() {
                     var txtRe = new RegExp(getPlugin().config.textExtensions);
 
                     if (fext.match(txtRe)) {
-                        menu.push([CMENU_SEP]);
                         menu.push([theUILang.fView,
                             function () {
                                 self.viewNFO(path);
@@ -1049,20 +1048,7 @@ function FileManager() {
                         menu.push([CMENU_SEP]);
                     }
 
-                    menu.push([theUILang.fCopy, "flm.ui.getDialogs().showDialog('copy')"]);
-                    menu.push([theUILang.fMove, "flm.ui.getDialogs().showDialog('move')"]);
-                    menu.push([theUILang.fDelete, "flm.ui.getDialogs().showDialog('delete')"]);
-
-                    if (!(entries.length > 1)) {
-                        menu.push([theUILang.fRename, "flm.ui.getDialogs().showDialog('rename')"]);
-                    }
-                    menu.push([CMENU_SEP]);
-
-                    if (utils.isArchive(path) && !(entries.length > 1)) {
-                        menu.push([theUILang.fExtracta, "flm.ui.getDialogs().showDialog('extract')"]);
-                        menu.push([CMENU_SEP]);
-                    }
-
+                    // create submenu
                     var create_sub = [];
 
                     create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && entries.length ? function () {
@@ -1080,7 +1066,22 @@ function FileManager() {
                     }
 
                     menu.push([CMENU_CHILD, theUILang.fcreate, create_sub]);
+                    menu.push([CMENU_SEP]);
 
+
+                    menu.push([theUILang.fCopy, "flm.ui.getDialogs().showDialog('copy')"]);
+                    menu.push([theUILang.fMove, "flm.ui.getDialogs().showDialog('move')"]);
+                    menu.push([theUILang.fDelete, "flm.ui.getDialogs().showDialog('delete')"]);
+
+                    if (!(entries.length > 1)) {
+                        menu.push([theUILang.fRename, "flm.ui.getDialogs().showDialog('rename')"]);
+                    }
+                    menu.push([CMENU_SEP]);
+
+                    if (utils.isArchive(path) && !(entries.length > 1)) {
+                        menu.push([theUILang.fExtracta, "flm.ui.getDialogs().showDialog('extract')"]);
+                        menu.push([CMENU_SEP]);
+                    }
 
                     (fext === 'sfv')
                     && menu.push([theUILang.fcheckSFV, "flm.ui.getDialogs().showDialog('sfv_check')"]);

@@ -176,7 +176,8 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 			theUILang.fcNewDir,
 
 			theUILang.fMediaI,
-			theUILang.fRefresh];
+			theUILang.fRefresh
+		];
 			var subCreateMenu = null;
 
 		fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function(menuEntry, index) {

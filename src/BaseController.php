@@ -39,7 +39,7 @@ abstract class BaseController
         $call = $call ? $call : ['method' => $action];
 
         try {
-            $this->flm = new FileManager($this->currentDirectory);
+            $this->flm = new FileManager($this->currentDirectory, $this->config);
 
             $out = $this->_processCall((object)$call);
 
