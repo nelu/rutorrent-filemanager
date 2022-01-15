@@ -27,23 +27,23 @@ class Filesystem
         $temp = Helper::getTempDir();
 
 
-        $args = array('action' => 'recursiveCopy',
-            'params' => array('files' => $files,
+        $args = ['action' => 'recursiveCopy',
+            'params' => ['files' => $files,
                 'to' => FileUtil::addslash($to)
-            ),
-            'temp' => $temp);
+            ],
+            'temp' => $temp];
 
         $task = $temp['dir'] . 'task';
 
         file_put_contents($task, json_encode($args));
 
-        $task_opts = array('requester' => 'filemanager',
+        $task_opts = ['requester' => 'filemanager',
             'name' => 'copy',
             'parms' => count($files) . ' files'
-        );
+        ];
 
         $rtask = new rTask($task_opts);
-        $commands = array(Helper::getTaskCmd() . " " . escapeshellarg($task));
+        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
         $ret = $rtask->start($commands, 0);
 
         // var_dump(__METHOD__, $task, $files, $to, $task_opts,$ret);
@@ -55,13 +55,13 @@ class Filesystem
     public function listDir($directory_path)
     {
 
-        $output = array();
+        $output = [];
 
         // setlocale(LC_CTYPE, "en_US.UTF-8");
 
         //   var_dump('before callname', $directory_path, $this->mb_escapeshellarg($directory_path));
 
-        $find_args = array(Helper::mb_escapeshellarg($directory_path), '-mindepth', '1', '-maxdepth', '1', '-printf', escapeshellarg('%y\\t%f\\t%s\\t%C@\\t%#m\\n'));
+        $find_args = [Helper::mb_escapeshellarg($directory_path), '-mindepth', '1', '-maxdepth', '1', '-printf', escapeshellarg('%y\\t%f\\t%s\\t%C@\\t%#m\\n')];
 
         $i = 0;
         foreach (RemoteShell::get()->execOutput('find', $find_args) as $fileline) {
@@ -70,7 +70,7 @@ class Filesystem
                 continue;
             }
 
-            $f = array();
+            $f = [];
 
             list($fd, $f['name'], $f['size'], $f['time'], $f['perm']) = explode("\t", trim($fileline));
 
@@ -99,22 +99,22 @@ class Filesystem
         $temp = Helper::getTempDir();
 
 
-        $args = array('action' => 'recursiveMove',
-            'params' => array(
+        $args = ['action' => 'recursiveMove',
+            'params' => [
                 'files' => $files,
-                'to' => FileUtil::addslash($to)),
-            'temp' => $temp);
+                'to' => FileUtil::addslash($to)],
+            'temp' => $temp];
 
         $task = $temp['dir'] . 'task';
 
         file_put_contents($task, json_encode($args));
 
-        $task_opts = array('requester' => 'filemanager',
+        $task_opts = ['requester' => 'filemanager',
             'name' => 'move',
-        );
+        ];
 
         $rtask = new rTask($task_opts);
-        $commands = array(Helper::getTaskCmd() . " " . escapeshellarg($task));
+        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
         $ret = $rtask->start($commands, 0);
 
         //   var_dump($ret);
@@ -129,9 +129,9 @@ class Filesystem
         $temp = Helper::getTempDir();
 
 
-        $args = array('action' => 'recursiveRemove',
-            'params' => array('files' => $files),
-            'temp' => $temp);
+        $args = ['action' => 'recursiveRemove',
+            'params' => ['files' => $files],
+            'temp' => $temp];
 
         $task = $temp['dir'] . 'task';
 
@@ -144,7 +144,7 @@ class Filesystem
         ];
 
         $rtask = new rTask($task_opts);
-        $commands = array(Helper::getTaskCmd() . " " . escapeshellarg($task));
+        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
         $ret = $rtask->start($commands, 0);
 
         return $temp;
@@ -159,7 +159,7 @@ class Filesystem
 
         }
 
-        if (!RemoteShell::get()->execCmd('mv', array('-f', $from, $to))) {
+        if (!RemoteShell::get()->execCmd('mv', ['-f', $from, $to])) {
             throw new Exception("Error Processing Request", 8);
 
         }
@@ -178,11 +178,11 @@ class Filesystem
 
         $mode = !is_null($mode) ? $mode : Helper::getConfig('mkdperm');
 
-        $args = array('--mode=' . $mode, $target);
+        $args = ['--mode=' . $mode, $target];
 
         if ($recursive) {
 
-            $args = array_merge(array('-p'), $args);
+            $args = array_merge(['-p'], $args);
         }
 
 

@@ -6,8 +6,8 @@ use Utility;
 
 class Archive {
     
-    static $rar = array('compress' => '',
-                        'extract' => '');
+    static $rar = ['compress' => '',
+                        'extract' => ''];
     public $file;
     public $options;
 
@@ -52,12 +52,12 @@ class Archive {
         $temp = [];
 
         $args = ['action' => 'compressFiles',
-                        'params' => array(
+                        'params' => [
                             'files' => array_map(function($e) {return ltrim($e,'/');}, $files),
                             'archive' => $this->file,
                             'options' => $this->options,
                              'binary'=> $this->getBin($this->options)
-                            )
+                        ]
         ];
 
 
@@ -107,10 +107,10 @@ class Archive {
         $temp = [];
 
         $args = ['action' => 'extract',
-            'params' => array('files' => [$this->file],
+            'params' => ['files' => [$this->file],
                 'to' => $to,
                 'binary'=> $this->getBin()
-            )
+            ]
         ];
 
         $this->taskController->info = json_decode(json_encode($args));

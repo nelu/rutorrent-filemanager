@@ -24,7 +24,7 @@ class RemoteShell extends \rXMLRPCRequest
          *  For test command options see: http://linux.about.com/library/cmd/blcmdl1_test.htm
          */
         $shell = self::get();
-        $shell->addCommand(new \rXMLRPCCommand('execute', array('test', '-' . $o, $dirname)));
+        $shell->addCommand(new \rXMLRPCCommand('execute', ['test', '-' . $o, $dirname]));
         return (bool)$shell->success();
     }
 
@@ -48,7 +48,7 @@ class RemoteShell extends \rXMLRPCRequest
         $sucmd = dirname(__FILE__) . '/../scripts/sucmd.sh';
 
 
-        $ncmd = array($sucmd, implode(" ", $cmd));
+        $ncmd = [$sucmd, implode(" ", $cmd)];
 
         // var_dump($ncmd);
 
@@ -69,7 +69,7 @@ class RemoteShell extends \rXMLRPCRequest
     public static function merge_cmd_args($shell_cmd, $args)
     {
 
-        return array_merge(array($shell_cmd), $args);
+        return array_merge([$shell_cmd], $args);
     }
 
     public function getExitCode(&$output)
@@ -103,7 +103,7 @@ class RemoteShell extends \rXMLRPCRequest
 
         $cmd = $shell_cmd . ' ' . escapeshellarg($args) . ' > /dev/null &';
 
-        $what = array('sh', '-c', $cmd);
+        $what = ['sh', '-c', $cmd];
 
 
         //var_dump($what);

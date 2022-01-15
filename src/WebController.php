@@ -1,46 +1,52 @@
 <?php
+
 namespace Flm;
+
 use Exception;
 use CachedEcho;
 use SendFile;
 use Throwable;
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '/BaseController.php';
+
 // web controller
-class WebController extends BaseController {
+class WebController extends BaseController
+{
 
-  public function getConfig() {
-      global $topDirectory;
-      
-      $archive = [];
-      $bins = [];
+    public function getConfig()
+    {
+        global $topDirectory;
 
-      $settings = [
-          'textExtensions' => $this->config['textExtensions']
-      ];
+        $archive = [];
+        $bins = [];
 
-      foreach ($this->config['archive']['type'] as $ext => $conf) {
-/*          if(!isset($bins[$conf['bin']]))
-          {
-              $bins[$conf['bin']] = findEXE($conf['bin']);
-          }
-          if(!$bins[$conf['bin']])
-          {
-              $archive[$ext] = false;
-          } else {*/
-              $archive[$ext] = $conf;
-        //  }
-      }
+        $settings = [
+            'textExtensions' => $this->config['textExtensions']
+        ];
 
-    $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);
-    $settings['mkdefmask'] = $this->config['mkdperm'];
-    $settings['archives'] = $archive;
+        foreach ($this->config['archive']['type'] as $ext => $conf) {
+            /*          if(!isset($bins[$conf['bin']]))
+                      {
+                          $bins[$conf['bin']] = findEXE($conf['bin']);
+                      }
+                      if(!$bins[$conf['bin']])
+                      {
+                          $archive[$ext] = false;
+                      } else {*/
+            $archive[$ext] = $conf;
+            //  }
+        }
 
-    return $settings;
+        $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);
+        $settings['mkdefmask'] = $this->config['mkdperm'];
+        $settings['archives'] = $archive;
 
-  }
-  
-    public function taskLog($params) {
+        return $settings;
+
+    }
+
+    public function taskLog($params)
+    {
 
         try {
             $output = $this->flm()->readTaskLogFromPos($params->target, $params->to);
@@ -54,11 +60,13 @@ class WebController extends BaseController {
         return $output;
     }
 
-    public function kill() {
+    public function kill()
+    {
         //$e->kill($e->postlist['target']);
     }
 
-    public function newDirectory($params) {
+    public function newDirectory($params)
+    {
 
         if (!isset($params->target)) {
             self::jsonError(16);
@@ -76,28 +84,30 @@ class WebController extends BaseController {
 
     }
 
-    public function fileDownload() {
-        
-        $data = $this->_getPostData(array( 'target' => 16), false);
-        
+    public function fileDownload()
+    {
+
+        $data = $this->_getPostData(['target' => 16], false);
+
         $sf = $this->flm()->getWorkDir($data['target']);
-        
+
         if (!SendFile::send($sf)) {
             CachedEcho::send('log(theUILang.fErrMsg[6]+" - ' . $sf . ' / "+theUILang.fErrMsg[3]);', "text/html");
         }
     }
 
 
-    public function fileMediaInfo() {
+    public function fileMediaInfo()
+    {
 
-        $data = $this->_getPostData(array( 'target' => 16), false);
+        $data = $this->_getPostData(['target' => 16], false);
 
         try {
             $temp = $this->flm()->mediainfo((object)$data);
 
         } catch (Exception $err) {
             self::jsonError($err->getCode(), $err->getMessage());
-           // var_dump($err->getTraceAsString());
+            // var_dump($err->getTraceAsString());
             return false;
         }
 
@@ -105,9 +115,10 @@ class WebController extends BaseController {
 
     }
 
-    public function fileRename($params) {
+    public function fileRename($params)
+    {
 
-        
+
         if (!isset($params->to)) {
             self::jsonError(2);
         }
@@ -117,7 +128,7 @@ class WebController extends BaseController {
         }
 
         try {
-            $result = $this->flm()->rename(array('from' => $params->target, 'to' => $params->to ));
+            $result = $this->flm()->rename(['from' => $params->target, 'to' => $params->to]);
         } catch (Exception $err) {
             self::jsonError($err->getCode());
             return false;
@@ -128,8 +139,8 @@ class WebController extends BaseController {
     }
 
 
-
-    public function filesCompress($params) {
+    public function filesCompress($params)
+    {
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
@@ -157,7 +168,8 @@ class WebController extends BaseController {
         return ['error' => 0, 'tmpdir' => $temp['tok']];
     }
 
-    public function filesExtract($params) {
+    public function filesExtract($params)
+    {
 
 
         if (!isset($params->to)) {
@@ -168,18 +180,19 @@ class WebController extends BaseController {
         }
 
         try {
-            $temp = $this->flm()->extractFile(array('archives' => $params->fls, 'to' => $params->to));
+            $temp = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
         } catch (Throwable $err) {
             self::jsonError($err->getCode(), $err->getMessage());
             return false;
         }
 
-        return array('error' => 0, 'tmpdir' => $temp[0]['tok']);
+        return ['error' => 0, 'tmpdir' => $temp[0]['tok']];
 
     }
 
 
-    public function filesCopy($params) {
+    public function filesCopy($params)
+    {
 
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
@@ -201,7 +214,8 @@ class WebController extends BaseController {
         return ['error' => 0, 'tmpdir' => $temp['tok']];
     }
 
-    public function filesMove($params) {
+    public function filesMove($params)
+    {
 
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
@@ -224,7 +238,8 @@ class WebController extends BaseController {
 
     }
 
-    public function filesRemove($params) {
+    public function filesRemove($params)
+    {
 
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
@@ -243,19 +258,22 @@ class WebController extends BaseController {
 
     }
 
-    public function checkPostTargetAndDestination() {
+    public function checkPostTargetAndDestination()
+    {
 
-        return $this->_getPostData(array('target' => 18, 'to' => 18), false);
-
-    }
-
-    public function checkPostSourcesAndDestination() {
-
-        return $this->_getPostData(array('fls' => 22, 'to' => 2), false);
+        return $this->_getPostData(['target' => 18, 'to' => 18], false);
 
     }
 
-    public function svfCheck($params) {
+    public function checkPostSourcesAndDestination()
+    {
+
+        return $this->_getPostData(['fls' => 22, 'to' => 2], false);
+
+    }
+
+    public function svfCheck($params)
+    {
 
         if (!isset($params->target)) {
             self::jsonError(2);
@@ -274,7 +292,8 @@ class WebController extends BaseController {
 
     }
 
-    public function sfvCreate($params) {
+    public function sfvCreate($params)
+    {
 
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
@@ -296,11 +315,13 @@ class WebController extends BaseController {
 
     }
 
-    public function sess() {
-       // $e->get_session();
+    public function sess()
+    {
+        // $e->get_session();
     }
 
-    public function listDirectory($params) {
+    public function listDirectory($params)
+    {
 
         try {
             $contents = $this->flm()->dirlist($params);
@@ -313,7 +334,8 @@ class WebController extends BaseController {
         return ['listing' => $contents];
     }
 
-    public function viewNfo($params) {
+    public function viewNfo($params)
+    {
 
         if (!isset($params->mode)) {
             $params->mode = 0;

@@ -3,10 +3,10 @@
 namespace Flm;
 
 
-use Exception;
 use ReflectionMethod;
 use RuntimeException;
 use CachedEcho;
+use Throwable;
 
 abstract class BaseController
 {
@@ -18,12 +18,14 @@ abstract class BaseController
     protected $config;
     protected $currentDirectory;
 
-    public function __construct($config) {
+    public function __construct($config)
+    {
 
         $this->config = $config;
     }
 
-    public function handleRequest() {
+    public function handleRequest()
+    {
 
         if (!isset($_POST['action'])) {
 
@@ -45,32 +47,31 @@ abstract class BaseController
 
             self::jsonOut($out);
 
-        } catch (Exception $err) {
-            self::jsonError(['code'=>$err->getCode(), 'msg'=> $err->getMessage()]);
+        } catch (Throwable $err) {
+            self::jsonError(['code' => $err->getCode(), 'msg' => $err->getMessage()]);
         }
 
     }
 
-    public function _getPostData($post_keys, $json = true) {
-        $ret = array();
-        foreach ($post_keys as $key => $err_code) {
-
-            if (!isset($_POST[$key]) || ($json && !($files = json_decode($_POST[$key], true)))) {
-
-                self::jsonError($err_code);
-                return false;
-
-            }
-
-            $ret[$key] = $_POST[$key];
-        }
-
-        return $ret;
-
+    public static function jsonError($errcode, $msg = 'Internal error')
+    {
+        self::jsonOut(['errcode' => $errcode, 'status' => 'ERROR', 'msg' => $msg]);
+        die();
     }
 
+    public static function jsonOut($data)
+    {
 
-    protected function _processCall($call) {
+        CachedEcho::send(json_encode($data), 'application/json', false);
+    }
+
+    /**
+     * @param $call
+     * @return mixed|null
+     * @throws Throwable
+     */
+    protected function _processCall($call)
+    {
 
         $method = $call->method;
 
@@ -88,27 +89,35 @@ abstract class BaseController
                 throw new RuntimeException("Invalid method");
             }
 
-            $out = call_user_func_array(array($this, $method), [$call]);
-        } else
-        {
+            $out = call_user_func_array([$this, $method], [$call]);
+        } else {
             throw new RuntimeException("Invalid method");
         }
 
         return $out;
     }
 
-    public function flm() : FileManager
+    public function _getPostData($post_keys, $json = true)
+    {
+        $ret = [];
+        foreach ($post_keys as $key => $err_code) {
+
+            if (!isset($_POST[$key]) || ($json && !($files = json_decode($_POST[$key], true)))) {
+
+                self::jsonError($err_code);
+                return false;
+
+            }
+
+            $ret[$key] = $_POST[$key];
+        }
+
+        return $ret;
+
+    }
+
+    public function flm(): FileManager
     {
         return $this->flm;
-    }
-
-    public static function jsonOut($data) {
-
-        CachedEcho::send(json_encode($data), 'application/json', false );
-    }
-
-    public static function jsonError($errcode, $msg = 'Internal error') {
-        self::jsonOut(['errcode' => $errcode, 'status' => 'ERROR', 'msg' => $msg]);
-        die();
     }
 }

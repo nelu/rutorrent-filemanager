@@ -1,9 +1,11 @@
 <?php
+
 namespace Flm;
 
-class FsUtils {
+class FsUtils
+{
 
-    public static $format_methods = array(
+    public static $format_methods = [
         'tar' => 'tarExtractCmd',
         'tar.gz' => 'tgzExtractCmd',
         'gz' => 'tgzExtractCmd',
@@ -11,23 +13,25 @@ class FsUtils {
         'zip' => 'zipExtractCmd',
         'rar' => 'rarExtractCmd',
         'bzip2' => 'bzipExtractCmd',
-       'bzip' => 'bzipExtractCmd',
-       'bz2' => 'bzipExtractCmd',
-       'tar.bz2' => 'bzipExtractCmd'
-    );
+        'bzip' => 'bzipExtractCmd',
+        'bz2' => 'bzipExtractCmd',
+        'tar.bz2' => 'bzipExtractCmd'
+    ];
 
-    public static function getCopyCmd($source, $to) {
+    public static function getCopyCmd($source, $to)
+    {
         $source = Helper::mb_escapeshellarg($source);
         $to = Helper::mb_escapeshellarg($to);
-      /*  $source = escapeshellarg($source);
-        $to = escapeshellarg($to);*/
+        /*  $source = escapeshellarg($source);
+          $to = escapeshellarg($to);*/
         return <<<CMD
 cp -rpv {$source} {$to} 
 CMD;
 
     }
 
-    public static function getRemoveCmd($file) {
+    public static function getRemoveCmd($file)
+    {
         $file = Helper::mb_escapeshellarg($file);
         return <<<CMD
 rm -rf {$file} 
@@ -35,7 +39,8 @@ CMD;
 
     }
 
-    public static function getArchiveCompressCmd($args) {
+    public static function getArchiveCompressCmd($args)
+    {
 
         $params = clone $args;
         $format_methods = self::$format_methods;
@@ -48,17 +53,17 @@ CMD;
 
         $config = Helper::getConfig();
 
-        if($params->options->type == 'bzip2') {
+        if ($params->options->type == 'bzip2') {
             $ext = $params->options->type;
         }
 
         if (isset($format_methods[$ext])) {
 
             $method_name = str_replace('Extract', 'Compress', $format_methods[$ext]);
-            $cmd = call_user_func_array(array(
+            $cmd = call_user_func_array([
                 __CLASS__,
                 $method_name
-            ), array($params));
+            ], [$params]);
             // var_dump($cmd);
 
         }
@@ -66,7 +71,8 @@ CMD;
         return $cmd;
     }
 
-    public static function getArchiveExtractCmd($args) {
+    public static function getArchiveExtractCmd($args)
+    {
 
         $params = clone $args;
         $format_methods = self::$format_methods;
@@ -78,10 +84,10 @@ CMD;
         if (isset($format_methods[$ext])) {
 
             $method_name = $format_methods[$ext];
-            $cmd = call_user_func_array(array(
+            $cmd = call_user_func_array([
                 __CLASS__,
                 $method_name
-            ), array($params));
+            ], [$params]);
             // var_dump($cmd);
 
         }
@@ -89,7 +95,8 @@ CMD;
         return $cmd;
     }
 
-    public static function zipCompressCmd($params) {
+    public static function zipCompressCmd($params)
+    {
 
         $options = $params->options;
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
@@ -100,14 +107,14 @@ CMD;
 {$params->binary} -y -r -{$compression}
 CMD;
 
-        if(isset($options->password))
-        {
+        if (isset($options->password)) {
             $cmd .= ' -P ' . Helper::mb_escapeshellarg($options->password);
         }
         return $cmd . " {$archive} {$files}";
     }
 
-    public static function zipExtractCmd($params) {
+    public static function zipExtractCmd($params)
+    {
 
         $paths = (object)Helper::escapeCmdArgs($params);
 
@@ -116,7 +123,8 @@ CMD;
 CMD;
     }
 
-    public static function tgzCompressCmd($params) {
+    public static function tgzCompressCmd($params)
+    {
 
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
@@ -126,8 +134,9 @@ CMD;
 {$params->binary} -C {$workdir} -czvf {$archive} {$files}
 CMD;
     }
-    
-    public static function tgzExtractCmd($params) {
+
+    public static function tgzExtractCmd($params)
+    {
 
         $paths = (object)Helper::escapeCmdArgs($params);
 
@@ -137,7 +146,8 @@ CMD;
 
     }
 
-    public static function tarExtractCmd($params) {
+    public static function tarExtractCmd($params)
+    {
 
         $paths = (object)Helper::escapeCmdArgs($params);
         return <<<CMD
@@ -146,7 +156,8 @@ CMD;
 
     }
 
-    public static function tarCompressCmd($params) {
+    public static function tarCompressCmd($params)
+    {
 
         //$paths = (object)Helper::escapeCmdArgs($params);
 
@@ -154,13 +165,14 @@ CMD;
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
         $workdir = Helper::mb_escapeshellarg($params->options->workdir);
-        
+
         return <<<CMD
 {$params->binary} -C {$workdir} -cvf {$archive} {$files}
 CMD;
     }
 
-    public static function rarExtractCmd($params) {
+    public static function rarExtractCmd($params)
+    {
 
         $paths = (object)Helper::escapeCmdArgs($params);
         return <<<CMD
@@ -169,24 +181,25 @@ CMD;
 
     }
 
-    public static function rarCompressCmd($params) {
+    public static function rarCompressCmd($params)
+    {
 
         $options = (object)Helper::escapeCmdArgs($params->options);
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
 
         $cmd = "{$params->binary} a -ep1 -m{$options->comp} -ol {$options->multif} -v{$options->volume}";
-        if(isset($options->password))
-        {
+        if (isset($options->password)) {
             $cmd .= ' -hp' . $options->password;
         }
 
-        $cmd =  $cmd . "- {$archive} {$files}";
+        $cmd = $cmd . "- {$archive} {$files}";
 
         return $cmd;
     }
 
-    public static function bzipExtractCmd($params) {
+    public static function bzipExtractCmd($params)
+    {
         $paths = (object)Helper::escapeCmdArgs($params);
 
         return <<<CMD
@@ -195,22 +208,19 @@ CMD;
 
     }
 
-    public static function bzipCompressCmd($params) {
+    public static function bzipCompressCmd($params)
+    {
 
         $files = implode(' ', (array)Helper::escapeCmdArgs($params->files));
         $archive = Helper::mb_escapeshellarg($params->archive);
         $workdir = Helper::mb_escapeshellarg($params->options->workdir);
-        
-        return <<<CMD
-{$params->binary} -C {$workdir} -cjvf {$archive} {$files}
-CMD;
+
+        return "{$params->binary} -C {$workdir} -cjvf {$archive} {$files}";
     }
 
-    public static function isoExtractCmd($params) {
-        return <<<CMD
-{$params->binary} x -bd -y -o {$params->to} {$params->file}
-CMD;
-
+    public static function isoExtractCmd($params)
+    {
+        return "{$params->binary} x -bd -y -o {$params->to} {$params->file}";
     }
 
 }

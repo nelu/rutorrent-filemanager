@@ -18,11 +18,11 @@ class FileManager
     public $workdir;
     public $userdir;
 
-    protected $temp = array();
+    protected $temp = [];
 
     protected $uisettings;
 
-    protected $settings = array();
+    protected $settings = [];
 
     public function __construct($directory, $config)
     {
@@ -162,7 +162,7 @@ class FileManager
     public function copy($paths)
     {
 
-        $files = array_map(array($this, 'getWorkDir'), (array)$paths->fls);
+        $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
         $to = $this->getUserDir($paths->to);
         // var_dump($paths, $to, $files);
@@ -185,7 +185,7 @@ class FileManager
 
         $directory_contents = Fs::get()->listDir($dirpath);
 
-        usort($directory_contents, array($this, 'dir_sort'));
+        usort($directory_contents, [$this, 'dir_sort']);
 
         foreach ($directory_contents as $key => $value) {
             unset($directory_contents[$key]['type']);
@@ -252,17 +252,16 @@ class FileManager
         }
 
 
-        $commands = array();
+        $commands = [];
         $flags = '';
         $st = mediainfoSettings::load();
-        $task = new rTask(array
-        (
+        $task = new rTask([
             'arg' => basename($filename),
             'requester' => 'mediainfo',
             'name' => 'mediainfo',
             // 'hash'=>$_REQUEST['hash'],
             'no' => 0
-        ));
+        ]);
         if ($st && !empty($st->data["mediainfousetemplate"])) {
             $randName = $task->makeDirectory() . "/opts";
             file_put_contents($randName, $st->data["mediainfotemplate"]);
@@ -280,7 +279,7 @@ class FileManager
     {
 
 
-        $files = array_map(array($this, 'getWorkDir'), (array)$paths->fls);
+        $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
         // destination dir requires ending /
         $to = FileUtil::addslash($this->getUserDir($paths->to));
@@ -371,7 +370,7 @@ class FileManager
     public function remove($paths)
     {
 
-        $files = array_map(array($this, 'getWorkDir'), (array)$paths->fls);
+        $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
         // var_dump($paths, $to, $files);
 
         $fs = Fs::get();
@@ -403,24 +402,24 @@ class FileManager
         $temp = Helper::getTempDir();
 
 
-        $args = array('action' => 'sfvCheck',
-            'params' => array(
+        $args = ['action' => 'sfvCheck',
+            'params' => [
                 'target' => $sfvfile,
                 'workdir' => $this->workdir
 
-            ),
-            'temp' => $temp);
+            ],
+            'temp' => $temp];
 
         $task = $temp['dir'] . 'task';
 
         file_put_contents($task, json_encode($args));
 
-        $task_opts = array('requester' => 'filemanager',
+        $task_opts = ['requester' => 'filemanager',
             'name' => 'SFV check',
-        );
+        ];
 
         $rtask = new rTask($task_opts);
-        $commands = array(Helper::getTaskCmd() . " " . escapeshellarg($task));
+        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
         $ret = $rtask->start($commands, 0);
 
         return $temp;
@@ -435,7 +434,7 @@ class FileManager
     {
 
         $sfvfile = $this->getUserDir($paths->target);
-        $files = array_map(array($this, 'getWorkDir'), (array)$paths->fls);
+        $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
         if (Fs::get()->isFile($sfvfile)) {
             throw new Exception("File already exists", 16);
@@ -445,24 +444,24 @@ class FileManager
         $temp = Helper::getTempDir();
 
 
-        $args = array('action' => 'sfvCreate',
-            'params' => array(
+        $args = ['action' => 'sfvCreate',
+            'params' => [
                 'files' => $files,
                 'target' => $sfvfile,
 
-            ),
-            'temp' => $temp);
+            ],
+            'temp' => $temp];
 
         $task = $temp['dir'] . 'task';
 
         file_put_contents($task, json_encode($args));
 
-        $task_opts = array('requester' => 'filemanager',
+        $task_opts = ['requester' => 'filemanager',
             'name' => 'SFV create',
-        );
+        ];
 
         $rtask = new rTask($task_opts);
-        $commands = array(Helper::getTaskCmd() . " " . escapeshellarg($task));
+        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
         $ret = $rtask->start($commands, 0);
 
         return $temp;
