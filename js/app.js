@@ -1240,7 +1240,7 @@
                 activeDialogs: {},
                 onStartEvent: null,
                 dirBrowser: {},
-                // multiple file operations are ui blocking
+            // multiple file operations are ui blocking
                 forms: {
                     archive: {
                         modal: true,
@@ -1459,8 +1459,9 @@
                     withFiles = withFiles || false;
 
                     var browseBtn;
-                    var editField;
-
+                    var editField
+                    var dirBrowse;
+                    var self = this;
                     for (var i = 0; i < inputSelectors.length; i++) {
                         editField = inputSelectors[i];
                         browseBtn = buttonSelectors[i];
@@ -1471,13 +1472,18 @@
                                 this.dirBrowser[diagId] = []
                             }
 
-                            this.dirBrowser[diagId][i] = new theWebUI.rDirBrowser(
+                            dirBrowse = new theWebUI.rDirBrowser(
                                 diagId,
                                 editField.id,
                                 browseBtn.id,
                                 null,
                                 withFiles
                             );
+
+                            dirBrowse.monitorUpdates();
+
+                            this.dirBrowser[diagId][i] = dirBrowse;
+
 
                         } else {
                             $(browseBtn).hide();
@@ -1499,9 +1505,7 @@
 
                     var config = this.forms[what];
 
-
                     var modal = $type(config.modal) ? config.modal : true;
-
 
                     var diagId = flm.utils.ltrim(this.getDialogId(!modal ? what : 'window'), '#');
                     var diags = this;

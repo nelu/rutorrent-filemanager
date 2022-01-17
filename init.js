@@ -289,6 +289,21 @@ plugin.ui.init = function () {
 
 };
 
+// extending other plugins
+theWebUI.rDirBrowser.prototype.editObserver = null;
+theWebUI.rDirBrowser.prototype.monitorUpdates = function(){
+
+    if(!this.editObserver) {
+        var self = this;
+        var observer = new MutationObserver(function(mutations) {
+            if(self.frame.css("visibility") === "hidden") {
+                self.edit.change();
+            }
+        });
+
+        this.editObserver = observer.observe(this.frame[0], { attributes : true, attributeFilter : ['style'] });
+    }
+};
 
 // hooks
 plugin.flmOnShow = theTabs.onShow;
