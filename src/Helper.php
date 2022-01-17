@@ -90,21 +90,6 @@ class Helper
         }
     }
 
-
-    public static function remote_test($dirname, $o)
-    {
-        /*
-         * Test's to check if $arg1 exists from rtorrent userid
-         * 
-         *  @param string target - full path
-         *  @param string option to use with test
-         * 
-         *  Example: $this->remote_test('/tmp', 'd');
-         *  For test command options see: http://linux.about.com/library/cmd/blcmdl1_test.htm
-         */
-        return RemoteShell::test($dirname, $o);
-    }
-
     public static function getConfig($section = null)
     {
 

@@ -3,7 +3,6 @@
 namespace Flm;
 
 use Exception;
-use Flm\RemoteShell as Remote;
 use Flm\Filesystem as Fs;
 use Flm\mediainfoSettings;
 use rTask;
@@ -13,8 +12,6 @@ use FileUtil;
 
 class FileManager
 {
-
-
     public $workdir;
     public $userdir;
 
@@ -24,30 +21,15 @@ class FileManager
 
     protected $settings = [];
 
-    public function __construct($directory, $config)
+    public function __construct($rootDir, $config)
     {
-
-        global $topDirectory;
-
-        $this->userdir = FileUtil::addslash($topDirectory);
-
-        $this->setWorkDir($directory);
-
-        //new remote shell
-        Remote::get();
-
-        if (!Helper::remote_test($this->workdir, 'd')) {
-            throw new Exception("Error Processing Request" . $this->workdir, 2);
-        }
+        $this->userdir = FileUtil::addslash($rootDir);
+        $this->setWorkDir();
 
         // instantiating filesystem
         Fs::get();
 
-
         $this->settings = $config;
-
-        $this->fman_path = dirname(__FILE__);
-
     }
 
     static public function dir_sort($a, $b)
@@ -139,7 +121,7 @@ class FileManager
         return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->workdir);
     }
 
-    public function setWorkDir($directory)
+    public function setWorkDir($directory = null)
     {
 
         $dir = FileUtil::addslash($this->userdir . trim($directory, DIRECTORY_SEPARATOR));

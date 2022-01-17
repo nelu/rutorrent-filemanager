@@ -16,6 +16,7 @@ abstract class BaseController
     protected $flm;
 
     protected $config;
+
     protected $currentDirectory;
 
     public function __construct($config)
@@ -26,22 +27,22 @@ abstract class BaseController
 
     public function handleRequest()
     {
+        global $topDirectory;
 
-        if (!isset($_POST['action'])) {
+        if (isset($_POST['action'])) {
+            $action = $_POST['action'];
 
+            $call = json_decode($action, true);
+
+            $call = $call ? $call : ['method' => $action];
+        } elseif (isset($_POST['cmd'])) {
+            $call = $_POST;
+        } else {
             self::jsonError('Invalid action');
         }
 
-        $this->currentDirectory = isset($_POST['dir']) ? $_POST['dir'] : '';
-
-        $action = $_POST['action'];
-
-        $call = json_decode($action, true);
-
-        $call = $call ? $call : ['method' => $action];
-
         try {
-            $this->flm = new FileManager($this->currentDirectory, $this->config);
+            $this->flm = new FileManager($topDirectory, $this->config);
 
             $out = $this->_processCall((object)$call);
 
