@@ -1261,7 +1261,7 @@ function FileManager() {
 
             activeDialogs: {},
             onStartEvent: null,
-            dirBrowser: null,
+            dirBrowser: {},
             // multiple file operations are ui blocking
             forms: {
                 archive: {
@@ -1321,9 +1321,19 @@ function FileManager() {
             },
 
             // common after event handle
-            afterHide: function(id, what) {
-                $type(this.dirBrowser)
-                && this.dirBrowser.hide();
+            afterHide: function(dialogId, what) {
+
+                if(this.dirBrowser.hasOwnProperty(dialogId))
+                {
+                    for(var i=0;i<this.dirBrowser[dialogId].length;i++)
+                    {
+                        this.dirBrowser[dialogId][i].hide();
+                        this.dirBrowser[dialogId][i].frame.remove();
+                    }
+
+                    this.dirBrowser[dialogId] = [];
+                }
+
             },
             // common before event handle
             beforeShow: function (id, what) {
@@ -1351,7 +1361,6 @@ function FileManager() {
 
                 options.selectedTarget = !browser.selectedTarget ? '/' : browser.selectedTarget;
                 options.currentPath =  flm.getCurrentPath('/');
-
 
                 flm.views.getView( $type(config.options) ? config.template : flm.views.viewsPath + '/' + config.template, options,
                     function (html) {
@@ -1442,8 +1451,10 @@ function FileManager() {
             },
             hide: function (dialogId, afterHide) {
                 dialogId = dialogId || 'window';
+                dialogId = flm.utils.ltrim(dialogId, '#');
 
-                theDialogManager.hide(flm.utils.ltrim(dialogId, '#'), afterHide);
+                theDialogManager.hide(dialogId, afterHide);
+
             },
 
             onStart: function (callback) {
@@ -1463,22 +1474,42 @@ function FileManager() {
             },
 
             setDirBrowser: function(diagId, withFiles) {
-                var buttonSelector = $(diagId + ' .flm-diag-nav-browse-but');
-                var inputSelector =  $(diagId + ' .flm-diag-nav-path');
 
+                var inputSelectors =  $(diagId + ' .flm-diag-nav-path');
+                var buttonSelectors = $(diagId + ' .flm-diag-nav-browse-but');
+
+                diagId = flm.utils.ltrim(diagId, '#');
                 withFiles = withFiles || false;
-                if (thePlugins.isInstalled("_getdir")) {
 
-                    this.dirBrowser = new theWebUI.rDirBrowser(
-                        flm.utils.ltrim(diagId, '#'),
-                        inputSelector[0].id,
-                        buttonSelector[0].id,
-                        null, withFiles);
+                var browseBtn;
+                var editField;
 
-                } else {
-                    buttonSelector.hide();
+                for(var i=0; i<inputSelectors.length; i++)
+                {
+                    editField = inputSelectors[i];
+                    browseBtn = buttonSelectors[i];
+
+                    if (thePlugins.isInstalled("_getdir")) {
+
+                        if(!this.dirBrowser.hasOwnProperty(diagId))
+                        {
+                            this.dirBrowser[diagId] = []
+                        }
+
+                        this.dirBrowser[diagId][i] = new theWebUI.rDirBrowser(
+                            diagId,
+                            editField.id,
+                            browseBtn.id,
+                            null,
+                            withFiles
+                        );
+
+                    } else {
+                        $(browseBtn).hide();
+                    }
+
                 }
-                return this.dirBrowser;
+                return this.dirBrowser[diagId];
             },
 
             //makeVisbile
@@ -1660,7 +1691,7 @@ function FileManager() {
     };
 
         // file operation dialogs
-
+        self.dialogs = dialogs;
         self.getDialogs = function()
         {
             return dialogs;
