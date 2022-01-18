@@ -1,4 +1,4 @@
-﻿theUILang.fManager 		= "File Manager";
+﻿theUILang.fManager 		= "Gestionnaire de fichiers";
 theUILang.fTime			= "Heure";
 theUILang.fType 		= "Type";
 theUILang.fPerm			= "Permissions";
