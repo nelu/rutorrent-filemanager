@@ -51,13 +51,11 @@ class FileManager
 
     public function getDirPath($path)
     {
-
         return FileUtil::fullpath($path, $this->userdir);
     }
 
     public function extractChrootPath($fullPath)
     {
-
         $f = explode($this->userdir, $fullPath);
 
         $relative = $fullPath;
@@ -76,7 +74,6 @@ class FileManager
      */
     public function archive($paths)
     {
-
         $archive_file = $this->getUserDir($paths->target);
         //  var_dump('arch path', $this->workdir.$paths['archive'], $archive_file);
 
@@ -107,28 +104,38 @@ class FileManager
         $options['workdir'] = $this->getWorkDir('');
         $archive->setOptions((array)$options);
 
-
         return $archive->create($files);
     }
 
     public function getUserDir($relative_path)
     {
-        return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->userdir);
+        if ($relative_path == null) {
+            return $this->userdir;
+        } else {
+            return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->userdir);
+        }
     }
 
     public function getWorkDir($relative_path)
     {
-        return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->workdir);
+        if ($relative_path == null) {
+            return $this->workdir;
+        } else {
+            return FileUtil::fullpath(trim($relative_path, DIRECTORY_SEPARATOR), $this->workdir);
+        }
     }
 
     public function setWorkDir($directory = null)
     {
-
-        $dir = FileUtil::addslash($this->userdir . trim($directory, DIRECTORY_SEPARATOR));
-
-        $path_check = explode($this->userdir, FileUtil::addslash(FileUtil::fullpath($dir, $this->userdir)));
-        if (count($path_check) < 2) {
+        if ($directory == null) {
             $dir = $this->userdir;
+        } else {
+            $dir = FileUtil::addslash($this->userdir . trim($directory, DIRECTORY_SEPARATOR));
+
+            $path_check = explode($this->userdir, FileUtil::addslash(FileUtil::fullpath($dir, $this->userdir)));
+            if (count($path_check) < 2) {
+                $dir = $this->userdir;
+            }
         }
 
         $this->workdir = $dir;
@@ -143,7 +150,6 @@ class FileManager
      */
     public function copy($paths)
     {
-
         $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
         $to = $this->getUserDir($paths->to);
@@ -162,7 +168,6 @@ class FileManager
 
     public function dirlist($paths)
     {
-
         $dirpath = $this->getWorkDir($paths->dir);
 
         $directory_contents = Fs::get()->listDir($dirpath);
@@ -183,7 +188,6 @@ class FileManager
      */
     public function extractFile($paths)
     {
-
         //  var_dump('arch path', $this->workdir.$paths['archive'], $archive_file);
 
         $to = $this->getUserDir($paths['to']);
@@ -226,13 +230,11 @@ class FileManager
 
     public function mediainfo($paths)
     {
-
         $filename = $this->getWorkDir(basename($paths->target));
 
         if (!Fs::get()->isFile($filename)) {
             throw new Exception("Invalid path: " . $filename, 6);
         }
-
 
         $commands = [];
         $flags = '';
@@ -252,15 +254,11 @@ class FileManager
         $commands[] = Utility::getExternal("mediainfo") . " " . $flags . " " . Helper::mb_escapeshellarg($filename);
         $ret = $task->start($commands, rTask::FLG_WAIT);
 
-
         return $ret;
-
     }
 
     public function move($paths)
     {
-
-
         $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
         // destination dir requires ending /
@@ -274,16 +272,14 @@ class FileManager
         }
 
         $task_info = $fs->move($files, $to);
-        return $task_info;
 
+        return $task_info;
     }
 
 
     public function mkdir($dirpath)
     {
-
         return Fs::get()->mkdir($this->getWorkDir($dirpath), true);
-
     }
 
     /**
@@ -294,9 +290,7 @@ class FileManager
      */
     public function nfo_get($file, $dos = TRUE)
     {
-
         $file = $this->getWorkDir($file);
-
 
         if (!is_file($file)) {
             throw new Exception("no file", 6);
@@ -310,20 +304,16 @@ class FileManager
         $nfo = new NfoView($file);
 
         return $nfo->get($dos);
-
     }
 
     public function read_file($file, $array = TRUE)
     {
-
         return $array ? file($this->workdir . $file, FILE_IGNORE_NEW_LINES) : file_get_contents($this->workdir . $file);
     }
 
     public function readTaskLogFromPos($token, $lpos)
     {
-
         $tmp = Helper::getTempDir($token);
-
 
         $file = $tmp['dir'] . 'log';
 
@@ -336,13 +326,11 @@ class FileManager
         $log['lines'] = str_replace($this->userdir, '/', $log['lines']);
 
         return $log;
-
     }
 
 
     public function rename($paths)
     {
-
         $from = $this->workdir . $paths['from'];
         $to = $this->workdir . $paths['to'];
 
@@ -351,13 +339,13 @@ class FileManager
 
     public function remove($paths)
     {
-
         $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
         // var_dump($paths, $to, $files);
 
         $fs = Fs::get();
 
         $task_info = $fs->remove($files);
+
         return $task_info;
     }
 
@@ -368,7 +356,6 @@ class FileManager
      */
     public function sfvCheck($paths)
     {
-
         $sfvfile = $this->getWorkDir($paths->target);
 
         if (Helper::getExt($sfvfile) != 'sfv') {
@@ -380,9 +367,7 @@ class FileManager
 
         }
 
-
         $temp = Helper::getTempDir();
-
 
         $args = [
             'action' => 'sfvCheck',
@@ -415,7 +400,6 @@ class FileManager
      */
     public function sfvCreate($paths)
     {
-
         $sfvfile = $this->getUserDir($paths->target);
         $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
@@ -425,7 +409,6 @@ class FileManager
         }
 
         $temp = Helper::getTempDir();
-
 
         $args = [
             'action' => 'sfvCreate',
@@ -450,5 +433,4 @@ class FileManager
 
         return $temp;
     }
-
 }
