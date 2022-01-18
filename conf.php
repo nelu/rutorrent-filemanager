@@ -12,7 +12,7 @@ $config['mkdperm'] = 755; 		// default permission to set to new created director
 $config['show_fullpaths'] = false; // wheter to show userpaths or full system paths in the UI
 
 
-$config['textExtensions'] = 'txt|nfo|sfv|xml|html';
+$config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';
 // archive mangling, see archiver man page before editing
 // archive.fileExt -> config
 $config['archive']['type'] = [

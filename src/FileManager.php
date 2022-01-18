@@ -230,17 +230,17 @@ class FileManager
 
     public function mediainfo($paths)
     {
-        $filename = $this->getWorkDir(basename($paths->target));
+        $what = $paths->target;
 
-        if (!Fs::get()->isFile($filename)) {
-            throw new Exception("Invalid path: " . $filename, 6);
+        if (!Fs::get()->isFile($what)) {
+            throw new Exception("Invalid path: " . $what, 6);
         }
 
         $commands = [];
         $flags = '';
         $st = mediainfoSettings::load();
         $task = new rTask([
-            'arg' => basename($filename),
+            'arg' => basename($what),
             'requester' => 'mediainfo',
             'name' => 'mediainfo',
             // 'hash'=>$_REQUEST['hash'],
@@ -251,7 +251,7 @@ class FileManager
             file_put_contents($randName, $st->data["mediainfotemplate"]);
             $flags = "--Inform=file://" . escapeshellarg($randName);
         }
-        $commands[] = Utility::getExternal("mediainfo") . " " . $flags . " " . Helper::mb_escapeshellarg($filename);
+        $commands[] = Utility::getExternal("mediainfo") . " " . $flags . " " . Helper::mb_escapeshellarg($what);
         $ret = $task->start($commands, rTask::FLG_WAIT);
 
         return $ret;
