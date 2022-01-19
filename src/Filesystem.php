@@ -29,8 +29,9 @@ class Filesystem
 
         $args = [
             'action' => 'recursiveCopy',
-            'params' => ['files' => $files,
-                'to' => FileUtil::addslash($to)
+            'params' => [
+                'files' => $files,
+                'to' => $to
             ],
             'temp' => $temp];
 

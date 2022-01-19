@@ -153,12 +153,15 @@ class FileManager
         $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
 
         $to = $this->getUserDir($paths->to);
-        // var_dump($paths, $to, $files);
 
         $fs = Fs::get();
-        if (!$fs->isDir($to)) {
-
+        if (count($files) > 1 && !$fs->isDir($to)) {
             throw new Exception("Destination is not directory", 2);
+        } elseif (count($files) == 1 && $fs->isFile($to)) {
+            throw new Exception("Destination already exists", 2);
+        } elseif (count($files) > 1) {
+            // to must be a directory
+            $to = FileUtil::addslash($to);
         }
 
         $task_info = $fs->copy($files, $to);
