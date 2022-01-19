@@ -25,16 +25,7 @@ class WebController extends BaseController
         ];
 
         foreach ($this->config['archive']['type'] as $ext => $conf) {
-            /*          if(!isset($bins[$conf['bin']]))
-                      {
-                          $bins[$conf['bin']] = findEXE($conf['bin']);
-                      }
-                      if(!$bins[$conf['bin']])
-                      {
-                          $archive[$ext] = false;
-                      } else {*/
             $archive[$ext] = $conf;
-            //  }
         }
 
         $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);
@@ -42,7 +33,6 @@ class WebController extends BaseController
         $settings['archives'] = $archive;
 
         return $settings;
-
     }
 
     public function taskLog($params)
@@ -70,7 +60,6 @@ class WebController extends BaseController
         $this->flm()->mkdir($params->target);
 
         return ['error' => 0];
-
     }
 
     public function fileDownload()
@@ -93,7 +82,6 @@ class WebController extends BaseController
         $temp = $this->flm()->mediainfo((object)$data);
 
         return $temp;
-
     }
 
     public function fileRename($params)
@@ -110,7 +98,6 @@ class WebController extends BaseController
         $this->flm()->rename(['from' => $params->target, 'to' => $params->to]);
 
         return ['error' => 0];
-
     }
 
     public function filesCompress($params)
@@ -156,7 +143,6 @@ class WebController extends BaseController
 
 
         return ['error' => 0, 'tmpdir' => $temp[0]['tok']];
-
     }
 
 
@@ -191,34 +177,29 @@ class WebController extends BaseController
 
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
-
     }
 
     public function filesRemove($params)
     {
-
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
 
-        $temp = $this->flm()->remove($params);
+        $task = $this->flm()->remove($params);
 
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
-
+        return $task;
     }
 
     public function checkPostTargetAndDestination()
     {
 
         return $this->_getPostData(['target' => 18, 'to' => 18], false);
-
     }
 
     public function checkPostSourcesAndDestination()
     {
 
         return $this->_getPostData(['fls' => 22, 'to' => 2], false);
-
     }
 
     public function svfCheck($params)
@@ -233,7 +214,6 @@ class WebController extends BaseController
 
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
-
     }
 
     public function sfvCreate($params)
@@ -249,7 +229,6 @@ class WebController extends BaseController
         $temp = $this->flm()->sfvCreate($params);
 
         return ['error' => 0, 'tmpdir' => $temp['tok']];
-
     }
 
     public function sess()
@@ -277,7 +256,6 @@ class WebController extends BaseController
         $contents = $this->flm()->nfo_get($params->target, $params->mode);
 
         return ['error' => 0, 'nfo' => $contents];
-
     }
 
 }

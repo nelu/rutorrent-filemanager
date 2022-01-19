@@ -125,20 +125,13 @@ class Filesystem
 
     }
 
-    public function remove($files)
+    public static function remove($files)
     {
+        $commands = [];
 
-        $temp = Helper::getTempDir();
-
-
-        $args = [
-            'action' => 'recursiveRemove',
-            'params' => ['files' => $files],
-            'temp' => $temp];
-
-        $task = $temp['dir'] . 'task';
-
-        file_put_contents($task, json_encode($args));
+        foreach ($files as $file) {
+            $commands[] = TaskController::recursiveRemove($file);
+        }
 
         $task_opts = [
             'requester' => 'filemanager',
@@ -147,10 +140,10 @@ class Filesystem
         ];
 
         $rtask = new rTask($task_opts);
-        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
+
         $ret = $rtask->start($commands, 0);
 
-        return $temp;
+        return $ret;
     }
 
     public function rename($from, $to)

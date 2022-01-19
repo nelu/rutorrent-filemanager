@@ -30,14 +30,6 @@ CMD;
 
     }
 
-    public static function getRemoveCmd($file)
-    {
-        $file = Helper::mb_escapeshellarg($file);
-        return <<<CMD
-rm -rf {$file} 
-CMD;
-
-    }
 
     public static function getArchiveCompressCmd($args)
     {

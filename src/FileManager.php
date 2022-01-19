@@ -340,11 +340,7 @@ class FileManager
     public function remove($paths)
     {
         $files = array_map([$this, 'getWorkDir'], (array)$paths->fls);
-        // var_dump($paths, $to, $files);
-
-        $fs = Fs::get();
-
-        $task_info = $fs->remove($files);
+        $task_info = Fs::remove($files);
 
         return $task_info;
     }

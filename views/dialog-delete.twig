@@ -4,54 +4,50 @@
 {% extends "flm::dialog-window.twig" %}
 {% set startButtonValue = theUILang.fDiagDeleteBut %}
 {% block heading %}
-    <legend>{{ theUILang.fDiagDeleteSel  }}</legend>
+    <legend>{{ theUILang.fDiagDeleteSel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
-(function (global) {
-    var dialogs = flm.ui.getDialogs();
-    var diagId = dialogs.getDialogId();
+    <script>
+        (function (global) {
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId();
 
-    if(!flm.manager.hasOwnProperty('doDelete')) {
-        // service
-        flm.manager.doDelete= function (paths) {
+            if (!flm.manager.hasOwnProperty('doDelete')) {
+                // service
+                flm.manager.doDelete = function (paths) {
 
-        var deferred = $.Deferred();
+                    var deferred = $.Deferred();
 
-        if(!$type(paths) || paths.length === 0)
-        {
-            deferred.reject('Empty paths');
-            return deferred.promise();
-        }
+                    if (!$type(paths) || paths.length === 0) {
+                        deferred.reject('Empty paths');
+                        return deferred.promise();
+                    }
 
-        this.logStart(theUILang.fStarts['delete']);
+                    //this.logStart(theUILang.fStarts['delete']);
 
-        paths = flm.manager.getFullPaths(paths);
-        return flm.api.removeFiles(paths)
-            .then(function (response) {
+                    paths = flm.manager.getFullPaths(paths);
                     flm.manager.logConsole('delete', 'Removing selected entries: ' + paths.length );
-                    flm.Refresh(flm.getCurrentPath());
-                    $(document).trigger(flm.EVENTS.delete, [paths]);
 
-                    return response;
-                },
-                function (response) {
-                    return response;
-                });
+                    return flm.api.removeFiles(paths).then(function(result) {
+                        flm.Refresh(result.params.workdir);
+                        $(document).trigger(flm.EVENTS.delete, [paths]);
+                        return result;
+                    });
 
-    }; }
+                };
+            }
 
 
-    dialogs.onStart(function () {
+            dialogs.onStart(function () {
 
-        var checklist = dialogs.getCheckedList(diagId);
-        dialogs.disableStartButton(diagId);
+                var checklist = dialogs.getCheckedList(diagId);
+                dialogs.disableStartButton(diagId);
 
-        return flm.manager.doDelete(checklist);
-    });
+                return flm.manager.doDelete(checklist);
+            });
 
-})
-(window);
-</script>
+        })
+        (window);
+    </script>
 {% endblock %}

@@ -4,6 +4,7 @@ plugin.ui = {
     fsBrowserContainer: "flm-browser",
     readyPromise: $.Deferred(),
     EVENTS: {
+        taskDone: 'flm.taskDone',
         'delete': 'flm.filesDelete',
         'move': 'flm.filesDelete',
         'settingsShow': "flm.settingsOnShow",
@@ -340,6 +341,11 @@ plugin.onRemove = function () {
 
 plugin.onLangLoaded = function () {
     return plugin.enabled && plugin.ui.init();
+};
+
+plugin.onTaskFinished = function(task,onBackground)
+{
+    (task.requester === plugin.name) && $(document).trigger(plugin.ui.EVENTS.taskDone, task);
 };
 
 // plugin init

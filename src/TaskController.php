@@ -54,31 +54,13 @@ class TaskController
         }
     }
 
-    public function recursiveRemove($files = null, $verbose = true): bool
+    public static function recursiveRemove($file): string
     {
+        $fName = Helper::mb_escapeshellarg(basename($file));
+        $file = Helper::mb_escapeshellarg($file);
+        $cmd = "rm -rf {$file} && echo {$fName}";
 
-        $files = is_null($files) ? $this->info->params->files : $files;
-        $hasFail = null;
-
-        foreach ($files as $file) {
-
-            $rmcmd = FsUtils::getRemoveCmd($file);
-
-            try {
-                $this->LogCmdExec($rmcmd);
-                if ($verbose) {
-                    $this->writeLog('Removed: ' . $file . ' ');
-                }
-            } catch (Throwable $err) {
-                $hasFail = $err;
-                self::errorLog($file . ' failed: ' . $err->getMessage());
-            }
-        }
-        if ($hasFail) {
-            self::errorLog('Last error trace: ' . $hasFail->getTraceAsString());
-        }
-        return empty($hasFail);
-
+        return $cmd;
     }
 
     public function LogCmdExec($cmd)
