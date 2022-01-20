@@ -46,17 +46,13 @@ class RemoteShell extends \rXMLRPCRequest
         $cmd[] = ' 2>&1';
 
         $sucmd = dirname(__FILE__) . '/../scripts/sucmd.sh';
-
-
         $ncmd = [$sucmd, implode(" ", $cmd)];
 
-        // var_dump($ncmd);
 
         $this->addCommand(new \rXMLRPCCommand('execute_capture', $ncmd));
 
         if (!$this->success()
             || ($this->getExitCode($this->val[0])->exitcode > 0)) {
-            //   var_dump($cmd, $this->val);
             throw new Exception("Error " . $this->val[0], 10);
 
         }
@@ -88,7 +84,7 @@ class RemoteShell extends \rXMLRPCRequest
         return json_decode(str_replace('\\"', '"', $matches[0]));
     }
 
-    public function execCmd($shell_cmd, $args)
+    public function execCmd($shell_cmd, $args = [])
     {
 
         $cmd = self::merge_cmd_args($shell_cmd, $args);
@@ -104,9 +100,6 @@ class RemoteShell extends \rXMLRPCRequest
         $cmd = $shell_cmd . ' ' . escapeshellarg($args) . ' > /dev/null &';
 
         $what = ['sh', '-c', $cmd];
-
-
-        //var_dump($what);
 
         $this->addCommand(new rXMLRPCCommand('execute', $what));
 

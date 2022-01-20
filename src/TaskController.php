@@ -22,6 +22,12 @@ class TaskController
         }
     }
 
+
+    public static function errorLog($line)
+    {
+        return fwrite(STDERR, $line . PHP_EOL);
+    }
+
     public function handle()
     {
         if (isset($this->info->params->workdir)
@@ -34,7 +40,8 @@ class TaskController
         $success = $this->run();
 
         $success && $this->writeLog("\n--- Done");
-        $this->recursiveRemove([$this->info->temp->dir], false);
+
+        $this->LogCmdExec( self::recursiveRemove($this->info->temp->dir));
     }
 
     public function run()
@@ -54,32 +61,75 @@ class TaskController
         }
     }
 
-    public function recursiveRemove($files = null, $verbose = true): bool
+    public static function mkdir($target, $recursive = false, $mode = null)
+    {
+        $args = ['mkdir'];
+
+        if($mode != null)
+        {
+            $args[] = '--mode=' . $mode;
+        }
+        if ($recursive) {
+            $args[] = '-p';
+        }
+
+        $args[] = Helper::mb_escapeshellarg($target);;
+
+        return $args;
+    }
+
+    public static function recursiveCopy($source, $to)
+    {
+        $fName = Helper::mb_escapeshellarg('✓ ' . basename($source));
+        $source = Helper::mb_escapeshellarg($source);
+        $to = Helper::mb_escapeshellarg($to);
+
+        return "cp -rpv {$source} {$to} && echo {$fName}";
+    }
+
+    public static function recursiveMove($file, $to): string
+    {
+        $fName = Helper::mb_escapeshellarg('✓ ' . basename($file));
+        $file = Helper::mb_escapeshellarg($file);
+        $to = Helper::mb_escapeshellarg($to);
+
+        return "mv -f ${file} ${to} && echo {$fName}";
+    }
+
+    public static function recursiveRemove($file): string
+    {
+        $fName = Helper::mb_escapeshellarg('✓ ' .basename($file));
+        $file = Helper::mb_escapeshellarg($file);
+        $cmd = "rm -rf {$file} && echo {$fName}";
+
+        return $cmd;
+    }
+
+    public function compressFiles()
     {
 
-        $files = is_null($files) ? $this->info->params->files : $files;
-        $hasFail = null;
+        $task_opts = [
+            'requester' => 'filemanager',
+            'name' => 'compress',
+            'arg' => count($this->info->params->files) . ' files in ' . $this->info->params->archive
+        ];
 
-        foreach ($files as $file) {
+        $ret = false;
+        try {
+            $cmds = [
+                'cd ' . Helper::mb_escapeshellarg($this->info->params->options->workdir),
+                '{', FsUtils::getArchiveCompressCmd($this->info->params), '}',
+            ];
 
-            $rmcmd = FsUtils::getRemoveCmd($file);
-
-            try {
-                $this->LogCmdExec($rmcmd);
-                if ($verbose) {
-                    $this->writeLog('Removed: ' . $file . ' ');
-                }
-            } catch (Throwable $err) {
-                $hasFail = $err;
-                self::errorLog($file . ' failed: ' . $err->getMessage());
-            }
+            $rtask = new rTask($task_opts);
+            $ret = $rtask->start($cmds, rTask::FLG_DEFAULT);
+        } catch (Throwable $err) {
+            $ret = $err;
         }
-        if ($hasFail) {
-            self::errorLog('Last error trace: ' . $hasFail->getTraceAsString());
-        }
-        return empty($hasFail);
 
+        return $ret;
     }
+
 
     public function LogCmdExec($cmd)
     {
@@ -101,87 +151,6 @@ CMD
         return $exitCode;
     }
 
-    public static function errorLog($line)
-    {
-        return fwrite(STDERR, $line . PHP_EOL);
-    }
-
-    public function compressFiles()
-    {
-
-        $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'compress',
-            'arg' => count($this->info->params->files) . ' files in ' . $this->info->params->archive
-        ];
-
-        $ret = false;
-        try {
-            $cmds = [
-                'cd ' . Helper::mb_escapeshellarg($this->info->params->options->workdir),
-                '{', FsUtils::getArchiveCompressCmd($this->info->params), '}',
-            ];
-
-            $rtask = new rTask($task_opts);
-            $ret = $rtask->start($cmds, rTask::FLG_DEFAULT & rTask::FLG_ECHO_CMD);
-        } catch (Throwable $err) {
-            $ret = $err;
-        }
-
-        return $ret;
-    }
-
-    public function recursiveCopy(): bool
-    {
-
-        $total = count($this->info->params->files);
-        $hasFail = null;
-        foreach ($this->info->params->files as $i => $file) {
-
-
-            $copycmd = FsUtils::getCopyCmd($file, $this->info->params->to);
-
-            try {
-                $this->LogCmdExec($copycmd);
-                $this->writeLog('OK: (' . ++$i . '/' . $total . ') -> ' . $file);
-            } catch (Throwable $err) {
-                self::errorLog($file . ': ' . $err->getMessage());
-                $hasFail = $err;
-            }
-
-        }
-
-        if ($hasFail) {
-            self::errorLog('Last error trace: ' . $hasFail->getTraceAsString());
-        }
-
-        return empty($hasFail);
-    }
-
-    public function recursiveMove(): bool
-    {
-        $hasFail = null;
-
-        foreach ($this->info->params->files as $file) {
-            $renamecmd = 'mv -f ' . Helper::mb_escapeshellarg($file) . ' ' . Helper::mb_escapeshellarg($this->info->params->to);
-            $hasFail = null;
-
-            try {
-
-                $this->LogCmdExec($renamecmd);
-                $this->writeLog('OK: ' . $file . ' -> ' . $this->info->params->to);
-            } catch (Throwable $err) {
-                $hasFail = $err;
-                self::errorLog($file . ' failed: ' . $err->getMessage());
-            }
-        }
-
-        if ($hasFail) {
-            self::errorLog('Last error trace: ' . $hasFail->getTraceAsString());
-        }
-        return empty($hasFail);
-    }
-
     public function sfvCreate()
     {
 
@@ -201,7 +170,7 @@ CMD
         foreach ($check_files as $i => $sfvinstance) {
 
             $file = $sfvinstance->getCurFile();
-            $msg = '(' . $i . '/' . $fcount . ') Hashing ' . $file . ' ... ';
+            $msg = '(' . $i . '/' . $fcount . ') Hashing ' . basename($file) . ' ... ';
 
             try {
                 $hash = SFV::getFileHash($file);
@@ -252,38 +221,6 @@ CMD
 
 
         $this->writeLog("OK: files match\n");
-    }
-
-    public function extract()
-    {
-
-        $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'unpack',
-            'arg' => count($this->info->params->files) . ' files to ' . $this->info->params->to
-        ];
-
-        try {
-            $cmds = [
-
-                'mkdir -p ' . Helper::mb_escapeshellarg($this->info->params->to),
-                '{', 'cd ' . Helper::mb_escapeshellarg($this->info->params->to), '}',
-            ];
-
-            foreach ($this->info->params->files as $file) {
-                $params = clone $this->info->params;
-                $params->file = $file;
-                $params->to = './';
-                $cmds[] = FsUtils::getArchiveExtractCmd($params);
-            }
-
-            $rtask = new rTask($task_opts);
-            $ret = $rtask->start($cmds, rTask::FLG_DEFAULT & rTask::FLG_ECHO_CMD);
-        } catch (Throwable $err) {
-            $ret = $err;
-        }
-
-        return $ret;
     }
 
 }

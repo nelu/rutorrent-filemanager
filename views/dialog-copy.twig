@@ -1,6 +1,7 @@
 {% set pathbrowse = isValidPath(currentPath)? currentPath : '/' %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
+{% set startButtonValue = theUILang.fDiagCopyBut %}
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
@@ -21,7 +22,7 @@
         destination = $.trim(destination);
 
         var deferred = $.Deferred();
-        flm.manager.logStart(theUILang.fStarts.copy);
+        flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
 
         if (!destination.length) {
             // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
@@ -40,13 +41,12 @@
             return deferred.promise();
         }
 
-        // snapshotvalue
         var cPath = flm.getCurrentPath();
         return flm.api.copy(flm.manager.getFullPaths(filePaths), flm.manager.stripHomePath(destination))
-            .then(function (response) {
-                    flm.manager.logAction('copy', filePaths.length + ' files -> ' + destination);
-                    flm.Refresh(cPath);
-                    return response;
+            .then(function (result) {
+                    // in case we are in destination
+                    flm.Refresh(filePaths.length > 1 ? destination : cPath);
+                    return result;
                 },
                 function (response) {
                     return response;
@@ -62,10 +62,7 @@
     });
 
     var updateName = function(prefix, entry) {
-
-        var path =dialogs.getTargetPath(diagId);
-
-        dialogs.updateTargetPath(diagId, flm.utils.buildPath([flm.utils.basedir(path), prefix + flm.utils.basename(entry)]) );
+        dialogs.updateTargetPath(diagId, flm.getCurrentPath(prefix + flm.utils.basename(entry)) );
     };
 
     var entries = dialogs.getCheckedList(diagId);
@@ -79,5 +76,3 @@
 (window);
 </script>
 {% endblock %}
-
-{% set startButtonValue = theUILang.fDiagCopyBut %}

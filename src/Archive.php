@@ -3,6 +3,7 @@
 namespace Flm;
 
 use \Exception;
+use rTask;
 use Throwable;
 use Utility;
 
@@ -61,7 +62,7 @@ class Archive
             'action' => 'compressFiles',
             'params' => [
                 'files' => array_map(function ($e) {
-                    return ltrim($e, '/');
+                    return basename($e);
                 }, $files),
                 'archive' => $this->file,
                 'options' => $this->options,
@@ -139,21 +140,38 @@ class Archive
 
     public function extract($to)
     {
-
-        $temp = [];
-
-        $args = [
-            'action' => 'extract',
-            'params' => ['files' => [$this->file],
-                'to' => $to,
-                'binary' => $this->getBin()
-            ]
+        $params = (object)[
+            'files' => [$this->file],
+            'to' => $to,
+            'binary' => $this->getBin()
         ];
 
-        $this->taskController->info = json_decode(json_encode($args));
-        $temp['tok'] = $this->taskController->run();
+        $task_opts = [
+            'requester' => 'filemanager',
+            'name' => 'unpack',
+            'arg' => basename($this->file)
+        ];
 
+        try {
+            $cmds = [
 
-        return $temp;
+                implode(" ", TaskController::mkdir($to, true)),
+                '{', 'cd ' . Helper::mb_escapeshellarg($to), '}',
+            ];
+
+            foreach ($params->files as $file) {
+                $params->file = $file;
+                $params->to = './';
+                $cmds[] = FsUtils::getArchiveExtractCmd($params);
+            }
+
+            $rtask = new rTask($task_opts);
+            $ret = $rtask->start($cmds, 0);
+        } catch (Throwable $err) {
+            $ret = $err;
+        }
+
+        return $ret;
+
     }
 }

@@ -380,6 +380,7 @@
 
             var client = {
                 endpoint: endpoint,
+
                 get: function (data) {
                     return this.request('GET', data);
                 },
@@ -422,9 +423,32 @@
 
             };
 
-            client.copy = function (files, to) {
+            client.runTask = function(name, data) {
+                var def = $.Deferred();
+                var plugin = getPlugin();
+                data.workdir = flm.getCurrentPath();
 
-                return client.post({
+                theWebUI.startConsoleTask( name, plugin.name, data, { noclose: true });
+
+                var runTask =  theWebUI.getConsoleTask();
+
+                var unbind = function(e, task) {
+                    if(task.no === runTask.no)
+                    {
+                        def.resolve(task);
+                    }
+                };
+
+                $(document).on(flm.EVENTS.taskDone, unbind);
+
+                return def.promise().then(function (task) {
+                    $(document).off(flm.EVENTS.taskDone, unbind);
+                    return task;
+                });
+            };
+
+            client.copy = function (files, to) {
+                return this.runTask("copy",  {
                     method: 'filesCopy',
                     to: to,
                     fls: files
@@ -433,18 +457,15 @@
             };
 
             client.move = function (files, to) {
-
-                return client.post({
+                return this.runTask("move",  {
                     method: 'filesMove',
                     to: to,
                     fls: files
                 });
-
             };
 
             client.removeFiles = function (paths) {
-
-                return client.post({
+                return this.runTask("remove",  {
                     method: 'filesRemove',
                     fls: paths
                 });
@@ -452,26 +473,10 @@
             };
 
             client.getDir = function (dir) {
-
                 return client.post({
                     'method': 'listDirectory',
                     'dir': dir
                 });
-
-                /*
-                            .then(
-                                function (response) {
-                                    callback === undefined || callback(response.listing);
-                                    return response;
-                                },
-                                function (response) {
-                                    // log(theUILang.fErrMsg[9]);
-                                    console.error(response);
-
-                                    log(theUILang.fErrMsg[10] + ' - ' + dir);
-                                    return response;
-                                }
-                            );*/
             };
 
             client.getNfo = function (file, mode) {
@@ -1693,7 +1698,6 @@
                 self.initFileBrowser();
 
                 // operation dialogs
-
                 getPlugin().ui.readyPromise.resolve(self);
 
             };
@@ -1811,14 +1815,17 @@
 
         flm.showPathPromise = null;
 
+        // events binding
+
+
         $(document).on(flm.EVENTS.browserVisible, function (e) {
 
             if (flm.showPathPromise) {
                 flm.showPathPromise.resolve();
                 flm.showPathPromise = null;
             }
-
         });
+
 
         flm.showPath = function (dir, hilight) {
 

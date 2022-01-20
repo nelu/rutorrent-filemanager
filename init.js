@@ -4,6 +4,7 @@ plugin.ui = {
     fsBrowserContainer: "flm-browser",
     readyPromise: $.Deferred(),
     EVENTS: {
+        taskDone: 'flm.taskDone',
         'delete': 'flm.filesDelete',
         'move': 'flm.filesDelete',
         'settingsShow': "flm.settingsOnShow",
@@ -297,6 +298,8 @@ theWebUI.rDirBrowser.prototype.monitorUpdates = function(){
         var self = this;
         var observer = new MutationObserver(function(mutations) {
             if(self.frame.css("visibility") === "hidden") {
+                // relative chroot path
+                self.edit.val(flm.manager.stripHomePath(self.edit.val()));
                 self.edit.change();
             }
         });
@@ -338,6 +341,11 @@ plugin.onRemove = function () {
 
 plugin.onLangLoaded = function () {
     return plugin.enabled && plugin.ui.init();
+};
+
+plugin.onTaskFinished = function(task,onBackground)
+{
+    (task.requester === plugin.name) && $(document).trigger(plugin.ui.EVENTS.taskDone, task);
 };
 
 // plugin init
