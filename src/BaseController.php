@@ -21,13 +21,18 @@ abstract class BaseController
 
     public function __construct($config)
     {
+        global $topDirectory;
 
         $this->config = $config;
+        $this->flm = new FileManager(
+            new Filesystem($topDirectory),
+            $this->config,
+            null
+        );
     }
 
     public function handleRequest()
     {
-        global $topDirectory;
 
         if (isset($_POST['action'])) {
             $action = $_POST['action'];
@@ -42,12 +47,7 @@ abstract class BaseController
         }
 
         try {
-            $this->flm = new FileManager(
-                new Filesystem($topDirectory),
-                $this->config,
-                null //isset($call['workdir']) ? $call['workdir'] : null
-                );
-
+            //isset($call['workdir']) && $this->flm->workDir($call['workdir']);
             $out = $this->_processCall((object)$call);
 
             self::jsonOut($out);
