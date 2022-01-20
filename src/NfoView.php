@@ -2,6 +2,8 @@
 
 namespace Flm;
 
+use Exception;
+
 class NfoView
 {
 
@@ -13,13 +15,17 @@ class NfoView
         $this->file = $file;
     }
 
+    /**
+     * @param bool $dos
+     * @return mixed
+     * @throws Exception
+     */
     public function get($dos = false)
     {
 
-        if (!($contents = file_get_contents($this->file))) {
+        if (($contents = file_get_contents($this->file)) === false) {
 
-            throw new \Exception("Cannot get file contents " . $this->file, 3);
-
+            throw new Exception("Cannot get file contents " . $this->file, 3);
         }
 
 
