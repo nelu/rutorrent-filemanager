@@ -42,7 +42,11 @@ abstract class BaseController
         }
 
         try {
-            $this->flm = new FileManager($topDirectory, $this->config);
+            $this->flm = new FileManager(
+                new Filesystem($topDirectory),
+                $this->config,
+                null //isset($call['workdir']) ? $call['workdir'] : null
+                );
 
             $out = $this->_processCall((object)$call);
 

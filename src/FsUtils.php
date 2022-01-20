@@ -18,18 +18,6 @@ class FsUtils
         'tar.bz2' => 'bzipExtractCmd'
     ];
 
-    public static function getCopyCmd($source, $to)
-    {
-        $source = Helper::mb_escapeshellarg($source);
-        $to = Helper::mb_escapeshellarg($to);
-        /*  $source = escapeshellarg($source);
-          $to = escapeshellarg($to);*/
-        return <<<CMD
-cp -rpv {$source} {$to} 
-CMD;
-
-    }
-
 
     public static function getArchiveCompressCmd($args)
     {
@@ -56,7 +44,6 @@ CMD;
                 __CLASS__,
                 $method_name
             ], [$params]);
-            // var_dump($cmd);
 
         }
 
@@ -80,7 +67,6 @@ CMD;
                 __CLASS__,
                 $method_name
             ], [$params]);
-            // var_dump($cmd);
 
         }
 
