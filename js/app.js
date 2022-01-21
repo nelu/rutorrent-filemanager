@@ -1,6 +1,5 @@
 (function (global) {
 
-
     function FileManagerUtils() {
 
         var utils = {
@@ -11,6 +10,7 @@
                 var fext = this.getExt(element);
                 return (this.archive_types.indexOf(fext) > -1);
             },
+
             isDir: function (element) {
                 return (element.charAt(element.length - 1) === '/');
             },
@@ -180,7 +180,7 @@
                     }
                 }
 
-                return '/' + this.trimslashes(last);
+                return '/' + last;
             },
 
             stripBasePath: function (path, basepath) {
@@ -301,13 +301,21 @@
 
             var res = [];
             var item;
+            var endingSlash = false;
             for (var i = 0; i < parts.length; i++) {
-                item = utils.trimslashes(parts[i]);
+                item = parts[i];
+                item = utils.trimslashes(item);
                 if (item !== "") {
+                    endingSlash = utils.isDir(parts[i]);
                     res.push(item);
                 }
             }
-            return '/' + res.join('/');
+            var ret =  '/' + res.join('/');
+            if(endingSlash)
+            {
+                ret += '/';
+            }
+            return ret;
 
         };
         utils.trimslashes = function (str) {
@@ -420,6 +428,7 @@
                 },
 
                 promise: null
+
             };
 
             client.runTask = function(name, data) {
@@ -452,6 +461,7 @@
                     to: to,
                     fls: files
                 });
+
             };
 
             client.move = function (files, to) {
@@ -467,6 +477,7 @@
                     method: 'filesRemove',
                     fls: paths
                 });
+
             };
 
             client.getDir = function (dir) {
@@ -483,23 +494,27 @@
                     target: file,
                     mode: mode
                 });
+
             };
 
             client.sfvCheck = function (path) {
+
                 return client.post({
                     method: 'svfCheck',
                     target: path
                 });
+
             };
 
             client.sfvCreate = function (path, files) {
+
                 return client.post({
                     method: 'sfvCreate',
                     target: path,
                     fls: files
                 });
-            };
 
+            };
 
             client.createArchive = function (archive, files, options) {
 
@@ -509,6 +524,7 @@
                     mode: options,
                     fls: files
                 });
+
             };
 
             client.extractFiles = function (archiveFiles, toDir) {
@@ -518,9 +534,11 @@
                     fls: archiveFiles,
                     to: toDir
                 });
+
             };
 
             client.mkDir = function (dir) {
+
                 return client.post({
                     method: 'newDirectory',
                     target: dir
@@ -538,11 +556,12 @@
 
             };
 
-
             return client;
+
         };
 
         var views = function () {
+
             var self = {};
             self.viewsPath = pluginUrl + '/views';
             self.namespaces = {'flm': self.viewsPath + '/'};
@@ -782,12 +801,7 @@
                             }*/
                         var target = obj.id.slice(5, obj.id.length);
 
-                        if (flm.utils.isDir(target)) {
-                            browse.navTo(target);
-                        } else {
-                            browse.getFile(target);
-                        }
-
+                        browse.open(browse.selectedTarget);
                         return (false);
                     }
                 };
@@ -843,8 +857,8 @@
 
                 // up dir path check
                 browse.isTopDir = function (path) {
-                    path = flm.utils.buildPath([path]);
-                    return (path === flm.utils.basedir(flm.currentPath));
+                    var parentDir = flm.utils.basedir(flm.currentPath);
+                    return (path === parentDir);
                 };
 
                 browse.disableTable = function () {
@@ -933,7 +947,7 @@
                     if (!flm.currentPath) {
                         var table = browse.table();
                         if (table) {
-                            flm.goToPath(flm.currentPath).then(function () {
+                            flm.goToPath('/').then(function () {
                                 table.refreshRows();
                                 $(document).trigger(flm.EVENTS.browserVisible, browse);
                                 theWebUI.resize();
@@ -961,7 +975,8 @@
                 browse.onSelectEntry = function (e, id) {
 
                     var target = id.split(browse.tableEntryPrefix)[1];
-                    browse.selectedTarget = flm.getCurrentPath(target);
+
+                    browse.selectedTarget = !browse.isTopDir(target) ? flm.getCurrentPath(target) : target;
 
                     // handles right/left click events
                     if ($type(id) && (e.button == 2)) {
@@ -1005,32 +1020,29 @@
 
                 };
 
-                browse.getEntryMenu = function (path, entries) {
+                browse.getEntryMenu = function (target, entries) {
 
                     var utils = FileManagerUtils();
-
-                    var pathIsDir = utils.isDir(path);
-                    path = '/' + utils.ltrim(path, '/');
-
+                    var pathIsDir = utils.isDir(target);
                     var flm = theWebUI.FileManager;
                     var menu = [];
 
-                    menu.push([theUILang.fOpen, (entries.length > 1) ? null : (pathIsDir ? function () {
-                        browse.navTo(path);
-                    } : function () {
-                        browse.getFile(path);
-                    })]);
+                    menu.push([
+                        theUILang.fOpen,
+                        (entries.length > 1) ? null : function () {
+                        browse.open(target);
+                    }]);
 
-                    if (!browse.isTopDir(path)) {
+                    if (!browse.isTopDir(target)) {
 
-                        var fext = utils.getExt(path);
+                        var fext = utils.getExt(target);
 
                         var txtRe = new RegExp(getPlugin().config.textExtensions);
 
                         if (fext.match(txtRe)) {
                             menu.push([theUILang.fView,
                                 function () {
-                                    self.viewNFO(path);
+                                    self.viewNFO(target);
                                 }]);
                             menu.push([CMENU_SEP]);
                         }
@@ -1040,14 +1052,13 @@
 
                         create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && entries.length ? function () {
 
-                            flm.createTorrent(path);
+                            flm.createTorrent(target);
                         } : null]);
                         create_sub.push([CMENU_SEP]);
                         create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
                         create_sub.push([theUILang.fcNewArchive, "flm.ui.showArchive()"]);
 
                         if (!utils.hasDir(entries)) {
-
                             create_sub.push([CMENU_SEP]);
                             create_sub.push([theUILang.fcSFV, "flm.ui.showSFVcreate()"]);
                         }
@@ -1065,7 +1076,7 @@
                         }
                         menu.push([CMENU_SEP]);
 
-                        if (utils.isArchive(path) && !(entries.length > 1)) {
+                        if (utils.isArchive(target) && !(entries.length > 1)) {
                             menu.push([theUILang.fExtracta, "flm.ui.getDialogs().showDialog('extract')"]);
                             menu.push([CMENU_SEP]);
                         }
@@ -1075,14 +1086,17 @@
 
                         (!pathIsDir && thePlugins.isInstalled('mediainfo'))
                         && menu.push([theUILang.fMediaI, function () {
-                            flm.doMediainfo(path);
+                            flm.doMediainfo(target);
                         }]);
-
                     } else {
                         menu.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
                     }
 
-                    menu.push([CMENU_SEP]);
+                    if(menu[menu.length-1][0] !== CMENU_SEP)
+                    {
+                        menu.push([CMENU_SEP]);
+                    }
+
                     /*  menu.push(["Permissions", "flm.ui.showPermissions()"]);*/
 
                     menu.push([theUILang.fRefresh, "flm.goToPath(flm.currentPath)"]);
@@ -1091,20 +1105,13 @@
                 };
 
                 // navigation
-                browse.navTo = function (path) {
-                    path = flm.utils.buildPath([path]);
-                    // up dir path check
-                    var fullPath = browse.isTopDir(path)
-                        ? path
-                        : flm.utils.buildPath([flm.currentPath, path]);
+                browse.open = function (path) {
 
-                    flm.goToPath(fullPath);
-                };
-
-                // get file
-                browse.getFile = function (path) {
-                    var fullPath = flm.currentPath + '/' + flm.utils.trimslashes(path);
-                    flm.getFile(fullPath);
+                    if (flm.utils.isDir(path)) {
+                        flm.goToPath(path);
+                    } else {
+                        flm.getFile(path);
+                    }
                 };
 
                 // table
@@ -1129,7 +1136,7 @@
                     table.clearRows();
 
                     if (flm.currentPath !== '/') {
-                        var path = flm.utils.basedir(flm.currentPath) + '/'; // trailing slash required, its a dir
+                        var path = flm.utils.basedir(flm.currentPath); // trailing slash required, its a dir
                         table.addRowById({
                                 name: path,
                                 size: '',
@@ -1202,13 +1209,13 @@
 
                     flm.currentPath !== '/' && entries.push('/');
 
+                    var stripDirs = self.settings.getSettingValue('stripdirs');
+
                     cpath.empty();
                     var path;
                     for (var i = 0; i < entries.length; i++) {
-
                         path = entries[i];
-                        var option = $('<option>' + path + '</option>');
-
+                        var option = $('<option>' + (stripDirs ? flm.utils.rtrim(path, '/') : path) + '</option>');
                         (path === flm.currentPath) && option.attr('selected', 'selected');
                         cpath.append(option);
                     }
@@ -1750,8 +1757,8 @@
             self.browser = browser;
 
             return self;
-        };
 
+        };
 
         flm.api = apiClient(getPlugin().path + 'action.php');
 
@@ -1760,16 +1767,19 @@
         };
 
         flm.getCurrentPath = function (file) {
-            var path = flm.currentPath + "";
-            if ($type(file)) {
-                file = file.length > 0 && flm.utils.trimslashes(file) || '';
-                path = flm.utils.buildPath([path, file]);
 
+            var path = flm.currentPath + "";
+
+            if ($type(file)) {
+                file = file.length > 0 && flm.utils.ltrim(file, '/') || '';
+                path = flm.utils.buildPath([path, file]);
             }
+
             return path;
         };
 
         flm.goToPath = function (dir) {
+
             flm.ui.disableNavigation();
             theWebUI.FileManager.inaction = true;
 
@@ -1784,7 +1794,6 @@
                              }*/
 
                         flm.currentPath = flm.utils.buildPath([dir]);
-
                         flm.ui.browser.updateNavigationPath();
                         flm.ui.browser.setTableEntries(response.listing);
 
@@ -1802,6 +1811,7 @@
 
 
         $(document).on(flm.EVENTS.browserVisible, function (e) {
+
             if (flm.showPathPromise) {
                 flm.showPathPromise.resolve();
                 flm.showPathPromise = null;
@@ -1810,6 +1820,7 @@
 
 
         flm.showPath = function (dir, hilight) {
+
             dir = flm.manager.stripHomePath(dir);
             hilight = hilight || null;
 
@@ -1833,13 +1844,14 @@
                 return value;
             });
 
-
         };
 
         flm.getFile = function (path) {
+
             // $("#flm-get-data [name ='dir']").val(flm.currentPath);
             $("#flm-get-data [name ='target']").val(path);
             $("#flm-get-data").submit();
+
         };
 
         flm.Refresh = function (dir) {
@@ -1847,11 +1859,13 @@
             if (!$type(dir) || (dir === flm.currentPath)) {
                 flm.goToPath(flm.currentPath);
             }
+
         };
 
         var manager = {
             inaction: false,
             logStart: function (message) {
+
                 //TODO: dialog id binds for stop
                 $("#flm-diag-console-stop").attr('disabled', false);
 
@@ -1867,16 +1881,6 @@
                 // flm.ui.getDialogs().hide();
             },
 
-            basedir: function (str) {
-
-                var isdir = flm.utils.isDir(str);
-                var path = flm.utils.trimslashes(str);
-
-                var bname = path.split('/').pop();
-
-                return ((isdir) ? bname + '/' : bname);
-            },
-
             cleanactions: function () {
 
                 $(".fMan_Stop").attr('disabled', true);
@@ -1888,17 +1892,23 @@
                 theWebUI.FileManager.actiontoken = 0;
                 theWebUI.FileManager.actiontimeout = 0;
                 theWebUI.FileManager.actionlp = 0;
+
             },
 
             stripHomePath: function (entry) {
+
                 return flm.utils.stripBasePath(entry, flm.getConfig().homedir);
+
             },
+
             getFullPaths: function (entries) {
+
                 for (var i = 0; i < entries.length; i++) {
                     entries[i] = flm.getCurrentPath(this.stripHomePath(entries[i]));
                 }
 
                 return entries;
+
             },
 
             createTorrent: function (target) {
@@ -1909,12 +1919,12 @@
 
                 var path = flm.utils.buildPath([homedir, isRelative ? relative : target]);
 
-
                 $('#path_edit').val(path);
 
                 if ($('#tcreate').css('display') === 'none') {
                     theWebUI.showCreate();
                 }
+
             },
 
             isErr: function (errcode, extra) {
@@ -1929,13 +1939,14 @@
                 }
 
                 return false;
+
             },
 
             logStop: function () {
+
                 flm.ui.console.hideProgress();
                 this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.FileManager.actiontoken));
                 this.cleanactions();
-
 
                 /*
                 this.clearlog();
@@ -1964,21 +1975,24 @@
             },
 
             logAction: function (action, text) {
+
                 flm.ui.console.show(action + ': ' + text);
+
             },
 
             logConsole: function (action, text) {
+
                 flm.ui.console.logMsg(action + ': ' + text);
+
             },
 
-            doMediainfo: function (what) {
+            doMediainfo: function (target) {
 
                 theWebUI.startConsoleTask("mediainfo", getPlugin().name, {
                     'action': 'fileMediaInfo',
-                    'target': what,
-                    'dir': flm.currentPath
-
+                    'target': target
                 }, {noclose: true});
+
             },
 
             recname: function (what) {
