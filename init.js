@@ -349,9 +349,7 @@ plugin.onLangLoaded = function () {
 
 plugin.onTaskFinished = function(task,onBackground)
 {
-    if(!task.hasOwnProperty('errcode') && task.errors === 0) {
-        $(document).trigger(plugin.ui.EVENTS.taskDone, task);
-    } else if(task.errors === 0) {
+  if(task.hasOwnProperty('errcode') && task.errors === 0) {
         // log to system
         //flm.utils.logSystem(task.errcode, " -> ", task.msg);
         //task.status = false;
@@ -362,7 +360,11 @@ plugin.onTaskFinished = function(task,onBackground)
         delete task.errcode;
         // log the request error as task errors
         thePlugins.get("_task").check(task);
+
+    } else if(!task.hasOwnProperty('errcode')) {
+      $(document).trigger(plugin.ui.EVENTS.taskDone, task);
     }
+
 };
 
 // plugin init

@@ -35,7 +35,7 @@ class Filesystem
             throw new Exception($target, 16);
         }
 
-        $args = TaskController::mkdir($this->rootPath($target));
+        $args = TaskController::mkdir($this->rootPath($target), $recursive, $mode);
 
         if (!RemoteShell::get()->execOutput(array_shift($args), $args)) {
             throw new Exception("Error Processing Request", 4);

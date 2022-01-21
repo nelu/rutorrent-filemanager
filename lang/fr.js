@@ -13,52 +13,54 @@ theUILang.fcheckSFV		= "Vérifier le SFV";
 theUILang.fMediaI		= "Media info";
 theUILang.fView			= "Voir";
 theUILang.fcreate		= "Créer";
-theUILang.fcNewDir		= "Créer un répertoire";
-theUILang.fcNewArchive		= 'Créer une archive';
+theUILang.fcNewDir		= "Créer un dossier";
+theUILang.fcNewArchive		= "Créer une archive";
 theUILang.fcNewTor		= "Créer un .torrent";
 theUILang.fcSFV			= "Créer un fichier SFV";
 theUILang.fRefresh		= "Rafraichir";
 
 theUILang.fErrMsg 		= [];
-theUILang.fErrMsg[1]		= "Échec du changement de répertoire.";
-theUILang.fErrMsg[2]		= "Le répertoire n'existe pas.";
+theUILang.fErrMsg[1]		= "Échec du changement de dossier.";
+theUILang.fErrMsg[2]		= "Le dossier n'existe pas.";
 theUILang.fErrMsg[3]		= "Permission refusée.";
-theUILang.fErrMsg[4]		= "Échec de la création du répertoire.";
+theUILang.fErrMsg[4]		= "Échec de la création du dossier.";
 theUILang.fErrMsg[5]		= "Fichier trop gros pour être manipulé.";
-theUILang.fErrMsg[6]		= "Aucun fichier/répertoire de ce type.";
+theUILang.fErrMsg[6]		= "Aucun fichier ou dossier de ce type.";
 theUILang.fErrMsg[7]		= "Échec du renommage - Existe déjà.";
 theUILang.fErrMsg[8]		= "Échec du renommage - Refusée.";
-theUILang.fErrMsg[9]		= "Récupération de la liste des répertoires hors délais.";
+theUILang.fErrMsg[9]		= "Récupération de l'arborescence des dossiers hors délai.";
 theUILang.fErrMsg[10]		= "Échec de la récupération du contenu du dossier.";
-theUILang.fErrMsg[11]		= "Action hors délais.";
+theUILang.fErrMsg[11]		= "Action hors délai.";
 theUILang.fErrMsg[12]		= "Quelque chose s'est mal passé.";
 theUILang.fErrMsg[13]		= "Erreur d'accès au fichier.";
-theUILang.fErrMsg[14]		= "Erreur avec Mediainfo.";
-theUILang.fErrMsg[15]		= "Les binaire de Mediainfo n'ont pas été trouvés, modifier votre config.php.";
-theUILang.fErrMsg[16]		= "LE fichier existe déjà.";
-theUILang.fErrMsg[17]		= "Le dossier temporaire n'est pas configuré, modifier votre config.php.";
+theUILang.fErrMsg[14]		= "Erreur avec MediaInfo.";
+theUILang.fErrMsg[15]		= "L'exécutable de MediaInfo n'a pas été trouvé, modifiez votre config.php.";
+theUILang.fErrMsg[16]		= "Le fichier existe déjà.";
+theUILang.fErrMsg[17]		= "Le dossier temporaire n'est pas configuré, modifiez votre config.php.";
 theUILang.fErrMsg[18]		= "Fichier non valide.";
 theUILang.fErrMsg[19]		= "Commande déjà terminée.";
 theUILang.fErrMsg[20]		= "Échec de l'arrêt du processus.";
 theUILang.fErrMsg[21]		= "L'action est terminée.";
-theUILang.fErrMsg[22]		= "Rien de marche avec.";
+theUILang.fErrMsg[22]		= "Rien à faire.";
 theUILang.fErrMsg[23]		= "Échec de l'action.";
-theUILang.fErrMsg[24]		= 'Manipulation des archives désactivée (applications introuvables)';
+theUILang.fErrMsg[24]		= "Manipulation des archives désactivée (application introuvable)";
 
 
 
 
 theUILang.flm_popup_mkdir	= "Créer un nouveau dossier";
+theUILang.flm_popup_mkdir_cpath = "Localisation :";
+theUILang.flm_popup_mkdir_new 	= 'Nouveau dossier';
 theUILang.fDiagndirname		= "Nom du dossier";
 theUILang.fDiagnodirname 	= "Veuillez entrer un nom de dossier.";
-theUILang.flm_popup_permissions = 'Permissions';
-theUILang.flm_popup_rename 	= "Renommer un fichier / dossier";
+theUILang.flm_popup_permissions = "Permissions";
+theUILang.flm_popup_rename 	= "Renommer un fichier/dossier";
 theUILang.fDiagRenameTo 	= "Renommer en :";
 theUILang.fDiagRenameBut	= "Renommer";
 theUILang.fDiagRenameEmpty	= "Veuillez entrer un nouveau nom.";
 theUILang.fDiagInvalidname	= "Nom invalide.";
 
-theUILang.fDiagAexist		= "Le fichier / dossier existe déjà.";
+theUILang.fDiagAexist		= "Le fichier/dossier existe déjà.";
 
 theUILang.fDiagStart		= "Démarrer";
 theUILang.fDiagStop		= "Stop";
@@ -67,23 +69,23 @@ theUILang.fDiagTo		= "Vers :";
 theUILang.fDiagNoPath		= "Destination non permise";
 
 
-theUILang.fDiagCopyBut		= 'Copier';
-theUILang.fDiagMoveBut 		= 'Déplacer';
+theUILang.fDiagCopyBut		= "Copier";
+theUILang.fDiagMoveBut 		= "Déplacer";
 
-theUILang.flm_popup_delete	= "Supprimer des dossiers / fichiers";
-theUILang.fDiagDeleteSel	= "Fichiers marqués à supprimer :";
+theUILang.flm_popup_delete	= "Supprimer un ou plusieurs fichiers/dossiers";
+theUILang.fDiagDeleteSel	= "Élément(s) marqué(s) à supprimer :";
 theUILang.fDiagDeleteBut	= "Supprimer";
 
 theUILang.flm_popup_console	= "Console";
 
-theUILang.flm_popup_move	= "Déplacer des dossiers / fichiers";
-theUILang.fDiagMoveSel		= "Fichiers marqués à déplacer:";
-theUILang.fDiagMoveTo		= "Déplacer les fichiers vers :";
-theUILang.fDiagMoveEmpty	= "Veuillez sélectionne le chemin où doit être déplacés les fichiers.";
+theUILang.flm_popup_move	= "Déplacer un ou plusieurs fichiers/dossiers";
+theUILang.fDiagMoveSel		= "Élément(s) marqué(s) à déplacer :";
+theUILang.fDiagMoveTo		= "Déplacer vers :";
+theUILang.fDiagMoveEmpty	= "Veuillez sélectionner l'endroit où déplacer le ou les éléments.";
 theUILang.fDiagMoveFalse	= "Chemin non permis";
 
-theUILang.flm_popup_copy	= "Copier des dossiers / fichiers";
-theUILang.fDiagCopySel		= "Fichiers marqués pour le copiage:";
+theUILang.flm_popup_copy	= "Copier un ou plusieurs fichiers/dossiers";
+theUILang.fDiagCopySel		= "Élément(s) marqué(s) à copier :";
 theUILang.fDiagCopyTo		= "Copier vers :";
 
 theUILang.flm_popup_nfo_view	= "Lecteur de fichier texte";
@@ -91,25 +93,26 @@ theUILang.flm_popup_sfv_check	= "Simple File Verification";
 theUILang.fDiagSFVCheckf	= "Fichier checksum :";
 
 theUILang.flm_popup_sfv_create	= "Créer un fichier SFV";
-theUILang.fDiagSFVCreateSel	= "Fichiers marqués pour le hashage :";
-theUILang.fDiagSFVHashfile	= "Enregister le fichier vers :";
+theUILang.fDiagSFVCreateSel	= "Élément(s) sélectionné(s) pour le hashage :";
+theUILang.fDiagSFVHashfile	= "Enregister le fichier de hash vers :";
 
 theUILang.fDiagSFVempty		= "Veuillez nommer le fichier de hash.";
 
 theUILang.flm_popup_archive	= "Créer une archive";
-theUILang.fDiagCArchType	= "Type:";
-theUILang.fDiagCArchVsize	= "Taille des volumes (Mo):";
+theUILang.fDiagOptions		= "Options :";
+theUILang.fDiagCArchType	= "Type :";
+theUILang.fDiagCArchVsize	= "Taille des volumes (en Mo) :";
 
-theUILang.fManArComp 		= []; 
+theUILang.fManArComp 		= {};
 
 // rar
-theUILang.fManArComp.rar 	= ["Stocker", "Très rapide", "Rapide", "Normal", "Bon", "Meilleur"];
+theUILang.fManArComp.rar 	= ["Aucune", "La plus rapide", "Rapide", "Normale", "Bonne", "La meilleure"];
 
 // zip
-theUILang.fManArComp.zip 	= ["Stocker", "Rapide", "Meilleur"];
+theUILang.fManArComp.zip 	= ["Aucune", "Rapide", "La meilleure"];
 
 // tar
-theUILang.fManArComp.tar	= ['none', 'gzip', 'bzip2'];
+theUILang.fManArComp.tar 	= ["aucune", "gzip", "bzip2"];
 
 theUILang.fDiagCArchiveSel	= "Ajouter à l'archive :";
 theUILang.fDiagExtract		= "Extraire une archive";
@@ -118,24 +121,24 @@ theUILang.fDiagCompression	= "Compression :";
 theUILang.flm_diag_extract_button = "Extraire";
 theUILang.fDiagArchempty	= "Veuillez entrer un nom d'archive.";
 
-theUILang.fStarts = { 
-	delete: 	"Suppression des fichiers démarrée.",
-	extract:	"Extraction de l'archive démarrée.",
-	archive: 	"Mise en archive démarrée.",
+theUILang.fStarts = {
+	delete: 	"Suppression démarrée.",
+	extract:	"Extraction démarrée.",
+	archive: 	"Création d'une archive démarrée.",
 	check_sfv: 	"Vérification du hash démarrée.",
 	create_sfv:	"Calcul du hash démarré.",
-	move:		"Déplacement des fichiers démarré.",
-	copy:		"Copiage des fichiers démarré."
+	move:		"Déplacement démarré.",
+	copy:		"Copie démarrée."
 };
 
-theUILang.fStops = { 
-	Delete: 	"Suppression des fichiers arrêtée.",
-	Extract:	"Extraction de l'archive arrêtée.",
-	CArchive: 	"Mise en archive arrêtée.",
+theUILang.fStops = {
+	Delete: 	"Suppression arrêtée.",
+	Extract:	"Extraction arrêtée.",
+	CArchive: 	"Création d'une archive arrêtée.",
 	CheckSFV: 	"Vérification du hash arrêtée.",
 	CreateSFV:	"Calcul du hash arrêté.",
-	Move:		"Déplacement des fichiers arrêté.",
-	Copy:		"Copiage des fichiers arrêté."
+	Move:		"Déplacement arrêté.",
+	Copy:		"Copie arrêtée."
 };
 
 thePlugins.get("filemanager").langLoaded();

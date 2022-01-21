@@ -192,9 +192,9 @@ class FileManager
         return $res;
     }
 
-    public function mediainfo($paths)
+    public function mediainfo($path)
     {
-        $file = $this->currentDir($paths->target);
+        $file = $this->currentDir($path->target);
 
         if (!$this->fs->isFile($file)) {
             throw new Exception( $file, 6);
@@ -214,7 +214,7 @@ class FileManager
             file_put_contents($randName, $st->data["mediainfotemplate"]);
             $flags = "--Inform=file://" . escapeshellarg($randName);
         }
-        $commands[] = Utility::getExternal("mediainfo") . " " . $flags . " " . Helper::mb_escapeshellarg($this->getFsPath($paths->target));
+        $commands[] = Utility::getExternal("mediainfo") . " " . $flags . " " . Helper::mb_escapeshellarg($this->getFsPath($path->target));
         $ret = $task->start($commands, rTask::FLG_WAIT);
 
         return $ret;
