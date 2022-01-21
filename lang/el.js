@@ -49,6 +49,8 @@ theUILang.fErrMsg[24]	= 'File Manager: archive manipulation disabled (applicatio
 
 
 theUILang.flm_popup_mkdir		= 'Create new directory';
+theUILang.flm_popup_mkdir_cpath = 'Inside path:';
+theUILang.flm_popup_mkdir_new 	= 'New Folder';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
 theUILang.flm_popup_permissions = 'File permissions';
@@ -97,6 +99,7 @@ theUILang.fDiagSFVHashfile	= 'Save hash file to:';
 theUILang.fDiagSFVempty	= 'Please name a sfv file';
 
 theUILang.flm_popup_archive	= 'Create Archive';
+theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
 
@@ -109,7 +112,7 @@ theUILang.fManArComp.rar = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'
 theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 
 // tar
-theUILang.fManArComp.tar	= ['none', 'gzip', 'bzip2'];
+theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
 theUILang.flm_popup_extract	= 'Extract Archive';

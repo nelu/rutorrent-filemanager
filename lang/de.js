@@ -49,6 +49,8 @@ theUILang.fErrMsg[24]	= 'Archiv Manipulation deaktiviert (Anwendung nicht gefund
 
 
 theUILang.flm_popup_mkdir		= 'Erstelle neues Verzeichnis';
+theUILang.flm_popup_mkdir_cpath = 'Inside path:';
+theUILang.flm_popup_mkdir_new 	= 'New Folder';
 theUILang.fDiagndirname	= 'Verzeichnis Name';
 theUILang.fDiagnodirname 	= 'Bitte Verzeichnisnamen eingeben!';
 theUILang.flm_popup_permissions = 'Permissions';
@@ -94,18 +96,19 @@ theUILang.fDiagSFVHashfile	= 'Speichere SFV-Datei nach:';
 theUILang.fDiagSFVempty	= 'Benenne die SFV-Datei';
 
 theUILang.flm_popup_archive	= 'Erstelle Archiv';
+theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Typ:';
 theUILang.fDiagCArchVsize	= 'Dateigröße (mb):';
 
-theUILang.fManArComp = []; 
+theUILang.fManArComp = {}; 
 
 // rar
-theUILang.fManArComp[0] = ['Speichern', 'Schnellste', 'Schnell', 'Normal', 'Gut', 'Beste'];
+theUILang.fManArComp.rar = ['Speichern', 'Schnellste', 'Schnell', 'Normal', 'Gut', 'Beste'];
 // zip
-theUILang.fManArComp[1] = ['Speichern', 'Schnell', 'Besser'];
+theUILang.fManArComp.zip = ['Speichern', 'Schnell', 'Besser'];
 
 // tar
-theUILang.fManArComp[2]	= theUILang.fManArComp[3] = theUILang.fManArComp[4] = ['Normal'];
+theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Zum Archiv hinzufügen:';
 theUILang.fDiagExtract	= 'Entpacke Archive';

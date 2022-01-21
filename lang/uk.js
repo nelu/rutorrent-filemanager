@@ -50,6 +50,8 @@ theUILang.fErrMsg[24]	= 'archive manipulation disabled (application not found)';
 
 
 theUILang.flm_popup_mkdir		= 'Create new directory';
+theUILang.flm_popup_mkdir_cpath = 'Inside path:';
+theUILang.flm_popup_mkdir_new 	= 'New Folder';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
 theUILang.flm_popup_permissions = 'Permissions';
@@ -98,18 +100,19 @@ theUILang.fDiagSFVHashfile	= 'Save hash file to:';
 theUILang.fDiagSFVempty	= 'Please name a sfv file';
 
 theUILang.flm_popup_archive	= 'Create Archive';
+theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
 
-theUILang.fManArComp = []; 
+theUILang.fManArComp = {}; 
 
 // rar
-theUILang.fManArComp[0] = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'];
+theUILang.fManArComp.rar = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'];
 // zip
-theUILang.fManArComp[1] = ['Store', 'Fast', 'Better'];
+theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 
 // tar
-theUILang.fManArComp[2]	= theUILang.fManArComp[3] = theUILang.fManArComp[4] = ['Default'];
+theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
 theUILang.fDiagExtract	= 'Extract Archive';
