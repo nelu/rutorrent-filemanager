@@ -124,6 +124,8 @@
                     case 'gif':
                         iko += 'sprite-image';
                         break;
+                    case 'log':
+                    case 'txt':
                     case 'nfo':
                         iko += 'sprite-nfo';
                         break;
@@ -373,7 +375,7 @@
                 .get('filemanager');
         };
 
-        var pluginUrl = getPlugin().path; //'plugins/filemanager';
+        var pluginUrl = getPlugin().path; // = 'plugins/filemanager/';
         var flm = {
             EVENTS: getPlugin().ui.EVENTS,
             currentPath: null,
@@ -563,7 +565,7 @@
         var views = function () {
 
             var self = {};
-            self.viewsPath = pluginUrl + '/views';
+            self.viewsPath = pluginUrl + 'views';
             self.namespaces = {'flm': self.viewsPath + '/'};
 
 
@@ -574,7 +576,7 @@
             }
 
             self.getView = function (name, options, fn) {
-                //
+
                 options = options || {};
                 var filename = name + '.twig';
 
@@ -1076,7 +1078,7 @@
                         }
                         menu.push([CMENU_SEP]);
 
-                        if (utils.isArchive(target) && !(entries.length > 1)) {
+                        if (utils.isArchive(target)) {
                             menu.push([theUILang.fExtracta, "flm.ui.getDialogs().showDialog('extract')"]);
                             menu.push([CMENU_SEP]);
                         }

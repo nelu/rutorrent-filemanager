@@ -153,64 +153,66 @@ CMD
 
     public function sfvCreate()
     {
-
         if (($sfvfile = fopen($this->info->params->target, "abt")) === FALSE) {
-
             $this->writeLog('0: SFV HASHING FAILED. File not writable ' . $this->info->params->target);
         }
 
         // comments
         fwrite($sfvfile, "; ruTorrent filemanager;\n");
 
-
         $check_files = new SFV($this->info->params->files);
-        $fcount = count($this->info->params->files);
 
+        $fcount = count($this->info->params->files);
 
         foreach ($check_files as $i => $sfvinstance) {
 
+            $i++;
+
             $file = $sfvinstance->getCurFile();
-            $msg = '(' . $i . '/' . $fcount . ') Hashing ' . basename($file) . ' ... ';
+
+            $msg = '(' . $i . '/' . $fcount . ') Hashing "' . $file . '" ... ';
 
             try {
+
                 $hash = SFV::getFileHash($file);
 
-                fwrite($sfvfile, end(explode('/', $file)) . ' ' . $hash . "\n");
+                $arr = explode('/', $file);
+                fwrite($sfvfile, end($arr) . ' ' . $hash . "\n");
                 $this->writeLog($msg . ' - OK ' . $hash);
+
             } catch (Exception $err) {
+
                 $this->writeLog($msg . ' - FAILED:' . $err->getMessage());
 
             }
 
-
         }
-
-        fclose($sfvfile);
-
-
+        $this->writeLog("\n--- Done");
     }
 
     public function sfvCheck()
     {
 
-
         $check_files = new SFV($this->info->params->target);
 
         $fcount = $check_files->length();
 
-
         foreach ($check_files as $i => $item) {
 
-            $file = $item->getCurFile();
+            $i++;
 
-            $msg = '(' . $i . '/' . $fcount . ') Checking ' . trim($file) . ' ... ';
+            $file = implode(' ', explode(' ', $item->getCurFile(), -1));
+
+            $msg = '(' . $i . '/' . $fcount . ') Checking "' . trim($file) . '" ... ';
 
             try {
 
                 if (!$item->checkFileHash()) {
-                    $this->writeLog($msg . '- FAILED: hash mismatch ');
+                    $this->writeLog($msg . '- Hash mismatch!');
+                } else {
+                    $this->writeLog($msg . '- OK');
                 }
-                $this->writeLog($msg . '- OK ');
+
             } catch (Exception $err) {
 
                 $this->writeLog($msg . '- FAILED:' . $err->getMessage());
@@ -218,9 +220,7 @@ CMD
             }
 
         }
-
-
-        $this->writeLog("OK: files match\n");
+        $this->writeLog("\n--- Done");
     }
 
 }

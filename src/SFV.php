@@ -65,17 +65,18 @@ class SFV implements \Iterator
     public function checkFileHash($against = null)
     {
 
-
         $parts = explode(' ', trim($this->file));
 
         if (count($parts) < 2) {
             throw new Exception("Invalid line " . implode(' ', $this->file), 1);
         }
 
-        $file = array_shift($parts);
-        $hash = array_pop($parts);
+        $read_hash = array_pop($parts);
 
-        return (self::getFileHash($file) == $hash);
+        $file = implode(' ', $parts);
+        $calc_hash = self::getFileHash($file);
+
+        return ($calc_hash === $read_hash);
 
     }
 
@@ -83,10 +84,11 @@ class SFV implements \Iterator
     {
 
         if (!is_file($file)) {
-            throw new \Exception(' FAILED: no such file ' . $file, 1);
+            throw new \Exception(' No such file found...', 1);
         }
 
         return hash_file('crc32b', $file);
+
     }
 
     public function length()
