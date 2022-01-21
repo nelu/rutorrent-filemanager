@@ -7,8 +7,6 @@ use CachedEcho;
 use SendFile;
 use Throwable;
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '/BaseController.php';
-
 // web controller
 class WebController extends BaseController
 {

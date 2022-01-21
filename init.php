@@ -5,10 +5,11 @@ use Flm\WebController;
 
 $pluginDir = dirname(__FILE__);
 
-require_once( dirname(__FILE__)."/../../php/util.php" );
+require_once( $pluginDir."/boot.php" );
 require_once ($pluginDir . '/src/Helper.php');
 require_once ($pluginDir . '/src/FileManager.php');
 require_once ($pluginDir . '/src/Filesystem.php');
+require_once ($pluginDir . '/src/BaseController.php');
 require_once ($pluginDir . '/src/WebController.php');
 
 

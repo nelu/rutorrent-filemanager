@@ -269,8 +269,6 @@ class FileManager
             throw new Exception($file, 18);
         }
 
-        require_once dirname(__FILE__) . '/NfoView.php';
-
         $nfo = new NfoView($fullpath);
 
         return $nfo->get($dos);

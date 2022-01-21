@@ -16,6 +16,28 @@ class Helper
 
     protected static $config;
 
+
+    public static function registerAutoload($dir = __DIR__, $prefix = __NAMESPACE__) {
+        spl_autoload_register(function ($class) use ($dir, $prefix) {
+
+            $prefix .=  '\\';
+            // does the class use the namespace prefix?
+            if (stripos($class, $prefix) === false)
+            {
+                return;
+            }
+
+
+            // replace the namespace prefix with the base directory, replace namespace
+            // separators with directory separators in the relative class name, append
+            // with .php
+            $file =  $dir . '/'. str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+      
+            if (file_exists($file)) {
+                require $file;
+            }
+        });
+    }
     public static function getTempDir($token = null)
     {
 
@@ -158,3 +180,4 @@ class mediainfoSettings
         return ($cache->get($rt) ? $rt : null);
     }
 }
+
