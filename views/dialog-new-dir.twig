@@ -3,10 +3,6 @@
 <div>
     <fieldset>
         <legend>{{ theUILang.fcNewDir }}</legend>
-        <div style="padding-top:3px; padding-bottom:4px;">
-            <label for="flm_popup_mkdir-currentpath"><strong>Inside path: </strong></label>
-            <pre id="flm_popup_mkdir-currentpath" style="overflow-x: scroll">{{ currentPath }}</pre>
-        </div>
         <label for="fMan-ndirname"><strong>{{ theUILang.Name }}:</strong></label>
         <input type="text"
                name="fMan-ndirname"
@@ -33,8 +29,10 @@
                     return deferred.promise();
                 }
 
-                if (flm.ui.browser.fileExists(ndn) || flm.ui.browser.fileExists(ndn + '/')) {
-                    deferred.reject(theUILang.fDiagAexist);
+                var fileName = flm.utils.basename(ndn);
+
+                if (flm.ui.browser.fileExists(fileName) || flm.ui.browser.fileExists(fileName + '/')) {
+                    deferred.reject(theUILang.fDiagAexist, ndn);
                     return deferred.promise();
                 }
 

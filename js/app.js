@@ -19,7 +19,7 @@
 
                 var logMsg = arguments[0];
 
-                for (var i = 1; arguments.length < i; i++) {
+                for (var i = 1; i < arguments.length; i++) {
                     logMsg += arguments[i];
                 }
                 log('filemanager: ' + logMsg)
@@ -1375,8 +1375,8 @@
                                         promise.then(function () {
                                                 dialogs.hide(diagId);
                                             },
-                                            function (reason) {
-                                                flm.utils.logSystem(JSON.stringify(reason));
+                                            function (reason, arg) {
+                                                flm.utils.logSystem(reason,  " -> ", arg);
                                             });
                                     }
                                 });
