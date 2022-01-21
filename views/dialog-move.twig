@@ -1,72 +1,68 @@
 {% set pathbrowse = currentPath %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
+{% set startButtonValue = theUILang.fDiagMoveBut %}
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-    <legend>{{ theUILang.fDiagMoveSel  }}</legend>
+    <legend>{{ theUILang.fDiagMoveSel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
-(function (global) {
-    var dialogs = flm.ui.getDialogs();
-    var diagId = dialogs.getDialogId('window');
+    <script>
+        (function (global) {
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId('window');
 
 
+            if (!flm.manager.hasOwnProperty('doMove')) {
+                // service
+                flm.manager.doMove = function (filePaths, destination) {
 
-    if(!flm.manager.hasOwnProperty('doMove')) {
-        // service
-        flm.manager.doMove = function (filePaths, destination) {
+                    destination = $.trim(destination);
 
-        destination = $.trim(destination);
+                    var deferred = $.Deferred();
+                    flm.manager.logConsole(theUILang.fStarts.move, filePaths.length + " files");
 
-        var deferred = $.Deferred();
-        flm.manager.logStart(theUILang.fStarts.move);
+                    if (!destination.length) {
+                        // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                        deferred.reject('move: ' + theUILang.fDiagInvalidname);
+                        return deferred.promise();
+                    }
 
-        if (!destination.length) {
-            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-            deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
-            return deferred.promise();
-        }
+                    if (!$type(filePaths) || filePaths.length === 0) {
+                        deferred.reject('move: ' + 'Empty paths');
+                        return deferred.promise();
+                    }
 
-        if(!$type(filePaths) || filePaths.length === 0)
-        {
-            deferred.reject('move: ' + 'Empty paths');
-            return deferred.promise();
-        }
+                    if (!flm.utils.isValidPath(destination)) {
+                        // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                        deferred.reject('move: ' + theUILang.fDiagInvalidname);
+                        return deferred.promise();
+                    }
 
-        if (!flm.utils.isValidPath(destination)) {
-            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-            deferred.reject( 'move: ' + theUILang.fDiagInvalidname);
-            return deferred.promise();
-        }
-        var cPath = flm.getCurrentPath();
+                    var paths = flm.manager.getFullPaths(filePaths);
+                    var cPath = flm.getCurrentPath();
 
-        var paths = flm.manager.getFullPaths(filePaths);
-        destination = flm.manager.stripHomePath(destination);
-        return flm.api.move(paths, destination)
-            .then(function (response) {
-                    flm.manager.logAction('move', filePaths.length + ' files -> ' +destination);
-                    flm.Refresh(cPath);
-                    $(document).trigger(flm.EVENTS.move, [paths, destination]);
+                    return flm.api.move(paths, destination)
+                        .then(function (result) {
+                                flm.Refresh(cPath === flm.getCurrentPath() ? cPath : destination);
+                                $(document).trigger(flm.EVENTS.move, [paths, destination]);
+                                return result;
+                            },
+                            function (response) {
+                                return response;
+                            });
+                };
+            }
 
-                    return response;
-                },
-                function (response) {
-                    return response;
-                });
-    };
-    }
+            dialogs.onStart(function () {
+                return flm.manager.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
+            });
 
-    dialogs.onStart(function () {
-        return flm.manager.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
-    });
-
-})
-(window);
-</script>
+        })
+        (window);
+    </script>
 {% endblock %}
 
-{% set startButtonValue = theUILang.fDiagMoveBut %}
 

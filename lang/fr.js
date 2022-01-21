@@ -13,10 +13,10 @@ theUILang.fcheckSFV		= "Vérifier le SFV";
 theUILang.fMediaI		= "Media info";
 theUILang.fView			= "Voir";
 theUILang.fcreate		= "Créer";
-theUILang.fcNewDir		= "un répertoire";
-theUILang.fcNewArchive		= 'une archive';
-theUILang.fcNewTor		= "un .torrent";
-theUILang.fcSFV			= "un fichier SFV...";
+theUILang.fcNewDir		= "Créer un répertoire";
+theUILang.fcNewArchive		= 'Créer une archive';
+theUILang.fcNewTor		= "Créer un .torrent";
+theUILang.fcSFV			= "Créer un fichier SFV";
 theUILang.fRefresh		= "Rafraichir";
 
 theUILang.fErrMsg 		= [];
@@ -86,7 +86,7 @@ theUILang.flm_popup_copy	= "Copier des dossiers / fichiers";
 theUILang.fDiagCopySel		= "Fichiers marqués pour le copiage:";
 theUILang.fDiagCopyTo		= "Copier vers :";
 
-theUILang.flm_popup_nfo_view	= "Lecteur de .NFO";
+theUILang.flm_popup_nfo_view	= "Lecteur de fichier texte";
 theUILang.flm_popup_sfv_check	= "Simple File Verification";
 theUILang.fDiagSFVCheckf	= "Fichier checksum :";
 

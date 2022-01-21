@@ -35,11 +35,10 @@ class Helper
 
     protected static function newTempDir()
     {
-
         $tmp['dir'] = FileUtil::getTempFilename('fman') . DIRECTORY_SEPARATOR;
         $tmp['tok'] = basename($tmp['dir']);
 
-        Filesystem::get()->mkdir($tmp['dir'], true, 777);
+        (new Filesystem('/'))->mkdir($tmp['dir'], true, 777);
 
         return $tmp;
     }
@@ -131,29 +130,6 @@ class Helper
         }
 
         return $filename;
-    }
-
-    public function readTaskLog($file, $lpos = 0)
-    {
-
-        $output = [];
-
-        $log['pos'] = (filter_var($lpos, FILTER_VALIDATE_INT) !== FALSE) ? $lpos : 0;
-        $log['file'] = $file;
-
-
-        $log['contents'] = file($log['file']);
-        $log['slice'] = array_slice($log['contents'], $log['pos']);
-
-        $output['lp'] = $log['pos'] + count($log['slice']);
-        $output['status'] = (trim(substr(end($log['contents']), 0, 2)) == 1) ? 1 : 0;
-
-        $output['lines'] = '';
-
-        foreach ($log['slice'] as $line) {
-            $output['lines'] .= trim(substr($line, 2, -1)) . "\n";
-        }
-        return $output;
     }
 }
 

@@ -35,31 +35,13 @@ class WebController extends BaseController
         return $settings;
     }
 
-    public function taskLog($params)
-    {
-
-        $output = $this->flm()->readTaskLogFromPos($params->target, $params->to);
-
-        $output['error'] = 0;
-
-        return $output;
-    }
-
-    public function kill()
-    {
-        //$e->kill($e->postlist['target']);
-    }
-
     public function newDirectory($params)
     {
-
         if (!isset($params->target)) {
             self::jsonError(16);
         }
 
-        $this->flm()->mkdir($params->target);
-
-        return ['error' => 0];
+        return ['error' => !$this->flm()->newDir($params->target)];
     }
 
     public function fileDownload()
@@ -67,7 +49,7 @@ class WebController extends BaseController
 
         $data = $this->_getPostData(['target' => 16], false);
 
-        $sf = $this->flm()->getWorkDir($data['target']);
+        $sf = $this->flm()->getFsPath($data['target']);
 
         if (!SendFile::send($sf)) {
             CachedEcho::send('log(theUILang.fErrMsg[6]+" - ' . $sf . ' / "+theUILang.fErrMsg[3]);', "text/html");
@@ -77,7 +59,6 @@ class WebController extends BaseController
 
     public function fileMediaInfo()
     {
-
         $data = $this->_getPostData(['target' => 16], false);
         $temp = $this->flm()->mediainfo((object)$data);
 
@@ -95,13 +76,18 @@ class WebController extends BaseController
             self::jsonError(18);
         }
 
-        $this->flm()->rename(['from' => $params->target, 'to' => $params->to]);
+        $res = $this->flm()->rename((object)
+        [
+            'file' => $params->target,
+            'to' => $params->to
+        ]);
 
-        return ['error' => 0];
+        return ['error' => !$res];
     }
 
     public function filesCompress($params)
     {
+
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
@@ -141,10 +127,8 @@ class WebController extends BaseController
 
         $temp = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
 
-
         return ['error' => 0, 'tmpdir' => $temp[0]['tok']];
     }
-
 
     public function filesCopy($params)
     {
@@ -157,9 +141,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        $temp = $this->flm()->copy($params);
+        $task = $this->flm()->copy($params);
 
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function filesMove($params)
@@ -173,10 +157,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        $temp = $this->flm()->move($params);
+        $task = $this->flm()->move($params);
 
-
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function filesRemove($params)

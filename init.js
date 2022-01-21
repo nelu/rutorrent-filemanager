@@ -154,10 +154,10 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
     flm.ui.browser.selectedEntries = selectedEntries;
     var fileManagerSubmenu = [];
     if (selected) {
-        fileManagerSubmenu = flm.ui.browser.getEntryMenu(selectedPath, selectedEntries);
+
+        fileManagerSubmenu = flm.ui.browser.getEntryMenu(selectedName, selectedEntries);
 
         $(document).trigger(plugin.ui.EVENTS.entryMenu, [fileManagerSubmenu, selectedPath]);
-
 
         var remove = [
             theUILang.fOpen,
@@ -201,11 +201,15 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
     }
 
     fileManagerSubmenu.unshift([theUILang.fOpen, function () {
-
         flm.showPath(currentTorrentDirPath, selectedName);
     }
     ]);
-    theContextMenu.add([CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
+
+    var el = theContextMenu.get(theUILang.Priority);
+    if(el)
+    {
+        theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
+    }
 
     $(document).trigger(plugin.ui.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
 

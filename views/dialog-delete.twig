@@ -1,8 +1,8 @@
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
+{% set startButtonValue = theUILang.fDiagDeleteBut %}
 
 {% extends "flm::dialog-window.twig" %}
-{% set startButtonValue = theUILang.fDiagDeleteBut %}
 {% block heading %}
     <legend>{{ theUILang.fDiagDeleteSel }}</legend>
 {% endblock %}
@@ -27,9 +27,8 @@
                     //this.logStart(theUILang.fStarts['delete']);
 
                     paths = flm.manager.getFullPaths(paths);
-                    flm.manager.logConsole('delete', 'Removing selected entries: ' + paths.length );
 
-                    return flm.api.removeFiles(paths).then(function(result) {
+                    return flm.api.removeFiles(paths).then(function (result) {
                         flm.Refresh(result.params.workdir);
                         $(document).trigger(flm.EVENTS.delete, [paths]);
                         return result;
