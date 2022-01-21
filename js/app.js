@@ -1927,21 +1927,6 @@
 
             },
 
-            isErr: function (errcode, extra) {
-
-                if (!$type(extra)) {
-                    extra = '';
-                }
-
-                if (errcode > 0) {
-                    log('FILE MANAGER: ' + theUILang.fErrMsg[errcode] + " : " + extra);
-                    return true;
-                }
-
-                return false;
-
-            },
-
             logStop: function () {
 
                 flm.ui.console.hideProgress();

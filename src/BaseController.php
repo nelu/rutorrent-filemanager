@@ -53,14 +53,14 @@ abstract class BaseController
             self::jsonOut($out);
 
         } catch (Throwable $err) {
-            self::jsonError(['code' => $err->getCode(), 'msg' => $err->getMessage()]);
+            self::jsonError( $err->getCode(), $err->getMessage());
         }
 
     }
 
     public static function jsonError($errcode, $msg = 'Internal error')
     {
-        self::jsonOut(['errcode' => $errcode, 'status' => 'ERROR', 'msg' => $msg]);
+        self::jsonOut(['errcode' => $errcode, 'msg' => $msg, 'status' => 'error']);
         die();
     }
 
