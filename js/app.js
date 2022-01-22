@@ -23,6 +23,21 @@
                     logMsg += arguments[i];
                 }
                 log('filemanager: ' + logMsg)
+            },
+
+
+            logError: function (errcode, extra) {
+
+                if (!$type(extra)) {
+                    extra = '';
+                }
+
+                if (errcode > 0) {
+                    $codeMsg =  $type(theUILang.fErrMsg[errcode] )
+                        ? theUILang.fErrMsg[errcode]
+                        : errcode;
+                    flm.utils.logSystem($codeMsg , " -> ", extra);
+                }
 
             },
 
@@ -418,7 +433,8 @@
                         success: function (data) {
                             if (data.hasOwnProperty('errcode')
                                 || (data.hasOwnProperty('error') && data.error)) {
-                                deferred.reject({'response': data});
+
+                                deferred.reject(data.errcode, data.msg);
 
                             } else {
                                 deferred.resolve(data);
@@ -1378,7 +1394,7 @@
                                                 dialogs.hide(diagId);
                                             },
                                             function (reason, arg) {
-                                                flm.utils.logSystem(reason,  " -> ", arg);
+                                                flm.utils.logError(reason, arg);
                                             });
                                     }
                                 });
@@ -1498,6 +1514,10 @@
                             );
 
                             dirBrowse.monitorUpdates();
+
+                            $(editField).change(function (event) {
+                                $(this).val(flm.utils.buildPath([event.target.value]))
+                            });
 
                             this.dirBrowser[diagId][i] = dirBrowse;
 
