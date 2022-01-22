@@ -33,10 +33,10 @@
                 }
 
                 if (errcode > 0) {
-                    $codeMsg =  $type(theUILang.fErrMsg[errcode] )
+                    var codeMsg =  $type(theUILang.fErrMsg[errcode] )
                         ? theUILang.fErrMsg[errcode]
                         : errcode;
-                    flm.utils.logSystem($codeMsg , " -> ", extra);
+                    flm.utils.logSystem(codeMsg , " -> ", extra);
                 }
 
             },
@@ -896,14 +896,20 @@
                 browse.fileExists = function (what) {
 
                     var exists = false;
+                    what = flm.utils.basename(what);
 
-                    try {
-                        return (browse.table().getValueById(browse.tableEntryPrefix + what, 'name'));
-                    } catch (dx) {
-                        console.log(dx);
-                    }
+                    var checkInTable = function (path) {
 
-                    return exists;
+                        try {
+                            return (browse.table().getValueById(browse.tableEntryPrefix + path, 'name'));
+                        } catch (dx) {
+                            console.log(dx);
+                        }
+
+                        return exists;
+                    };
+
+                    return (checkInTable(what) || checkInTable(what+'/'));
                 };
 
                 browse.getSelectedEntry = function () {

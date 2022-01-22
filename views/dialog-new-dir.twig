@@ -31,7 +31,7 @@
 
                 var fileName = flm.utils.basename(ndn);
 
-                if (flm.ui.browser.fileExists(fileName) || flm.ui.browser.fileExists(fileName + '/')) {
+                if (flm.ui.browser.fileExists(fileName)) {
                     deferred.reject(theUILang.fDiagAexist, ndn);
                     return deferred.promise();
                 }

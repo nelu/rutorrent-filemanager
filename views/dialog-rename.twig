@@ -46,13 +46,13 @@
                     return deferred.promise();
                 }
 
-                if (flm.ui.browser.fileExists(source)
-                    || flm.ui.browser.fileExists(source + '/')) //dir check
+                if (flm.ui.browser.fileExists(source)) //dir check
                 {
                     flm.manager.logAction('rename'.toString(), theUILang.fDiagAexist);
                     deferred.reject(theUILang.fDiagAexist);
                     return deferred.promise();
                 }
+
                 var cPath = flm.getCurrentPath();
 
                 return flm.api.rename(source, destination).then(
