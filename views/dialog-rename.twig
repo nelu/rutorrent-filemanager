@@ -46,7 +46,7 @@
                     return deferred.promise();
                 }
 
-                if (flm.ui.browser.fileExists(source)) //dir check
+                if (flm.ui.browser.fileExists(destination)) //dir check
                 {
                     flm.manager.logAction('rename'.toString(), theUILang.fDiagAexist);
                     deferred.reject(theUILang.fDiagAexist);
