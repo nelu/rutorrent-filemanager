@@ -36,17 +36,11 @@
                     return deferred.promise();
                 }
 
-
-                var lastPath = flm.utils.basedir(ndn) + "";
+                var cPath = flm.getCurrentPath();
 
                 return flm.api.mkDir(ndn)
                     .then(function (response) {
-                            flm.manager.inaction = false;
-
-                            if ((flm.currentPath === lastPath)
-                                && !flm.manager.isErr(response.errcode, ndn)) {
-                                flm.goToPath(flm.currentPath);
-                            }
+                            flm.Refresh(cPath);
                             return response;
                         },
                         function (response) {

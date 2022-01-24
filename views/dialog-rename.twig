@@ -57,7 +57,7 @@
 
                 return flm.api.rename(source, destination).then(
                     function (response) {
-                        flm.manager.logAction('rename', source + ' -> ' + destination);
+                        flm.manager.logConsole('rename', source + ' -> ' + destination);
                         flm.Refresh(cPath);
                         $(document).trigger(flm.EVENTS.rename, [source, destination]);
 

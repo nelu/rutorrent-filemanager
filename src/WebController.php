@@ -36,7 +36,7 @@ class WebController extends BaseController
     public function newDirectory($params)
     {
         if (!isset($params->target)) {
-            self::jsonError(16);
+            self::jsonError(16, $params->target);
         }
 
         return ['error' => !$this->flm()->newDir($params->target)];
