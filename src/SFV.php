@@ -98,6 +98,7 @@ class SFV implements \Iterator
     }
 
 
+    #[\ReturnTypeWillChange]
     function rewind()
     {
 
@@ -105,6 +106,7 @@ class SFV implements \Iterator
         $this->file = null;
     }
 
+    #[\ReturnTypeWillChange]
     function current()
     {
 
@@ -116,18 +118,21 @@ class SFV implements \Iterator
 
     }
 
+    #[\ReturnTypeWillChange]
     function key()
     {
 
         return $this->position;
     }
 
+    #[\ReturnTypeWillChange]
     function next()
     {
 
         ++$this->position;
     }
 
+    #[\ReturnTypeWillChange]
     function valid()
     {
         return isset($this->files[$this->position]);
