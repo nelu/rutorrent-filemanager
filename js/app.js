@@ -32,10 +32,11 @@
                     extra = '';
                 }
 
-                if (errcode > 0) {
+                if (errcode) {
                     var codeMsg =  $type(theUILang.fErrMsg[errcode] )
                         ? theUILang.fErrMsg[errcode]
                         : errcode;
+
                     flm.utils.logSystem(codeMsg , " -> ", extra);
                 }
 
@@ -1399,8 +1400,8 @@
                                         promise.then(function () {
                                                 dialogs.hide(diagId);
                                             },
-                                            function (reason, arg) {
-                                                flm.utils.logError(reason, arg);
+                                            function (data,msg) {
+                                                    flm.utils.logError(data, msg);
                                             });
                                     }
                                 });
@@ -1988,15 +1989,11 @@
             },
 
             logAction: function (action, text) {
-
                 flm.ui.console.show(action + ': ' + text);
-
             },
 
             logConsole: function (action, text) {
-
                 flm.ui.console.logMsg(action + ': ' + text);
-
             },
 
             doMediainfo: function (target) {

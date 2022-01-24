@@ -1,4 +1,6 @@
 {% extends "flm::dialog-window.twig" %}
+{% set startButtonValue = theUILang.fDiagRenameBut %}
+
 {% block heading %}
     <label>
         <strong>{{ isDir(selectedTarget) ? 'Directory': 'File' }}</strong>
@@ -15,82 +17,60 @@
     </fieldset>
 {% endblock %}
 {% block scripts %}
-<script>
-    (function (global) {
-        var dialogs = flm.ui.getDialogs();
-        var diagId = dialogs.getDialogId();
+    <script>
+        (function (global) {
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId();
 
-        // snapshot when trigerring
-        var currentPath = flm.getCurrentPath();
+            // snapshot when trigerring
+            var currentPath = flm.getCurrentPath();
 
-        if(!flm.manager.hasOwnProperty('doRename')) {
-            // service
-            flm.manager.doRename = function (source, destination) {
+            if (!flm.manager.hasOwnProperty('doRename')) {
+                // service
+                flm.manager.doRename = function (source, destination) {
 
-                source = $.trim(source);
-                destination = $.trim(destination);
-
-                var deferred = $.Deferred();
-
-                if (!source.length || (destination === source)) {
-
-                    flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
-
-                    deferred.reject(theUILang.fDiagInvalidname);
-                    return deferred.promise();
-                }
-
-                if (!flm.utils.isValidPath(destination)) {
-                    flm.manager.logAction('rename'.toString(), theUILang.fDiagInvalidname);
-                    deferred.reject(theUILang.fDiagInvalidname);
-                    return deferred.promise();
-                }
-
-                if (flm.ui.browser.fileExists(destination)) //dir check
-                {
-                    flm.manager.logAction('rename'.toString(), theUILang.fDiagAexist);
-                    deferred.reject(theUILang.fDiagAexist);
-                    return deferred.promise();
-                }
-
-                var cPath = flm.getCurrentPath();
-
-                return flm.api.rename(source, destination).then(
-                    function (response) {
-                        flm.manager.logConsole('rename', source + ' -> ' + destination);
-                        flm.Refresh(cPath);
-                        $(document).trigger(flm.EVENTS.rename, [source, destination]);
-
-                        return response;
-
+                    var hasError;
+                    if (!flm.utils.isValidPath(destination)) {
+                        //flm.manager.logAction('rename', theUILang.fDiagInvalidname);
+                        hasError = theUILang.fDiagInvalidname;
+                    } else if (flm.utils.basename(destination) === flm.utils.basename(source) || flm.ui.browser.fileExists(destination)) //dir check
+                    {
+                        //flm.manager.logAction('rename', theUILang.fDiagAexist);
+                        hasError = theUILang.fDiagAexist;
                     }
-                );
 
+                    if($type(hasError))
+                    {
+                        var def = $.Deferred();
+                        def.reject(theUILang.fDiagRenameBut +' '+source+' - ' +hasError, destination);
+                        return def.promise();
+                    }
 
-                /*
-                            this.action.postRequest({action: flm.utils.json_encode(actioncall)},
-                                callback,
-                                function () {
-                                    log(theUILang.fErrMsg[11]);
-                                }, function () {
-                                    log(theUILang.fErrMsg[12] + ' - Rename: ' + destination);
-                                });*/
+                    var cPath = flm.getCurrentPath();
 
-            };
-        }
+                    return flm.api.rename(source, destination).done(
+                            function (response) {
+                                flm.manager.logConsole('rename', source + ' -> ' + destination);
+                                flm.Refresh(cPath);
+                                $(document).trigger(flm.EVENTS.rename, [source, destination]);
 
+                                return response;
+                            }
+                        );
 
-        dialogs.onStart(function () {
+                };
+            }
 
-            var destination = $('#fMan-RenameTo').val();
+            dialogs.onStart(function () {
 
-            dialogs.disableStartButton();
+                var destination = $('#fMan-RenameTo').val();
 
-            return flm.manager.doRename(dialogs.getTargetPath(diagId), flm.utils.buildPath([currentPath, destination]));
-        });
+                dialogs.disableStartButton();
 
-    })(window);
-</script>
+                return flm.manager.doRename(dialogs.getTargetPath(diagId), flm.utils.buildPath([currentPath, destination]));
+            });
+
+        })(window);
+    </script>
 {% endblock %}
-{% set startButtonValue = theUILang.fDiagRenameBut %}
 

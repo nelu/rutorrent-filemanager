@@ -1,73 +1,52 @@
 {% extends "flm::dialog-window.twig" %}
 {% block content %}
-<div>
-    <fieldset>
-        <legend>{{ theUILang.fcNewDir }}</legend>
-        <label for="fMan-ndirname"><strong>{{ theUILang.Name }}:</strong></label>
-        <input type="text"
-               name="fMan-ndirname"
-               id="fMan-ndirname"
-               value="New Folder"
-               style="width:200px;"/>
-    </fieldset>
-</div>
+    <div>
+        <fieldset>
+            <legend>{{ theUILang.fcNewDir }}</legend>
+            <label for="fMan-ndirname"><strong>{{ theUILang.Name }}:</strong></label>
+            <input type="text"
+                   name="fMan-ndirname"
+                   id="fMan-ndirname"
+                   value="New Folder"
+                   style="width:200px;"/>
+        </fieldset>
+    </div>
 {% endblock %}
 {% block scripts %}
-<script>
-    (function (global) {
+    <script>
+        (function (global) {
 
+            flm.ui.getDialogs().onStart(
+                function () {
+                    console.log('hello from dialog new dir twig');
+                    var dirname = flm.utils.basename($('#fMan-ndirname').val());
+                    var currentPath = flm.getCurrentPath();
+                    var hasError;
 
-        if(!flm.manager.hasOwnProperty('createNewDir')) {
-                // service
-                flm.manager.createNewDir= function (dirname) {
+                    if (!dirname) {
+                        hasError = theUILang.fDiagInvalidname;
+                    } else if (flm.ui.browser.fileExists(dirname)) {
+                        hasError = theUILang.fDiagAexist;
+                    }
 
-                var ndn = $.trim(dirname);
-                var deferred = $.Deferred();
+                    if ($type(hasError)) {
+                        var def = $.Deferred();
+                        def.reject(theUILang.fcNewDir, hasError + ' - ' + dirname);
+                    }
 
-                if (!ndn.length) {
-                    deferred.reject(theUILang.fDiagInvalidname);
-                    return deferred.promise();
-                }
+                    return $type(hasError)
+                        ? def.promise()
+                        : flm.api.mkDir(flm.getCurrentPath(dirname))
+                            .done(function (response) {
+                                flm.Refresh(currentPath);
+                                return response;
+                            });
 
-                var fileName = flm.utils.basename(ndn);
+            });
 
-                if (flm.ui.browser.fileExists(fileName)) {
-                    deferred.reject(theUILang.fDiagAexist, ndn);
-                    return deferred.promise();
-                }
-
-                var cPath = flm.getCurrentPath();
-
-                return flm.api.mkDir(ndn)
-                    .then(function (response) {
-                            flm.Refresh(cPath);
-                            return response;
-                        },
-                        function (response) {
-                            return response;
-                        });
-
-            };
-        }
-
-
-        flm.ui.getDialogs().onStart(function () {
-            console.log('hello from dialog new dir twig');
-            var dirname = flm.getCurrentPath($('#fMan-ndirname').val());
-            var currentPath = $('#flm_popup_mkdir-currentpath').val();
-            dirname = flm.utils.buildPath([currentPath, dirname]);
-
-            if (!flm.utils.isValidPath(dirname)) {
-                alert(theUILang.fDiagInvalidname);
-                return;
-            }
-
-            return flm.manager.createNewDir(dirname);
-        });
-
-    })
-    (window);
-</script>
+        })
+        (window);
+    </script>
 {% endblock %}
 
 
