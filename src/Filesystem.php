@@ -53,11 +53,9 @@ class Filesystem
 
     public function rootPath($relative_path = null) : string
     {
-        if ($relative_path == null) {
-            return $this->root;
-        } else {
-            return FileUtil::fullpath(trim($relative_path, '/'), $this->root);
-        }
+        return ($relative_path == null)
+            ? $this->root
+            : FileUtil::fullpath(trim($relative_path, '/'), $this->root);
     }
 
     public function pathExists($path)
@@ -158,6 +156,14 @@ class Filesystem
             [TaskController::recursiveMove($this->rootPath($from), $this->rootPath($to))],
             rTask::FLG_WAIT
         );
+
+
+        $args = [TaskController::recursiveMove($this->rootPath($from), $this->rootPath($to))];
+
+        if (!RemoteShell::get()->execOutput(array_shift($args), $args)) {
+            throw new Exception("Error Processing Request", 4);
+        }
+
 
         return $ret;
     }
