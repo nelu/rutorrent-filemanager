@@ -4,33 +4,37 @@ namespace Flm;
 
 use \rXMLRPCCommand;
 use \Exception;
+use rXMLRPCRequest;
 
 require_once(realpath(dirname(__FILE__) . '/../../../php/xmlrpc.php'));
 
-class RemoteShell extends \rXMLRPCRequest
+class RemoteShell extends rXMLRPCRequest
 {
 
     public static $instance;
 
-    public static function test($dirname, $o)
+    public static function test($target, $o): bool
     {
-        /*
-         * Test's to check if $arg1 exists from rtorrent userid
-         *
-         *  @param string target - full path
-         *  @param string option to use with test
-         *
-         *  Example: $this->remote_test('/tmp', 'd');
-         *  For test command options see: http://linux.about.com/library/cmd/blcmdl1_test.htm
-         */
-        $shell = self::get();
-        $shell->addCommand(new \rXMLRPCCommand('execute', ['test', '-' . $o, $dirname]));
-        return (bool)$shell->success();
+        $args = ['-' . $o, $target];
+        return self::get()->execCmd('test', $args);
+    }
+
+    public function execCmd($shell_cmd, $args = [])
+    {
+        $cmd = self::merge_cmd_args($shell_cmd, $args);
+
+        $this->addCommand(new rXMLRPCCommand('execute', $cmd));
+
+        return $this->success();
+    }
+
+    public static function merge_cmd_args($shell_cmd, $args)
+    {
+        return array_merge([$shell_cmd], $args);
     }
 
     public static function get()
     {
-
         if (is_null(self::$instance)) {
 
             self::$instance = new self();
@@ -46,17 +50,15 @@ class RemoteShell extends \rXMLRPCRequest
      */
     public function execOutput($shell_cmd, $args)
     {
-
         $cmd = self::merge_cmd_args($shell_cmd, $args);
 
         $cmd[] = '2>&1; echo $? && exit 0 ';
 
         $ncmd = ['sh', '-c', implode(" ", $cmd)];
 
-        $this->addCommand(new \rXMLRPCCommand('execute_capture', $ncmd));
+        $this->addCommand(new rXMLRPCCommand('execute_capture', $ncmd));
 
-        if (!$this->success())
-        {
+        if (!$this->success()) {
             throw new Exception("Error " . $this->val[1], $this->val[0]);
         }
 
@@ -67,11 +69,6 @@ class RemoteShell extends \rXMLRPCRequest
         }
 
         return explode("\n", trim($this->val[0]));
-    }
-
-    public static function merge_cmd_args($shell_cmd, $args)
-    {
-        return array_merge([$shell_cmd], $args);
     }
 
     public static function getExitCode(&$output): int
@@ -87,19 +84,8 @@ class RemoteShell extends \rXMLRPCRequest
         return $code;
     }
 
-    public function execCmd($shell_cmd, $args = [])
-    {
-
-        $cmd = self::merge_cmd_args($shell_cmd, $args);
-
-        $this->addCommand(new rXMLRPCCommand('execute', $cmd));
-
-        return $this->success();
-    }
-
     public function execBackground($shell_cmd, $args)
     {
-
         $cmd = $shell_cmd . ' ' . escapeshellarg($args) . ' > /dev/null &';
 
         $what = ['sh', '-c', $cmd];
