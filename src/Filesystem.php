@@ -143,29 +143,13 @@ class Filesystem
      */
     public function rename($from, $to): array
     {
-
-        $task_opts = [
-            'requester' => $this->name,
-            'name' => 'rename',
-            'arg' => basename($from) . ' -> ' . basename($to)
-        ];
-
-        $rtask = new rTask($task_opts);
-
-        $ret = $rtask->start(
-            [TaskController::recursiveMove($this->rootPath($from), $this->rootPath($to))],
-            rTask::FLG_WAIT
-        );
-
-
-        $args = [TaskController::recursiveMove($this->rootPath($from), $this->rootPath($to))];
-
-        if (!RemoteShell::get()->execOutput(array_shift($args), $args)) {
+        $cmd = TaskController::recursiveMove($this->rootPath($from), $this->rootPath($to));
+        $result = RemoteShell::get()->execOutput($cmd, []);
+        if (!$result) {
             throw new Exception("Error Processing Request", 4);
         }
 
-
-        return $ret;
+        return $result;
     }
 
     /**

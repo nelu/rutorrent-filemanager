@@ -38,50 +38,53 @@ class RemoteShell extends \rXMLRPCRequest
         return self::$instance;
     }
 
+    /**
+     * @param $shell_cmd
+     * @param $args
+     * @return array
+     * @throws Exception
+     */
     public function execOutput($shell_cmd, $args)
     {
 
         $cmd = self::merge_cmd_args($shell_cmd, $args);
 
-        $cmd[] = ' 2>&1';
+        $cmd[] = '2>&1; echo $? && exit 0 ';
 
-        $sucmd = dirname(__FILE__) . '/../scripts/sucmd.sh';
-        $ncmd = [$sucmd, implode(" ", $cmd)];
-
+        $ncmd = ['sh', '-c', implode(" ", $cmd)];
 
         $this->addCommand(new \rXMLRPCCommand('execute_capture', $ncmd));
 
-        if (!$this->success()
-            || ($this->getExitCode($this->val[0])->exitcode > 0)) {
-            throw new Exception("Error " . $this->val[0], 10);
-
+        if (!$this->success())
+        {
+            throw new Exception("Error " . $this->val[1], $this->val[0]);
         }
 
+        $code = self::getExitCode($this->val[0]);
+
+        if ($code > 0) {
+            throw new Exception($this->val[0], $code);
+        }
 
         return explode("\n", trim($this->val[0]));
-
     }
 
     public static function merge_cmd_args($shell_cmd, $args)
     {
-
         return array_merge([$shell_cmd], $args);
     }
 
-    public function getExitCode(&$output)
+    public static function getExitCode(&$output): int
     {
+        $code = 0;
 
-
-        if (!preg_match('/\{(.*)\}$/', $output, $matches)) {
-            return false;
-
+        // look for exit code at the end out the output
+        if (preg_match('/(.*\n)?([0-9]+)\n?$/s', $output, $matches)) {
+            $output = $matches[1];
+            $code = (int)$matches[2];
         }
 
-        $new = preg_replace('/\{(.*)\}$/', '', $output);
-
-        $output = $new;
-
-        return json_decode(str_replace('\\"', '"', $matches[0]));
+        return $code;
     }
 
     public function execCmd($shell_cmd, $args = [])

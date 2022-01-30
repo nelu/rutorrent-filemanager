@@ -1828,7 +1828,8 @@
 
 
                     },
-                    function () {
+                    function (code, msg) {
+                        flm.utils.logError(1, msg);
                         flm.ui.enableNavigation();
                     });
 
