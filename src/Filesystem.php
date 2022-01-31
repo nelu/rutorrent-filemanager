@@ -47,7 +47,6 @@ class Filesystem
     public function isDir($path) : bool
     {
         $path = $this->rootPath($path);
-
         return RemoteShell::test($path, 'd');
     }
 
@@ -159,7 +158,6 @@ class Filesystem
      */
     public function listDir($directory_path)
     {
-
         $output = [];
         $directory_path = $this->rootPath($directory_path);
 
@@ -189,7 +187,6 @@ class Filesystem
             $i++;
 
         }
-
 
         return $output;
     }

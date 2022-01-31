@@ -15,8 +15,8 @@ class RemoteShell extends rXMLRPCRequest
 
     public static function test($target, $o): bool
     {
-        $args = ['-' . $o, $target];
-        return self::get()->execCmd('test', $args);
+        $args = ['-' . $o, escapeshellarg($target)];
+        return self::get()->execOutput('test', $args, 1) ? false : true;
     }
 
     public function execCmd($shell_cmd, $args = [])
@@ -36,7 +36,6 @@ class RemoteShell extends rXMLRPCRequest
     public static function get()
     {
         if (is_null(self::$instance)) {
-
             self::$instance = new self();
         }
         return self::$instance;
@@ -48,11 +47,11 @@ class RemoteShell extends rXMLRPCRequest
      * @return array
      * @throws Exception
      */
-    public function execOutput($shell_cmd, $args)
+    public function execOutput($shell_cmd, $args, $validcode = 0)
     {
         $cmd = self::merge_cmd_args($shell_cmd, $args);
 
-        $cmd[] = '2>&1; echo $? && exit 0 ';
+        $cmd[] = '2>&1; echo $? && exit 0';
 
         $ncmd = ['sh', '-c', implode(" ", $cmd)];
 
@@ -64,16 +63,20 @@ class RemoteShell extends rXMLRPCRequest
 
         $code = self::getExitCode($this->val[0]);
 
-        if ($code > 0) {
+        if ($code > $validcode) {
             throw new Exception($this->val[0], $code);
         }
 
-        return explode("\n", trim($this->val[0]));
+        return (bool)$validcode ? (bool)$code : explode("\n", trim($this->val[0]));
     }
 
     public static function getExitCode(&$output): int
     {
         $code = 0;
+
+        if (is_null($output)) {
+            $output = '';
+        }
 
         // look for exit code at the end out the output
         if (preg_match('/(.*\n)?([0-9]+)\n?$/s', $output, $matches)) {
