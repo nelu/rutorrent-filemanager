@@ -98,19 +98,10 @@ class WebController extends BaseController
             self::jsonError(300);
         }
 
-        try {
 
-            $temp = $this->flm()->archive($params);
+        $task = $this->flm()->archive($params);
 
-        } catch (Exception $err) {
-            var_dump($err->getTraceAsString(), $params);
-
-            self::jsonError($err->getCode(), $err->getMessage());
-
-            return false;
-        }
-
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function filesExtract($params)
@@ -123,9 +114,9 @@ class WebController extends BaseController
             self::jsonError(22);
         }
 
-        $temp = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
+        $task = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
 
-        return ['error' => 0, 'tmpdir' => $temp[0]['tok']];
+        return $task;
     }
 
     public function filesCopy($params)

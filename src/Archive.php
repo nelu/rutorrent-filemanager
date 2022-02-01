@@ -13,7 +13,10 @@ class Archive
     static $rar = ['compress' => '',
         'extract' => ''];
     public $file;
-    public $options;
+
+    public $options = [];
+
+    protected $workDir;
 
     protected $taskController;
 
@@ -30,20 +33,23 @@ class Archive
         $aopts = Helper::getConfig('archive');
         $aopts = $aopts['type'][$options['type']];
 
-        $a['type'] = $options['type'];
-        $a['comp'] = $aopts['compression'][$options['compression']];
-        $a['volume'] = (intval($options['volumeSize']) * 1024);
-        $a['multif'] = (($a['type'] == 'rar') && (isset($options['format']) && $options['format'] == 'old')) ? '-vn' : '';
+        $compression = $aopts['compression'][$options['compression']];
 
-        $a['workdir'] = $options['workdir'];
-
+        $pass = '';
         if (isset($options['password']) && !empty($options['password'])
-            && ($a['type'] == 'rar' || $a['type'] == 'zip')
+            && ( $options['type'] == 'rar' ||  $options['type'] == 'zip')
         ) {
-            $a['password'] = $options['password'];
+            $pass = $options['password'];
         }
 
-        $this->options = $a;
+        $this->workDir = $options['workdir'];
+        $this->options = [
+            'work_dir' => $options['workdir'],
+            'type' => $options['type'],
+            'compression' => $compression,
+            'password' => $pass,
+            'volume_size' => (intval($options['volumeSize']) * 1024)
+        ];
 
         return $this;
     }
@@ -51,99 +57,48 @@ class Archive
     public function create($files)
     {
 
-        if (is_null($this->options)) {
+        if (empty($this->options)) {
 
             throw new Exception("Please load setOptions first", 1);
         }
 
-        $temp = [];
-
-        $args = [
-            'action' => 'compressFiles',
-            'params' => [
-                'files' => array_map(function ($e) {
-                    return basename($e);
-                }, $files),
-                'archive' => $this->file,
-                'options' => $this->options,
-                'binary' => $this->getBin($this->options)
-            ]
+        $p = (object)[
+            'files' => array_map(function ($e) {return basename($e);}, $files),
+            'archive' => $this->file,
+            'options' => (object)$this->options,
+            'binary' => ArchiveFormats::getBin($this->file, true)
         ];
 
+        $task_opts = [
+            'requester' => 'filemanager',
+            'name' => 'compress',
+            'arg' => count($p->files) . ' files in ' . $p->archive
+        ];
 
-        $this->taskController->info = json_decode(json_encode($args));
-        $temp['tok'] = $this->taskController->run();
+        
+        $rtask = new rTask($task_opts);
+        $taskDir = $rtask->makeDirectory();
+        $files_list = $taskDir.'/files.list';
+        $p->filelist = $files_list;
+        file_put_contents($files_list, implode("\n", $p->files)."\n");
 
+        $cmds = [
+            'cd ' . Helper::mb_escapeshellarg($this->workDir),
+            '{', ArchiveFormats::getArchiveCompressCmd($p), '}',
+        ];
 
-        return $temp;
+        $ret = $rtask->start($cmds, rTask::FLG_DEFAULT);
+
+        return $ret;
     }
 
-    public function getBin($compress = null)
-    {
-
-        if ($compress) {
-            switch ($compress['type']) {
-
-                case 'gzip':
-                case 'tar':
-                case 'bzip2':
-                    $formatBin = 'tar';
-                    break;
-                case 'rar':
-                    $formatBin = 'rar';
-                    break;
-                case 'zip':
-                    $formatBin = 'zip';
-                    break;
-                default:
-                    throw new Exception("Unsupported archive format " . $this->options['type'], 16);
-
-            }
-        } else {
-            $formatBin = self::getExtractBinary($this->file);
-
-        }
-
-        if (!$formatBin) {
-            throw new Exception("Error Processing Request", 18);
-        }
-
-        return Utility::getExternal($formatBin);
-
-    }
-
-    public static function getExtractBinary($file)
-    {
-
-        switch (pathinfo($file, PATHINFO_EXTENSION)) {
-            case 'rar':
-                $bin = 'rar';
-                break;
-            case 'zip':
-                $bin = 'unzip';
-                break;
-            case 'iso':
-                $bin = 'unzip';
-                break;
-            case 'tar':
-            case 'bz2':
-            case 'gz':
-                $bin = 'tar';
-                break;
-            default:
-                $bin = false;
-        }
-
-        return $bin;
-
-    }
 
     public function extract($to)
     {
         $params = (object)[
             'files' => [$this->file],
             'to' => $to,
-            'binary' => $this->getBin()
+            'binary' => ArchiveFormats::getBin()
         ];
 
         $task_opts = [

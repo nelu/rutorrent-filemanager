@@ -61,31 +61,6 @@ class TaskController
         }
     }
 
-    public function compressFiles()
-    {
-
-        $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'compress',
-            'arg' => count($this->info->params->files) . ' files in ' . $this->info->params->archive
-        ];
-
-        $ret = false;
-        try {
-            $cmds = [
-                'cd ' . Helper::mb_escapeshellarg($this->info->params->options->workdir),
-                '{', ArchiveFormats::getArchiveCompressCmd($this->info->params), '}',
-            ];
-
-            $rtask = new rTask($task_opts);
-            $ret = $rtask->start($cmds, rTask::FLG_DEFAULT);
-        } catch (Throwable $err) {
-            $ret = $err;
-        }
-
-        return $ret;
-    }
-
 
     public function LogCmdExec($cmd)
     {
