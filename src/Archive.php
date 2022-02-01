@@ -155,14 +155,14 @@ class Archive
         try {
             $cmds = [
 
-                implode(" ", TaskController::mkdir($to, true)),
+                implode(" ", ShellCmds::mkdir($to, true)),
                 '{', 'cd ' . Helper::mb_escapeshellarg($to), '}',
             ];
 
             foreach ($params->files as $file) {
                 $params->file = $file;
                 $params->to = './';
-                $cmds[] = FsUtils::getArchiveExtractCmd($params);
+                $cmds[] = ArchiveFormats::getArchiveExtractCmd($params);
             }
 
             $rtask = new rTask($task_opts);

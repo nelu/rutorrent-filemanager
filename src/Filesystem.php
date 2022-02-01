@@ -35,7 +35,7 @@ class Filesystem
             throw new Exception($target, 16);
         }
 
-        $args = TaskController::mkdir($this->rootPath($target), $recursive, $mode);
+        $args = ShellCmds::mkdir($this->rootPath($target), $recursive, $mode);
 
         if (!RemoteShell::get()->execOutput(array_shift($args), $args)) {
             throw new Exception("Error Processing Request", 4);
@@ -76,7 +76,7 @@ class Filesystem
 
         foreach ($files as $file) {
             $file = $this->rootPath($file);
-            $commands[] = TaskController::recursiveCopy($file, $to);
+            $commands[] = ShellCmds::recursiveCopy($file, $to);
         }
 
         $task_opts = ['requester' => $this->name,
@@ -97,7 +97,7 @@ class Filesystem
 
         foreach ($files as $file) {
             $file = $this->rootPath($file);
-            $commands[] = TaskController::recursiveMove($file, $to);
+            $commands[] = ShellCmds::recursiveMove($file, $to);
         }
 
         $task_opts = [
@@ -118,7 +118,7 @@ class Filesystem
         $commands = [];
 
         foreach ($files as $file) {
-            $commands[] = TaskController::recursiveRemove($this->rootPath($file));
+            $commands[] = ShellCmds::recursiveRemove($this->rootPath($file));
         }
 
         $task_opts = [
@@ -142,7 +142,7 @@ class Filesystem
      */
     public function rename($from, $to): array
     {
-        $cmd = TaskController::recursiveMove($this->rootPath($from), $this->rootPath($to));
+        $cmd = ShellCmds::recursiveMove($this->rootPath($from), $this->rootPath($to));
         $result = RemoteShell::get()->execOutput($cmd, []);
         if (!$result) {
             throw new Exception("Error Processing Request", 4);

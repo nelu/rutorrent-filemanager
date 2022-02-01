@@ -2,7 +2,7 @@
 
 namespace Flm;
 
-class FsUtils
+class ArchiveFormats
 {
 
     public static $format_methods = [
