@@ -19,7 +19,7 @@ class RemoteShell extends rXMLRPCRequest
         $expectedCode = 1;
         self::get()->execOutput('test', $args, $expectedCode);
 
-        return $expectedCode != 0 ? false : true;
+        return ($expectedCode === 0);
     }
 
     public function execCmd($shell_cmd, $args = [])
@@ -84,10 +84,13 @@ class RemoteShell extends rXMLRPCRequest
             $output = '';
         }
 
-        // look for exit code at the end out the output
-        if (preg_match('/(.*\n)?([0-9]+)\n?$/s', $output, $matches)) {
+        // look for exit code at the end of the output
+        if (preg_match('/(.*?)([0-9]+)?\n?$/s', $output, $matches)) {
             $output = $matches[1];
-            $code = (int)$matches[2];
+            if(isset($matches[2]))
+            {
+                $code = (int)$matches[2];
+            }
         }
 
         return $code;
