@@ -20,8 +20,9 @@ $config['archive']['type'] = [
         'bin' =>'7z',
         'compression' => [0, 5, 9],
     ],
-    'rar' => [  'bin' =>'rar',
-                'compression' => range(0, 5),
+    'rar' => [
+        'bin' =>'rar',
+        'compression' => range(0, 5),
     ]];
 
 $config['archive']['type']['zip'] = $config['archive']['type']['7z'];

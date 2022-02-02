@@ -9,7 +9,7 @@
                 var ext = this.getExt(element)
 
                 var re = new RegExp('^('
-                    +flm.plugin().config.fileExtractExtensions
+                    +flm.getConfig().fileExtractExtensions
                     +')$', "i");
 
                 return ext.match(re);
@@ -397,7 +397,6 @@
 
         var pluginUrl = getPlugin().path; // = 'plugins/filemanager/';
         var flm = {
-            plugin: getPlugin,
             EVENTS: getPlugin().ui.EVENTS,
             currentPath: null,
             pluginUrl: pluginUrl,
