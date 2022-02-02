@@ -104,9 +104,8 @@ class FileManager
             throw new Exception($archive_file, 16);
         }
 
-        $archive = new Archive($this->getFsPath($archive_file));
-        $options['workdir'] = $this->getFsPath(dirname($files[0]));
-
+        $archive = new Archive($this->getFsPath($archive_file), $config);
+        $archive->setWorkDir($this->getFsPath(dirname($files[0])));
         $archive->setOptions((array)$options);
 
         return $archive->create($files);
@@ -178,7 +177,6 @@ class FileManager
         }
 
         $res = [];
-
         foreach ($paths['archives'] as $archive_file) {
             $archive_file = $this->currentDir($archive_file);
             if (!$this->fs->isFile($archive_file)) {
@@ -186,7 +184,8 @@ class FileManager
             }
 
             $archive = new Archive($this->getFsPath($archive_file));
-            $res[] = $archive->extract($this->getFsPath($to));
+
+            $res = $archive->extract($this->getFsPath($to));
         }
 
         return $res;

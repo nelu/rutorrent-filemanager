@@ -4,11 +4,15 @@
 
         var utils = {
             perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'],
-            archive_types: ["zip", "rar", "tar", "gz", "bz2"],
 
             isArchive: function (element) {
-                var fext = this.getExt(element);
-                return (this.archive_types.indexOf(fext) > -1);
+                var ext = this.getExt(element)
+
+                var re = new RegExp('^('
+                    +flm.plugin().config.fileExtractExtensions
+                    +')$', "i");
+
+                return ext.match(re);
             },
 
             isDir: function (element) {
@@ -393,6 +397,7 @@
 
         var pluginUrl = getPlugin().path; // = 'plugins/filemanager/';
         var flm = {
+            plugin: getPlugin,
             EVENTS: getPlugin().ui.EVENTS,
             currentPath: null,
             pluginUrl: pluginUrl,
@@ -536,24 +541,20 @@
             };
 
             client.createArchive = function (archive, files, options) {
-
-                return client.post({
+                return this.runTask("compress",  {
                     method: 'filesCompress',
                     target: archive,
                     mode: options,
                     fls: files
                 });
-
             };
 
             client.extractFiles = function (archiveFiles, toDir) {
-
-                return flm.api.post({
+                return this.runTask("unpack",  {
                     method: 'filesExtract',
                     fls: archiveFiles,
                     to: toDir
                 });
-
             };
 
             client.mkDir = function (dir) {

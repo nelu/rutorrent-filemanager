@@ -3,8 +3,8 @@
 namespace Flm;
 
 use \Exception;
+use FileUtil;
 use rTask;
-use Throwable;
 use Utility;
 
 class Archive
@@ -14,23 +14,22 @@ class Archive
         'extract' => ''];
     public $file;
 
+    protected $config = [];
+
     public $options = [];
 
     protected $workDir;
 
-    protected $taskController;
 
-    public function __construct($archive_file)
+    public function __construct($archive_file, $config = [])
     {
         $this->file = $archive_file;
-        $this->taskController = new TaskController();
-
+        $this->config = $config;
     }
 
     public function setOptions($options)
     {
-
-        $aopts = Helper::getConfig('archive');
+        $aopts = $this->config;
         $aopts = $aopts['type'][$options['type']];
 
         $compression = $aopts['compression'][$options['compression']];
@@ -42,9 +41,7 @@ class Archive
             $pass = $options['password'];
         }
 
-        $this->workDir = $options['workdir'];
         $this->options = [
-            'work_dir' => $options['workdir'],
             'type' => $options['type'],
             'compression' => $compression,
             'password' => $pass,
@@ -56,17 +53,20 @@ class Archive
 
     public function create($files)
     {
+        if (empty($this->workDir)) {
+            throw new Exception("Please setWorkDir first", 1);
 
+        }
         if (empty($this->options)) {
-
             throw new Exception("Please load setOptions first", 1);
         }
 
         $p = (object)[
             'files' => array_map(function ($e) {return basename($e);}, $files),
+            'work_dir' => $this->workDir,
             'archive' => $this->file,
             'options' => (object)$this->options,
-            'binary' => ArchiveFormats::getBin($this->file, true)
+            'binary' => $this->getCompressBin()
         ];
 
         $task_opts = [
@@ -75,7 +75,7 @@ class Archive
             'arg' => count($p->files) . ' files in ' . $p->archive
         ];
 
-        
+
         $rtask = new rTask($task_opts);
         $taskDir = $rtask->makeDirectory();
         $files_list = $taskDir.'/files.list';
@@ -92,13 +92,33 @@ class Archive
         return $ret;
     }
 
-
-    public function extract($to)
+    /**
+     * @return string
+     */
+    public function getWorkDir() : string
     {
-        $params = (object)[
-            'files' => [$this->file],
-            'to' => $to,
-            'binary' => ArchiveFormats::getBin()
+        return $this->workDir;
+    }
+
+    /**
+     * @param string $workDir
+     */
+    public function setWorkDir($workDir)
+    {
+        $this->workDir = FileUtil::addslash($workDir);
+    }
+
+
+    public function extract($path = null)
+    {
+        if(!is_null($path))
+        {
+            $this->setWorkDir($path);
+        }
+
+        $p = (object)[
+            'to' => './',
+            'binary' => '7z'
         ];
 
         $task_opts = [
@@ -107,26 +127,30 @@ class Archive
             'arg' => basename($this->file)
         ];
 
-        try {
-            $cmds = [
 
-                implode(" ", ShellCmds::mkdir($to, true)),
-                '{', 'cd ' . Helper::mb_escapeshellarg($to), '}',
-            ];
+        $cmds = [
+            implode(" ", ShellCmds::mkdir($this->workDir, true)),
+            '{', 'cd ' . Helper::mb_escapeshellarg($this->workDir), '}',
+        ];
 
-            foreach ($params->files as $file) {
-                $params->file = $file;
-                $params->to = './';
-                $cmds[] = ArchiveFormats::getArchiveExtractCmd($params);
-            }
-
-            $rtask = new rTask($task_opts);
-            $ret = $rtask->start($cmds, 0);
-        } catch (Throwable $err) {
-            $ret = $err;
+        foreach ([$this->file] as $file) {
+            $p->file = $file;
+            $cmds[] = ArchiveFormats::extractCmd($p);
         }
 
-        return $ret;
+        $rtask = new rTask($task_opts);
+        return $rtask->start($cmds, rTask::FLG_DEFAULT);
+    }
 
+    public function getCompressBin($archive = '') {
+
+        if(empty($archive))
+        {
+            $archive = $this->file;
+        }
+        $type = pathinfo($archive, PATHINFO_EXTENSION);
+
+        $formatBin = isset($this->config['type'][$type]['bin']) ? $this->config['type'][$type]['bin'] : '7z';
+        return Utility::getExternal($formatBin);
     }
 }

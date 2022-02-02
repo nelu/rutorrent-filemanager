@@ -19,7 +19,8 @@ class WebController extends BaseController
         $bins = [];
 
         $settings = [
-            'textExtensions' => $this->config['textExtensions']
+            'textExtensions' => $this->config['textExtensions'],
+            'fileExtractExtensions' => $this->config['fileExtractExtensions']
         ];
 
         foreach ($this->config['archive']['type'] as $ext => $conf) {
@@ -85,7 +86,6 @@ class WebController extends BaseController
 
     public function filesCompress($params)
     {
-
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
@@ -98,7 +98,6 @@ class WebController extends BaseController
             self::jsonError(300);
         }
 
-
         $task = $this->flm()->archive($params);
 
         return $task;
@@ -106,7 +105,6 @@ class WebController extends BaseController
 
     public function filesExtract($params)
     {
-
         if (!isset($params->to)) {
             self::jsonError(2);
         }
