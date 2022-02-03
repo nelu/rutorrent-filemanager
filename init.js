@@ -49,18 +49,18 @@ var tableSchema = {
             id: "size",
             type: TYPE_NUMBER
         }, {
-            text: ' ',
+            text: '',
             width: "120px",
             id: "time",
             type: TYPE_STRING,
             "align": ALIGN_CENTER
         }, {
-            text: ' ',
+            text: '',
             width: "80px",
             id: "type",
             type: TYPE_STRING
         }, {
-            text: ' ',
+            text: '',
             width: "80px",
             id: "perm",
             type: TYPE_NUMBER
@@ -289,7 +289,6 @@ plugin.ui.init = function () {
         }
     }
 
-
     plugin.markLoaded();
 
 };
@@ -318,7 +317,6 @@ theTabs.onShow = function (id) {
 
     if (id === plugin.ui.fsBrowserContainer) {
         window.flm.ui.browser.onShow();
-
     }
     plugin.flmOnShow.call(this, id);
 
@@ -331,6 +329,8 @@ theTabs.show = function (id) {
         if (window.flm) {
             window.flm.ui.browser.onHide();
         }
+    } else {
+        $('#fMan_showconsole').css('display', 'inline');
     }
     plugin.flmTabsShow.call(this, id);
 
