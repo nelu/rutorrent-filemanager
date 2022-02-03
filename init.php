@@ -6,11 +6,6 @@ use Flm\WebController;
 $pluginDir = dirname(__FILE__);
 
 require_once( $pluginDir."/boot.php" );
-require_once ($pluginDir . '/src/Helper.php');
-require_once ($pluginDir . '/src/FileManager.php');
-require_once ($pluginDir . '/src/Filesystem.php');
-require_once ($pluginDir . '/src/BaseController.php');
-require_once ($pluginDir . '/src/WebController.php');
 
 
 $pluginConfig = Helper::getConfig();
@@ -18,12 +13,8 @@ if(function_exists('findRemoteEXE')) {
     //bootstrap
 
     $confBins = array_map(function ($v){ return $v['bin'];}, $pluginConfig['archive']['type']);
-    if(in_array('zip', $confBins))
-    {
-        $confBins[] = 'unzip';
-    }
 
-    foreach ($confBins as $bin) {
+    foreach (array_unique($confBins) as $bin) {
 
         findRemoteEXE($bin, "thePlugins.get('filemanager').showError(\"theUILang.fErrMsg[24] +'" . $bin . "' \");", $remoteRequests);
 
