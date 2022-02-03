@@ -184,7 +184,6 @@
 
                 ext = valid ? ext : '';
 
-
                 return ext.toLowerCase();
             },
 
@@ -299,7 +298,6 @@
 
             actionResult: function (result) {
                 var isSuccess = function () {
-
                     return result === 'succes';
                 };
 
@@ -786,18 +784,20 @@
                         var xVal = x.key.split(browse.tableEntryPrefix)[1];
                         var yVal = y.key.split(browse.tableEntryPrefix)[1];
 
-                        if (flm.ui.browser.isTopDir(xVal)
-                            || flm.ui.browser.isTopDir(yVal)
-                        ) {
-                            return !this.reverse ? 1 : -1;
-                        } else if
-                        (flm.utils.isDir(xVal)
-                            || flm.utils.isDir(yVal)) {
+                        if (flm.ui.browser.isTopDir(xVal))
+                        {
+                            return this.reverse ? 1 : -1;
+                        }
+                        else if (flm.ui.browser.isTopDir(yVal))
+                        {
+                            return this.reverse ? -1 : 1;
+                        }
+                        else if (flm.utils.isDir(xVal) || flm.utils.isDir(yVal))
+                        {
                             return (flm.utils.isDir(xVal)
                                 && flm.utils.isDir(yVal))
                                 ? this.initialFilesSortAlphaNumeric(x, y)
                                 : (flm.utils.isDir(xVal) ? 1 : -1);
-
                         }
 
                         return (this.initialFilesSortAlphaNumeric(x, y));
@@ -805,10 +805,13 @@
 
                     sortNumeric: function (x, y) {
 
-                        if (flm.ui.browser.isTopDir(x.key.split(browse.tableEntryPrefix)[1])
-                            || flm.ui.browser.isTopDir(y.key.split(browse.tableEntryPrefix)[1])
-                        ) {
-                            return !this.reverse ? 1 : -1;
+                        if (flm.ui.browser.isTopDir(x.key.split(browse.tableEntryPrefix)[1]))
+                        {
+                            return this.reverse ? 1 : -1;
+                        }
+                        else if (flm.ui.browser.isTopDir(y.key.split(browse.tableEntryPrefix)[1]))
+                        {
+                            return this.reverse ? -1 : 1;
                         }
 
                         return (this.initialFileSortNumeric(x, y));
@@ -979,7 +982,6 @@
 
                             });
 
-                            $('#fMan_showconsole').show();
                             // display table columns
                             table.refreshRows();
 
