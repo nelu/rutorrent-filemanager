@@ -3,7 +3,7 @@
 global $pathToExternals;
 // set with fullpath to binary or leave empty
 $pathToExternals['rar'] = '';
-$pathToExternals['7zip'] = '';
+$pathToExternals['7zip'] = '/usr/bin/7z';
 
 $config['mkdperm'] = 755; // default permission to set to new created directories
 $config['show_fullpaths'] = false; // wheter to show userpaths or full system paths in the UI
@@ -17,7 +17,7 @@ $config['fileExtractExtensions'] = '7z|bzip2|t?bz2|t?g|gz[ip]?|iso|img|lzma|rar|
 // archive.fileExt -> config
 $config['archive']['type'] = [
     '7z' => [
-        'bin' =>'7z',
+        'bin' =>'7zip',
         'compression' => [0, 5, 9],
     ],
     'rar' => [
