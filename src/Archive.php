@@ -150,7 +150,7 @@ class Archive
         }
         $type = pathinfo($archive, PATHINFO_EXTENSION);
 
-        $formatBin = isset($this->config['type'][$type]['bin']) ? $this->config['type'][$type]['bin'] : '7z';
+        $formatBin = isset($this->config['type'][$type]['bin']) ? $this->config['type'][$type]['bin'] : 'p7zip';
         return Utility::getExternal($formatBin);
     }
 }

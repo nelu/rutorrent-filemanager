@@ -26,7 +26,7 @@ class ArchiveFormats
     }
 
     public static function extractCmd( $params) {
-        $bin = Utility::getExternal('7z');
+        $bin = Utility::getExternal('p7zip');
         $archive = Helper::mb_escapeshellarg($params->file);
         return vsprintf(self::$format_methods['7zipExtract'], [
             $bin,

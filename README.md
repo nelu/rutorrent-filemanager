@@ -16,16 +16,16 @@ Javascript web client with php endpoint with file operations methods
 ```php
 // if archive binaries are not in $PATH, set the fullpath
 $pathToExternals['rar'] = '';
-$pathToExternals['7zip'] = '';
+$pathToExternals['p7zip'] = '';
 
 $config['textExtensions'] = 'txt|nfo|sfv|xml|html';
-// see what 7zip extraction supports as type by file extension
+// see what p7zip extraction supports as type by file extension
 $config['fileExtractExtensions'] = '7z|bzip2|t?bz2|t?g|gz[ip]?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim';
 
 // archive type extension and binary for new archive
 $config['archive']['type'] = [
     '7z' => [
-        'bin' =>'7z',
+        'bin' =>'p7zip',
         'compression' => [0, 5, 9],
     ],
     'rar' => [
