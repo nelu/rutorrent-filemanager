@@ -9,7 +9,7 @@ class ArchiveFormats
 {
 
     public static $format_methods = [
-        '7zipExtract' => '%s e -- %s',
+        '7zipExtract' => '%s x -- %s',
     ];
 
 
