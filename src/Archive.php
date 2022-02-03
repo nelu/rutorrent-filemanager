@@ -118,7 +118,7 @@ class Archive
 
         $p = (object)[
             'to' => './',
-            'binary' => '7z'
+            'binary' => Utility::getExternal('7zip')
         ];
 
         $task_opts = [
