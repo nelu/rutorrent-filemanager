@@ -3,58 +3,56 @@
 namespace Flm;
 
 use \Exception;
+use FileUtil;
 use rTask;
 use Throwable;
+use Utility;
 
 class TaskController
 {
+    const task_entrypoint = 'btask.php';
 
     public $info;
 
-    public function __construct($task_file = null)
+
+    public function __construct()
     {
 
-        if (!is_null($task_file)) {
-            $this->info = json_decode(file_get_contents($task_file));
-
-            $this->log = $this->info->temp->dir . 'log';
-            umask(0);
-        }
     }
 
-
-    public static function errorLog($line)
+    public function handle($cmdArgs = null)
     {
-        return fwrite(STDERR, $line . PHP_EOL);
-    }
+        $entry = array_shift($cmdArgs); // entrypoint
 
-    public function handle()
-    {
-        if (isset($this->info->params->workdir)
-            && !empty($this->info->params->workdir)) {
+        if (count($cmdArgs) >= 1) {
+            $taskMethod = array_shift($cmdArgs);
+            $parts = explode("::", $taskMethod);
 
-            chdir($this->info->params->workdir);
-        }
+            $taskClass = $this;
 
+            if (count($parts) > 1) {
+                $taskMethod = $parts[1];
+                $taskClass = $parts[0];
+            }
 
-        $success = $this->run();
+            if (!method_exists($taskClass, $taskMethod)) {
+                $this->error("Invalid method/argument: " . $taskClass . '::' . $taskMethod);
+                return false;
+            }
 
-        $success && $this->writeLog("\n--- Done");
-
-        $this->LogCmdExec( ShellCmds::recursiveRemove($this->info->temp->dir));
-    }
-
-    public function run()
-    {
-        $success = false;
-        if (method_exists($this, $this->info->action)) {
-            $success = call_user_func([$this, $this->info->action]);
+            $success = call_user_func_array([$taskClass, $taskMethod], $cmdArgs);
+            //$success && self::log("\n--- Done");
         }
 
         return $success;
     }
 
-    public function writeLog($line, $console_output = true)
+    public static function error($line)
+    {
+        return fwrite(STDERR, $line . PHP_EOL);
+    }
+
+    public static function log($line, $console_output = true)
     {
         if ($console_output) {
             echo $line . "\n";
@@ -82,76 +80,49 @@ CMD
         return $exitCode;
     }
 
-    public function sfvCreate()
+    public static function getTaskCmd($method, $args = [])
     {
-        if (($sfvfile = fopen($this->info->params->target, "abt")) === FALSE) {
-            $this->writeLog('0: SFV HASHING FAILED. File not writable ' . $this->info->params->target);
-        }
+        $a = [
+            FileUtil::fullpath(self::task_entrypoint, __DIR__ . '/..'),
+            Helper::mb_escapeshellarg($method)
+        ];
 
-        // comments
-        fwrite($sfvfile, "; ruTorrent filemanager;\n");
+        array_map(function ($arg) use (&$a) {
+            $a[] = Helper::mb_escapeshellarg($arg);
+        }, $args);
 
-        $check_files = new SFV($this->info->params->files);
-
-        $fcount = count($this->info->params->files);
-
-        foreach ($check_files as $i => $sfvinstance) {
-
-            $i++;
-
-            $file = $sfvinstance->getCurFile();
-
-            $msg = '(' . $i . '/' . $fcount . ') Hashing "' . $file . '" ... ';
-
-            try {
-
-                $hash = SFV::getFileHash($file);
-
-                $arr = explode('/', $file);
-                fwrite($sfvfile, end($arr) . ' ' . $hash . "\n");
-                $this->writeLog($msg . ' - OK ' . $hash);
-
-            } catch (Exception $err) {
-
-                $this->writeLog($msg . ' - FAILED:' . $err->getMessage());
-
-            }
-
-        }
-        $this->writeLog("\n--- Done");
+        return Utility::getPHP() . " " . implode(" ", $a);
     }
 
-    public function sfvCheck()
+    /**
+     * @param $rtask rTask
+     * @param $file
+     * @param $data
+     * @return string
+     */
+    public static function writeTaskFile($rtask, $file, $data)
     {
 
-        $check_files = new SFV($this->info->params->target);
+        $taskDir = $rtask->makeDirectory();
+        $out_file = $taskDir . '/' . $file;
+        file_put_contents($out_file, $data);
+        return $out_file;
+    }
 
-        $fcount = $check_files->length();
+    public static function from($task_opts)
+    {
 
-        foreach ($check_files as $i => $item) {
-
-            $i++;
-
-            $file = implode(' ', explode(' ', $item->getCurFile(), -1));
-
-            $msg = '(' . $i . '/' . $fcount . ') Checking "' . trim($file) . '" ... ';
-
-            try {
-
-                if (!$item->checkFileHash()) {
-                    $this->writeLog($msg . '- Hash mismatch!');
-                } else {
-                    $this->writeLog($msg . '- OK');
-                }
-
-            } catch (Exception $err) {
-
-                $this->writeLog($msg . '- FAILED:' . $err->getMessage());
-
-            }
-
+        if (empty($task_opts)) {
+            throw new Exception("Invalid task options");
         }
-        $this->writeLog("\n--- Done");
+        $task_opts = array_merge(['requester' => 'filemanager'], $task_opts);
+        $rtask = new rTask($task_opts);
+        // extending rTask the wrong way
+        $rtask->writeFile = function ($file, $data) use ($rtask) {
+            return self::writeTaskFile($rtask, basename($file), $data);
+        };
+
+        return $rtask;
     }
 
 }

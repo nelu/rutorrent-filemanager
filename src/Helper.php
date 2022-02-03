@@ -10,8 +10,6 @@ class Helper
 {
 
 
-    const task_file = 'btask.php';
-
     protected static $tmpdir;
 
     protected static $config;
@@ -38,22 +36,6 @@ class Helper
             }
         });
     }
-    public static function getTempDir($token = null)
-    {
-
-        if ($token !== null) {
-            return [
-                'tok' => $token,
-                'dir' => FileUtil::addslash(FileUtil::getTempDirectory() . $token),
-            ];
-        }
-
-        if (is_null(self::$tmpdir)) {
-            $tmp = self::newTempDir();
-            self::$tmpdir = $tmp;
-        }
-        return self::$tmpdir;
-    }
 
     protected static function newTempDir()
     {
@@ -68,11 +50,6 @@ class Helper
     public static function getExt($file)
     {
         return (pathinfo($file, PATHINFO_EXTENSION));
-    }
-
-    public static function getTaskCmd()
-    {
-        return Utility::getPHP() . ' ' . dirname(__FILE__) . '/..' . DIRECTORY_SEPARATOR . self::task_file;
     }
 
     public static function escapeCmdArgs($args)

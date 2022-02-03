@@ -51,6 +51,11 @@ class Archive
         return $this;
     }
 
+    /**
+     * @param $files
+     * @return array
+     * @throws Exception
+     */
     public function create($files)
     {
         if (empty($this->workDir)) {
@@ -75,12 +80,8 @@ class Archive
             'arg' => count($p->files) . ' files in ' . $p->archive
         ];
 
-
-        $rtask = new rTask($task_opts);
-        $taskDir = $rtask->makeDirectory();
-        $files_list = $taskDir.'/files.list';
-        $p->filelist = $files_list;
-        file_put_contents($files_list, implode("\n", $p->files)."\n");
+        $rtask = TaskController::from($task_opts);
+        $p->filelist = ($rtask->writeFile)("files.list", implode("\n", $p->files)."\n");
 
         $cmds = [
             'cd ' . Helper::mb_escapeshellarg($this->workDir),

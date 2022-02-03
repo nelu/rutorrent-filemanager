@@ -179,11 +179,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
+        $task = $this->flm()->checksumVerify($params);
 
-        $temp = $this->flm()->sfvCheck($params);
-
-
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function sfvCreate($params)
@@ -196,9 +194,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        $temp = $this->flm()->sfvCreate($params);
+        $task = $this->flm()->checksumCreate($params);
 
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function sess()
