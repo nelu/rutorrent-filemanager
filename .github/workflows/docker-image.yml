@@ -32,4 +32,4 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the Docker image
-      run: docker buildx build --platform=linux/amd64,linux/386,linux/arm64,linux/arm/v7 --tag=unzel/rutorrent-filemanager:latest --push
+      run: docker buildx build --help && docker buildx build --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --push --tag=unzel/rutorrent-filemanager:latest
