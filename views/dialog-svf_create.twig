@@ -31,7 +31,7 @@
                 if($type(hasError))
                 {
                     var def = $.Deferred();
-                    def.reject(theUILang.fcSFV +' '+source+' - ' +hasError, destination);
+                    def.reject(theUILang.fcSFV +' - ' +hasError, checksumFile);
                     return def.promise();
                 }
                 //flm.manager.logStart(theUILang.fStarts.sfv_create);
@@ -42,11 +42,6 @@
                         flm.Refresh(cPath);
                         return response;
                     });
-
-                return flm.manager.doSfvCreate(
-                    dialogs.getTargetPath(diagId),
-                    dialogs.getCheckedList(diagId)
-                );
             });
 
             var file  = flm.ui.browser.getSelectedEntry();

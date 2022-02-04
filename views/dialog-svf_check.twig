@@ -29,7 +29,7 @@
             if($type(hasError))
             {
                 var def = $.Deferred();
-                def.reject(theUILang.fcSFV +' '+source+' - ' +hasError, destination);
+                def.reject(theUILang.fcheckSFV +' - ' +hasError, checksumFile);
                 return def.promise();
             }
             //flm.manager.logStart(theUILang.fStarts.sfv_check);
