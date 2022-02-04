@@ -519,8 +519,7 @@
             };
 
             client.sfvCheck = function (path) {
-
-                return client.post({
+                return this.runTask("checksum-verify",  {
                     method: 'svfCheck',
                     target: path
                 });
@@ -528,8 +527,7 @@
             };
 
             client.sfvCreate = function (path, files) {
-
-                return client.post({
+                return this.runTask("checksum-create",  {
                     method: 'sfvCreate',
                     target: path,
                     fls: files
