@@ -124,7 +124,8 @@ class Filesystem
         $task_opts = [
             'requester' => $this->name,
             'name' => 'remove',
-            'arg' => count($files) . ' files'
+            'arg' => count($files) . ' files',
+            'files' => $files
         ];
 
         $rtask = new rTask($task_opts);
