@@ -34,18 +34,12 @@ class Archive
 
         $compression = $aopts['compression'][$options['compression']];
 
-        $pass = '';
-        if (isset($options['password']) && !empty($options['password'])
-            && ( $options['type'] == 'rar' ||  $options['type'] == 'zip')
-        ) {
-            $pass = $options['password'];
-        }
-
         $this->options = [
             'type' => $options['type'],
             'compression' => $compression,
-            'password' => $pass,
-            'volume_size' => (intval($options['volumeSize']) * 1024)
+            'password' => $options['password'],
+            'volume_size' => (intval($options['volumeSize']) * 1024),
+            'multi_passes' => isset($aopts['multipass']) ? $aopts['multipass'] : []
         ];
 
         return $this;

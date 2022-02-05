@@ -9,7 +9,7 @@ class ArchiveFormats
 {
 
     public static $format_methods = [
-        '7zipExtract' => '%s x -- %s',
+        '7zipExtract' => '%s x -- %s'
     ];
 
 
@@ -17,12 +17,21 @@ class ArchiveFormats
         $options = $params->options;
         $files_list = Helper::mb_escapeshellarg($params->filelist);
         $archive = Helper::mb_escapeshellarg($params->archive);
-//        $compression = trim($options['comp'], '-');
-        $compression = 5;
 
-        $type = isset($params->type) ? '-t'.$params->type : '';
+        $compression = "-mx{$options->compression}";
+        $password  = (isset($options->password) && strlen($options->password) > 0)
+            ? '-p'.Helper::mb_escapeshellarg($options->password)
+            : '';
 
-        return "{$params->binary} a ${type} -mx${compression} -- {$archive} @{$files_list}";
+        if(!empty($options->multi_passes))
+        {
+            $stages = $options->multi_passes;
+            $cmd =  "{$params->binary} a -t{$stages[0]} ${password} -so -an -- @{$files_list} | {$params->binary} a -t{$stages[1]} {$compression} -si {$archive}";
+        } else {
+            $cmd = "{$params->binary} a ${password} {$compression} -- {$archive} @{$files_list}";
+        }
+
+        return $cmd;
     }
 
     public static function extractCmd( $params) {

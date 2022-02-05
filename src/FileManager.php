@@ -86,15 +86,13 @@ class FileManager
     public function archive($paths)
     {
         $archive_file = $paths->target;
-
-        $options = is_null($paths->mode) ? [] : (array)$paths->mode;
+        $options = empty($paths->mode) ? [] : (array)$paths->mode;
 
         $config = Helper::getConfig('archive');
 
         if (!isset($options['type'])
             || !isset($config['type'][$options['type']])) {
             throw new Exception("invalid type", 1);
-
         }
 
         $files = (array)$paths->fls;
@@ -105,7 +103,7 @@ class FileManager
 
         $archive = new Archive($this->getFsPath($archive_file), $config);
         $archive->setWorkDir($this->getFsPath(dirname($files[0])));
-        $archive->setOptions((array)$options);
+        $archive->setOptions($options);
 
         return $archive->create($files);
     }

@@ -356,30 +356,21 @@
             return (rar.join('/'));
         };
         utils.stripFileExtension = function (currentPath, exts) {
-            exts = exts || [];
-            var ext;
-            // can be call recursively to strip all present extensions
-            currentPath = flm.utils.basename(currentPath);
-            var fileName = currentPath + "";
+            var ext, file;
+            var fileName = flm.utils.basename(currentPath);
 
-            // escape regex: tar.gz
-
-            //strip current extensions if present
-            for (var i = 0; i < exts.length; i++) {
-                ext = exts[i];
-                var tempExt = ext.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-                currentPath = currentPath.replace(new RegExp('\.' + tempExt + '$'), "");
+            if($type(exts))
+            {
+                // debugger;
+                file = fileName.replace(new RegExp('\.(' +exts +')$', "i"), "");
+            }
+            else {
+                var parts = fileName.split('.');
+                ext = parts.pop();
+                file = parts.join('.');
             }
 
-            //generic ext removal
-            if (fileName === currentPath) {
-                tempExt = flm.utils.getExt(fileName);
-                if (tempExt) {
-                    currentPath = currentPath.replace(new RegExp('\.' + tempExt + '$'), "");
-                }
-            }
-
-            return currentPath;
+            return file;
         };
         return utils;
 

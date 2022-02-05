@@ -302,7 +302,7 @@ theWebUI.rDirBrowser.prototype.monitorUpdates = function(){
         var observer = new MutationObserver(function(mutations) {
             if(self.frame.css("visibility") === "hidden") {
                 // relative chroot path
-                self.edit.val(flm.manager.stripHomePath(self.edit.val()));
+                self.edit.val(flm.manager.stripHomePath(self.edit.val()) + '/');
                 self.edit.change();
             }
         });
