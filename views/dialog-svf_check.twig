@@ -17,42 +17,28 @@
 
         var diagId = dialogs.getDialogId('window');
 
-        if(!flm.manager.hasOwnProperty('doSfvCheck'))
-        {
-            // service
-            flm.manager.doSfvCheck = function (checksumFile) {
-
-            checksumFile = $.trim(checksumFile);
-
-            var deferred = $.Deferred();
+        dialogs.onStart(function () {
+            var hasError;
+            var checksumFile = $.trim(dialogs.getTargetPath(diagId));
 
             if (!checksumFile.length) {
-                deferred.reject(theUILang.fDiagSFVempty);
-                return deferred.promise();
+                hasError =theUILang.fDiagSFVempty;
+            } else if (!flm.utils.isValidPath(checksumFile)) {
+                hasError = theUILang.fDiagInvalidname;
             }
-
-
-            if (!flm.utils.isValidPath(checksumFile)) {
-                deferred.reject(theUILang.fDiagInvalidname);
-                return deferred.promise();
+            if($type(hasError))
+            {
+                var def = $.Deferred();
+                def.reject(theUILang.fcheckSFV +' - ' +hasError, checksumFile);
+                return def.promise();
             }
+            //flm.manager.logStart(theUILang.fStarts.sfv_check);
 
-            flm.manager.logStart(theUILang.fStarts.sfv_check);
-
-            return flm.api.sfvCheck(flm.manager.stripHomePath(checksumFile))
-                .then(function (response) {
-                        flm.manager.logAction('sfvcheck', ' checksum file ' + checksumFile);
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-
-        };
-        }
-
-        dialogs.onStart(function () {
-            return flm.manager.doSfvCheck(dialogs.getTargetPath(diagId));
+            return flm.api.sfvCheck(checksumFile)
+                .done(function (response) {
+                    //flm.manager.logAction('sfvcheck', ' checksum file ' + checksumFile);
+                    return response;
+                });
         });
 
     })

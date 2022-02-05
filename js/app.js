@@ -4,11 +4,15 @@
 
         var utils = {
             perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'],
-            archive_types: ["zip", "rar", "tar", "gz", "bz2"],
 
             isArchive: function (element) {
-                var fext = this.getExt(element);
-                return (this.archive_types.indexOf(fext) > -1);
+                var ext = this.getExt(element)
+
+                var re = new RegExp('^('
+                    +flm.getConfig().fileExtractExtensions
+                    +')$', "i");
+
+                return ext.match(re);
             },
 
             isDir: function (element) {
@@ -180,7 +184,6 @@
 
                 ext = valid ? ext : '';
 
-
                 return ext.toLowerCase();
             },
 
@@ -295,7 +298,6 @@
 
             actionResult: function (result) {
                 var isSuccess = function () {
-
                     return result === 'succes';
                 };
 
@@ -517,8 +519,7 @@
             };
 
             client.sfvCheck = function (path) {
-
-                return client.post({
+                return this.runTask("checksum-verify",  {
                     method: 'svfCheck',
                     target: path
                 });
@@ -526,8 +527,7 @@
             };
 
             client.sfvCreate = function (path, files) {
-
-                return client.post({
+                return this.runTask("checksum-create",  {
                     method: 'sfvCreate',
                     target: path,
                     fls: files
@@ -536,24 +536,20 @@
             };
 
             client.createArchive = function (archive, files, options) {
-
-                return client.post({
+                return this.runTask("compress",  {
                     method: 'filesCompress',
                     target: archive,
                     mode: options,
                     fls: files
                 });
-
             };
 
             client.extractFiles = function (archiveFiles, toDir) {
-
-                return flm.api.post({
+                return this.runTask("unpack",  {
                     method: 'filesExtract',
                     fls: archiveFiles,
                     to: toDir
                 });
-
             };
 
             client.mkDir = function (dir) {
@@ -786,18 +782,20 @@
                         var xVal = x.key.split(browse.tableEntryPrefix)[1];
                         var yVal = y.key.split(browse.tableEntryPrefix)[1];
 
-                        if (flm.ui.browser.isTopDir(xVal)
-                            || flm.ui.browser.isTopDir(yVal)
-                        ) {
-                            return !this.reverse ? 1 : -1;
-                        } else if
-                        (flm.utils.isDir(xVal)
-                            || flm.utils.isDir(yVal)) {
+                        if (flm.ui.browser.isTopDir(xVal))
+                        {
+                            return this.reverse ? 1 : -1;
+                        }
+                        else if (flm.ui.browser.isTopDir(yVal))
+                        {
+                            return this.reverse ? -1 : 1;
+                        }
+                        else if (flm.utils.isDir(xVal) || flm.utils.isDir(yVal))
+                        {
                             return (flm.utils.isDir(xVal)
                                 && flm.utils.isDir(yVal))
                                 ? this.initialFilesSortAlphaNumeric(x, y)
                                 : (flm.utils.isDir(xVal) ? 1 : -1);
-
                         }
 
                         return (this.initialFilesSortAlphaNumeric(x, y));
@@ -805,10 +803,13 @@
 
                     sortNumeric: function (x, y) {
 
-                        if (flm.ui.browser.isTopDir(x.key.split(browse.tableEntryPrefix)[1])
-                            || flm.ui.browser.isTopDir(y.key.split(browse.tableEntryPrefix)[1])
-                        ) {
-                            return !this.reverse ? 1 : -1;
+                        if (flm.ui.browser.isTopDir(x.key.split(browse.tableEntryPrefix)[1]))
+                        {
+                            return this.reverse ? 1 : -1;
+                        }
+                        else if (flm.ui.browser.isTopDir(y.key.split(browse.tableEntryPrefix)[1]))
+                        {
+                            return this.reverse ? -1 : 1;
                         }
 
                         return (this.initialFileSortNumeric(x, y));
@@ -979,7 +980,6 @@
 
                             });
 
-                            $('#fMan_showconsole').show();
                             // display table columns
                             table.refreshRows();
 

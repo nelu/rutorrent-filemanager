@@ -15,7 +15,7 @@ class RemoteShell extends rXMLRPCRequest
 
     public static function test($target, $o): bool
     {
-        $args = ['-' . $o, escapeshellarg($target)];
+        $args = ['-' . $o, Helper::mb_escapeshellarg($target)];
         $expectedCode = 1;
         self::get()->execOutput('test', $args, $expectedCode);
 

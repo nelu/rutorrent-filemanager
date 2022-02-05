@@ -3,5 +3,4 @@ plugin.author: HWK
 plugin.version: 1.0
 rtorrent.remote: error
 rtorrent.external.error: php,pgrep,find
-web.external.error: unzip
 plugin.dependencies: _task

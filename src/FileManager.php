@@ -104,9 +104,8 @@ class FileManager
             throw new Exception($archive_file, 16);
         }
 
-        $archive = new Archive($this->getFsPath($archive_file));
-        $options['workdir'] = $this->getFsPath(dirname($files[0]));
-
+        $archive = new Archive($this->getFsPath($archive_file), $config);
+        $archive->setWorkDir($this->getFsPath(dirname($files[0])));
         $archive->setOptions((array)$options);
 
         return $archive->create($files);
@@ -178,7 +177,6 @@ class FileManager
         }
 
         $res = [];
-
         foreach ($paths['archives'] as $archive_file) {
             $archive_file = $this->currentDir($archive_file);
             if (!$this->fs->isFile($archive_file)) {
@@ -186,7 +184,8 @@ class FileManager
             }
 
             $archive = new Archive($this->getFsPath($archive_file));
-            $res[] = $archive->extract($this->getFsPath($to));
+
+            $res = $archive->extract($this->getFsPath($to));
         }
 
         return $res;
@@ -307,7 +306,7 @@ class FileManager
      * @return array|mixed
      * @throws Exception
      */
-    public function sfvCheck($paths)
+    public function checksumVerify($paths)
     {
         $sfvfile = $this->currentDir($paths->target);
 
@@ -319,31 +318,19 @@ class FileManager
             throw new Exception($sfvfile, 6);
         }
 
-        $temp = Helper::getTempDir();
         $sfvfile = $this->getFsPath($sfvfile);
-        $args = [
-            'action' => 'sfvCheck',
-            'params' => [
-                'target' => $sfvfile,
-                'workdir' => dirname($sfvfile)
-            ],
-            'temp' => $temp];
-
-        $task = $temp['dir'] . 'task';
-
-        file_put_contents($task, json_encode($args));
 
         $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'SFV check',
+            'name' => 'checksum-verify',
             'arg' => $this->currentDir($paths->target)
         ];
 
-        $rtask = new rTask($task_opts);
-        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
-        $ret = $rtask->start($commands, 0);
+        $rtask = TaskController::from($task_opts);
+        $commands = [TaskController::getTaskCmd(FileChecksum::class.'::fromChecksumFile', [$sfvfile])];
 
-        return $temp;
+        $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
+
+        return $ret;
     }
 
     /**
@@ -351,7 +338,7 @@ class FileManager
      * @return array|mixed
      * @throws Exception
      */
-    public function sfvCreate($paths)
+    public function checksumCreate($paths)
     {
         $sfvfile = $this->currentDir($paths->target);
         $files = array_map([$this, 'getFsPath'], (array)$paths->fls);
@@ -360,31 +347,18 @@ class FileManager
             throw new Exception($sfvfile, 16);
         }
 
-        $temp = Helper::getTempDir();
-
-        $args = [
-            'action' => 'sfvCreate',
-            'params' => [
-                'files' => $files,
-                'target' => $this->getFsPath($sfvfile),
-
-            ],
-            'temp' => $temp];
-
-        $task = $temp['dir'] . 'task';
-
-        file_put_contents($task, json_encode($args));
-
         $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'SFV create',
-            'arg' => $paths->target
+            'name' => 'checksum-create',
+            'arg' => $sfvfile
         ];
 
-        $rtask = new rTask($task_opts);
-        $commands = [Helper::getTaskCmd() . " " . escapeshellarg($task)];
-        $ret = $rtask->start($commands, 0);
+        $rtask = TaskController::from($task_opts);
+        $filelist = ($rtask->writeFile)("files.json", json_encode($files));
 
-        return $temp;
+        $commands = [TaskController::getTaskCmd(FileChecksum::class.'::checksumFromFilelist', [$filelist, $this->getFsPath($sfvfile)])];
+
+        $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
+
+        return $ret;
     }
 }

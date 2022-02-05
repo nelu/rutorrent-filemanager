@@ -19,7 +19,8 @@ class WebController extends BaseController
         $bins = [];
 
         $settings = [
-            'textExtensions' => $this->config['textExtensions']
+            'textExtensions' => $this->config['textExtensions'],
+            'fileExtractExtensions' => $this->config['fileExtractExtensions']
         ];
 
         foreach ($this->config['archive']['type'] as $ext => $conf) {
@@ -85,7 +86,6 @@ class WebController extends BaseController
 
     public function filesCompress($params)
     {
-
         if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
@@ -98,24 +98,13 @@ class WebController extends BaseController
             self::jsonError(300);
         }
 
-        try {
+        $task = $this->flm()->archive($params);
 
-            $temp = $this->flm()->archive($params);
-
-        } catch (Exception $err) {
-            var_dump($err->getTraceAsString(), $params);
-
-            self::jsonError($err->getCode(), $err->getMessage());
-
-            return false;
-        }
-
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function filesExtract($params)
     {
-
         if (!isset($params->to)) {
             self::jsonError(2);
         }
@@ -123,9 +112,9 @@ class WebController extends BaseController
             self::jsonError(22);
         }
 
-        $temp = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
+        $task = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
 
-        return ['error' => 0, 'tmpdir' => $temp[0]['tok']];
+        return $task;
     }
 
     public function filesCopy($params)
@@ -190,11 +179,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
+        $task = $this->flm()->checksumVerify($params);
 
-        $temp = $this->flm()->sfvCheck($params);
-
-
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function sfvCreate($params)
@@ -207,9 +194,9 @@ class WebController extends BaseController
             self::jsonError(2);
         }
 
-        $temp = $this->flm()->sfvCreate($params);
+        $task = $this->flm()->checksumCreate($params);
 
-        return ['error' => 0, 'tmpdir' => $temp['tok']];
+        return $task;
     }
 
     public function sess()
