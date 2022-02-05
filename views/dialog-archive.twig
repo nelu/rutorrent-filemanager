@@ -132,7 +132,7 @@
                 }
             };
 
-            var updateCompression = function (dir) {
+            var updateCompression = function () {
 
                 var type = archiveType.val().toLowerCase();
                 var notRar = (type !== 'rar');
@@ -144,7 +144,6 @@
                     $('.fman-archive-settings-pass,.fman-archive-settings-rar').hide();
 
                     $('.fman-archive-settings-pass').show();
-
                 }
 
                 compression.empty();
@@ -182,9 +181,6 @@
                 }
             });
 
-            compression.change(function () {
-                updateCompression();
-            });
             archiveType.change();
 
         })

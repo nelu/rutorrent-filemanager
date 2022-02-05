@@ -22,7 +22,7 @@ $config['archive']['type'] = [
     ],
     'rar' => [
         'bin' =>'rar',
-        'compression' => range(0, 5),
+        'compression' => [0, 3, 5],
     ]];
 
 $config['archive']['type']['zip'] = $config['archive']['type']['7z'];

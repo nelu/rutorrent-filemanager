@@ -112,7 +112,11 @@ class WebController extends BaseController
             self::jsonError(22);
         }
 
-        $task = $this->flm()->extractFile(['archives' => $params->fls, 'to' => $params->to]);
+        $task = $this->flm()->extractFile([
+            'archives' => $params->fls,
+            'password' => $params->password,
+            'to' => $params->to
+        ]);
 
         return $task;
     }

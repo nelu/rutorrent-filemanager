@@ -6,6 +6,14 @@
 {% block heading %}
     <legend>{{ theUILang.fDiagArchive }}</legend>
 {% endblock %}
+{% block content %}
+    <label style="clear:both; float: left;"
+           class="fman-archive-settings-pass fman-archive-settings-rar">
+        Password: <input name="fman-extract-password" class="TextboxLarge" type="text" value=""
+                         id="fman-extract-password"/>
+    </label>
+{% endblock %}
+
 {% set startButtonValue = theUILang.flm_diag_extract_button %}
 
 {% block scripts %}
@@ -20,6 +28,7 @@
             // service
             flm.manager.doExtract = function(archiveFiles, toDir) {
 
+                var password = $("#fman-extract-password");
 
                 var deferred = $.Deferred();
 
@@ -36,11 +45,12 @@
 
                 var cPath = flm.getCurrentPath();
 
-                flm.manager.logStart(theUILang.fStarts.extract);
-
-                return flm.api.extractFiles( flm.manager.getFullPaths(archiveFiles),  flm.manager.stripHomePath(toDir))
+                return flm.api.extractFiles(
+                    flm.manager.getFullPaths(archiveFiles),
+                    flm.manager.stripHomePath(toDir),
+                   password.val()
+            )
                     .then(function (response) {
-                        flm.manager.logConsole('extract', archiveFiles.length + ' files -> ' +toDir);
                         flm.Refresh(cPath);
                         return response;
                     },

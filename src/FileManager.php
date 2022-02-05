@@ -186,6 +186,8 @@ class FileManager
             }
 
             $archive = new Archive($this->getFsPath($archive_file));
+            $archive->setOptions(['password' => $paths['password']]);
+
 
             $res = $archive->extract($this->getFsPath($to));
         }

@@ -71,7 +71,7 @@ class Archive
         $task_opts = [
             'requester' => 'filemanager',
             'name' => 'compress',
-            'arg' => count($p->files) . ' files in ' . $p->archive
+            'arg' => count($p->files) . ' files in ' . basename($p->archive)
         ];
 
         $rtask = TaskController::from($task_opts);
@@ -113,7 +113,8 @@ class Archive
 
         $p = (object)[
             'to' => './',
-            'binary' => Utility::getExternal('7zip')
+            'binary' => Utility::getExternal('7zip'),
+            'password' => $this->options['password']
         ];
 
         $task_opts = [

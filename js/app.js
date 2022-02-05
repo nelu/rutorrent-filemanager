@@ -535,10 +535,11 @@
                 });
             };
 
-            client.extractFiles = function (archiveFiles, toDir) {
+            client.extractFiles = function (archiveFiles, toDir, password) {
                 return this.runTask("unpack",  {
                     method: 'filesExtract',
                     fls: archiveFiles,
+                    password: password,
                     to: toDir
                 });
             };
@@ -1093,7 +1094,19 @@
                         menu.push([CMENU_SEP]);
 
                         if (utils.isArchive(target)) {
-                            menu.push([theUILang.fExtracta, "flm.ui.getDialogs().showDialog('extract')"]);
+
+                            menu.push([theUILang.fExtracta, function() {
+                                var archives = [];
+                                var entry;
+                                for(var i=0; i< browse.selectedEntries.length; i++)
+                                {
+                                    entry = browse.selectedEntries[i];
+                                    utils.isArchive(entry) && archives.push(entry)
+                                }
+                                browse.selectedEntries = archives;
+
+                                window.flm.ui.getDialogs().showDialog('extract');
+                            }]);
                             menu.push([CMENU_SEP]);
                         }
 
