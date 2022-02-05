@@ -338,7 +338,7 @@ class FileManager
         $rtask = TaskController::from($task_opts);
         $commands = [TaskController::getTaskCmd(FileChecksum::class . '::fromChecksumFile', [$sfvfile])];
 
-        $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
+        $ret = $rtask->start($commands, 0);
 
         return $ret;
     }
@@ -367,7 +367,7 @@ class FileManager
 
         $commands = [TaskController::getTaskCmd(FileChecksum::class . '::checksumFromFilelist', [$filelist, $this->getFsPath($sfvfile)])];
 
-        $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
+        $ret = $rtask->start($commands, 0);
 
         return $ret;
     }

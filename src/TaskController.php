@@ -77,11 +77,11 @@ class TaskController
         return $out_file;
     }
 
-    public function handle($cmdArgs = null)
+    public function handle($cmdArgs = [])
     {
         $entry = array_shift($cmdArgs); // entrypoint
-
-        if (count($cmdArgs) >= 1) {
+        $success = false;
+        if (count($cmdArgs) > 1) {
             $taskMethod = array_shift($cmdArgs);
             $parts = explode("::", $taskMethod);
 
