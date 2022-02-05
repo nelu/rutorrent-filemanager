@@ -1414,20 +1414,18 @@
                 },
 
                 afterLoad: function (id, what) {
-                    setTimeout(function () {
-                        $('.flm-diag-start').focus();
-
-                    }, 100);
 
                 },
 
+                startButton: function(diag) {
+                    diag = this.getDialogId(diag);
+                    return $(diag + ' .flm-diag-start');
+                },
                 disableStartButton: function (diag) {
-                    diag = diag || this.getDialogId('window');
-                    $(diag + ' .flm-diag-start').attr('disabled', true);
+                    this.startButton(diag).attr('disabled', true);
                 },
                 enableStartButton: function (diag) {
-                    diag = diag || this.getDialogId('window');
-                    $(diag + ' .flm-diag-start').attr('disabled', false);
+                    this.startButton(diag).attr('disabled', false);
                 },
 
                 getCheckedList: function (diag) {

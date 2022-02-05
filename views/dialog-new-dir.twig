@@ -4,11 +4,14 @@
         <fieldset>
             <legend>{{ theUILang.fcNewDir }}</legend>
             <label for="fMan-ndirname"><strong>{{ theUILang.Name }}:</strong></label>
+            <form>
+
             <input type="text"
                    name="fMan-ndirname"
                    id="fMan-ndirname"
                    value="New Folder"
                    style="width:200px;"/>
+            </form>
         </fieldset>
     </div>
 {% endblock %}
@@ -16,10 +19,12 @@
     <script>
         (function (global) {
 
+            var nameInput = $('#fMan-ndirname');
+
             flm.ui.getDialogs().onStart(
                 function () {
                     console.log('hello from dialog new dir twig');
-                    var dirname = flm.utils.basename($('#fMan-ndirname').val());
+                    var dirname = flm.utils.basename(nameInput.val());
                     var currentPath = flm.getCurrentPath();
                     var hasError;
 
@@ -44,6 +49,14 @@
 
             });
 
+            nameInput.parent().on('submit', function () {
+                flm.ui.dialogs.startButton('mkdir').click();
+                return false
+            });
+            setTimeout(function () {
+                nameInput.click();
+                nameInput.select();
+            });
         })
         (window);
     </script>
