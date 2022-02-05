@@ -5,6 +5,7 @@ namespace Flm;
 use Exception;
 use Flm\mediainfoSettings;
 use rTask;
+use rTorrentSettings;
 use Utility;
 use FileUtil;
 
@@ -72,10 +73,8 @@ class FileManager
         return '/' . rtrim($relative, '/');
     }
 
-    public function getFsPath($relative = null) {
-        return $this->fs->rootPath($this->currentDir($relative));
-    }
-    public function fs() {
+    public function fs()
+    {
         return $this->fs;
     }
 
@@ -109,6 +108,11 @@ class FileManager
         $archive->setOptions((array)$options);
 
         return $archive->create($files);
+    }
+
+    public function getFsPath($relative = null)
+    {
+        return $this->fs->rootPath($this->currentDir($relative));
     }
 
     public function currentDir($relative_path = null)
@@ -196,7 +200,7 @@ class FileManager
         $file = $this->currentDir($path->target);
 
         if (!$this->fs->isFile($file)) {
-            throw new Exception( $file, 6);
+            throw new Exception($file, 6);
         }
 
         $commands = [];
@@ -290,7 +294,13 @@ class FileManager
             throw new Exception($to, 16);
         }
 
-        return $this->fs->rename($file, $to);
+        $res = $this->fs->rename($file, $to);
+
+        if ($res) {
+            rTorrentSettings::get()->pushEvent('File_rename', [$file, $to]);
+        }
+
+        return ['success' => $res];
     }
 
     public function remove($paths): array
@@ -326,7 +336,7 @@ class FileManager
         ];
 
         $rtask = TaskController::from($task_opts);
-        $commands = [TaskController::getTaskCmd(FileChecksum::class.'::fromChecksumFile', [$sfvfile])];
+        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::fromChecksumFile', [$sfvfile])];
 
         $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
 
@@ -355,7 +365,7 @@ class FileManager
         $rtask = TaskController::from($task_opts);
         $filelist = ($rtask->writeFile)("files.json", json_encode($files));
 
-        $commands = [TaskController::getTaskCmd(FileChecksum::class.'::checksumFromFilelist', [$filelist, $this->getFsPath($sfvfile)])];
+        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::checksumFromFilelist', [$filelist, $this->getFsPath($sfvfile)])];
 
         $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
 

@@ -14,12 +14,10 @@ class Filesystem
     /**
      * Filesystem constructor.
      * @param string $root
-     * @param string $name
      */
-    public function __construct($root, $name = 'filemanager')
+    public function __construct($root)
     {
         $this->root = FileUtil::addslash($root);
-        $this->name = $name;
     }
 
     /**
@@ -44,13 +42,13 @@ class Filesystem
         return true;
     }
 
-    public function isDir($path) : bool
+    public function isDir($path): bool
     {
         $path = $this->rootPath($path);
         return RemoteShell::test($path, 'd');
     }
 
-    public function rootPath($relative_path = null) : string
+    public function rootPath($relative_path = null): string
     {
         return ($relative_path == null)
             ? $this->root
@@ -79,12 +77,11 @@ class Filesystem
             $commands[] = ShellCmds::recursiveCopy($file, $to);
         }
 
-        $task_opts = ['requester' => $this->name,
+        $rtask = TaskController::task([
             'name' => 'copy',
             'arg' => count($files) . ' files'
-        ];
+        ]);
 
-        $rtask = new rTask($task_opts);
         $ret = $rtask->start($commands, 0);
 
         return $ret;
@@ -100,17 +97,15 @@ class Filesystem
             $commands[] = ShellCmds::recursiveMove($file, $to);
         }
 
-        $task_opts = [
-            'requester' => $this->name,
+        $rtask = TaskController::task([
             'name' => 'move',
-            'arg' => count($files) . ' files'
-        ];
+            'arg' => count($files) . ' files',
+            'files' => $files
+        ]);
 
-        $rtask = new rTask($task_opts);
         $ret = $rtask->start($commands, 0);
 
         return $ret;
-
     }
 
     public function remove($files): array
@@ -121,14 +116,11 @@ class Filesystem
             $commands[] = ShellCmds::recursiveRemove($this->rootPath($file));
         }
 
-        $task_opts = [
-            'requester' => $this->name,
+        $rtask = TaskController::task([
             'name' => 'remove',
             'arg' => count($files) . ' files',
             'files' => $files
-        ];
-
-        $rtask = new rTask($task_opts);
+        ]);
 
         $ret = $rtask->start($commands, 0);
 
@@ -141,15 +133,15 @@ class Filesystem
      * @return array
      * @throws Exception
      */
-    public function rename($from, $to): array
+    public function rename($from, $to): bool
     {
         $cmd = ShellCmds::recursiveMove($this->rootPath($from), $this->rootPath($to));
-        $result = RemoteShell::get()->execOutput($cmd, []);
-        if (!$result) {
-            throw new Exception("Error Processing Request", 4);
+        $output = RemoteShell::get()->execOutput($cmd, [], $exitCode);
+        if ($exitCode != 0) {
+            throw new Exception(implode("\n", $output), 4);
         }
 
-        return $result;
+        return true;
     }
 
     /**

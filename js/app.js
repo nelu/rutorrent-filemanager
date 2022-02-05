@@ -1885,7 +1885,7 @@
         flm.Refresh = function (dir) {
 
             if (!$type(dir) || (dir === flm.currentPath)) {
-                flm.goToPath(flm.currentPath);
+                return flm.goToPath(flm.currentPath);
             }
 
         };
