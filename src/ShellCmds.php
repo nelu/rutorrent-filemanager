@@ -6,7 +6,7 @@ namespace Flm;
 
 class ShellCmds
 {
-    public static function mkdir($target, $recursive = false, $mode = null) : ShellCmd
+    public static function mkdir($target, $recursive = false, $mode = null): ShellCmd
     {
         return ShellCmd::from('mkdir', ['-p' => $recursive, '--mode=' => $mode, $target]);
     }
@@ -31,7 +31,7 @@ class ShellCmds
 
     public static function recursiveRemove($file): string
     {
-        $fName = Helper::mb_escapeshellarg('✓ ' .basename($file));
+        $fName = Helper::mb_escapeshellarg('✓ ' . basename($file));
         $file = Helper::mb_escapeshellarg($file);
         $cmd = "rm -rf {$file} && echo {$fName}";
 

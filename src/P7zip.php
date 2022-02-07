@@ -61,7 +61,8 @@ class P7zip extends ShellCmd
         $self->setCommand(static::ARCHIVE_COMMAND);
         $self->setArchiveFile($archive);
 
-        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled()) {
+        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled())
+        {
             throw new Exception("Invalid archive file: " . $archive);
         }
 
@@ -79,22 +80,34 @@ class P7zip extends ShellCmd
         $self = new static();
         $self->setCommand(static::EXTRACT_COMMAND);
         $self->setArchiveFile($archive);
-        if (!empty($toDirectory)) {
+        if (!empty($toDirectory))
+        {
             $self->setOutputDir($toDirectory);
         }
 
-        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled()) {
+        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled())
+        {
             throw new Exception("Invalid archive file: " . $archive);
         }
 
         return $self;
     }
 
-    public static function hash(string $checksumfile)
+    public static function hash(string $file)
     {
         $self = new static();
         $self->setCommand(static::HASH_COMMAND);
+        $self->setArchiveFile($file);
+
+        $self->setArg('| awk', true);
+        $self->setArg(count($self->getArgs()) + 1, '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1}');
+
         return $self;
+    }
+
+    public static function from($p)
+    {
+
     }
 
     public function setCompression(int $value = 1)
@@ -160,9 +173,11 @@ class P7zip extends ShellCmd
      */
     public function setArchiveFile(string $archiveFile)
     {
-        if (empty($archiveFile)) {
+        if (empty($archiveFile))
+        {
             $this->disableArchiveFile();
-        } else {
+        } else
+        {
             $this->disableArchiveFile(false);
             $this->setArg(static::ARCHIVE_FILE_ARG, $archiveFile);
         }
@@ -203,9 +218,9 @@ class P7zip extends ShellCmd
 
     public function setVolumeSize($value = 0)
     {
-        if(!empty($value))
+        if (!empty($value))
         {
-            $value = $value.'k';
+            $value = $value . 'k';
         }
         $this->setArg('-v', $value);
         return $this;

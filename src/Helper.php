@@ -3,8 +3,9 @@
 namespace Flm;
 
 use FileUtil;
-use Utility;
-use User;
+use rCache;
+use rXMLRPCCommand;
+use rXMLRPCRequest;
 
 class Helper
 {
@@ -15,10 +16,11 @@ class Helper
     protected static $config;
 
 
-    public static function registerAutoload($dir = __DIR__, $prefix = __NAMESPACE__) {
+    public static function registerAutoload($dir = __DIR__, $prefix = __NAMESPACE__)
+    {
         spl_autoload_register(function ($class) use ($dir, $prefix) {
 
-            $prefix .=  '\\';
+            $prefix .= '\\';
             // does the class use the namespace prefix?
             if (stripos($class, $prefix) === false)
             {
@@ -29,34 +31,25 @@ class Helper
             // replace the namespace prefix with the base directory, replace namespace
             // separators with directory separators in the relative class name, append
             // with .php
-            $file =  $dir . '/'. str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-      
-            if (file_exists($file)) {
+            $file = $dir . '/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+
+            if (file_exists($file))
+            {
                 require $file;
             }
         });
     }
 
-    protected static function newTempDir()
-    {
-        $tmp['dir'] = FileUtil::getTempFilename('fman') . DIRECTORY_SEPARATOR;
-        $tmp['tok'] = basename($tmp['dir']);
-
-        (new Filesystem('/'))->mkdir($tmp['dir'], true, 777);
-
-        return $tmp;
-    }
-
-
     public static function makeRelative($a = [])
     {
-        if(!is_array($a)) {
+        if (!is_array($a))
+        {
             $a = [$a];
         }
         $r = [];
         foreach ($a as $value)
         {
-            $r[] =  './'.ltrim($value, '/');
+            $r[] = './' . ltrim($value, '/');
         }
 
         return $r;
@@ -74,12 +67,15 @@ class Helper
         $args = !is_array($args) ? (array)$args : $args;
 
 
-        foreach ($args as $key => $value) {
-            if ($key === 'binary') {
+        foreach ($args as $key => $value)
+        {
+            if ($key === 'binary')
+            {
                 continue;
             }
 
-            if (is_array($value) || is_object($value)) {
+            if (is_array($value) || is_object($value))
+            {
                 $args[$key] = self::escapeCmdArgs($value);
                 continue;
             }
@@ -93,12 +89,13 @@ class Helper
         return $args;
     }
 
-
     public static function mb_escapeshellarg($arg)
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+        {
             return '"' . str_replace(['"', '%'], ['', ''], $arg) . '"';
-        } else {
+        } else
+        {
             return "'" . str_replace("'", "'\\''", $arg) . "'";
         }
     }
@@ -106,11 +103,13 @@ class Helper
     public static function getConfig($section = null)
     {
 
-        if (is_null(self::$config)) {
+        if (is_null(self::$config))
+        {
 
             eval(FileUtil::getPluginConf('filemanager'));
 
-            if (!isset($config)) {
+            if (!isset($config))
+            {
                 require_once(dirname(__FILE__) . '/../conf.php');
             }
 
@@ -125,17 +124,19 @@ class Helper
 
         $fno = intval($fno);
 
-        $req = new \rXMLRPCRequest(new \rXMLRPCCommand("f.get_frozen_path", [$hash, $fno]));
+        $req = new rXMLRPCRequest(new rXMLRPCCommand("f.get_frozen_path", [$hash, $fno]));
 
         $filename = '';
 
-        if ($req->success()) {
+        if ($req->success())
+        {
             $filename = $req->val[0];
-            if ($filename == '') {
-                $req = new \rXMLRPCRequest([
-                    new \rXMLRPCCommand("d.open", $hash),
-                    new \rXMLRPCCommand("f.get_frozen_path", [$hash, $fno]),
-                    new \rXMLRPCCommand("d.close", $hash)]);
+            if ($filename == '')
+            {
+                $req = new rXMLRPCRequest([
+                    new rXMLRPCCommand("d.open", $hash),
+                    new rXMLRPCCommand("f.get_frozen_path", [$hash, $fno]),
+                    new rXMLRPCCommand("d.close", $hash)]);
                 if ($req->success())
                     $filename = $req->val[1];
             }
@@ -144,6 +145,16 @@ class Helper
         }
 
         return $filename;
+    }
+
+    protected static function newTempDir()
+    {
+        $tmp['dir'] = FileUtil::getTempFilename('fman') . DIRECTORY_SEPARATOR;
+        $tmp['tok'] = basename($tmp['dir']);
+
+        (new Filesystem('/'))->mkdir($tmp['dir'], true, 777);
+
+        return $tmp;
     }
 }
 
@@ -154,7 +165,7 @@ class Settings
 
     static public function load()
     {
-        $cache = new \rCache();
+        $cache = new rCache();
         $rt = new mediainfoSettings();
         return ($cache->get($rt) ? $rt : null);
     }
@@ -167,7 +178,7 @@ class mediainfoSettings
 
     static public function load()
     {
-        $cache = new \rCache();
+        $cache = new rCache();
         $rt = new mediainfoSettings();
         return ($cache->get($rt) ? $rt : null);
     }

@@ -2,10 +2,9 @@
 
 namespace Flm;
 
-use \Exception;
+use Exception;
 use FileUtil;
 use rTask;
-use Throwable;
 use Utility;
 
 class TaskController
@@ -22,7 +21,8 @@ class TaskController
 
     public static function log($line, $console_output = true)
     {
-        if ($console_output) {
+        if ($console_output)
+        {
             echo $line . "\n";
         }
     }
@@ -54,7 +54,8 @@ class TaskController
 
     public static function task($task_opts = []): rTask
     {
-        if (empty($task_opts)) {
+        if (empty($task_opts))
+        {
             throw new Exception("Invalid task options");
         }
 
@@ -77,22 +78,30 @@ class TaskController
         return $out_file;
     }
 
+    public static function error($line)
+    {
+        return fwrite(STDERR, $line . PHP_EOL);
+    }
+
     public function handle($cmdArgs = [])
     {
         $entry = array_shift($cmdArgs); // entrypoint
         $success = false;
-        if (count($cmdArgs) > 1) {
+        if (count($cmdArgs) > 1)
+        {
             $taskMethod = array_shift($cmdArgs);
             $parts = explode("::", $taskMethod);
 
             $taskClass = $this;
 
-            if (count($parts) > 1) {
+            if (count($parts) > 1)
+            {
                 $taskMethod = $parts[1];
                 $taskClass = $parts[0];
             }
 
-            if (!method_exists($taskClass, $taskMethod)) {
+            if (!method_exists($taskClass, $taskMethod))
+            {
                 $this->error("Invalid method/argument: " . $taskClass . '::' . $taskMethod);
                 return false;
             }
@@ -102,11 +111,6 @@ class TaskController
         }
 
         return $success;
-    }
-
-    public static function error($line)
-    {
-        return fwrite(STDERR, $line . PHP_EOL);
     }
 
 }

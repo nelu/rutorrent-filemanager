@@ -2,7 +2,7 @@
 
 namespace Flm;
 
-use \Exception;
+use Exception;
 use rTask;
 use Utility;
 
@@ -24,7 +24,7 @@ class Archive
     /**
      * @param $o
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function compressCmd($o): string
     {
@@ -34,7 +34,8 @@ class Archive
         $wrapper->setFileList($o->fileList)
             ->setProgressIndicator(1);
 
-        if ($o->multiplePass) {
+        if ($o->multiplePass)
+        {
 
             $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
                 ->setProgressIndicator(2)
@@ -90,10 +91,12 @@ class Archive
      */
     public function create($files)
     {
-        if (empty($this->workDir)) {
+        if (empty($this->workDir))
+        {
             throw new Exception("setWorkDir first", 1);
         }
-        if (empty($this->options)) {
+        if (empty($this->options))
+        {
             throw new Exception("setOptions first", 1);
         }
 
@@ -124,7 +127,8 @@ class Archive
 
     public function getCompressBin($archive = '')
     {
-        if (empty($archive)) {
+        if (empty($archive))
+        {
             $archive = $this->file;
         }
         $type = pathinfo($archive, PATHINFO_EXTENSION);
@@ -151,7 +155,8 @@ class Archive
 
     public function extract($path = null)
     {
-        if (!is_null($path)) {
+        if (!is_null($path))
+        {
             $this->setWorkDir($path);
         }
 
