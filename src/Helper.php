@@ -47,6 +47,21 @@ class Helper
         return $tmp;
     }
 
+
+    public static function makeRelative($a = [])
+    {
+        if(!is_array($a)) {
+            $a = [$a];
+        }
+        $r = [];
+        foreach ($a as $value)
+        {
+            $r[] =  './'.ltrim($value, '/');
+        }
+
+        return $r;
+    }
+
     public static function getExt($file)
     {
         return (pathinfo($file, PATHINFO_EXTENSION));

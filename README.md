@@ -64,5 +64,4 @@ See these additional filemanager plugins for extended functionality:
 Feel free to contribute with commits and docs
 
 TODO:
-- fully migrate the archive related functionality to 7zip
-- implement listeners for operation events (move, rename, delete)
+- use 7zip for file checksum operations (multiple hashing algorithms): replace native php sfv hasher and implement more algos

@@ -3,21 +3,15 @@
 namespace Flm;
 
 use \Exception;
-use FileUtil;
 use rTask;
 use Utility;
 
 class Archive
 {
 
-    static $rar = ['compress' => '',
-        'extract' => ''];
     public $file;
-
-    protected $config = [];
-
     public $options = [];
-
+    protected $config = [];
     protected $workDir;
 
 
@@ -27,19 +21,63 @@ class Archive
         $this->config = $config;
     }
 
+    /**
+     * @param $o
+     * @return string
+     * @throws \Exception
+     */
+    public static function compressCmd($o): string
+    {
+        $type = ($o->type == 'rar') ? Rar::class : P7zip::class;
+        $cmd = [];
+        $wrapper = $type::pack('')->bin($o->binary);
+        $wrapper->setFileList($o->fileList)
+            ->setProgressIndicator(1);
+
+        if ($o->multiplePass) {
+
+            $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
+                ->setProgressIndicator(2)
+                ->setStdOutput(true)
+                ->cmd();
+
+            // pipe to specified binary
+            $wrapper->bin($o->binary)
+                ->setArchiveType($o->multiplePass[1])
+                ->setProgressIndicator(1)
+                ->setReadFromStdin(true)
+                ->setFileList(false)
+                ->setStdOutput(false);
+        }
+
+        $cmd[] = $wrapper->setArchiveFile($o->archive)
+            ->setVolumeSize($o->volumeSize > 0 ? $o->volumeSize : false)
+            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
+            ->setCompression($o->compression ?? false)
+            ->cmd();
+
+        return implode(" | ", $cmd);
+    }
+
+    public static function extractCmd($o)
+    {
+        return P7zip::unpack($o->file, $o->to)->bin($o->binary)
+            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
+            ->setProgressIndicator(1)
+            ->cmd();
+    }
+
     public function setOptions($options)
     {
-        $aopts = $this->config;
-        $aopts = $aopts['type'][$options['type']];
-
+        $aopts = $this->config['type'][$options['type']];
         $compression = $aopts['compression'][$options['compression']];
 
         $this->options = [
             'type' => $options['type'],
             'compression' => $compression,
             'password' => $options['password'],
-            'volume_size' => (intval($options['volumeSize']) * 1024),
-            'multi_passes' => isset($aopts['multipass']) ? $aopts['multipass'] : []
+            'volumeSize' => (int)$options['volumeSize'] * 1024,
+            'multiplePass' => isset($aopts['multipass']) ? $aopts['multipass'] : []
         ];
 
         return $this;
@@ -53,33 +91,30 @@ class Archive
     public function create($files)
     {
         if (empty($this->workDir)) {
-            throw new Exception("Please setWorkDir first", 1);
-
+            throw new Exception("setWorkDir first", 1);
         }
         if (empty($this->options)) {
-            throw new Exception("Please load setOptions first", 1);
+            throw new Exception("setOptions first", 1);
         }
 
-        $p = (object)[
-            'files' => array_map(function ($e) {return basename($e);}, $files),
-            'work_dir' => $this->workDir,
-            'archive' => $this->file,
-            'options' => (object)$this->options,
-            'binary' => $this->getCompressBin()
-        ];
+        $p = (object)array_merge($this->options,
+            [
+                'fileList' => "files.list",
+                'files' => $files,
+                'archive' => $this->file,
+                'binary' => $this->getCompressBin()
+            ]);
 
-        $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'compress',
-            'arg' => count($p->files) . ' files in ' . basename($p->archive)
-        ];
+        $rtask = TaskController::from([
+            'name' => 'archive',
+            'arg' => count($files) . ' files in ' . basename($p->archive)
+        ]);
 
-        $rtask = TaskController::from($task_opts);
-        $p->filelist = ($rtask->writeFile)("files.list", implode("\n", $p->files)."\n");
+        $p->fileList = ($rtask->writeFile)($p->fileList, implode("\n", $p->files) . "\n");
 
         $cmds = [
             'cd ' . Helper::mb_escapeshellarg($this->workDir),
-            '{', ArchiveFormats::getArchiveCompressCmd($p), '}',
+            '{', self::compressCmd($p), '}',
         ];
 
         $ret = $rtask->start($cmds, rTask::FLG_DEFAULT);
@@ -87,10 +122,21 @@ class Archive
         return $ret;
     }
 
+    public function getCompressBin($archive = '')
+    {
+        if (empty($archive)) {
+            $archive = $this->file;
+        }
+        $type = pathinfo($archive, PATHINFO_EXTENSION);
+
+        $formatBin = isset($this->config['type'][$type]['bin']) ? $this->config['type'][$type]['bin'] : '7zip';
+        return Utility::getExternal($formatBin);
+    }
+
     /**
      * @return string
      */
-    public function getWorkDir() : string
+    public function getWorkDir(): string
     {
         return $this->workDir;
     }
@@ -100,53 +146,27 @@ class Archive
      */
     public function setWorkDir($workDir)
     {
-        $this->workDir = FileUtil::addslash($workDir);
+        $this->workDir = $workDir;
     }
-
 
     public function extract($path = null)
     {
-        if(!is_null($path))
-        {
+        if (!is_null($path)) {
             $this->setWorkDir($path);
         }
 
-        $p = (object)[
+        $p = (object)array_merge($this->options, [
+            'file' => $this->file,
             'to' => './',
             'binary' => Utility::getExternal('7zip'),
-            'password' => $this->options['password']
-        ];
+        ]);
 
-        $task_opts = [
-            'requester' => 'filemanager',
-            'name' => 'unpack',
-            'arg' => basename($this->file)
-        ];
-
-
-        $cmds = [
-            implode(" ", ShellCmds::mkdir($this->workDir, true)),
+        $cmds = [ShellCmds::mkdir($this->workDir, true)->cmd(),
             '{', 'cd ' . Helper::mb_escapeshellarg($this->workDir), '}',
         ];
 
-        foreach ([$this->file] as $file) {
-            $p->file = $file;
-            $cmds[] = ArchiveFormats::extractCmd($p);
-        }
+        $cmds[] = self::extractCmd($p);
 
-        $rtask = new rTask($task_opts);
-        return $rtask->start($cmds, rTask::FLG_DEFAULT);
-    }
-
-    public function getCompressBin($archive = '') {
-
-        if(empty($archive))
-        {
-            $archive = $this->file;
-        }
-        $type = pathinfo($archive, PATHINFO_EXTENSION);
-
-        $formatBin = isset($this->config['type'][$type]['bin']) ? $this->config['type'][$type]['bin'] : '7z';
-        return Utility::getExternal($formatBin);
+        return $cmds;
     }
 }

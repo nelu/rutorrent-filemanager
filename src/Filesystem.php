@@ -33,7 +33,7 @@ class Filesystem
             throw new Exception($target, 16);
         }
 
-        $args = ShellCmds::mkdir($this->rootPath($target), $recursive, $mode);
+        $args = ShellCmds::mkdir($this->rootPath($target), $recursive, $mode)->cmd(true);
 
         if (!RemoteShell::get()->execOutput(array_shift($args), $args)) {
             throw new Exception("Error Processing Request", 4);

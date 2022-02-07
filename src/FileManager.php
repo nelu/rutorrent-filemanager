@@ -85,24 +85,23 @@ class FileManager
      */
     public function archive($paths)
     {
-        $archive_file = $paths->target;
+        $archive_file = array_shift(Helper::makeRelative($this->currentDir($paths->target)));
         $options = empty($paths->mode) ? [] : (array)$paths->mode;
 
         $config = Helper::getConfig('archive');
 
-        if (!isset($options['type'])
-            || !isset($config['type'][$options['type']])) {
-            throw new Exception("invalid type", 1);
+        if (!isset($config['type'][$options['type']])) {
+            throw new Exception("Invalid type: " . $options['type'], 1);
         }
 
-        $files = (array)$paths->fls;
+        $files = Helper::makeRelative((array)$paths->fls);
 
         if ($this->fs->isFile($archive_file)) {
             throw new Exception($archive_file, 16);
         }
 
-        $archive = new Archive($this->getFsPath($archive_file), $config);
-        $archive->setWorkDir($this->getFsPath(dirname($files[0])));
+        $archive = new Archive($archive_file, $config);
+        $archive->setWorkDir(FileUtil::addslash($this->getFsPath()));
         $archive->setOptions($options);
 
         return $archive->create($files);
@@ -177,8 +176,8 @@ class FileManager
         } else if (!RemoteShell::test($this->getFsPath($to), 'w')) {
             throw new Exception("Not writable: " . $to, 300);
         }
-
-        $res = [];
+        $count = count($paths['archives']);
+        $cmds = [];
         foreach ($paths['archives'] as $archive_file) {
             $archive_file = $this->currentDir($archive_file);
             if (!$this->fs->isFile($archive_file)) {
@@ -188,11 +187,15 @@ class FileManager
             $archive = new Archive($this->getFsPath($archive_file));
             $archive->setOptions(['password' => $paths['password']]);
 
-
-            $res = $archive->extract($this->getFsPath($to));
+            $cmds = array_merge($cmds, $archive->extract($this->getFsPath($to)));
         }
 
-        return $res;
+        $rtask = TaskController::from([
+            'name' => 'unpack',
+            'arg' => $count == 1 ? basename($paths['archives'][0]) : $count.' items'
+        ]);
+
+        return $rtask->start($cmds, rTask::FLG_DEFAULT);
     }
 
     public function mediainfo($path)

@@ -27,10 +27,6 @@
             {{ theUILang.fDiagCArchVsize }}
             <input name="fman-archive-vsize" id="fman-archive-vsize" class="Textbox num1" type="text" value=""/>
         </label>
-        <label style="float: right;" class="fman-archive-settings-rar">
-            <input name="fman-archive-multiv" id="fman-archive-multiv" type="checkbox" value="1"
-                   style="margin-right: 5px; margin-top:8px;"/>
-        </label>
 
         <div>
             <label style="clear:both; float: left; display:none;"
@@ -39,13 +35,6 @@
                                  id="fman-archive-apassword"/>
             </label>
 
-            <label style=" float: right; display:none;" class="fman-archive-settings-rar">
-                Multi-volume format:
-                <select name="fman-archive-arcnscheme" id="fman-archive-arcnscheme" disabled="disabled">
-                    <option value="new" selected="selected">NEW - .part1.rar</option>
-                    <option value="old">OLD - .r01</option>
-                </select>
-            </label>
         </div>
 
     </fieldset>
@@ -135,11 +124,10 @@
             var updateCompression = function () {
 
                 var type = archiveType.val().toLowerCase();
-                var notRar = (type !== 'rar');
+                $('.fman-archive-settings-rar').show();
 
-                if (type === 'rar') {
+                if (type !== 'xxx') {
                     $('.fman-archive-settings-rar').show();
-                    $("#fman-archive-vsize").attr("disabled", (!$("#fman-archive-multiv").attr("disabled", notRar).is(':checked') || notRar));
                 } else {
                     $('.fman-archive-settings-pass,.fman-archive-settings-rar').hide();
 
@@ -157,12 +145,6 @@
                     archiveType.append('<option value="' + type + '">' + type.toUpperCase() + '</option>');
                 }
             }
-
-            $("#fman-archive-multiv").change(function () {
-                var dis = $(this).is(':checked');
-                volumeSize.attr("disabled", !dis);
-                format.attr("disabled", !dis);
-            });
 
             $(diagId + ' .flm-diag-nav-path').change(function (event) {
                 flm.utils.isDir(event.target.value) && updateArchiveName(event.target.value);

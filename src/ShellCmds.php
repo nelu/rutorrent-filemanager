@@ -6,21 +6,9 @@ namespace Flm;
 
 class ShellCmds
 {
-    public static function mkdir($target, $recursive = false, $mode = null)
+    public static function mkdir($target, $recursive = false, $mode = null) : ShellCmd
     {
-        $args = ['mkdir'];
-
-        if($mode != null)
-        {
-            $args[] = '--mode=' . $mode;
-        }
-        if ($recursive) {
-            $args[] = '-p';
-        }
-
-        $args[] = Helper::mb_escapeshellarg($target);;
-
-        return $args;
+        return ShellCmd::from('mkdir', ['-p' => $recursive, '--mode=' => $mode, $target]);
     }
 
     public static function recursiveCopy($source, $to)
