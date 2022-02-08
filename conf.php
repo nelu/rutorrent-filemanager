@@ -17,11 +17,11 @@ $config['fileExtractExtensions'] = '7z|bzip2|t?bz2|tgz|gz(ip)?|iso|img|lzma|rar|
 // archive.fileExt -> config
 $config['archive']['type'] = [
     '7z' => [
-        'bin' =>'7zip',
+        'bin' => '7zip',
         'compression' => [1, 5, 9],
     ],
     'rar' => [
-        'bin' =>'rar',
+        'bin' => 'rar',
         'compression' => [0, 3, 5],
     ]];
 

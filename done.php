@@ -1,3 +1,3 @@
 <?php
 
-rTorrentSettings::get()->unregisterEventHook("filemanager","remove");
+rTorrentSettings::get()->unregisterEventHook("filemanager", "remove");

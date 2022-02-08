@@ -2,8 +2,8 @@
 
 namespace Flm;
 
-use \rXMLRPCCommand;
-use \Exception;
+use Exception;
+use rXMLRPCCommand;
 use rXMLRPCRequest;
 
 require_once(realpath(dirname(__FILE__) . '/../../../php/xmlrpc.php'));
@@ -15,11 +15,46 @@ class RemoteShell extends rXMLRPCRequest
 
     public static function test($target, $o): bool
     {
-        $args = ['-' . $o, Helper::mb_escapeshellarg($target)];
-        $expectedCode = 1;
-        self::get()->execOutput('test', $args, $expectedCode);
+        $args = ['-' . $o, $target];
+        $res = ShellCmd::bin('test', $args)->runRemote();
+        $exitCode = $res[0];
+        return ($exitCode === 0);
+    }
 
-        return ($expectedCode === 0);
+    public static function merge_cmd_args($shell_cmd, $args)
+    {
+        return array_merge([$shell_cmd], $args);
+    }
+
+    public static function get()
+    {
+        if (is_null(self::$instance))
+        {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public static function getExitCode(&$output): int
+    {
+        $code = 0;
+
+        if (is_null($output))
+        {
+            $output = '';
+        }
+
+        // look for exit code at the end of the output
+        if (preg_match('/(.*?)([0-9]+)?\n?$/s', $output, $matches))
+        {
+            $output = $matches[1];
+            if (isset($matches[2]))
+            {
+                $code = (int)$matches[2];
+            }
+        }
+
+        return $code;
     }
 
     public function execCmd($shell_cmd, $args = [])
@@ -31,69 +66,35 @@ class RemoteShell extends rXMLRPCRequest
         return $this->success();
     }
 
-    public static function merge_cmd_args($shell_cmd, $args)
-    {
-        return array_merge([$shell_cmd], $args);
-    }
-
-    public static function get()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
     /**
-     * @param $shell_cmd
+     * @param ShellCmd $scmd
      * @param $args
      * @param int $exitCode
      * @return array
      * @throws Exception
      */
-    public function execOutput($shell_cmd, $args, &$exitCode = 0)
+    public function execOutput(ShellCmd $scmd, &$exitCode = 0)
     {
-        $cmd = self::merge_cmd_args($shell_cmd, $args);
+        $shell_cmd =  ['sh', '-c', $scmd->cmd(). ' 2>&1; echo $? && exit 0'];
 
-        $cmd[] = '2>&1; echo $? && exit 0';
+        $this->addCommand(new rXMLRPCCommand('execute_capture', $shell_cmd));
 
-        $ncmd = ['sh', '-c', implode(" ", $cmd)];
-
-        $this->addCommand(new rXMLRPCCommand('execute_capture', $ncmd));
-
-        if (!$this->success()) {
+        if (!$this->success())
+        {
             throw new Exception("Error " . $this->val[1], $this->val[0]);
         }
 
         $code = self::getExitCode($this->val[0]);
 
-        if ($code > $exitCode) {
+        if ($code > $exitCode)
+        {
             throw new Exception($this->val[0], $code);
         }
 
         $exitCode = $code;
+        //var_dump(__METHOD__, $exitCode, $scmd->cmd());
 
         return explode("\n", trim($this->val[0]));
-    }
-
-    public static function getExitCode(&$output): int
-    {
-        $code = 0;
-
-        if (is_null($output)) {
-            $output = '';
-        }
-
-        // look for exit code at the end of the output
-        if (preg_match('/(.*?)([0-9]+)?\n?$/s', $output, $matches)) {
-            $output = $matches[1];
-            if(isset($matches[2]))
-            {
-                $code = (int)$matches[2];
-            }
-        }
-
-        return $code;
     }
 
     public function execBackground($shell_cmd, $args)

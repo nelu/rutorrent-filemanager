@@ -3,11 +3,10 @@
 namespace Flm;
 
 use Exception;
-use Flm\mediainfoSettings;
+use FileUtil;
 use rTask;
 use rTorrentSettings;
 use Utility;
-use FileUtil;
 
 class FileManager
 {
@@ -28,9 +27,30 @@ class FileManager
         $this->settings = $config;
     }
 
+    static public function dir_sort($a, $b)
+    {
+        $a_isdir = ($a['type'] == 'd');
+
+        $b_isdir = ($b['type'] == 'd');
+
+        if ($a_isdir && $b_isdir)
+        {
+            strcmp($a['name'], $b['name']);
+        } elseif ($a_isdir)
+        {
+            return -1;
+        } elseif ($b_isdir)
+        {
+            return 1;
+        }
+
+        return strcmp($a['name'], $b['name']);
+    }
+
     public function workDir($directory = null)
     {
-        if ($directory != null) {
+        if ($directory != null)
+        {
             $this->workdir = FileUtil::addslash($directory);
         }
         /*
@@ -43,30 +63,14 @@ class FileManager
         return $this->workdir;
     }
 
-    static public function dir_sort($a, $b)
-    {
-        $a_isdir = ($a['type'] == 'd');
-
-        $b_isdir = ($b['type'] == 'd');
-
-        if ($a_isdir && $b_isdir) {
-            strcmp($a['name'], $b['name']);
-        } elseif ($a_isdir) {
-            return -1;
-        } elseif ($b_isdir) {
-            return 1;
-        }
-
-        return strcmp($a['name'], $b['name']);
-    }
-
     public function extractChrootPath($fullPath)
     {
         $f = explode($this->fs->rootPath(), $fullPath);
 
         $relative = $fullPath;
 
-        if (count($f) > 1) {
+        if (count($f) > 1)
+        {
             $relative = $f[1];
         }
 
@@ -90,13 +94,15 @@ class FileManager
 
         $config = Helper::getConfig('archive');
 
-        if (!isset($config['type'][$options['type']])) {
+        if (!isset($config['type'][$options['type']]))
+        {
             throw new Exception("Invalid type: " . $options['type'], 1);
         }
 
         $files = Helper::makeRelative((array)$paths->fls);
 
-        if ($this->fs->isFile($archive_file)) {
+        if ($this->fs->isFile($archive_file))
+        {
             throw new Exception($archive_file, 16);
         }
 
@@ -129,11 +135,14 @@ class FileManager
         $files = array_map([$this, 'currentDir'], (array)$paths->fls);
         $to = $this->currentDir($paths->to);
 
-        if (count($files) > 1 && !$this->fs->isDir($to)) {
+        if (count($files) > 1 && !$this->fs->isDir($to))
+        {
             throw new Exception("Destination is not directory", 2);
-        } elseif (count($files) == 1 && $this->fs->isFile($to)) {
+        } elseif (count($files) == 1 && $this->fs->isFile($to))
+        {
             throw new Exception("Destination already exists", 2);
-        } elseif (count($files) > 1) {
+        } elseif (count($files) > 1)
+        {
             // to must be a directory
             $to = FileUtil::addslash($to);
         }
@@ -155,7 +164,8 @@ class FileManager
 
         usort($directory_contents, [$this, 'dir_sort']);
 
-        foreach ($directory_contents as $key => $value) {
+        foreach ($directory_contents as $key => $value)
+        {
             unset($directory_contents[$key]['type']);
         }
 
@@ -171,16 +181,20 @@ class FileManager
     {
         $to = $this->currentDir($paths['to']);
 
-        if ($this->fs->isFile($to)) {
+        if ($this->fs->isFile($to))
+        {
             throw new Exception($to, 16);
-        } else if (!RemoteShell::test($this->getFsPath($to), 'w')) {
+        } else if (!RemoteShell::test($this->getFsPath($to), 'w'))
+        {
             throw new Exception("Not writable: " . $to, 300);
         }
         $count = count($paths['archives']);
         $cmds = [];
-        foreach ($paths['archives'] as $archive_file) {
+        foreach ($paths['archives'] as $archive_file)
+        {
             $archive_file = $this->currentDir($archive_file);
-            if (!$this->fs->isFile($archive_file)) {
+            if (!$this->fs->isFile($archive_file))
+            {
                 throw new Exception($archive_file, 6);
             }
 
@@ -192,7 +206,7 @@ class FileManager
 
         $rtask = TaskController::from([
             'name' => 'unpack',
-            'arg' => $count == 1 ? basename($paths['archives'][0]) : $count.' items'
+            'arg' => $count == 1 ? basename($paths['archives'][0]) : $count . ' items'
         ]);
 
         return $rtask->start($cmds, rTask::FLG_DEFAULT);
@@ -202,7 +216,8 @@ class FileManager
     {
         $file = $this->currentDir($path->target);
 
-        if (!$this->fs->isFile($file)) {
+        if (!$this->fs->isFile($file))
+        {
             throw new Exception($file, 6);
         }
 
@@ -215,7 +230,8 @@ class FileManager
             'name' => 'mediainfo',
             'no' => 0
         ]);
-        if ($st && !empty($st->data["mediainfousetemplate"])) {
+        if ($st && !empty($st->data["mediainfousetemplate"]))
+        {
             $randName = $task->makeDirectory() . "/opts";
             file_put_contents($randName, $st->data["mediainfotemplate"]);
             $flags = "--Inform=file://" . escapeshellarg($randName);
@@ -238,7 +254,8 @@ class FileManager
         // destination is dir ending in /
         $to = FileUtil::addslash($this->currentDir($paths->to));
 
-        if (!$this->fs->isDir($to)) {
+        if (!$this->fs->isDir($to))
+        {
             throw new Exception("Destination is not directory: " . $paths->to, 2);
         }
 
@@ -268,10 +285,12 @@ class FileManager
     {
         $fullpath = $this->getFsPath($file);
 
-        if (!is_file($fullpath)) {
+        if (!is_file($fullpath))
+        {
             throw new Exception($file, 6);
         } elseif (!preg_match('/' . $this->settings['textExtensions'] . '/', Helper::getExt($fullpath))
-            || (filesize($fullpath) > 50000)) {
+            || (filesize($fullpath) > 50000))
+        {
             throw new Exception($file, 18);
         }
 
@@ -290,16 +309,19 @@ class FileManager
         $file = $this->currentDir($paths->file);
         $to = $this->currentDir($paths->to);
 
-        if (!$this->fs->pathExists($file)) {
+        if (!$this->fs->pathExists($file))
+        {
             throw new Exception($file, 6);
         }
-        if ($this->fs->pathExists($to)) {
+        if ($this->fs->pathExists($to))
+        {
             throw new Exception($to, 16);
         }
 
         $res = $this->fs->rename($file, $to);
 
-        if ($res) {
+        if ($res)
+        {
             rTorrentSettings::get()->pushEvent('File_rename', [$file, $to]);
         }
 
@@ -323,11 +345,13 @@ class FileManager
     {
         $sfvfile = $this->currentDir($paths->target);
 
-        if (Helper::getExt($sfvfile) != 'sfv') {
+        if (Helper::getExt($sfvfile) != 'sfv')
+        {
             throw new Exception($sfvfile, 18);
         }
 
-        if (!$this->fs->isFile($sfvfile)) {
+        if (!$this->fs->isFile($sfvfile))
+        {
             throw new Exception($sfvfile, 6);
         }
 
@@ -353,10 +377,12 @@ class FileManager
      */
     public function checksumCreate($paths)
     {
+
         $sfvfile = $this->currentDir($paths->target);
         $files = array_map([$this, 'getFsPath'], (array)$paths->fls);
 
-        if ($this->fs->isFile($sfvfile)) {
+        if ($this->fs->isFile($sfvfile))
+        {
             throw new Exception($sfvfile, 16);
         }
 

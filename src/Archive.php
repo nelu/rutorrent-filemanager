@@ -2,7 +2,7 @@
 
 namespace Flm;
 
-use \Exception;
+use Exception;
 use rTask;
 use Utility;
 
@@ -24,17 +24,18 @@ class Archive
     /**
      * @param $o
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function compressCmd($o): string
     {
         $type = ($o->type == 'rar') ? Rar::class : P7zip::class;
         $cmd = [];
-        $wrapper = $type::pack('')->bin($o->binary);
+        $wrapper = $type::pack('')->binary($o->binary);
         $wrapper->setFileList($o->fileList)
             ->setProgressIndicator(1);
 
-        if ($o->multiplePass) {
+        if ($o->multiplePass)
+        {
 
             $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
                 ->setProgressIndicator(2)
@@ -61,7 +62,7 @@ class Archive
 
     public static function extractCmd($o)
     {
-        return P7zip::unpack($o->file, $o->to)->bin($o->binary)
+        return P7zip::unpack($o->file, $o->to)->binary($o->binary)
             ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
             ->setProgressIndicator(1)
             ->cmd();
@@ -90,10 +91,12 @@ class Archive
      */
     public function create($files)
     {
-        if (empty($this->workDir)) {
+        if (empty($this->workDir))
+        {
             throw new Exception("setWorkDir first", 1);
         }
-        if (empty($this->options)) {
+        if (empty($this->options))
+        {
             throw new Exception("setOptions first", 1);
         }
 
@@ -124,7 +127,8 @@ class Archive
 
     public function getCompressBin($archive = '')
     {
-        if (empty($archive)) {
+        if (empty($archive))
+        {
             $archive = $this->file;
         }
         $type = pathinfo($archive, PATHINFO_EXTENSION);
@@ -151,7 +155,8 @@ class Archive
 
     public function extract($path = null)
     {
-        if (!is_null($path)) {
+        if (!is_null($path))
+        {
             $this->setWorkDir($path);
         }
 
