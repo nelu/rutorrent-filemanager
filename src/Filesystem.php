@@ -32,15 +32,11 @@ class Filesystem
         {
             throw new Exception($target, 16);
         }
-        $res =  ShellCmd::bin('mkdir', [
-            '-p' => true, $recursive,
-            '--mode=' => $mode,
-            $this->rootPath($target)]
-        )->runRemote();
+        $res = ShellCmds::mkdir($this->rootPath($target), $recursive, $mode)->runRemote();
 
         if ($res[0] > 0)
         {
-            throw new Exception("Error Processing Request: ".$target, 4);
+            throw new Exception("Error Processing Request: " . $target, 4);
         }
 
         return true;

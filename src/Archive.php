@@ -30,7 +30,7 @@ class Archive
     {
         $type = ($o->type == 'rar') ? Rar::class : P7zip::class;
         $cmd = [];
-        $wrapper = $type::pack('')->bin($o->binary);
+        $wrapper = $type::pack('')->binary($o->binary);
         $wrapper->setFileList($o->fileList)
             ->setProgressIndicator(1);
 
