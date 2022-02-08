@@ -4,7 +4,6 @@ namespace Flm;
 
 use Exception;
 use FileUtil;
-use rTask;
 
 class Filesystem
 {
@@ -29,14 +28,19 @@ class Filesystem
      */
     public function mkdir($target, $recursive = false, $mode = null)
     {
-        if (self::isDir($target)) {
+        if (self::isDir($target))
+        {
             throw new Exception($target, 16);
         }
+        $res =  ShellCmd::bin('mkdir', [
+            '-p' => true, $recursive,
+            '--mode=' => $mode,
+            $this->rootPath($target)]
+        )->runRemote();
 
-        $args = ShellCmds::mkdir($this->rootPath($target), $recursive, $mode)->cmd(true);
-
-        if (!RemoteShell::get()->execOutput(array_shift($args), $args)) {
-            throw new Exception("Error Processing Request", 4);
+        if ($res[0] > 0)
+        {
+            throw new Exception("Error Processing Request: ".$target, 4);
         }
 
         return true;
@@ -72,7 +76,8 @@ class Filesystem
         $commands = [];
         $to = $this->rootPath($to);
 
-        foreach ($files as $file) {
+        foreach ($files as $file)
+        {
             $file = $this->rootPath($file);
             $commands[] = ShellCmds::recursiveCopy($file, $to);
         }
@@ -92,7 +97,8 @@ class Filesystem
         $commands = [];
         $to = $this->rootPath($to);
 
-        foreach ($files as $file) {
+        foreach ($files as $file)
+        {
             $file = $this->rootPath($file);
             $commands[] = ShellCmds::recursiveMove($file, $to);
         }
@@ -112,7 +118,8 @@ class Filesystem
     {
         $commands = [];
 
-        foreach ($files as $file) {
+        foreach ($files as $file)
+        {
             $commands[] = ShellCmds::recursiveRemove($this->rootPath($file));
         }
 
@@ -135,10 +142,13 @@ class Filesystem
      */
     public function rename($from, $to): bool
     {
-        $cmd = ShellCmds::recursiveMove($this->rootPath($from), $this->rootPath($to));
-        $output = RemoteShell::get()->execOutput($cmd, [], $exitCode);
-        if ($exitCode != 0) {
-            throw new Exception(implode("\n", $output), 4);
+        $res = ShellCmd::bin('mv', ['-f', $this->rootPath($from), $this->rootPath($to)])
+            ->end('&& echo')->addArgs([$to])
+            ->runRemote();
+
+        if ($res[0] > 0)
+        {
+            throw new Exception(implode("\n", $res[1]), 4);
         }
 
         return true;
@@ -154,30 +164,35 @@ class Filesystem
         $output = [];
         $directory_path = $this->rootPath($directory_path);
 
-        $find_args = [Helper::mb_escapeshellarg($directory_path), '-mindepth', '1', '-maxdepth', '1', '-printf', escapeshellarg('%y\\t%f\\t%s\\t%C@\\t%#m\\n')];
+        $find_args = [$directory_path, '-mindepth', '1', '-maxdepth', '1', '-printf', '%y\\t%f\\t%s\\t%C@\\t%#m\\n'];
 
         $i = 0;
-        foreach (RemoteShell::get()->execOutput('find', $find_args) as $fileline) {
+        $result = ShellCmd::bin('find', $find_args)->runRemote();
 
-            if (empty($fileline)) {
-                continue;
+        foreach ($result[1] as $fileline)
+        {
+            if (!empty($fileline))
+            {
+
+                $item = explode("\t", trim($fileline));
+                $f = [
+                    'type' => $item[0],
+                    'name' => stripslashes($item[1]),
+                    'size' => $item[2],
+                    'time' => (int)$item[3],
+                    'perm' => $item[4],
+                ];
+
+
+                if ($f['type'] == 'd')
+                {
+                    $f['name'] .= DIRECTORY_SEPARATOR;
+                    $f['size'] = '';
+                }
+
+                $output[$i] = $f;
+                $i++;
             }
-
-            $f = [];
-
-            list($fd, $f['name'], $f['size'], $f['time'], $f['perm']) = explode("\t", trim($fileline));
-
-            $f['name'] = stripslashes($f['name']);
-            $f['type'] = $fd;
-            $f['time'] = intval($f['time']);
-
-            if ($fd == 'd') {
-                $f['name'] .= DIRECTORY_SEPARATOR;
-                $f['size'] = '';
-            }
-
-            $output[$i] = $f;
-            $i++;
 
         }
 

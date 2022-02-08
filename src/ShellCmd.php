@@ -22,7 +22,7 @@ class ShellCmd
      */
     public function __construct(string $binary)
     {
-        $this->bin($binary);
+        $this->binary($binary);
     }
 
     /**
@@ -30,7 +30,7 @@ class ShellCmd
      * @param array $args
      * @return ShellCmd
      */
-    public static function from($bin, $args = [])
+    public static function bin($bin, $args = []): ShellCmd
     {
         return (new static($bin))->setArgs($args);
     }
@@ -39,7 +39,7 @@ class ShellCmd
      * @param string $bin
      * @return string|P7zip
      */
-    public function bin(string $bin = '')
+    public function binary(string $bin = '')
     {
         if (!empty($bin))
         {
@@ -56,7 +56,7 @@ class ShellCmd
      */
     public function cmd($asArray = false)
     {
-        if (empty($this->bin()))
+        if (empty($this->binary))
         {
             throw new Exception("Command binary not set");
         }
@@ -101,28 +101,48 @@ class ShellCmd
         return $asArray ? $cmd : implode(" ", $cmd);
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function run()
     {
-        exec($this->cmd() . ' 2>&1', $output, $exit);
+        exec($this->end('2>&1')->cmd(), $output, $exit);
         return [$exit, $output];
     }
 
-    // end command io: | > &
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function runRemote()
+    {
+        $expectedCode = 255;
+        $output = RemoteShell::get()->execOutput($this, $expectedCode, $expectedCode);
+
+        return [$expectedCode, $output];
+    }
+
+    /** Set the command input/output: | > &
+     * When $outputArg is empty it will remove the argument
+     * @param string $outputArg
+     * @return ShellCmd
+     */
     public function end($outputArg = '')
     {
-        if (!empty($outputArg))
+        if (is_string($outputArg) && !empty($outputArg))
         {
             unset($this->args[$outputArg]);
             $this->setArg($outputArg, true);
             $this->endAt = $outputArg;
-        }
-
-        if (isset($this->endAt))
+        } elseif (isset($this->endAt))
         {
-
+            // remove end or update position
+            unset($this->args[$this->endAt]);
+            $this->endAt = null;
         }
 
-
+        return $this;
     }
 
     /**
@@ -137,16 +157,20 @@ class ShellCmd
      * @param array $args
      * @return ShellCmd
      */
-    public function setArgs(array $args): ShellCmd
+    public function setArgs(array $args)
     {
         $this->args = $args;
         return $this;
     }
 
-    // append a new argument
-    public function addArg($value)
+// append a new arguments
+    public function addArgs(array $values = [])
     {
-        $this->args[] = $value;
+        foreach ($values as $value)
+        {
+            $this->args[] = $value;
+        }
+        return $this;
     }
 
     public function setArg(string $name, $value)

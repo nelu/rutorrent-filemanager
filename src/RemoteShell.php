@@ -15,11 +15,10 @@ class RemoteShell extends rXMLRPCRequest
 
     public static function test($target, $o): bool
     {
-        $args = ['-' . $o, Helper::mb_escapeshellarg($target)];
-        $expectedCode = 1;
-        self::get()->execOutput('test', $args, $expectedCode);
-
-        return ($expectedCode === 0);
+        $args = ['-' . $o, $target];
+        $res = ShellCmd::bin('test', $args)->runRemote();
+        $exitCode = $res[0];
+        return ($exitCode === 0);
     }
 
     public static function merge_cmd_args($shell_cmd, $args)
@@ -68,21 +67,17 @@ class RemoteShell extends rXMLRPCRequest
     }
 
     /**
-     * @param $shell_cmd
+     * @param ShellCmd $scmd
      * @param $args
      * @param int $exitCode
      * @return array
      * @throws Exception
      */
-    public function execOutput($shell_cmd, $args, &$exitCode = 0)
+    public function execOutput(ShellCmd $scmd, &$exitCode = 0)
     {
-        $cmd = self::merge_cmd_args($shell_cmd, $args);
+        $shell_cmd =  ['sh', '-c', $scmd->cmd(). ' 2>&1; echo $? && exit 0'];
 
-        $cmd[] = '2>&1; echo $? && exit 0';
-
-        $ncmd = ['sh', '-c', implode(" ", $cmd)];
-
-        $this->addCommand(new rXMLRPCCommand('execute_capture', $ncmd));
+        $this->addCommand(new rXMLRPCCommand('execute_capture', $shell_cmd));
 
         if (!$this->success())
         {
@@ -97,6 +92,7 @@ class RemoteShell extends rXMLRPCRequest
         }
 
         $exitCode = $code;
+        //var_dump(__METHOD__, $exitCode, $scmd->cmd());
 
         return explode("\n", trim($this->val[0]));
     }

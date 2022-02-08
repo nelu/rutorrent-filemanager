@@ -62,7 +62,7 @@ class Archive
 
     public static function extractCmd($o)
     {
-        return P7zip::unpack($o->file, $o->to)->bin($o->binary)
+        return P7zip::unpack($o->file, $o->to)->binary($o->binary)
             ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
             ->setProgressIndicator(1)
             ->cmd();
