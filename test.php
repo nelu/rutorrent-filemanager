@@ -12,14 +12,14 @@ if (!defined('STDOUT'))
 }
 
 include 'boot.php';
-$result = P7zip::hash('/data/downloads/Hola/1test.mp4');
+$result = \Flm\FileChecksum::getFileHash('/tmp/tmpkj1fr22f');
 
-var_dump($result->cmd(), $result->run());
+var_dump( $result->run(), $result->cmd());
 
 var_dump(
 
-    ShellCmds::mkdir('/tmp/newdir', true, '0777'),
-    ShellCmd::bin('/bin/ls', ['-la', '/tmp/'])->end('|')->setArgs(['cat'])->run()
+    ShellCmds::mkdir('/tmp/newdir', true, '0777')->run(),
+    ShellCmd::bin('/bin/ls', ['-la', '/tmp/'])->end('|')->setArg('cat', true)->run()
 );
 
 //exit;

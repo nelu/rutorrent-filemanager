@@ -107,7 +107,8 @@ class ShellCmd
      */
     public function run()
     {
-        exec($this->end('2>&1')->cmd(), $output, $exit);
+        $cmd = $this->end('2>&1')->cmd();
+        exec($cmd, $output, $exit);
         return [$exit, $output];
     }
 
@@ -118,7 +119,7 @@ class ShellCmd
     public function runRemote()
     {
         $expectedCode = 255;
-        $output = RemoteShell::get()->execOutput($this, $expectedCode, $expectedCode);
+        $output = RemoteShell::get()->execOutput($this, $expectedCode);
 
         return [$expectedCode, $output];
     }

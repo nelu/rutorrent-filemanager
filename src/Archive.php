@@ -34,7 +34,7 @@ class Archive
         $wrapper->setFileList($o->fileList)
             ->setProgressIndicator(1);
 
-        if ($o->multiplePass)
+        if (isset($o->multiplePass))
         {
 
             $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
@@ -43,7 +43,7 @@ class Archive
                 ->cmd();
 
             // pipe to specified binary
-            $wrapper->bin($o->binary)
+            $wrapper->binary($o->binary)
                 ->setArchiveType($o->multiplePass[1])
                 ->setProgressIndicator(1)
                 ->setReadFromStdin(true)
