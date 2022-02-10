@@ -100,7 +100,7 @@ class P7zip extends ShellCmd
         $self->setArchiveFile($file);
 
         $self->setArg('| awk', true);
-        $self->addArgs([ '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1}']);
+        $self->addArgs([ '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1 $3}']);
 
         return $self;
     }

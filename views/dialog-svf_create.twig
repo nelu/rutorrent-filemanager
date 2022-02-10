@@ -1,10 +1,22 @@
-{% set pathbrowse = currentPath %}
+{% set pathbrowse = false %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = true %}
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
     <legend>{{ theUILang.fDiagSFVCreateSel }}</legend>
+{% endblock %}
+
+{% block content %}
+    {{ window.pathBrowser(selectedTarget, theUILang.fDiagTo) }}
+
+{#  <legend> {{ theUILang.fDiagCArchType }} </legend>#}
+{#    <label style="float: left;">#}
+{#        <select name="fman-checksum-type"  class="fman-checksum-type">#}
+{#            <option value="sfv">sfv</option>#}
+{#        </select>#}
+{#    </label>#}
+
 {% endblock %}
 
 {% block scripts %}

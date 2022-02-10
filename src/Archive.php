@@ -26,17 +26,15 @@ class Archive
      * @return string
      * @throws Exception
      */
-    public static function compressCmd($o): string
+    public function compressCmd($o): string
     {
-        $type = ($o->type == 'rar') ? Rar::class : P7zip::class;
         $cmd = [];
-        $wrapper = $type::pack('')->binary($o->binary);
-        $wrapper->setFileList($o->fileList)
+        $wrapper = $this->getCompressBin($o->binary)
+            ->setFileList($o->fileList)
             ->setProgressIndicator(1);
 
-        if (isset($o->multiplePass))
+        if (is_array($o->multiplePass) && !empty($o->multiplePass))
         {
-
             $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
                 ->setProgressIndicator(2)
                 ->setStdOutput(true)
@@ -62,7 +60,8 @@ class Archive
 
     public static function extractCmd($o)
     {
-        return P7zip::unpack($o->file, $o->to)->binary($o->binary)
+        return P7zip::unpack($o->file, $o->to)
+            ->binary($o->binary)
             ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
             ->setProgressIndicator(1)
             ->cmd();
@@ -104,8 +103,7 @@ class Archive
             [
                 'fileList' => "files.list",
                 'files' => $files,
-                'archive' => $this->file,
-                'binary' => $this->getCompressBin()
+                'archive' => $this->file
             ]);
 
         $rtask = TaskController::from([
@@ -125,16 +123,18 @@ class Archive
         return $ret;
     }
 
-    public function getCompressBin($archive = '')
+    public function getCompressBin(string $type = ''): P7zip
     {
-        if (empty($archive))
+        if (empty($type))
         {
-            $archive = $this->file;
+            $type = pathinfo($this->file, PATHINFO_EXTENSION);
         }
-        $type = pathinfo($archive, PATHINFO_EXTENSION);
 
         $formatBin = isset($this->config['type'][$type]['bin']) ? $this->config['type'][$type]['bin'] : '7zip';
-        return Utility::getExternal($formatBin);
+
+        $formatBin = Utility::getExternal($formatBin);
+
+        return ($type == 'rar') ? new Rar($formatBin) : new P7zip($formatBin);
     }
 
     /**

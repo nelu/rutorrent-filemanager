@@ -6,13 +6,11 @@
             perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'],
 
             isArchive: function (element) {
-                var ext = this.getExt(element)
-
-                var re = new RegExp('^('
+                var re = new RegExp('('
                     +flm.getConfig().fileExtractExtensions
                     +')$', "i");
 
-                return ext.match(re);
+                return this.basename(element).match(re);
             },
 
             isDir: function (element) {
@@ -116,13 +114,7 @@
 
                 var iko = 'flm-sprite ';
 
-                element = this.getExt(element).toLowerCase();
-
-                if (element.match(/^r[0-9]+$/)) {
-                    return iko + 'sprite-rarpart';
-                }
-
-                switch (element) {
+                switch (this.getExt(element).toLowerCase()) {
 
                     case 'mp3' :
                         iko += 'sprite-mp3';
@@ -152,23 +144,23 @@
                     case 'sfv':
                         iko += 'sprite-sfv';
                         break;
-                    case 'rar':
+/*                    case 'rar':
                         iko += 'sprite-rar';
                         break;
                     case 'zip':
                         iko += 'sprite-zip';
-                        break;
-                    case 'tar':
-                    case 'gz':
-                    case 'bz2':
-                        iko += 'sprite-archive';
-                        break;
+                        break;*/
                     case 'torrent':
                         iko += 'sprite-torrent';
                         break;
                     default:
-                        iko = 'Icon_File';
+                        if (flm.utils.isArchive(element)) {
+                            iko += 'sprite-zip';
+                        } else {
+                            iko = 'Icon_File';
+                        }
                 }
+
 
                 return (iko);
             },

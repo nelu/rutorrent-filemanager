@@ -49,13 +49,13 @@
             var diagId = dialogs.getDialogId('window');
             var settings = flm.getConfig().archives;
 
-
+            var pathBrowser = $(diagId + ' .flm-diag-nav-path');
             var archiveType = $("#fMan_archtype");
             var compression = $("#fman-archive-archcompr");
             var password = $("#fman-archive-apassword");
             var volumeSize = $("#fman-archive-vsize");
             var format = $('#fman-archive-arcnscheme');
-
+            var currentPath = pathBrowser.val();
 
             if (!flm.manager.hasOwnProperty('doArchive')) {
                 // service
@@ -103,25 +103,41 @@
 
             });
 
-            var updateArchiveName = function (path) {
-                var files = dialogs.getCheckedList(diagId);
-                if(!files.length)
-                {
-                    return false;
-                }
-                var file = flm.utils.trimslashes(dialogs.getCheckedList(diagId)[0]);
-                if ($type(path) && !flm.utils.isDir(path)) {
-                    file  = flm.utils.basename(path);
-                    path = flm.utils.basedir(path);
+
+            pathBrowser.change(function (event) {
+                if (flm.utils.isDir(event.target.value)) {
+                    updateArchiveName(event.target.value);
                 }
 
-                var type = archiveType.val().toLowerCase();
+            }).focusout(function (event) {
+                updateArchiveName();
+            });
+
+            var updateArchiveName = function (basedir) {
+                var files = dialogs.getCheckedList(diagId);
+                if (!files.length) {
+                    return false;
+                }
+
+                var currentValue = pathBrowser.val();
+                currentValue = currentValue !== basedir
+                    ? currentValue
+                    : files[0];
+
+                var file = flm.utils.basename(currentValue);
+
+                if ($type(basedir)) {
+                    file = flm.utils.basename(currentPath);
+                } else {
+                    basedir = flm.utils.basedir(currentValue)
+                }
+
                 var archives = $.uniqueSort(Object.keys(settings));
                 var fileNameNoExt = flm.utils.stripFileExtension(file, archives.join('|'));
-                var fileName = fileNameNoExt + '.' + type;
-                if (fileName !== file) {
-                    dialogs.updateTargetPath(diagId, flm.utils.buildPath([path, fileName]));
-                }
+                var fileName = fileNameNoExt + '.' + archiveType.val().toLowerCase();
+
+                currentPath = flm.utils.buildPath([basedir, fileName]);
+                dialogs.updateTargetPath(diagId, currentPath);
             };
 
             var updateCompression = function () {
@@ -149,12 +165,9 @@
                 }
             }
 
-            $(diagId + ' .flm-diag-nav-path').change(function (event) {
-                flm.utils.isDir(event.target.value) && updateArchiveName(event.target.value);
-            });
 
             archiveType.change(function () {
-                updateArchiveName(dialogs.getTargetPath(diagId));
+                updateArchiveName();
                 updateCompression();
                 var typeOpts = settings[archiveType.val().toLowerCase()];
                 var pass = $(diagId + ' .fman-archive-settings-pass');
@@ -166,7 +179,7 @@
                 }
             });
 
-            updateArchiveName(flm.utils.basedir(dialogs.getTargetPath(diagId)));
+            updateArchiveName();
             updateCompression();
 
         })
