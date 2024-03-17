@@ -29,7 +29,7 @@ class Archive
     public function compressCmd($o): string
     {
         $cmd = [];
-        $wrapper = $this->getCompressBin($o->binary)
+        $wrapper = P7zip::pack($o->archive)
             ->setFileList($o->fileList)
             ->setProgressIndicator(1);
 
@@ -49,8 +49,7 @@ class Archive
                 ->setStdOutput(false);
         }
 
-        $cmd[] = $wrapper->setArchiveFile($o->archive)
-            ->setVolumeSize($o->volumeSize > 0 ? $o->volumeSize : false)
+        $cmd[] = $wrapper->setVolumeSize($o->volumeSize > 0 ? $o->volumeSize : false)
             ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
             ->setCompression($o->compression ?? false)
             ->cmd();
