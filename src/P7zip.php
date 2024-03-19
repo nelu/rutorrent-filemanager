@@ -26,7 +26,7 @@ class P7zip extends ShellCmd
     const OUTPUT_DIR_SWITCH = '-o';
     const VOLUME_SIZE_SWITCH = '-v';
 
-    const AWK_FILE_HASH_LINE = '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1" "$3}';
+    const AWK_FILE_HASH_LINE = '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1 $3}';
 
     protected $args = [
         self::PROGRESS_DISPLAY_SWITCH => null,
@@ -101,7 +101,11 @@ class P7zip extends ShellCmd
         $self = new static();
         $self->setCommand(static::HASH_COMMAND)
             ->setArchiveFile($file)
-            ->disableArchiveFile(false);
+            ->disableArchiveFile(false)
+            ->setArg('| awk', true)
+            ->addArgs([ static::AWK_FILE_HASH_LINE]);
+
+
 
         return $self;
     }
