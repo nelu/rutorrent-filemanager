@@ -26,6 +26,8 @@ class P7zip extends ShellCmd
     const OUTPUT_DIR_SWITCH = '-o';
     const VOLUME_SIZE_SWITCH = '-v';
 
+    const AWK_FILE_HASH_LINE = '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1" "$3}';
+
     protected $args = [
         self::PROGRESS_DISPLAY_SWITCH => null,
         self::ARCHIVE_TYPE_SWITCH => null,
@@ -58,8 +60,8 @@ class P7zip extends ShellCmd
     public static function pack(string $archive): P7zip
     {
         $self = new static();
-        $self->setCommand(static::ARCHIVE_COMMAND);
-        $self->setArchiveFile($archive);
+        $self->setCommand(static::ARCHIVE_COMMAND)
+             ->setArchiveFile($archive);
 
         if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled())
         {
@@ -78,8 +80,9 @@ class P7zip extends ShellCmd
     public static function unpack(string $archive, string $toDirectory = ''): P7zip
     {
         $self = new static();
-        $self->setCommand(static::EXTRACT_COMMAND);
-        $self->setArchiveFile($archive);
+        $self->setCommand(static::EXTRACT_COMMAND)
+            ->setArchiveFile($archive);
+
         if (!empty($toDirectory))
         {
             $self->setOutputDir($toDirectory);
@@ -93,14 +96,12 @@ class P7zip extends ShellCmd
         return $self;
     }
 
-    public static function hash(string $file)
+    public static function hash(string $file, string $outFile = '')
     {
         $self = new static();
-        $self->setCommand(static::HASH_COMMAND);
-        $self->setArchiveFile($file);
-
-        $self->setArg('| awk', true);
-        $self->addArgs([ '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1 $3}']);
+        $self->setCommand(static::HASH_COMMAND)
+            ->setArchiveFile($file)
+            ->disableArchiveFile(false);
 
         return $self;
     }
@@ -161,10 +162,12 @@ class P7zip extends ShellCmd
 
     /**
      * @param string $command
+     * @return P7zip
      */
     public function setCommand(string $command)
     {
         array_unshift($this->args, $command);
+        return $this;
     }
 
     /**

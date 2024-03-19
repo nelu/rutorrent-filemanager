@@ -29,19 +29,23 @@ class Archive
     public function compressCmd($o): string
     {
         $cmd = [];
-        $wrapper = $this->getCompressBin($o->binary)
+
+        // which wrapper to use P7zip or Rar according to configured bin
+        $wrapper = ($this->getCompressBin($o->type))
             ->setFileList($o->fileList)
             ->setProgressIndicator(1);
+        $wrapper->setCommand($wrapper::ARCHIVE_COMMAND);
 
         if (is_array($o->multiplePass) && !empty($o->multiplePass))
         {
             $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
+                ->setArchiveFile(' ')
                 ->setProgressIndicator(2)
                 ->setStdOutput(true)
                 ->cmd();
 
             // pipe to specified binary
-            $wrapper->binary($o->binary)
+            $wrapper
                 ->setArchiveType($o->multiplePass[1])
                 ->setProgressIndicator(1)
                 ->setReadFromStdin(true)
