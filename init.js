@@ -243,7 +243,7 @@ plugin.ui.init = function () {
         }).attr({
             name: "datafrm",
             id: "datafrm"
-        }).width(0).height(0).load(function () {
+        }).width(0).height(0).on('load',function () {
             var d = (this.contentDocument || this.contentWindow.document);
             if (d.location.href !== "about:blank")
                 try {
