@@ -75,7 +75,7 @@ class Filesystem
         foreach ($files as $file)
         {
             $file = $this->rootPath($file);
-            $commands[] = ShellCmds::recursiveCopy($file, $to);
+            $commands[] = ShellCmds::recursiveCopy($file, $to)->cmd();
         }
 
         $rtask = TaskController::task([
@@ -96,7 +96,7 @@ class Filesystem
         foreach ($files as $file)
         {
             $file = $this->rootPath($file);
-            $commands[] = ShellCmds::recursiveMove($file, $to);
+            $commands[] = ShellCmds::recursiveMove($file, $to)->cmd();
         }
 
         $rtask = TaskController::task([
@@ -116,7 +116,7 @@ class Filesystem
 
         foreach ($files as $file)
         {
-            $commands[] = ShellCmds::recursiveRemove($this->rootPath($file));
+            $commands[] = ShellCmds::recursiveRemove($this->rootPath($file))->cmd();
         }
 
         $rtask = TaskController::task([

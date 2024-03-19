@@ -11,30 +11,30 @@ class ShellCmds
         return ShellCmd::bin('mkdir', ['-p' => $recursive, '--mode=' => $mode, $target]);
     }
 
-    public static function recursiveCopy($source, $to)
+    /**
+     * @param $source
+     * @param $to
+     * @return ShellCmd
+     */
+    public static function recursiveCopy($source, $to): ShellCmd
     {
-        $fName = Helper::mb_escapeshellarg('✓ ' . basename($source));
-        $source = Helper::mb_escapeshellarg($source);
-        $to = Helper::mb_escapeshellarg($to);
-
-        return "cp -rpv {$source} {$to} && echo {$fName}";
+        return ShellCmd::bin('cp', ['-rpv', $source, $to])
+            ->end('&& echo')->addArgs([basename($source)]);
     }
 
-    public static function recursiveMove($file, $to): string
+    public static function recursiveMove($file, $to): ShellCmd
     {
-        $fName = Helper::mb_escapeshellarg('✓ ' . basename($file));
-        $file = Helper::mb_escapeshellarg($file);
-        $to = Helper::mb_escapeshellarg($to);
-
-        return "mv -f ${file} ${to} && echo {$fName}";
+        return ShellCmd::bin('mv', ['-f', $file, $to])
+            ->end('&& echo')->addArgs(['✓ ' . basename($file)]);
     }
 
-    public static function recursiveRemove($file): string
+    /**
+     * @param $file
+     * @return ShellCmd
+     */
+    public static function recursiveRemove($file): ShellCmd
     {
-        $fName = Helper::mb_escapeshellarg('✓ ' . basename($file));
-        $file = Helper::mb_escapeshellarg($file);
-        $cmd = "rm -rf {$file} && echo {$fName}";
-
-        return $cmd;
+        return ShellCmd::bin('rm', ['-rf', $file])
+            ->end('&& echo')->addArgs(['✓ ' . basename($file)]);
     }
 }
