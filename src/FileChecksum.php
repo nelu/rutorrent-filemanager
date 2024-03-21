@@ -35,10 +35,10 @@ class FileChecksum implements Iterator
 
         $filelines = [];
         foreach ($fr as $fl) {
-            if (substr(trim($fl), 0, 1) == ';') {
+            if (substr(trim($fl), 0, 1) == ';' || trim($fl) == "") {
                 continue;
             }
-            $filelines[] = $fl;
+            $filelines[] = self::parseFilehashLine($fl);
         }
 
         $this->files = $filelines;
@@ -72,24 +72,24 @@ class FileChecksum implements Iterator
 
             $i++;
 
-            $file = implode(' ', explode(' ', $item->getCurFile(), -1));
-            $msg = "({$i}/{$fcount}) Checking {$file} ... ";
+            $file = $item[0];
+            echo "({$i}/{$fcount}) Checking {$file} ... ".$item[1];
 
             try {
 
-                if (!$item->checkFileHash()) {
-                    (self::$logger)::error($msg . '- Hash mismatch!');
+                if (!$check_files->checkFileHash()) {
+                    (self::$logger)::error(' X Hash mismatch!');
                 } else {
-                    (self::$logger)::log($msg . '✓ ');
+                    (self::$logger)::log(' ✓');
                     $success++;
                 }
 
             } catch (Exception $err) {
-                (self::$logger)::error($msg . '- FAILED:' . $err->getMessage());
+                (self::$logger)::error($file . '- FAIL: ' . $err->getMessage());
             }
 
         }
-        (self::$logger)::log("\n--- Done: " . $fcount . ' - Success: ' . $success);
+        (self::$logger)::log("\nSuccess: " . $success . " | Failure: " . ($fcount-$success));
         return $success == $fcount;
     }
 
@@ -107,15 +107,13 @@ class FileChecksum implements Iterator
 
     public function checkFileHash($against = null)
     {
-        $parts = explode(' ', trim($this->file));
-
-        if (count($parts) < 2) {
+        if (count($this->file) < 2) {
             throw new Exception("Invalid line " . implode(' ', $this->file), 1);
         }
 
-        $read_hash = array_pop($parts);
+        $read_hash = $this->file[1];
+        $file = $this->file[0];
 
-        $file = implode(' ', $parts);
         $calc_hash = self::getFileHash($file);
 
         return ($calc_hash === $read_hash);
@@ -124,15 +122,30 @@ class FileChecksum implements Iterator
 
     #[\ReturnTypeWillChange]
 
-    public static function getFileHash($file): string
+    /**
+     * @param $file
+     * @param string $hash
+     * @return string
+     * @throws Exception
+     */
+    public static function getFileHash($file, $hash = ''): string
     {
         if (!is_file($file)) {
-            throw new Exception(' No such file found...', 1);
+            throw new Exception('File found', 1);
         }
 
-        $entries = P7zip::hash($file)->run();
-        $hash = trim($entries[1][0]);
+        $entries = P7zip::hash([$file])->run();
 
+        $parts = explode(" ",$entries[1][0]);
+
+        $hash = trim(array_shift($parts));
+        $fileName = implode(" ", $parts);
+
+        if(basename($fileName) !== basename($file))
+        {
+            throw new Exception('File hashing error: '. $fileName, 1);
+
+        }
         //$oldh = hash_file('crc32b', $file);
 
         return $hash;
@@ -140,47 +153,50 @@ class FileChecksum implements Iterator
 
     #[\ReturnTypeWillChange]
 
-    public static function checksumFromFilelist($files, $checksumFile)
+    public static function checksumFromFilelist(string $fileList, $checksumFile)
     {
-        if (is_string($files)) {
-            $files = json_decode(file_get_contents($files));
-        }
+        $files = json_decode(file_get_contents($fileList));
 
-        if (count($files) < 1) {
+        if (empty($fileList) || empty($files)) {
             throw new Exception("File list is empty");
         }
-        chdir(dirname($files[0]));
 
-        $checksum = new FileChecksum($checksumFile, $files);
+        $hashed_count = 0;
 
-        // comments
-        $checksum->write("; ruTorrent filemanager;");
+        $self = new static($checksumFile, $files);
+        $fileCount = $self->length();
 
-        $fcount = count($files);
-        $success = 0;
+        $self->write("; ruTorrent filemanager plugin ;\n");
 
-        foreach ($checksum as $i => $sfvinstance) {
-
+        foreach ($self as $i => $file)
+        {
             $i++;
 
-            $file = $sfvinstance->getCurFile();
-
-            $msg = "({$i}/{$fcount}) Hashing {$file} ... ";
+            echo "({$i}/{$fileCount}) Hashing ".basename($file)." ... ";
 
             try {
-                $hash = FileChecksum::getFileHash($file);
-                $checksum->writeFileHash($hash);
-                $success++;
-                (self::$logger)::log($msg . ' ✓  ' . $hash);
+                $hash = self::getFileHash($file);
+                $self->writeFileHash($hash);
+                $hashed_count++;
+                (self::$logger)::log($hash. ' ✓' );
 
             } catch (Exception $err) {
-                (self::$logger)::log($msg . ' - FAILED:' . $err->getMessage());
+                (self::$logger)::log(' X FAILED:' . $err->getMessage());
             }
 
         }
-        $checksum = null; // calling fclose from destructor
         (self::$logger)::log("\n--- Done");
-        return $success == $fcount;
+
+        $self = null;
+
+        return $fileCount == $hashed_count;
+
+    }
+
+    public static function parseFilehashLine($fileLine) {
+        $parts = explode(" ", trim($fileLine));
+
+        return [trim(array_shift($parts)), implode(" ", $parts)];
     }
 
     #[\ReturnTypeWillChange]
@@ -206,7 +222,7 @@ class FileChecksum implements Iterator
     function current()
     {
         $this->file = $this->files[$this->position];
-        return $this;
+        return $this->file;
     }
 
     function key()

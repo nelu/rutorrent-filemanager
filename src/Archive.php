@@ -23,12 +23,11 @@ class Archive
 
     /**
      * @param $o
-     * @return string
+     * @return ShellCmd
      * @throws Exception
      */
-    public function compressCmd($o): string
+    public function compressCmd($o): ShellCmd
     {
-        $cmd = [];
 
         // which wrapper to use P7zip or Rar according to configured bin
         $wrapper = ($this->getCompressBin($o->type))
@@ -36,14 +35,15 @@ class Archive
             ->setProgressIndicator(1);
         $wrapper->setCommand($wrapper::ARCHIVE_COMMAND);
 
+        $newpass = clone $wrapper;
+
+        $wrapper->setArchiveFile($o->archive)
+            ->setVolumeSize($o->volumeSize > 0 ? $o->volumeSize : false)
+            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
+            ->setCompression($o->compression ?? false);
+
         if (is_array($o->multiplePass) && !empty($o->multiplePass))
         {
-            $cmd[] = $wrapper->setArchiveType($o->multiplePass[0])
-                ->setArchiveFile(' ')
-                ->setProgressIndicator(2)
-                ->setStdOutput(true)
-                ->cmd();
-
             // pipe to specified binary
             $wrapper
                 ->setArchiveType($o->multiplePass[1])
@@ -51,15 +51,16 @@ class Archive
                 ->setReadFromStdin(true)
                 ->setFileList(false)
                 ->setStdOutput(false);
+
+            $wrapper = $newpass->setArchiveType($o->multiplePass[0])
+                ->setArchiveFile(' ')
+                ->setProgressIndicator(2)
+                ->setStdOutput(true)
+                ->setArg('|', true)
+                ->setArg($wrapper->cmd(), true);
         }
 
-        $cmd[] = $wrapper->setArchiveFile($o->archive)
-            ->setVolumeSize($o->volumeSize > 0 ? $o->volumeSize : false)
-            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
-            ->setCompression($o->compression ?? false)
-            ->cmd();
-
-        return implode(" | ", $cmd);
+        return $wrapper;
     }
 
     public static function extractCmd($o)
@@ -119,7 +120,7 @@ class Archive
 
         $cmds = [
             'cd ' . Helper::mb_escapeshellarg($this->workDir),
-            '{', self::compressCmd($p), '}',
+            '{', self::compressCmd($p)->cmd(), '}',
         ];
 
         $ret = $rtask->start($cmds, rTask::FLG_DEFAULT);
@@ -138,7 +139,11 @@ class Archive
 
         $formatBin = Utility::getExternal($formatBin);
 
-        return ($type == 'rar') ? new Rar($formatBin) : new P7zip($formatBin);
+        return (
+            isset($this->config['type'][$type]['wrapper'])
+            && class_exists($this->config['type'][$type]['wrapper']))
+            ? new $this->config['type'][$type]['wrapper']($formatBin)
+            : (($formatBin == 'rar') ? new Rar($formatBin) : new P7zip($formatBin));
     }
 
     /**

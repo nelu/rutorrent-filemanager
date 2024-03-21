@@ -41,7 +41,7 @@ class TaskController
         return Utility::getPHP() . " " . implode(" ", $a);
     }
 
-    public static function from($task_opts)
+    public static function from($task_opts) : rTask
     {
         $rtask = self::task($task_opts);
         // extending rTask the wrong way

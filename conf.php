@@ -23,6 +23,7 @@ $config['archive']['type'] = [
     'rar' => [
         'bin' => 'rar',
         'compression' => [0, 3, 5],
+       // 'wrapper' => \Flm\Rar::class
     ]];
 
 $config['archive']['type']['zip'] = $config['archive']['type']['7z'];
