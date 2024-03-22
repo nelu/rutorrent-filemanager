@@ -53,9 +53,13 @@ class  FileManagerTests {
 
     public function testFileChecksum() {
 
+        var_dump(__METHOD__,
+            $this->tmpFile,
+            FileChecksum::getFileHash($this->tmpFile),
+            FileChecksum::getFileHash($this->tmpFile, 'SHA1'),
+            FileChecksum::getFileHash($this->tmpFile, 'SHA256')
 
-        $result_hash = FileChecksum::getFileHash($this->tmpFile);
-        var_dump(__METHOD__, $this->tmpFile, $result_hash);
+        );
 
         $sfv_file = "{$this->tempTestDir}/files_checksum.sfv";
         $sfv_filelist = "{$this->tempTestDir}/checksum_filelist.txt";

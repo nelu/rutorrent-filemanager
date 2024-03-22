@@ -61,7 +61,6 @@ class FileChecksum implements Iterator
     public static function fromChecksumFile($checksum_file)
     {
         chdir(dirname($checksum_file));
-        // awk '$1 !~ /regex/{getline;print $1}' 1test.mp4.sfv  > /tmp/task.list && 7z h @/tmp/task.list
 
         $check_files = new FileChecksum($checksum_file);
 
@@ -105,7 +104,7 @@ class FileChecksum implements Iterator
 
     #[\ReturnTypeWillChange]
 
-    public function checkFileHash($against = null)
+    public function checkFileHash($type = 'CRC32')
     {
         if (count($this->file) < 2) {
             throw new Exception("Invalid line " . implode(' ', $this->file), 1);
@@ -114,7 +113,7 @@ class FileChecksum implements Iterator
         $read_hash = $this->file[1];
         $file = $this->file[0];
 
-        $calc_hash = self::getFileHash($file);
+        $calc_hash = self::getFileHash($file, $type);
 
         return ($calc_hash === $read_hash);
 
@@ -128,32 +127,28 @@ class FileChecksum implements Iterator
      * @return string
      * @throws Exception
      */
-    public static function getFileHash($file, $hash = ''): string
+    public static function getFileHash($file, $type = 'CRC32'): string
     {
         if (!is_file($file)) {
             throw new Exception('File found', 1);
         }
 
-        $entries = P7zip::hash([$file])->run();
+        $cmd = P7zip::hash([$file], $type);
+        $entries = $cmd->run();
 
-        $parts = explode(" ",$entries[1][0]);
+        $parts = static::parseFilehashLine($entries[1][0]);
 
-        $hash = trim(array_shift($parts));
-        $fileName = implode(" ", $parts);
-
-        if(basename($fileName) !== basename($file))
+        if(empty($parts[0]))
         {
-            throw new Exception('File hashing error: '. $fileName, 1);
-
+            throw new Exception('File hashing error: '. $file, 1);
         }
-        //$oldh = hash_file('crc32b', $file);
 
-        return $hash;
+        return $parts[0];
     }
 
     #[\ReturnTypeWillChange]
 
-    public static function checksumFromFilelist(string $fileList, $checksumFile)
+    public static function checksumFromFilelist(string $fileList, $checksumFile, $type = ' CRC32')
     {
         $files = json_decode(file_get_contents($fileList));
 
@@ -175,7 +170,7 @@ class FileChecksum implements Iterator
             echo "({$i}/{$fileCount}) Hashing ".basename($file)." ... ";
 
             try {
-                $hash = self::getFileHash($file);
+                $hash = self::getFileHash($file, $type);
                 $self->writeFileHash($hash);
                 $hashed_count++;
                 (self::$logger)::log($hash. ' ✓' );
@@ -195,8 +190,8 @@ class FileChecksum implements Iterator
 
     public static function parseFilehashLine($fileLine) {
         $parts = explode(" ", trim($fileLine));
-
-        return [trim(array_shift($parts)), implode(" ", $parts)];
+        $hash = trim(array_pop($parts));
+        return [implode(" ", $parts), $hash];
     }
 
     #[\ReturnTypeWillChange]

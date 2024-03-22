@@ -25,6 +25,8 @@ class P7zip extends ShellCmd
     const READ_STDIN_SWITCH = '-si';
     const OUTPUT_DIR_SWITCH = '-o';
     const VOLUME_SIZE_SWITCH = '-v';
+    const HASHER_SWITCH = '-scrc';
+
 
     const AWK_FILE_HASH_LINE = '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1" "$3}';
 
@@ -37,6 +39,7 @@ class P7zip extends ShellCmd
         self::WRITE_STDOUT_SWITCH => null,
         self::READ_STDIN_SWITCH => null,
         self::DISABLE_ARCHIVE_FILE_ARG => null,
+        self::HASHER_SWITCH => null,
         self::OUTPUT_DIR_SWITCH => null,
         self::SWITCHES_DELIMITER => true,
         self::ARCHIVE_FILE_ARG => null,
@@ -96,10 +99,11 @@ class P7zip extends ShellCmd
         return $self;
     }
 
-    public static function hash(array $files)
+    public static function hash(array $files, $hasher = 'CRC32')
     {
         $self = new static();
         $self->setCommand(static::HASH_COMMAND)
+            ->setFileHasher($hasher)
             ->addArgs($files)
             ->disableArchiveFile(false)
             ->setArg('| awk', true)
@@ -200,6 +204,10 @@ class P7zip extends ShellCmd
     {
         $this->setArg(static::OUTPUT_DIR_SWITCH, $value);
         return $this;
+    }
+
+    public function setFileHasher($algo) {
+        return $this->setArg(static::HASHER_SWITCH, $algo);
     }
 
     /**

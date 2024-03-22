@@ -390,6 +390,8 @@ class FileManager
             throw new Exception("File list is empty");
         }
 
+        $type = 'CRC32';
+
         $task_opts = [
             'name' => 'checksum-create',
             'arg' => $sfvfile
@@ -399,7 +401,8 @@ class FileManager
 
         $filelist = ($rtask->writeFile)("files.json", json_encode($files));
 
-        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::checksumFromFilelist', [$filelist, $this->getFsPath($sfvfile)])];
+        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::checksumFromFilelist',
+            [$filelist, $this->getFsPath($sfvfile), $type])];
 
         $ret = $rtask->start($commands, rTask::FLG_DEFAULT);
 
