@@ -77,9 +77,8 @@ class ShellCmd
                 if (is_bool($item) && $item === true)
                 {
                     $r = $key;
-                } elseif (is_string($item) && $item != "")
+                } elseif (is_string($item))
                 {
-                    // skip empty string argument values
                     // trim spaces from positional/no name arguments
                     $r = trim($key, " ") . Helper::mb_escapeshellarg($item);
                 } elseif (is_int($item))
@@ -93,7 +92,6 @@ class ShellCmd
                     $formatted_args[] = $r;
                 }
             }
-
         });
 
         $cmd = array_merge([$this->binary], $formatted_args);

@@ -123,11 +123,11 @@ class FileChecksum implements Iterator
 
     /**
      * @param $file
-     * @param string $hash
+     * @param string $type
      * @return string
      * @throws Exception
      */
-    public static function getFileHash($file, $type = 'CRC32'): string
+    public static function getFileHash($file, string $type = 'CRC32'): string
     {
         if (!is_file($file)) {
             throw new Exception('File found', 1);
@@ -180,7 +180,7 @@ class FileChecksum implements Iterator
             }
 
         }
-        (self::$logger)::log("\n--- Done");
+        (self::$logger)::log("\n -> ".$checksumFile);
 
         $self = null;
 

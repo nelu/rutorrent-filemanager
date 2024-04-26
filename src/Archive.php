@@ -67,7 +67,7 @@ class Archive
     {
         return P7zip::unpack($o->file, $o->to)
             ->binary($o->binary)
-            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
+            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : '')
             ->setProgressIndicator(1)
             ->cmd();
     }
