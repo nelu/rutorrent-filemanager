@@ -707,9 +707,7 @@
                     clipboardEntries: [],
                     selectedEntries: [],
                     selectedTarget: null,
-                    navigationLoaded: false,
-                    initialFilesSortAlphaNumeric: null,
-                    initialFileSortNumeric: null
+                    navigationLoaded: false
                 };
                 var isVisible = false;
 
@@ -759,44 +757,6 @@
                             }
                         }
                         return arr;
-                    },
-
-                    sortAlphaNumeric: function (x, y) {
-
-                        var xVal = x.key.split(browse.tableEntryPrefix)[1];
-                        var yVal = y.key.split(browse.tableEntryPrefix)[1];
-
-                        if (flm.ui.browser.isTopDir(xVal))
-                        {
-                            return this.reverse ? 1 : -1;
-                        }
-                        else if (flm.ui.browser.isTopDir(yVal))
-                        {
-                            return this.reverse ? -1 : 1;
-                        }
-                        else if (flm.utils.isDir(xVal) || flm.utils.isDir(yVal))
-                        {
-                            return (flm.utils.isDir(xVal)
-                                && flm.utils.isDir(yVal))
-                                ? this.initialFilesSortAlphaNumeric(x, y)
-                                : (flm.utils.isDir(xVal) ? 1 : -1);
-                        }
-
-                        return (this.initialFilesSortAlphaNumeric(x, y));
-                    },
-
-                    sortNumeric: function (x, y) {
-
-                        if (flm.ui.browser.isTopDir(x.key.split(browse.tableEntryPrefix)[1]))
-                        {
-                            return this.reverse ? 1 : -1;
-                        }
-                        else if (flm.ui.browser.isTopDir(y.key.split(browse.tableEntryPrefix)[1]))
-                        {
-                            return this.reverse ? -1 : 1;
-                        }
-
-                        return (this.initialFileSortNumeric(x, y));
                     },
 
                     onDoubleClick: function (obj) {
@@ -1137,13 +1097,29 @@
 
                 // table
                 browse.setSorting = function () {
-                    var table = browser.table();
+                    const table = browser.table();
+                    table.initialGetSortFunc = table.getSortFunc;
+                    table.getSortFunc = function(id, reverse, valMapping) {
+                        const sortResult = table.initialGetSortFunc(id, reverse, valMapping);
+                        sortFunction =  function (x, y) {
 
-                    table.initialFileSortNumeric = table.sortNumeric;
-                    table.sortNumeric = uiTable.sortNumeric;
+                            //debugger;
+                            var xVal = x.split(browse.tableEntryPrefix)[1];
+                            var yVal = y.split(browse.tableEntryPrefix)[1];
 
-                    table.initialFilesSortAlphaNumeric = table.sortAlphaNumeric;
-                    table.sortAlphaNumeric = uiTable.sortAlphaNumeric;
+                            if (flm.ui.browser.isTopDir(xVal) || flm.ui.browser.isTopDir(yVal)) {
+                                return 1;
+                            } else if (!flm.utils.isDir(xVal) && flm.utils.isDir(yVal)) {
+                                return 1;
+                            } else if (flm.utils.isDir(xVal) && !flm.utils.isDir(yVal)) {
+                                return -1;
+                            } else {
+                                return sortResult(x, y);
+                            }
+
+                        }
+                        return sortFunction;
+                    }
                 };
 
                 browse.getEntryHash = function (fileName) {
@@ -1179,7 +1155,6 @@
                             };
                         }
                     }
-
 
                     $.each(data, function (ndx, file) {
 
