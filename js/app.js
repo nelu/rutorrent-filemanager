@@ -83,10 +83,9 @@
                         }
                     }
 
-                    var ndt = format.replace(/%([dMyhms])/g, function (m0, m1) {
+                    return format.replace(/%([dMyhms])/g, function (m0, m1) {
                         return times[m1];
                     });
-                    return ndt;
                 } else {
                     return '';
                 }
@@ -288,16 +287,6 @@
                 return (str + '').replace(/[\\"\/]/g, '\\$&').replace(/\u0000/g, '\\0');
             },
 
-            actionResult: function (result) {
-                var isSuccess = function () {
-                    return result === 'succes';
-                };
-
-                return {
-                    isSuccess: isSuccess
-                }
-            },
-
             isValidPath: function (what) {
                 what = what || '';
                 //starts with /
@@ -348,7 +337,7 @@
             return (rar.join('/'));
         };
         utils.stripFileExtension = function (currentPath, exts) {
-            var ext, file;
+            var file;
             var fileName = flm.utils.basename(currentPath);
 
             if($type(exts))
@@ -358,7 +347,7 @@
             }
             else {
                 var parts = fileName.split('.');
-                ext = parts.pop();
+                parts.pop();
                 file = parts.join('.');
             }
 
@@ -628,7 +617,7 @@
 
                     var all = {};
 
-                    $.each(self.settings.defaults, function (i, v) {
+                    $.each(self.settings.defaults, function (i) {
                         all[i] = self.settings.getSettingValue(i);
                     });
 
@@ -651,7 +640,6 @@
                         $(document).trigger(flm.EVENTS.settingsShow, view);
 
                         $('#flm-settings-pane').html(view);
-                        //   self.updateSettings();
 
                     });
 
@@ -664,7 +652,7 @@
                         var inval;
 
                         if ($(ele).attr('type') === 'checkbox') {
-                            inval = $(ele).is(':checked') ? true : false;
+                            inval = $(ele).is(':checked');
                         } else {
                             inval = $(ele).val();
                         }
@@ -679,23 +667,6 @@
                         theWebUI.save();
                         self.browser.table().refreshRows();
                     }
-                },
-                updateSettings: function () {
-                    $('#flm-settings-pane').find('input, select')
-                        .each(function (index, ele) {
-                            var inid = ele.id.split('flm-settings-opt-');
-
-                            if ($(ele).attr('type') === 'checkbox') {
-                                if (self.settings.getSettingValue(inid[1])) {
-                                    $(ele).attr('checked', 'checked');
-                                }
-                            } else if ($(ele).is("select")) {
-                                $(ele).children('option[value="' + self.settings.getSettingValue(inid[1]) + '"]').attr('selected', 'selected');
-                            } else {
-                                $(ele).val(self.settings.getSettingValue(inid[1]));
-                            }
-                        });
-
                 }
             };
 
@@ -760,13 +731,8 @@
                     },
 
                     onDoubleClick: function (obj) {
-                        /*    if (theWebUI.FileManager.inaction) {
-                                return false;
-                            }*/
-                        var target = obj.id.slice(5, obj.id.length);
-
                         browse.open(browse.selectedTarget);
-                        return (false);
+                        return false;
                     }
                 };
                 var bindKeys = function () {
@@ -886,9 +852,9 @@
                     // use the current dir name as base if multiple files are selected
                     desiredExt = desiredExt || ext
                     let file  = flm.utils.basename(
-                        flm.ui.browser.selectedEntries.length > 0 && !flm.ui.browser.isTopDir(flm.getCurrentPath())
+                        browse.selectedEntries.length > 0 && !browse.isTopDir(flm.getCurrentPath())
                             ? flm.getCurrentPath()
-                            : flm.ui.browser.getSelectedEntry()
+                            : browse.getSelectedEntry()
                     );
 
                     file = flm.utils.stripFileExtension(file, ext);
@@ -1876,22 +1842,6 @@
 
         var manager = {
             inaction: false,
-            logStart: function (message) {
-
-                //TODO: dialog id binds for stop
-                $("#flm-diag-console-stop").attr('disabled', false);
-
-                if (flm.ui.settings.getSettingValue('cleanlog')) {
-                    flm.ui.console.clearlog();
-                } else {
-                    flm.ui.console.logMsg("-------\n");
-                }
-
-                flm.ui.console.show(message);
-                flm.ui.console.showProgress();
-
-                // flm.ui.getDialogs().hide();
-            },
 
             cleanactions: function () {
 
@@ -1986,31 +1936,7 @@
                     'target': target
                 }, {noclose: true});
 
-            },
-
-            recname: function (what) {
-
-                if (flm.utils.isDir(what)) {
-                    return flm.utils.trimslashes(what);
-                }
-
-                var ext = flm.utils.getExt(what);
-
-                var recf = what.split(ext);
-
-                if (recf.length > 1) {
-                    recf.pop();
-                    recf = recf.join(ext).split('.');
-                    if (recf[recf.length - 1] == '') {
-                        recf.pop();
-                    }
-                    return (recf.join('.'));
-                }
-
-                return (recf.join(''));
-
             }
-
         };
 
 

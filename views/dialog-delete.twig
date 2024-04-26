@@ -24,8 +24,6 @@
                         return deferred.promise();
                     }
 
-                    //this.logStart(theUILang.fStarts['delete']);
-
                     paths = flm.manager.getFullPaths(paths);
 
                     return flm.api.removeFiles(paths).then(function (result) {

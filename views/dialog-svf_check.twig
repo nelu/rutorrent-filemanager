@@ -32,7 +32,6 @@
                 def.reject(theUILang.fcheckSFV +' - ' +hasError, checksumFile);
                 return def.promise();
             }
-            //flm.manager.logStart(theUILang.fStarts.sfv_check);
 
             return flm.api.sfvCheck(checksumFile)
                 .done(function (response) {
