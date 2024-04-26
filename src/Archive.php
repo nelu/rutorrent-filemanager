@@ -39,8 +39,10 @@ class Archive
 
         $wrapper->setArchiveFile($o->archive)
             ->setVolumeSize($o->volumeSize > 0 ? $o->volumeSize : false)
-            ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : false)
             ->setCompression($o->compression ?? false);
+
+        isset($o->password) && strlen($o->password) > 0
+        && $wrapper->setPassword($o->password);
 
         if (is_array($o->multiplePass) && !empty($o->multiplePass))
         {
@@ -123,7 +125,7 @@ class Archive
             '{', self::compressCmd($p)->cmd(), '}',
         ];
 
-        $ret = $rtask->start($cmds, rTask::FLG_DEFAULT);
+        $ret = $rtask->start($cmds, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
 
         return $ret;
     }

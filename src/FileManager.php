@@ -209,7 +209,7 @@ class FileManager
             'arg' => $count == 1 ? basename($paths['archives'][0]) : $count . ' items'
         ]);
 
-        return $rtask->start($cmds, rTask::FLG_DEFAULT);
+        return $rtask->start($cmds, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
     }
 
     public function mediainfo($path)

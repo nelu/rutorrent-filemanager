@@ -882,6 +882,19 @@
 
                 };
 
+                browse.recommendedFileName = function (ext, desiredExt) {
+                    // use the current dir name as base if multiple files are selected
+                    desiredExt = desiredExt || ext
+                    let file  = flm.utils.basename(
+                        flm.ui.browser.selectedEntries.length > 0 && !flm.ui.browser.isTopDir(flm.getCurrentPath())
+                            ? flm.getCurrentPath()
+                            : flm.ui.browser.getSelectedEntry()
+                    );
+
+                    file = flm.utils.stripFileExtension(file, ext);
+                    return file+ '.' + desiredExt;
+                };
+
                 browse.loadNavigation = function () {
                     if (!browse.navigationLoaded) {
                         flm.views.getView(flm.views.viewsPath + '/' + 'table-header', {apiUrl: flm.api.endpoint},

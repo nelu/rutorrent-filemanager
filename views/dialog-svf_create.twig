@@ -56,13 +56,8 @@
                     });
             });
 
-            var file  = flm.ui.browser.getSelectedEntry();
-
-            file = flm.utils.buildPath([flm.utils.basedir(file), flm.utils.stripFileExtension(file, ext)]);
-
-            var fileName = file+ '.' + ext;
-
-            dialogs.updateTargetPath(diagId, fileName);
+            const file = flm.ui.browser.recommendedFileName(ext);
+            dialogs.updateTargetPath(diagId, flm.getCurrentPath(file));
         })
         (window);
     </script>

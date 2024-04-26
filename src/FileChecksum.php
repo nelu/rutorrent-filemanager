@@ -167,7 +167,7 @@ class FileChecksum implements Iterator
         {
             $i++;
 
-            echo "({$i}/{$fileCount}) Hashing ".basename($file)." ... ";
+            echo "({$i}/{$fileCount}) ".basename($file)." ... ";
 
             try {
                 $hash = self::getFileHash($file, $type);

@@ -119,25 +119,10 @@
                     return false;
                 }
 
-                var currentValue = pathBrowser.val();
-                currentValue = currentValue !== basedir
-                    ? currentValue
-                    : files[0];
-
-                var file = flm.utils.basename(currentValue);
-
-                if ($type(basedir)) {
-                    file = flm.utils.basename(currentPath);
-                } else {
-                    basedir = flm.utils.basedir(currentValue)
-                }
-
                 var archives = $.uniqueSort(Object.keys(settings));
-                var fileNameNoExt = flm.utils.stripFileExtension(file, archives.join('|'));
-                var fileName = fileNameNoExt + '.' + archiveType.val().toLowerCase();
+                var fileName = flm.ui.browser.recommendedFileName(archives.join('|'), archiveType.val().toLowerCase());
 
-                currentPath = flm.utils.buildPath([basedir, fileName]);
-                dialogs.updateTargetPath(diagId, currentPath);
+                dialogs.updateTargetPath(diagId, flm.getCurrentPath(fileName));
             };
 
             var updateCompression = function () {
