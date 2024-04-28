@@ -21,9 +21,10 @@
 
 {% block scripts %}
     <script>
-        (function (global) {
+        (function () {
             var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId('window');
+            var diagId = dialogs.getDialogId();
+            var pathBrowser = dialogs.pathBrowserInput(diagId);
             var ext = 'sfv';
 
             dialogs.onStart(function () {
@@ -46,7 +47,7 @@
                     def.reject(theUILang.fcSFV +' - ' +hasError, checksumFile);
                     return def.promise();
                 }
-                
+
                 var cPath = flm.getCurrentPath();
                 return flm.api.sfvCreate(flm.manager.stripHomePath(checksumFile), flm.manager.getFullPaths(filePaths))
                     .done(function (response) {
@@ -55,8 +56,16 @@
                     });
             });
 
-            const file = flm.ui.browser.recommendedFileName(ext);
-            dialogs.updateTargetPath(diagId, flm.getCurrentPath(file));
+            const updateFilePath = function (path) {
+                let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), ext, ext);
+                dialogs.updateTargetPath(diagId, filePath);
+            };
+
+            pathBrowser.change(function () {
+                updateFilePath($(this));
+            });
+
+            updateFilePath(pathBrowser);
         })
         (window);
     </script>

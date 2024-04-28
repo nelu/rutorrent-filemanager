@@ -172,7 +172,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
         ];
         var subCreateMenu = null;
 
-        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry, index) {
+        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry) {
 
             if (menuEntry[0] === CMENU_SEP) {
                 return false;
@@ -193,7 +193,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
 
         // round 2 of filtering :\
         // with entries from create sub menu
-        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry, index) {
+        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry) {
             var inRemove = remove.indexOf(menuEntry[0]);
             return (inRemove < 0);
         });
@@ -283,9 +283,9 @@ plugin.ui.init = function () {
                 if (plugin.enabled) {
                     plugin.ui.handleTorrentFilesMenu(e, id);
                 }
-                return (true);
+                return true;
             }
-            return (false);
+            return false;
         }
     }
 
@@ -293,21 +293,17 @@ plugin.ui.init = function () {
 
 };
 
-// extending other plugins
+// trigger input change events from iframe visibility
 theWebUI.rDirBrowser.prototype.editObserver = null;
-theWebUI.rDirBrowser.prototype.monitorUpdates = function(){
-
+theWebUI.rDirBrowser.prototype.monitorUpdates = function(beforeUpdate,afterUpdate){
     if(!this.editObserver) {
-        var self = this;
-        var observer = new MutationObserver(function(mutations) {
-            if(self.frame.css("visibility") === "hidden") {
-                // relative chroot path
-                self.edit.val(flm.manager.stripHomePath(self.edit.val()) + '/');
-                self.edit.change();
-            }
+        const self = this;
+        const observer = new MutationObserver(function() {
+            self.frame.css("visibility") === "hidden" ? afterUpdate.apply(self) : beforeUpdate.apply(self);
         });
 
-        this.editObserver = observer.observe(this.frame[0], { attributes : true, attributeFilter : ['style'] });
+        self.editObserver = observer.observe(this.frame[0], {attributes: true, attributeFilter: ["style"]});
+        self.edit.on(browser.isIE ? "focusin" : "focus", function(){beforeUpdate.apply(self);});
     }
 };
 

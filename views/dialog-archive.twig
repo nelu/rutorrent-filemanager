@@ -46,16 +46,15 @@
         (function (global) {
             console.log('dialog-archive');
             var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId('window');
+            var diagId = dialogs.getDialogId();
             var settings = flm.getConfig().archives;
 
-            var pathBrowser = $(diagId + ' .flm-diag-nav-path');
+            var pathBrowser = dialogs.pathBrowserInput(diagId);
             var archiveType = $("#fMan_archtype");
             var compression = $("#fman-archive-archcompr");
             var password = $("#fman-archive-apassword");
             var volumeSize = $("#fman-archive-vsize");
             var format = $('#fman-archive-arcnscheme');
-            var currentPath = pathBrowser.val();
 
             if (!flm.manager.hasOwnProperty('doArchive')) {
                 // service
@@ -102,27 +101,13 @@
 
             });
 
+            var updateFilePath = function (path) {
+                const extensions = $.uniqueSort(Object.keys(settings)).join('|');
+                const extension = archiveType.val().toLowerCase();
+                let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), extensions, extension);
+                dialogs.updateTargetPath(diagId, filePath);
+            }
 
-            pathBrowser.change(function (event) {
-                if (flm.utils.isDir(event.target.value)) {
-                    updateArchiveName(event.target.value);
-                }
-
-            }).focusout(function (event) {
-                updateArchiveName();
-            });
-
-            var updateArchiveName = function (basedir) {
-                var files = dialogs.getCheckedList(diagId);
-                if (!files.length) {
-                    return false;
-                }
-
-                var archives = $.uniqueSort(Object.keys(settings));
-                var fileName = flm.ui.browser.recommendedFileName(archives.join('|'), archiveType.val().toLowerCase());
-
-                dialogs.updateTargetPath(diagId, flm.getCurrentPath(fileName));
-            };
 
             var updateCompression = function () {
 
@@ -149,9 +134,12 @@
                 }
             }
 
+            pathBrowser.change(function (event) {
+                updateFilePath($(this));
+            });
 
             archiveType.change(function () {
-                updateArchiveName();
+                updateFilePath(pathBrowser);
                 updateCompression();
                 var typeOpts = settings[archiveType.val().toLowerCase()];
                 var pass = $(diagId + ' .fman-archive-settings-pass');
@@ -163,7 +151,7 @@
                 }
             });
 
-            updateArchiveName();
+            updateFilePath(pathBrowser);
             updateCompression();
 
         })

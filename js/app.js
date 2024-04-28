@@ -1,301 +1,309 @@
 (function (global) {
 
     function FileManagerUtils() {
+        let utils = {
+            perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx']
+        };
 
-        var utils = {
-            perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'],
+        utils.isArchive = function (element) {
+            var re = new RegExp('('
+                + flm.getConfig().fileExtractExtensions
+                + ')$', "i");
 
-            isArchive: function (element) {
-                var re = new RegExp('('
-                    +flm.getConfig().fileExtractExtensions
-                    +')$', "i");
+            return this.basename(element).match(re);
+        };
 
-                return this.basename(element).match(re);
-            },
+        utils.isDir = function (element) {
+            return (element.charAt(element.length - 1) === '/');
+        };
 
-            isDir: function (element) {
-                return (element.charAt(element.length - 1) === '/');
-            },
+        utils.logSystem = function () {
 
-            logSystem: function () {
+            var logMsg = arguments[0];
 
-                var logMsg = arguments[0];
+            for (var i = 1; i < arguments.length; i++) {
+                logMsg += arguments[i];
+            }
+            log('filemanager: ' + logMsg)
+        };
 
-                for (var i = 1; i < arguments.length; i++) {
-                    logMsg += arguments[i];
-                }
-                log('filemanager: ' + logMsg)
-            },
+        utils.logError = function (errcode, extra) {
 
+            if (!$type(extra)) {
+                extra = '';
+            }
 
-            logError: function (errcode, extra) {
+            if (errcode) {
+                var codeMsg = $type(theUILang.fErrMsg[errcode])
+                    ? theUILang.fErrMsg[errcode]
+                    : errcode;
 
-                if (!$type(extra)) {
-                    extra = '';
-                }
-
-                if (errcode) {
-                    var codeMsg =  $type(theUILang.fErrMsg[errcode] )
-                        ? theUILang.fErrMsg[errcode]
-                        : errcode;
-
-                    flm.utils.logSystem(codeMsg , " -> ", extra);
-                }
-
-            },
-
-            formatPermissions: function (octal) {
-
-                var map = this.perm_map;
-                var arr = octal.split('');
-
-                var out = '';
-
-                for (var i = 0; i < arr.length; i++) {
-                    out += map[arr[i]];
-                }
-                return out;
-
-            },
-
-            formatDate: function (timestamp, format) {
-
-                if (timestamp) {
-
-                    var d = new Date(timestamp * 1000);
-
-                    var times = {
-                        s: d.getSeconds(),
-                        m: d.getMinutes(),
-                        h: d.getHours(),
-
-                        d: d.getDate(),
-                        M: d.getMonth(),
-                        y: d.getFullYear()
-                    };
-
-                    for (i in times) {
-                        if (i === 'M') {
-                            times[i]++;
-                        }
-                        if (times[i] < 10) {
-                            times[i] = "0" + times[i];
-                        }
-                    }
-
-                    return format.replace(/%([dMyhms])/g, function (m0, m1) {
-                        return times[m1];
-                    });
-                } else {
-                    return '';
-                }
-            },
-
-            hasDir: function (entries) {
-                var hasDirs = false;
-                $.each(entries, function (k, v) {
-                    if (window.flm.utils.isDir(v)) {
-                        hasDirs = true;
-                        return false;
-
-                    }
-
-                });
-
-                return hasDirs;
-            },
-
-            getICO: function (element) {
-
-                if (this.isDir(element)) {
-                    return ('Icon_Dir');
-                }
-
-                var iko = 'flm-sprite ';
-
-                switch (this.getExt(element).toLowerCase()) {
-
-                    case 'mp3' :
-                        iko += 'sprite-mp3';
-                        break;
-                    case 'avi':
-                    case 'mp4':
-                    case 'wmv':
-                    case 'mkv':
-                    case 'divx':
-                    case 'mov':
-                    case 'flv':
-                    case 'mpeg':
-                        iko += 'sprite-video';
-                        break;
-                    case 'bmp':
-                    case 'jpg':
-                    case 'jpeg':
-                    case 'png':
-                    case 'gif':
-                        iko += 'sprite-image';
-                        break;
-                    case 'log':
-                    case 'txt':
-                    case 'nfo':
-                        iko += 'sprite-nfo';
-                        break;
-                    case 'sfv':
-                        iko += 'sprite-sfv';
-                        break;
-/*                    case 'rar':
-                        iko += 'sprite-rar';
-                        break;
-                    case 'zip':
-                        iko += 'sprite-zip';
-                        break;*/
-                    case 'torrent':
-                        iko += 'sprite-torrent';
-                        break;
-                    default:
-                        if (flm.utils.isArchive(element)) {
-                            iko += 'sprite-zip';
-                        } else {
-                            iko = 'Icon_File';
-                        }
-                }
-
-
-                return (iko);
-            },
-
-            getExt: function (element) {
-
-                if (!$type(element)) {
-                    return '';
-                }
-
-                var ext = element.split('.').pop();
-                var valid = (element.split('.').length > 1) && ext.match(/^[A-Za-z0-9]{2,5}$/);
-
-                ext = valid ? ext : '';
-
-                return ext.toLowerCase();
-            },
-
-            basedir: function (path) {
-
-                var last = '';
-                path = this.trimslashes(path);
-
-                if (path) {
-                    var ar = path.split('/');
-                    ar.pop();
-                    last += ar.join('/');
-                    if (ar.length > 0) {
-                        last += '/';
-                    }
-                }
-
-                return '/' + last;
-            },
-
-            stripBasePath: function (path, basepath) {
-                var t = this.trimslashes(path).split(this.trimslashes(basepath));
-
-                var relative = path;
-
-                if (t.length > 1) {
-                    relative = t[1];
-                }
-
-                return relative;
-            },
-
-
-            json_encode: function (obj) {
-                var self = this;
-                var s = '';
-                switch ($type(obj)) {
-                    case "number":
-                        return (String(obj));
-                    case "boolean":
-                        return (obj ? "1" : "0");
-                    case "string":
-                        return ('"' + obj + '"');
-                    case "array": {
-                        s = '';
-                        $.each(obj, function (key, item) {
-                            if (s.length)
-                                s += ",";
-                            s += self.json_encode(item);
-                        });
-                        return ("[" + s + "]");
-                    }
-                    case "object": {
-                        s = '';
-                        $.each(obj, function (key, item) {
-                            if (s.length)
-                                s += ",";
-                            s += ('"' + key + '":' + self.json_encode(item));
-                        });
-                        return ("{" + s + "}");
-                    }
-                }
-                return ("null");
-            },
-
-            rtrim: function (str, char) {
-                if (!$type(str)) {
-                    return str;
-                }
-                // handles one char
-                char = char && char[0] || ' ';
-
-                var lastIndexOfChar = 0;
-
-                for (var i = str.length - 1; i >= 0; i--) {
-                    if (str[i] === char) {
-                        lastIndexOfChar = i;
-                    } else {
-                        break;
-                    }
-                }
-
-                return lastIndexOfChar ? str.slice(0, lastIndexOfChar)
-                    : str;
-            },
-
-            ltrim: function (str, char) {
-                if (!$type(str)) {
-                    return str;
-                }
-                // handles one char
-                char = char && char[0] || ' ';
-
-                var lastIndexOfChar = 0;
-
-                for (var i = 0; i < str.length; i++) {
-                    if (str[i] === char) {
-                        lastIndexOfChar = i + 1;
-                    } else {
-                        break;
-                    }
-                }
-
-                return str.slice(lastIndexOfChar)
-
-            },
-
-            addslashes: function (str) {
-                // http://phpjs.org/functions/addslashes:303
-                return (str + '').replace(/[\\"\/]/g, '\\$&').replace(/\u0000/g, '\\0');
-            },
-
-            isValidPath: function (what) {
-                what = what || '';
-                //starts with /
-                return (what.split('/').length > 1);
+                flm.utils.logSystem(codeMsg, " -> ", extra);
             }
 
         };
+
+        utils.formatPermissions = function (octal) {
+
+            var map = this.perm_map;
+            var arr = octal.split('');
+
+            var out = '';
+
+            for (var i = 0; i < arr.length; i++) {
+                out += map[arr[i]];
+            }
+            return out;
+
+        };
+
+        utils.formatDate = function (timestamp, format) {
+
+            if (timestamp) {
+
+                var d = new Date(timestamp * 1000);
+
+                var times = {
+                    s: d.getSeconds(),
+                    m: d.getMinutes(),
+                    h: d.getHours(),
+
+                    d: d.getDate(),
+                    M: d.getMonth(),
+                    y: d.getFullYear()
+                };
+
+                for (i in times) {
+                    if (i === 'M') {
+                        times[i]++;
+                    }
+                    if (times[i] < 10) {
+                        times[i] = "0" + times[i];
+                    }
+                }
+
+                return format.replace(/%([dMyhms])/g, function (m0, m1) {
+                    return times[m1];
+                });
+            } else {
+                return '';
+            }
+        };
+
+        utils.hasDir = function (entries) {
+            var hasDirs = false;
+            $.each(entries, function (k, v) {
+                if (window.flm.utils.isDir(v)) {
+                    hasDirs = true;
+                    return false;
+
+                }
+
+            });
+
+            return hasDirs;
+        };
+
+        utils.getICO = function (element) {
+
+            if (this.isDir(element)) {
+                return ('Icon_Dir');
+            }
+
+            var iko = 'flm-sprite ';
+
+            switch (this.getExt(element).toLowerCase()) {
+
+                case 'mp3' :
+                    iko += 'sprite-mp3';
+                    break;
+                case 'avi':
+                case 'mp4':
+                case 'wmv':
+                case 'mkv':
+                case 'divx':
+                case 'mov':
+                case 'flv':
+                case 'mpeg':
+                    iko += 'sprite-video';
+                    break;
+                case 'bmp':
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                    iko += 'sprite-image';
+                    break;
+                case 'log':
+                case 'txt':
+                case 'nfo':
+                    iko += 'sprite-nfo';
+                    break;
+                case 'sfv':
+                    iko += 'sprite-sfv';
+                    break;
+                /*                    case 'rar':
+                                        iko += 'sprite-rar';
+                                        break;
+                                    case 'zip':
+                                        iko += 'sprite-zip';
+                                        break;*/
+                case 'torrent':
+                    iko += 'sprite-torrent';
+                    break;
+                default:
+                    if (flm.utils.isArchive(element)) {
+                        iko += 'sprite-zip';
+                    } else {
+                        iko = 'Icon_File';
+                    }
+            }
+
+
+            return (iko);
+        };
+
+        utils.getExt = function (element) {
+
+            if (!$type(element)) {
+                return '';
+            }
+
+            var ext = element.split('.').pop();
+            var valid = (element.split('.').length > 1) && ext.match(/^[A-Za-z0-9]{2,5}$/);
+
+            ext = valid ? ext : '';
+
+            return ext.toLowerCase();
+        };
+
+        utils.basedir = function (path) {
+
+            var last = '';
+            path = this.trimslashes(path);
+
+            if (path) {
+                var ar = path.split('/');
+                ar.pop();
+                last += ar.join('/');
+                if (ar.length > 0) {
+                    last += '/';
+                }
+            }
+
+            return '/' + last;
+        };
+
+        utils.stripBasePath = function (path, basepath) {
+            var t = this.trimslashes(path).split(this.trimslashes(basepath));
+
+            var relative = path;
+
+            if (t.length > 1) {
+                relative = t[1];
+            }
+
+            return relative;
+        };
+
+
+        utils.json_encode = function (obj) {
+            var self = this;
+            var s = '';
+            switch ($type(obj)) {
+                case "number":
+                    return (String(obj));
+                case "boolean":
+                    return (obj ? "1" : "0");
+                case "string":
+                    return ('"' + obj + '"');
+                case "array": {
+                    s = '';
+                    $.each(obj, function (key, item) {
+                        if (s.length)
+                            s += ",";
+                        s += self.json_encode(item);
+                    });
+                    return ("[" + s + "]");
+                }
+                case "object": {
+                    s = '';
+                    $.each(obj, function (key, item) {
+                        if (s.length)
+                            s += ",";
+                        s += ('"' + key + '":' + self.json_encode(item));
+                    });
+                    return ("{" + s + "}");
+                }
+            }
+            return ("null");
+        };
+
+        utils.rtrim = function (str, char) {
+            if (!$type(str)) {
+                return str;
+            }
+            // handles one char
+            char = char && char[0] || ' ';
+
+            var lastIndexOfChar = 0;
+
+            for (var i = str.length - 1; i >= 0; i--) {
+                if (str[i] === char) {
+                    lastIndexOfChar = i;
+                } else {
+                    break;
+                }
+            }
+
+            return lastIndexOfChar ? str.slice(0, lastIndexOfChar)
+                : str;
+        };
+
+        utils.ltrim = function (str, char) {
+            if (!$type(str)) {
+                return str;
+            }
+            // handles one char
+            char = char && char[0] || ' ';
+
+            var lastIndexOfChar = 0;
+
+            for (var i = 0; i < str.length; i++) {
+                if (str[i] === char) {
+                    lastIndexOfChar = i + 1;
+                } else {
+                    break;
+                }
+            }
+
+            return str.slice(lastIndexOfChar)
+
+        };
+
+        utils.addslashes = function (str) {
+            // http://phpjs.org/functions/addslashes:303
+            return (str + '').replace(/[\\"\/]/g, '\\$&').replace(/\u0000/g, '\\0');
+        };
+
+        utils.isValidPath = function (what) {
+            what = what || '';
+            //starts with /
+            return (what.split('/').length > 1);
+        }
+
         utils.basename = function (what) {
             return utils.trimslashes(what).split('/').pop();
+        };
+
+        utils.replaceFilePath = function (newPath, oldPath, ext, forceExtension = false) {
+            let fileName = oldPath
+                ? this.stripFileExtension(this.isDir(newPath) ? oldPath : newPath, [ext]) + (forceExtension ? '.' + forceExtension : '')
+                : flm.ui.browser.recommendedFileName(ext, forceExtension);
+
+            let fileDir = this.isDir(newPath) ? newPath : this.basedir(newPath);
+
+            return this.buildPath([fileDir, fileName]);
         };
 
         utils.buildPath = function (parts) {
@@ -311,9 +319,8 @@
                     res.push(item);
                 }
             }
-            var ret =  '/' + res.join('/');
-            if(endingSlash)
-            {
+            var ret = '/' + res.join('/');
+            if (endingSlash) {
                 ret += '/';
             }
             return ret;
@@ -335,26 +342,25 @@
             }
 
             return (rar.join('/'));
-        };
+        }
+
         utils.stripFileExtension = function (currentPath, exts) {
             var file;
             var fileName = flm.utils.basename(currentPath);
 
-            if($type(exts))
-            {
+            if ($type(exts)) {
                 // debugger;
-                file = fileName.replace(new RegExp('\.(' +exts +')$', "i"), "");
-            }
-            else {
+                file = fileName.replace(new RegExp('\.(' + exts + ')$', "i"), "");
+            } else {
                 var parts = fileName.split('.');
                 parts.pop();
                 file = parts.join('.');
             }
 
             return file;
-        };
-        return utils;
+        }
 
+        return utils;
     }
 
 
@@ -424,18 +430,17 @@
 
             };
 
-            client.runTask = function(name, data) {
+            client.runTask = function (name, data) {
                 var def = $.Deferred();
                 var plugin = getPlugin();
                 data.workdir = flm.getCurrentPath();
 
-                theWebUI.startConsoleTask( name, plugin.name, data, { noclose: true });
+                theWebUI.startConsoleTask(name, plugin.name, data, {noclose: true});
 
-                var runTask =  theWebUI.getConsoleTask();
+                var runTask = theWebUI.getConsoleTask();
 
-                var unbind = function(e, task) {
-                    if(task.no === runTask.no)
-                    {
+                var unbind = function (e, task) {
+                    if (task.no === runTask.no) {
                         def.resolve(task);
                     }
                 };
@@ -449,7 +454,7 @@
             };
 
             client.copy = function (files, to) {
-                return this.runTask("copy",  {
+                return this.runTask("copy", {
                     method: 'filesCopy',
                     to: to,
                     fls: files
@@ -458,7 +463,7 @@
             };
 
             client.move = function (files, to) {
-                return this.runTask("move",  {
+                return this.runTask("move", {
                     method: 'filesMove',
                     to: to,
                     fls: files
@@ -466,7 +471,7 @@
             };
 
             client.removeFiles = function (paths) {
-                return this.runTask("remove",  {
+                return this.runTask("remove", {
                     method: 'filesRemove',
                     fls: paths
                 });
@@ -491,7 +496,7 @@
             };
 
             client.sfvCheck = function (path) {
-                return this.runTask("checksum-verify",  {
+                return this.runTask("checksum-verify", {
                     method: 'svfCheck',
                     target: path
                 });
@@ -499,7 +504,7 @@
             };
 
             client.sfvCreate = function (path, files) {
-                return this.runTask("checksum-create",  {
+                return this.runTask("checksum-create", {
                     method: 'sfvCreate',
                     target: path,
                     fls: files
@@ -508,7 +513,7 @@
             };
 
             client.createArchive = function (archive, files, options) {
-                return this.runTask("compress",  {
+                return this.runTask("compress", {
                     method: 'filesCompress',
                     target: archive,
                     mode: options,
@@ -517,7 +522,7 @@
             };
 
             client.extractFiles = function (archiveFiles, toDir, password) {
-                return this.runTask("unpack",  {
+                return this.runTask("unpack", {
                     method: 'filesExtract',
                     fls: archiveFiles,
                     password: password,
@@ -730,7 +735,7 @@
                         return arr;
                     },
 
-                    onDoubleClick: function (obj) {
+                    onDoubleClick: function () {
                         browse.open(browse.selectedTarget);
                         return false;
                     }
@@ -759,13 +764,13 @@
                         if (browse.isVisible() && theDialogManager.visible.length === 0) {
                             // only if the tab is visible and no dialogs are open
 
-                            if (ctrlDown && (e.keyCode == cKey)) {
+                            if (ctrlDown && (e.keyCode === cKey)) {
                                 browse.handleKeyCopy();
                             }
-                            if (ctrlDown && (e.keyCode == vKey)) {
+                            if (ctrlDown && (e.keyCode === vKey)) {
                                 browse.handleKeyPaste();
                             }
-                            if (ctrlDown && (e.keyCode == xKey)) {
+                            if (ctrlDown && (e.keyCode === xKey)) {
                                 browse.handleKeyMove();
                             }
                         }
@@ -821,7 +826,7 @@
                         return exists;
                     };
 
-                    return (checkInTable(what) || checkInTable(what+'/'));
+                    return (checkInTable(what) || checkInTable(what + '/'));
                 };
 
                 browse.getSelectedEntry = function () {
@@ -851,14 +856,12 @@
                 browse.recommendedFileName = function (ext, desiredExt) {
                     // use the current dir name as base if multiple files are selected
                     desiredExt = desiredExt || ext
-                    let file  = flm.utils.basename(
-                        browse.selectedEntries.length > 0 && !browse.isTopDir(flm.getCurrentPath())
-                            ? flm.getCurrentPath()
-                            : browse.getSelectedEntry()
-                    );
+                    let file = browse.selectedEntries.length > 1 && !browse.isTopDir(flm.getCurrentPath())
+                        ? flm.getCurrentPath()
+                        : browse.getSelectedEntry()
 
                     file = flm.utils.stripFileExtension(file, ext);
-                    return file+ '.' + desiredExt;
+                    return file + '.' + desiredExt;
                 };
 
                 browse.loadNavigation = function () {
@@ -927,7 +930,7 @@
                     browse.selectedTarget = !browse.isTopDir(target) ? flm.getCurrentPath(target) : target;
 
                     // handles right/left click events
-                    if ($type(id) && (e.button == 2)) {
+                    if ($type(id) && (e.button === 2)) {
 
                         theContextMenu.clear();
                         browse.selectedEntries = browse.getSelection(false);
@@ -978,8 +981,8 @@
                     menu.push([
                         theUILang.fOpen,
                         (entries.length > 1) ? null : function () {
-                        browse.open(target);
-                    }]);
+                            browse.open(target);
+                        }]);
 
                     if (!browse.isTopDir(target)) {
 
@@ -1026,11 +1029,10 @@
 
                         if (utils.isArchive(target)) {
 
-                            menu.push([theUILang.fExtracta, function() {
+                            menu.push([theUILang.fExtracta, function () {
                                 var archives = [];
                                 var entry;
-                                for(var i=0; i< browse.selectedEntries.length; i++)
-                                {
+                                for (var i = 0; i < browse.selectedEntries.length; i++) {
                                     entry = browse.selectedEntries[i];
                                     utils.isArchive(entry) && archives.push(entry)
                                 }
@@ -1052,8 +1054,7 @@
                         menu.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
                     }
 
-                    if(menu[menu.length-1][0] !== CMENU_SEP)
-                    {
+                    if (menu[menu.length - 1][0] !== CMENU_SEP) {
                         menu.push([CMENU_SEP]);
                     }
 
@@ -1078,9 +1079,9 @@
                 browse.setSorting = function () {
                     const table = browser.table();
                     table.initialGetSortFunc = table.getSortFunc;
-                    table.getSortFunc = function(id, reverse, valMapping) {
+                    table.getSortFunc = function (id, reverse, valMapping) {
                         const sortResult = table.initialGetSortFunc(id, reverse, valMapping);
-                        sortFunction =  function (x, y) {
+                        sortFunction = function (x, y) {
 
                             //debugger;
                             var xVal = x.split(browse.tableEntryPrefix)[1];
@@ -1230,7 +1231,7 @@
                 activeDialogs: {},
                 onStartEvent: null,
                 dirBrowser: {},
-            // multiple file operations are ui blocking
+                // multiple file operations are ui blocking
                 forms: {
                     archive: {
                         modal: true,
@@ -1350,8 +1351,8 @@
                                         promise.then(function () {
                                                 dialogs.hide(diagId);
                                             },
-                                            function (data,msg) {
-                                                    flm.utils.logError(data, msg);
+                                            function (data, msg) {
+                                                flm.utils.logError(data, msg);
                                             });
                                     }
                                 });
@@ -1367,7 +1368,7 @@
 
                 },
 
-                startButton: function(diag) {
+                startButton: function (diag) {
                     diag = this.getDialogId(diag);
                     return $(diag + ' .flm-diag-start');
                 },
@@ -1410,8 +1411,7 @@
                 },
 
                 getTargetPath: function (container) {
-                    container = container + '.dlg-window .flm-diag-nav-path';
-                    var ele = $(container);
+                    var ele = this.pathBrowserInput(container)
                     return ele[0].tagName.toLowerCase() === 'input' ? ele.val() : ele.text();
                 },
                 hide: function (dialogId, afterHide) {
@@ -1432,10 +1432,12 @@
                 },
 
                 updateTargetPath: function (container, path) {
-                    container = container + '.dlg-window .flm-diag-nav-path';
-
-                    var ele = $(container);
+                    var ele = this.pathBrowserInput(container)
                     return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
+                },
+
+                pathBrowserInput: function (diagId) {
+                    return $(diagId + '.dlg-window .flm-diag-nav-path');
                 },
 
                 setDirBrowser: function (diagId, withFiles) {
@@ -1467,11 +1469,11 @@
                                 null,
                                 withFiles
                             );
-
-                            dirBrowse.monitorUpdates();
-
-                            $(editField).change(function (event) {
-                                $(this).val(flm.utils.buildPath([event.target.value]))
+                            dirBrowse.monitorUpdates(function () {
+                                this.edit.data('previousValue', this.edit.val());
+                            }, function () {
+                                this.edit.val(flm.manager.stripHomePath(this.edit.val()) + '/');
+                                this.edit.trigger('change');
                             });
 
                             this.dirBrowser[diagId][i] = dirBrowse;
@@ -1788,7 +1790,7 @@
         // events binding
 
 
-        $(document).on(flm.EVENTS.browserVisible, function (e) {
+        $(document).on(flm.EVENTS.browserVisible, function () {
 
             if (flm.showPathPromise) {
                 flm.showPathPromise.resolve();
