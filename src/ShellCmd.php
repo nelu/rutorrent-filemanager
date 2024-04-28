@@ -80,7 +80,7 @@ class ShellCmd
                 } elseif (is_string($item))
                 {
                     // trim spaces from positional/no name arguments
-                    $r = trim($key, " ") . Helper::mb_escapeshellarg($item);
+                    $r = ltrim($key, " ") . Helper::mb_escapeshellarg($item);
                 } elseif (is_int($item))
                 {
                     // int we hope
