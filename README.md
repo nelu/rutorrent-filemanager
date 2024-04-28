@@ -1,16 +1,17 @@
 # rutorrent-filemanager
-rTorrent file management plugin for ruTorrent webUI running with shell/javascript/php
-
-Javascript web client with php endpoint with file operations methods
+ruTorrent file management plugin with a javascript user interface running on rTorrent bittorrent client
 
 #### Features:
-- support for file operations: copy/move/delete/rename
-- hotkeys for copy/move actions (ctrl/cmd-c/x/v)
-- integrated operations in torrent Files tab
+- option to run all operations as chroot user
+- virtual jailed home dir support
 - using twigjs for views
-- sfv checksum functionality 
+- using 7zip for archive related and file checksum operations
+- supported file operations: copy, move, delete, rename, archive, extract, checksum, view, file info
+- hotkey shortcuts for file operations: copy (ctrl+c), move (ctrl+x), paste (ctrl+v), delete, rename (F2)
+- integrated menu in Files tab
+- file checksum functionality with multiple alogorithms supported: sfv, sha256
 - text/nfo viewer, with configurable text extensions 
-- archive unpack functionality, with configurable file extensions
+- archive file support, with configurable formats
 
 #### Configuration
 Currently the plugin supports handling archive files with 7zip and rar (non free). 
@@ -61,7 +62,7 @@ See these additional filemanager plugins for extended functionality:
 - [filemanager-media](https://github.com/nelu/rutorrent-filemanager-media): Media view and screenshots
 - [filemanager-share](https://github.com/nelu/rutorrent-filemanager-share): File sharing functionality
 
-Feel free to contribute with commits and docs
+Feel free to contribute with feature suggestions, fixes and documentation
 
 TODO:
-- use 7zip for file checksum operations (multiple hashing algorithms): replace native php sfv hasher and implement more algos
+- enable more file checksum algos
