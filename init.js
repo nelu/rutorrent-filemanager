@@ -206,8 +206,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
     ]);
 
     var el = theContextMenu.get(theUILang.Priority);
-    if(el)
-    {
+    if (el) {
         theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
     }
 
@@ -243,7 +242,7 @@ plugin.ui.init = function () {
         }).attr({
             name: "datafrm",
             id: "datafrm"
-        }).width(0).height(0).on('load',function () {
+        }).width(0).height(0).on('load', function () {
             var d = (this.contentDocument || this.contentWindow.document);
             if (d.location.href !== "about:blank")
                 try {
@@ -295,15 +294,17 @@ plugin.ui.init = function () {
 
 // trigger input change events from iframe visibility
 theWebUI.rDirBrowser.prototype.editObserver = null;
-theWebUI.rDirBrowser.prototype.monitorUpdates = function(beforeUpdate,afterUpdate){
-    if(!this.editObserver) {
+theWebUI.rDirBrowser.prototype.monitorUpdates = function (beforeUpdate, afterUpdate) {
+    if (!this.editObserver) {
         const self = this;
-        const observer = new MutationObserver(function() {
+        const observer = new MutationObserver(function () {
             self.frame.css("visibility") === "hidden" ? afterUpdate.apply(self) : beforeUpdate.apply(self);
         });
 
         self.editObserver = observer.observe(this.frame[0], {attributes: true, attributeFilter: ["style"]});
-        self.edit.on(browser.isIE ? "focusin" : "focus", function(){beforeUpdate.apply(self);});
+        self.edit.on(browser.isIE ? "focusin" : "focus", function () {
+            beforeUpdate.apply(self);
+        });
     }
 };
 
@@ -342,22 +343,21 @@ plugin.onLangLoaded = function () {
     return plugin.enabled && plugin.ui.init();
 };
 
-plugin.onTaskFinished = function(task,onBackground)
-{
-  if(task.hasOwnProperty('errcode') && task.errors === 0) {
+plugin.onTaskFinished = function (task, onBackground) {
+    if (task.hasOwnProperty('errcode') && task.errors === 0) {
         // log to system
         //flm.utils.logSystem(task.errcode, " -> ", task.msg);
         //task.status = false;
         task.status = 1;
-        task.errors = [( $type(theUILang.fErrMsg[task.errcode] )
-                        ? theUILang.fErrMsg[task.errcode] + " -> " + task.msg
-                        : task.msg) ];
+        task.errors = [($type(theUILang.fErrMsg[task.errcode])
+            ? theUILang.fErrMsg[task.errcode] + " -> " + task.msg
+            : task.msg)];
         delete task.errcode;
         // log the request error as task errors
         thePlugins.get("_task").check(task);
 
-    } else if(!task.hasOwnProperty('errcode')) {
-      $(document).trigger(plugin.ui.EVENTS.taskDone, task);
+    } else if (!task.hasOwnProperty('errcode')) {
+        $(document).trigger(plugin.ui.EVENTS.taskDone, task);
     }
 
 };
