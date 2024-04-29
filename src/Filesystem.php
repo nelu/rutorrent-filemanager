@@ -4,6 +4,7 @@ namespace Flm;
 
 use Exception;
 use FileUtil;
+use rTask;
 
 class Filesystem
 {
@@ -67,15 +68,19 @@ class Filesystem
         return RemoteShell::test($path, 'f');
     }
 
-    public function copy($files, $to): array
+    /**
+     * @throws Exception
+     */
+    public function copy($files, $dest): array
     {
         $commands = [];
-        $to = $this->rootPath($to);
+        $to = $this->rootPath($dest);
 
+        $commands = ['echo ' . Helper::mb_escapeshellarg('-> '.$dest)];
         foreach ($files as $file)
         {
-            $file = $this->rootPath($file);
-            $commands[] = ShellCmds::recursiveCopy($file, $to)->cmd();
+            $commands[] = "echo ".Helper::mb_escapeshellarg(basename($file) . " ... ");
+            $commands[] = ShellCmds::recursiveCopy($this->rootPath($file), $to)->cmd();
         }
 
         $rtask = TaskController::task([
@@ -83,9 +88,7 @@ class Filesystem
             'arg' => count($files) . ' files'
         ]);
 
-        $ret = $rtask->start($commands, 0);
-
-        return $ret;
+        return $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
     }
 
     public function move($files, $to): array

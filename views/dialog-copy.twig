@@ -5,74 +5,77 @@
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-        <legend>{{ theUILang.fDiagCopySel }} </legend>
+    <legend>{{ theUILang.fDiagCopySel }} </legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
-(function (global) {
-    var dialogs = flm.ui.getDialogs();
-    var diagId = dialogs.getDialogId();
+    <script>
+        (function () {
+            const dialogs = flm.ui.getDialogs();
+            const diagId = dialogs.getDialogId();
+            const pathBrowser = dialogs.pathBrowserInput(diagId);
 
+            let self = this;
 
-    if(!flm.manager.hasOwnProperty('doCopy')) {
-        // service
-        flm.manager.doCopy = function (destination, filePaths) {
+            self.doCopy = function (destination, filePaths) {
 
-        destination = $.trim(destination);
+                destination = $.trim(destination);
 
-        var deferred = $.Deferred();
-        flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
+                var deferred = $.Deferred();
+                flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
 
-        if (!destination.length) {
-            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-            deferred.reject(theUILang.fDiagInvalidname);
-            return deferred.promise();
-        }
+                if (!destination.length) {
+                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                    deferred.reject(theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
 
-        if (!$type(filePaths) || filePaths.length === 0) {
-            deferred.reject('Empty paths');
-            return deferred.promise();
-        }
+                if (!$type(filePaths) || filePaths.length === 0) {
+                    deferred.reject('Empty paths');
+                    return deferred.promise();
+                }
 
-        if (!flm.utils.isValidPath(destination)) {
-            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-            deferred.reject(theUILang.fDiagInvalidname);
-            return deferred.promise();
-        }
+                if (!flm.utils.isValidPath(destination)) {
+                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                    deferred.reject(theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
 
-        var cPath = flm.getCurrentPath();
-        return flm.api.copy(flm.manager.getFullPaths(filePaths), flm.manager.stripHomePath(destination))
-            .then(function (result) {
-                    // in case we are in destination
-                    flm.Refresh(filePaths.length > 1 ? destination : cPath);
-                    return result;
-                },
-                function (response) {
-                    return response;
-                });
-    }
-}
+                var cPath = flm.getCurrentPath();
 
-    dialogs.onStart(function () {
-        dialogs.disableStartButton();
-        return flm.manager.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId)).then(
+                return flm.api.copy(filePaths, flm.manager.stripJailPath(destination))
+                    .then(function (result) {
+                            // in case we are in destination
+                            flm.Refresh(filePaths.length > 1 ? destination : cPath);
+                            return result;
+                        },
+                        function (response) {
+                            return response;
+                        });
+            }
 
-        );
-    });
+            self.onStart = function () {
+                dialogs.disableStartButton();
+                return self.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId)).then(
 
-    var updateName = function(prefix, entry) {
-        dialogs.updateTargetPath(diagId, flm.getCurrentPath(prefix + flm.utils.basename(entry)) );
-    };
+                );
+            };
 
-    var entries = dialogs.getCheckedList(diagId);
+            self.updateFilePath = function () {
+                let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
+                dialogs.updateTargetPath(diagId, filePath);
+            };
 
-    if(entries.length == 1)
-    {
-        updateName('Copy of ', entries[0]);
-    }
+            dialogs.onStart(self.onStart);
+            pathBrowser.change(self.updateFilePath);
 
-})
-(window);
-</script>
+            const entries = dialogs.getCheckedList(diagId);
+            if (entries.length === 1) {
+                pathBrowser.data('previousValue', 'Copy of ' + flm.utils.basename(entries[0]))
+                    .change();
+            }
+
+        })
+        (window);
+    </script>
 {% endblock %}

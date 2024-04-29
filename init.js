@@ -123,11 +123,11 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
         : null;
 
     var torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
-    var currentTorrentDirPath = flm.manager.stripHomePath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
+    var currentTorrentDirPath = flm.manager.stripJailPath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
 
     var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]);
 
-    selectedPath = flm.manager.stripHomePath(selectedPath);
+    selectedPath = flm.manager.stripJailPath(selectedPath);
 
 
     var selectedEntries = [];
@@ -140,7 +140,7 @@ plugin.ui.handleTorrentFilesMenu = function (e, selected) {
             entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
             if (entry) {
                 entryPath = flm.utils.buildPath([torrentPath, entry.name]);
-                entryPath = flm.manager.stripHomePath(entryPath);
+                entryPath = flm.manager.stripJailPath(entryPath);
                 if (theWebUI.dirs[theWebUI.dID].isDirectory(i)) {
                     entryPath += '/';
                 }

@@ -298,9 +298,10 @@
 
         utils.replaceFilePath = function (newPath, oldPath, ext, forceExtension = false) {
             let fileName = oldPath
-                ? this.stripFileExtension(this.isDir(newPath) ? oldPath : newPath, [ext]) + (forceExtension ? '.' + forceExtension : '')
+                ? this.isDir(newPath) ? oldPath : newPath + (forceExtension ? '.' + forceExtension : '')
                 : flm.ui.browser.recommendedFileName(ext, forceExtension);
 
+            fileName = ext ? this.stripFileExtension(fileName, [ext]) : this.basename(fileName);
             let fileDir = this.isDir(newPath) ? newPath : this.basedir(newPath);
 
             return this.buildPath([fileDir, fileName]);
@@ -860,8 +861,8 @@
                         ? flm.getCurrentPath()
                         : browse.getSelectedEntry()
 
-                    file = flm.utils.stripFileExtension(file, ext);
-                    return file + '.' + desiredExt;
+                    file = ext ? flm.utils.stripFileExtension(file, ext) + '.' + desiredExt : '';
+                    return file;
                 };
 
                 browse.loadNavigation = function () {
@@ -1472,7 +1473,7 @@
                             dirBrowse.monitorUpdates(function () {
                                 this.edit.data('previousValue', this.edit.val());
                             }, function () {
-                                this.edit.val(flm.manager.stripHomePath(this.edit.val()) + '/');
+                                this.edit.val(flm.manager.stripJailPath(this.edit.val()) + '/');
                                 this.edit.trigger('change');
                             });
 
@@ -1801,7 +1802,7 @@
 
         flm.showPath = function (dir, hilight) {
 
-            dir = flm.manager.stripHomePath(dir);
+            dir = flm.manager.stripJailPath(dir);
             hilight = hilight || null;
 
             return flm.goToPath(dir).then(function (value) {
@@ -1835,11 +1836,8 @@
         };
 
         flm.Refresh = function (dir) {
-
-            if (!$type(dir) || (dir === flm.currentPath)) {
-                return flm.goToPath(flm.currentPath);
-            }
-
+            dir = dir || flm.currentPath;
+            return flm.goToPath(dir);
         };
 
         var manager = {
@@ -1859,16 +1857,23 @@
 
             },
 
-            stripHomePath: function (entry) {
-
+            stripJailPath: function (entry) {
                 return flm.utils.stripBasePath(entry, flm.getConfig().homedir);
+            },
 
+            addJailPath: function (entries) {
+                let i;
+                for (i = 0; i < entries.length; i++) {
+                    entries[i] = flm.utils.buildPath([flm.getConfig().homedir, this.stripJailPath(entries[i])]);
+                }
+
+                return entries;
             },
 
             getFullPaths: function (entries) {
 
                 for (var i = 0; i < entries.length; i++) {
-                    entries[i] = flm.getCurrentPath(this.stripHomePath(entries[i]));
+                    entries[i] = flm.getCurrentPath(this.stripJailPath(entries[i]));
                 }
 
                 return entries;
@@ -1876,12 +1881,10 @@
             },
 
             createTorrent: function (target) {
-
-                var homedir = flm.getConfig().homedir;
-                var relative = flm.manager.stripHomePath(target);
+                var relative = flm.manager.stripJailPath(target);
                 var isRelative = (relative !== target);
 
-                var path = flm.utils.buildPath([homedir, isRelative ? relative : target]);
+                var path = flm.manager.addJailPath([isRelative ? relative : target])[0];
 
                 $('#path_edit').val(path);
 

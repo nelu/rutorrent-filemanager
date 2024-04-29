@@ -49,7 +49,7 @@
                 }
 
                 var cPath = flm.getCurrentPath();
-                return flm.api.sfvCreate(flm.manager.stripHomePath(checksumFile), flm.manager.getFullPaths(filePaths))
+                return flm.api.sfvCreate(flm.manager.stripJailPath(checksumFile), flm.manager.getFullPaths(filePaths))
                     .done(function (response) {
                         flm.Refresh(cPath);
                         return response;

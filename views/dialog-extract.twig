@@ -47,7 +47,7 @@
 
                 return flm.api.extractFiles(
                     flm.manager.getFullPaths(archiveFiles),
-                    flm.manager.stripHomePath(toDir),
+                    flm.manager.stripJailPath(toDir),
                    password.val()
             )
                     .then(function (response) {

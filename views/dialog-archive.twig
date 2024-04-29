@@ -78,7 +78,7 @@
 
                     var cPath = flm.getCurrentPath();
 
-                    return flm.api.createArchive(flm.manager.stripHomePath(archive), flm.manager.getFullPaths(files), options)
+                    return flm.api.createArchive(flm.manager.stripJailPath(archive), flm.manager.getFullPaths(files), options)
                         .done(function (response) {
                             flm.Refresh(cPath);
                             return response;
