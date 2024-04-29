@@ -42,7 +42,7 @@
                         ? def.promise()
                         : flm.api.mkDir(flm.getCurrentPath(dirname))
                             .done(function (response) {
-                                flm.Refresh(currentPath);
+                                flm.Refresh();
                                 return response;
                             });
 

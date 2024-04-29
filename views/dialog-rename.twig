@@ -14,21 +14,23 @@
         <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
                required
                value="{{ basename(selectedTarget) }}"
+               autofocus
                style="width:95%;"/>
     </fieldset>
 {% endblock %}
 {% block scripts %}
     <script>
-        (function (global) {
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId();
+        if (!flm.ui.hasOwnProperty('dialogRename')) {
 
-            // snapshot when trigerring
-            var destination = $('#fMan-RenameTo');
+            flm.ui.dialogRename = function () {
+                var dialogs = flm.ui.getDialogs();
+                var diagId = dialogs.getDialogId();
+                // snapshot when trigerring
+                const destination = $('#fMan-RenameTo');
 
-            if (!flm.manager.hasOwnProperty('doRename')) {
+                let self = this;
 
-                flm.manager.doRename = function (source, destination) {
+                self.doRename = function (source, destination) {
 
                     var hasError;
 
@@ -51,23 +53,30 @@
                     var cPath = flm.getCurrentPath();
 
                     return flm.api.rename(source, destination).done(
-                            function (response) {
-                                flm.manager.logConsole('rename', source + ' -> ' + destination);
-                                flm.Refresh(cPath);
-                                $(document).trigger(flm.EVENTS.rename, [source, destination]);
-
-                                return response;
-                            }
-                        );
+                        function (response) {
+                            flm.manager.logConsole('rename', source + ' -> ' + destination);
+                            $(document).trigger(flm.EVENTS.rename, [source, destination]);
+                            cPath === flm.getCurrentPath() && flm.Refresh();
+                            return response;
+                        }
+                    );
 
                 };
-            }
 
-            dialogs.onStart(function () {
-                return flm.manager.doRename(dialogs.getTargetPath(diagId), flm.getCurrentPath(flm.utils.basename(destination.val())));
-            });
+                self.onStart = function () {
+                    return self.doRename(dialogs.getTargetPath(diagId), flm.getCurrentPath(flm.utils.basename(destination.val())));
+                };
 
-        })(window);
+                dialogs.onStart(self.onStart);
+
+                setTimeout(function () {
+                    destination.click();
+                    destination.select();
+                });
+
+            };
+        }
+        (flm.ui.dialogRename)(window);
     </script>
 {% endblock %}
 

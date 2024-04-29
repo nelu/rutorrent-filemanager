@@ -753,6 +753,7 @@
                 };
                 var bindKeys = function () {
                     var ctrlDown = false,
+                        f2key = 113,
                         ctrlKey = 17,
                         cmdKey = 91,
                         vKey = 86,
@@ -783,6 +784,10 @@
                             }
                             if (ctrlDown && (e.keyCode === xKey)) {
                                 browse.handleKeyMove();
+                            }
+
+                            if (e.keyCode === f2key) {
+                                browse.handleKeyRename();
                             }
                         }
 
@@ -974,6 +979,15 @@
                         browse.selectedEntries = browse.clipboardEntries;
                         browse.selectedTarget = null;
                         flm.ui.getDialogs().showDialog(browse.clipaboardEvent)
+                    }
+                };
+
+                browse.handleKeyRename = function () {
+                    if (browse.selectedEntries.length === 1
+                        && browse.selectedTarget
+                        && !browse.isTopDir(browse.selectedTarget))
+                    {
+                        flm.ui.getDialogs().showDialog('rename')
                     }
                 };
 

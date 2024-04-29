@@ -43,22 +43,23 @@
 
 {% block scripts %}
     <script>
-        (function (global) {
-            console.log('dialog-archive');
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId();
-            var settings = flm.getConfig().archives;
+        if (!flm.ui.hasOwnProperty('dialogArchive')) {
 
-            var pathBrowser = dialogs.dirBrowserInput(diagId);
-            var archiveType = $("#fMan_archtype");
-            var compression = $("#fman-archive-archcompr");
-            var password = $("#fman-archive-apassword");
-            var volumeSize = $("#fman-archive-vsize");
-            var format = $('#fman-archive-arcnscheme');
+            flm.ui.dialogArchive = function () {
+                var dialogs = flm.ui.getDialogs();
+                var diagId = dialogs.getDialogId();
+                var settings = flm.getConfig().archives;
 
-            if (!flm.manager.hasOwnProperty('doArchive')) {
+                var pathBrowser = dialogs.dirBrowserInput(diagId);
+                var archiveType = $("#fMan_archtype");
+                var compression = $("#fman-archive-archcompr");
+                var password = $("#fman-archive-apassword");
+                var volumeSize = $("#fman-archive-vsize");
+                var format = $('#fman-archive-arcnscheme');
+
+                let self = this;
                 // service
-                flm.manager.doArchive = function (archive, files, options) {
+                self.doArchive = function (archive, files, options) {
 
                     var hasError;
 
@@ -84,78 +85,80 @@
                             return response;
                         });
                 };
-            }
 
-            dialogs.onStart(function () {
-                return flm.manager.doArchive(
-                    dialogs.getTargetPath(diagId),
-                    dialogs.getCheckedList(diagId),
-                    {
-                        type: archiveType.val(),
-                        compression: compression.val(),
-                        password: password.val(),
-                        volumeSize: volumeSize.val(),
-                        format: format.val()
-                    }
-                );
-
-            });
-
-            var updateFilePath = function (path) {
-                const extensions = $.uniqueSort(Object.keys(settings)).join('|');
-                const extension = archiveType.val().toLowerCase();
-                let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), extensions, extension);
-                dialogs.updateTargetPath(diagId, filePath);
-            }
-
-
-            var updateCompression = function () {
-
-                var type = archiveType.val().toLowerCase();
-                $('.fman-archive-settings-rar').show();
-
-                if (type !== 'xxx') {
+                self.updateCompression = function () {
+                    var type = archiveType.val().toLowerCase();
                     $('.fman-archive-settings-rar').show();
-                } else {
-                    $('.fman-archive-settings-pass,.fman-archive-settings-rar').hide();
 
-                    $('.fman-archive-settings-pass').show();
+                    if (type !== 'xxx') {
+                        $('.fman-archive-settings-rar').show();
+                    } else {
+                        $('.fman-archive-settings-pass,.fman-archive-settings-rar').hide();
+
+                        $('.fman-archive-settings-pass').show();
+                    }
+
+                    compression.empty();
+                    for (var i = 0; i < settings[type].compression.length; i++) {
+                        compression.append('<option value="' + i + '">' + theUILang.fManArComp['zip'][i] + '</option>');
+                    }
                 }
 
-                compression.empty();
-                for (var i = 0; i < settings[type].compression.length; i++) {
-                    compression.append('<option value="' + i + '">' + theUILang.fManArComp['zip'][i] + '</option>');
+                self.updateFilePath = function (path) {
+                    const extensions = $.uniqueSort(Object.keys(settings)).join('|');
+                    const extension = archiveType.val().toLowerCase();
+                    let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), extensions, extension);
+                    dialogs.updateTargetPath(diagId, filePath);
                 }
-            };
 
-            if (!archiveType.find('option').length) {
-                for (var type in settings) {
-                    archiveType.append('<option value="' + type + '">' + type.toUpperCase() + '</option>');
+                self.onFormatChange = function () {
+                    self.updateFilePath(pathBrowser);
+                    self.updateCompression();
+                    var typeOpts = settings[archiveType.val().toLowerCase()];
+                    var pass = $(diagId + ' .fman-archive-settings-pass');
+
+                    if ($type(typeOpts['has_password']) && typeOpts['has_password'] === false) {
+                        pass.hide();
+                    } else {
+                        pass.show();
+                    }
+                };
+
+                self.onStart = function () {
+                    return self.doArchive(
+                        dialogs.getTargetPath(diagId),
+                        dialogs.getCheckedList(diagId),
+                        {
+                            type: archiveType.val(),
+                            compression: compression.val(),
+                            password: password.val(),
+                            volumeSize: volumeSize.val(),
+                            format: format.val()
+                        }
+                    );
                 }
+
+                dialogs.onStart(self.onStart);
+
+                archiveType.change(self.onFormatChange);
+
+                pathBrowser.change(function (event) {
+                    self.updateFilePath($(this));
+                });
+
+                if (!archiveType.find('option').length) {
+                    for (var type in settings) {
+                        archiveType.append('<option value="' + type + '">' + type.toUpperCase() + '</option>');
+                    }
+                }
+
+                self.updateFilePath(pathBrowser);
+                self.updateCompression();
+
             }
+        }
 
-            pathBrowser.change(function (event) {
-                updateFilePath($(this));
-            });
-
-            archiveType.change(function () {
-                updateFilePath(pathBrowser);
-                updateCompression();
-                var typeOpts = settings[archiveType.val().toLowerCase()];
-                var pass = $(diagId + ' .fman-archive-settings-pass');
-
-                if ($type(typeOpts['has_password']) && typeOpts['has_password'] === false) {
-                    pass.hide();
-                } else {
-                    pass.show();
-                }
-            });
-
-            updateFilePath(pathBrowser);
-            updateCompression();
-
-        })
-        (window);
+        (flm.ui.dialogArchive)(window);
     </script>
 {% endblock %}
 

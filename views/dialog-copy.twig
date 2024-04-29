@@ -9,8 +9,11 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        (function () {
+<script>
+
+    if (!flm.ui.hasOwnProperty('dialogCopy')) {
+
+        flm.ui.dialogCopy = function () {
             const dialogs = flm.ui.getDialogs();
             const diagId = dialogs.getDialogId();
             const pathBrowser = dialogs.dirBrowserInput(diagId);
@@ -46,10 +49,10 @@
 
                 self.noty = $.noty(
                     {
-                        text: theUILang.fStarts.copy + ": " +filePaths.length + " files",
-                        layout : 'bottomLeft',
+                        text: theUILang.fStarts.copy + ": " + filePaths.length + " files",
+                        layout: 'bottomLeft',
                         type: 'information',
-                        timeout : 5000,
+                        timeout: 5000,
                         closeOnSelfClick: true
                     });
 
@@ -60,10 +63,10 @@
                             && flm.Refresh();
                             self.noty = $.noty(
                                 {
-                                    text: theUILang.flm_popup_copy + ": " +filePaths.length,
-                                    layout : 'bottomLeft',
+                                    text: theUILang.flm_popup_copy + ": " + filePaths.length,
+                                    layout: 'bottomLeft',
                                     type: 'success',
-                                    timeout : 10000,
+                                    timeout: 10000,
                                     closeOnSelfClick: true
                                 });
                             return result;
@@ -93,7 +96,8 @@
                     .change();
             }
 
-        })
-        (window);
-    </script>
+        }
+    }
+    (flm.ui.dialogCopy)(window);
+</script>
 {% endblock %}

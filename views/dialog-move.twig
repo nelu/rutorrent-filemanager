@@ -10,7 +10,9 @@
 
 {% block scripts %}
     <script>
-        (function (global) {
+        if (!flm.ui.hasOwnProperty('dialogMove')) {
+            flm.ui.dialogMove = function () {
+
             var dialogs = flm.ui.getDialogs();
             var diagId = dialogs.getDialogId('window');
             let self = this;
@@ -77,8 +79,10 @@
                 return self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
             });
 
-        })
-        (window);
+        }
+        }
+
+        (flm.ui.dialogMove)(window);
     </script>
 {% endblock %}
 
