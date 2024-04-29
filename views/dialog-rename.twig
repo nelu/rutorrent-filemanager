@@ -14,7 +14,6 @@
         <input type="text" name="fMan-RenameTo" id="fMan-RenameTo"
                required
                value="{{ basename(selectedTarget) }}"
-               autofocus
                style="width:95%;"/>
     </fieldset>
 {% endblock %}
@@ -72,7 +71,7 @@
                 setTimeout(function () {
                     destination.click();
                     destination.select();
-                });
+                }, 1);
 
             };
         }

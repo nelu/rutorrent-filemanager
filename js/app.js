@@ -1392,7 +1392,9 @@
                 },
 
                 afterLoad: function (id, what) {
-
+                    setTimeout(function () {
+                        flm.ui.dialogs.startButton().select().focus();
+                    });
                 },
 
                 startButton: function (diag) {
@@ -1903,7 +1905,6 @@
                 }
 
                 return entries;
-
             },
 
             createTorrent: function (target) {

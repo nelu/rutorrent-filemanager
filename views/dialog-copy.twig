@@ -59,7 +59,12 @@
                 return flm.api.copy(filePaths, flm.manager.stripJailPath(destination))
                     .then(function (result) {
                             // refresh in case we are in destination
-                            destination === flm.getCurrentPath()
+                        if(!flm.utils.isDir(destination)) {
+                            // when destination is a directory name
+                            destination = flm.utils.basedir(destination)
+                        }
+
+                        destination === flm.getCurrentPath()
                             && flm.Refresh();
                             self.noty = $.noty(
                                 {
