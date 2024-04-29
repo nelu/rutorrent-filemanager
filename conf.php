@@ -6,7 +6,6 @@ $pathToExternals['rar'] = '';
 $pathToExternals['7zip'] = '/usr/bin/7z';
 
 $config['mkdperm'] = 755; // default permission to set to new created directories
-$config['show_fullpaths'] = false; // wheter to show userpaths or full system paths in the UI
 
 $config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';
 
