@@ -13,51 +13,68 @@
         (function (global) {
             var dialogs = flm.ui.getDialogs();
             var diagId = dialogs.getDialogId('window');
+            let self = this;
 
+            // service
+            self.doMove = function (filePaths, destination) {
 
-            if (!flm.manager.hasOwnProperty('doMove')) {
-                // service
-                flm.manager.doMove = function (filePaths, destination) {
+                destination = $.trim(destination);
 
-                    destination = $.trim(destination);
+                var deferred = $.Deferred();
 
-                    var deferred = $.Deferred();
-                    flm.manager.logConsole(theUILang.fStarts.move, filePaths.length + " files");
+                if (!destination.length) {
+                    deferred.reject('move: ' + theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
 
-                    if (!destination.length) {
-                        // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                        deferred.reject('move: ' + theUILang.fDiagInvalidname);
-                        return deferred.promise();
-                    }
+                if (!$type(filePaths) || filePaths.length === 0) {
+                    deferred.reject('move: ' + 'Empty paths');
+                    return deferred.promise();
+                }
 
-                    if (!$type(filePaths) || filePaths.length === 0) {
-                        deferred.reject('move: ' + 'Empty paths');
-                        return deferred.promise();
-                    }
+                if (!flm.utils.isValidPath(destination)) {
+                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                    deferred.reject('move: ' + theUILang.fDiagInvalidname);
+                    return deferred.promise();
+                }
 
-                    if (!flm.utils.isValidPath(destination)) {
-                        // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                        deferred.reject('move: ' + theUILang.fDiagInvalidname);
-                        return deferred.promise();
-                    }
+                filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
+                var cPath = flm.getCurrentPath();
 
-                    var paths = flm.manager.getFullPaths(filePaths);
-                    var cPath = flm.getCurrentPath();
+                self.noty = $.noty(
+                    {
+                        text: theUILang.fStarts.move + " " + filePaths.length + " files",
+                        layout: 'bottomLeft',
+                        type: 'information',
+                        timeout: 5000,
+                        closeOnSelfClick: true
+                    });
 
-                    return flm.api.move(paths, destination)
-                        .then(function (result) {
-                                flm.Refresh(cPath === flm.getCurrentPath() ? cPath : destination);
-                                $(document).trigger(flm.EVENTS.move, [paths, destination]);
-                                return result;
-                            },
-                            function (response) {
-                                return response;
-                            });
-                };
-            }
+                return flm.api.move(filePaths, destination)
+                    .then(function (result) {
+                            (destination === flm.getCurrentPath()
+                                || cPath === flm.getCurrentPath())
+                            && flm.Refresh();
+
+                            $(document).trigger(flm.EVENTS.move, [filePaths, destination]);
+                            self.noty = $.noty(
+                                {
+                                    text: theUILang.flm_popup_move + ": " + filePaths.length,
+                                    layout: 'bottomLeft',
+                                    type: 'success',
+                                    timeout: 10000,
+                                    closeOnSelfClick: true
+                                });
+                            return result;
+                        },
+                        function (response) {
+                            return response;
+                        });
+            };
+
 
             dialogs.onStart(function () {
-                return flm.manager.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
+                return self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
             });
 
         })

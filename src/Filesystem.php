@@ -78,10 +78,15 @@ class Filesystem
         $commands = ['echo ' . Helper::mb_escapeshellarg('-> '.$dest)];
         foreach ($files as $file)
         {
-            $commands[] = "echo ".Helper::mb_escapeshellarg(basename($file) . " ... ");
+            $commands[] = "printf '%s' ".Helper::mb_escapeshellarg(basename($file) . " ... ");
             $commands[] = ShellCmds::recursiveCopy($this->rootPath($file), $to)
-              /*  ->end(' && echo ✔')*/
                 ->cmd();
+
+            $commands =
+                array_merge( $commands,
+                    [ "{", 'echo '.Helper::mb_escapeshellarg( "✔"), '}'],
+                    ['!{', 'echo '.Helper::mb_escapeshellarg( "✖"), '}' ]
+                );
         }
 
         $rtask = TaskController::task([
@@ -92,15 +97,29 @@ class Filesystem
         return $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
     }
 
+    /**
+     * @throws Exception
+     */
     public function move($files, $to): array
     {
         $commands = [];
+        $commands = ['echo ' . Helper::mb_escapeshellarg('-> '.$to)];
+
         $to = $this->rootPath($to);
 
         foreach ($files as $file)
         {
             $file = $this->rootPath($file);
+            $commands[] = "printf '%s' ".Helper::mb_escapeshellarg(basename($file) . " ... ");
             $commands[] = ShellCmds::recursiveMove($file, $to)->cmd();
+
+            $commands =
+               array_merge( $commands,
+                   [ "{", 'echo '.Helper::mb_escapeshellarg( "✔"), '}'],
+                 ['!{', 'echo '.Helper::mb_escapeshellarg( "✖"), '}' ]
+               );
+
+            // ->end('&& echo')->addArgs(['✓ ' . basename($file)])
         }
 
         $rtask = TaskController::task([

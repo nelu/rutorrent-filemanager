@@ -18,13 +18,12 @@ class ShellCmds
      */
     public static function recursiveCopy($source, $to): ShellCmd
     {
-        return ShellCmd::bin('cp', ['-rpv', $source, $to]);
+        return ShellCmd::bin('cp', ['-rp', $source, $to]);
     }
 
     public static function recursiveMove($file, $to): ShellCmd
     {
-        return ShellCmd::bin('mv', ['-f', $file, $to])
-            ->end('&& echo')->addArgs(['✓ ' . basename($file)]);
+        return ShellCmd::bin('mv', ['-f', $file, $to]);
     }
 
     /**

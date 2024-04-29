@@ -44,25 +44,26 @@
                 // check if its empty from clipboard
                 filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
 
-                $.noty(
+                self.noty = $.noty(
                     {
                         text: theUILang.fStarts.copy + ": " +filePaths.length + " files",
                         layout : 'bottomLeft',
                         type: 'information',
-                        timeout : 4000,
+                        timeout : 5000,
                         closeOnSelfClick: true
                     });
+
                 return flm.api.copy(filePaths, flm.manager.stripJailPath(destination))
                     .then(function (result) {
                             // refresh in case we are in destination
                             destination === flm.getCurrentPath()
                             && flm.Refresh();
-                            $.noty(
+                            self.noty = $.noty(
                                 {
                                     text: theUILang.flm_popup_copy + ": " +filePaths.length,
                                     layout : 'bottomLeft',
                                     type: 'success',
-                                    timeout : false,
+                                    timeout : 10000,
                                     closeOnSelfClick: true
                                 });
                             return result;
