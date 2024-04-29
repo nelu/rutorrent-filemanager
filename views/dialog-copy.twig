@@ -13,7 +13,7 @@
         (function () {
             const dialogs = flm.ui.getDialogs();
             const diagId = dialogs.getDialogId();
-            const pathBrowser = dialogs.pathBrowserInput(diagId);
+            const pathBrowser = dialogs.dirBrowserInput(diagId);
 
             let self = this;
 
@@ -22,7 +22,7 @@
                 destination = $.trim(destination);
 
                 var deferred = $.Deferred();
-                flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
+                //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
 
                 if (!destination.length) {
                     // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
@@ -41,12 +41,30 @@
                     return deferred.promise();
                 }
 
-                var cPath = flm.getCurrentPath();
+                // check if its empty from clipboard
+                filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
 
+                $.noty(
+                    {
+                        text: theUILang.fStarts.copy + ": " +filePaths.length + " files",
+                        layout : 'bottomLeft',
+                        type: 'information',
+                        timeout : 4000,
+                        closeOnSelfClick: true
+                    });
                 return flm.api.copy(filePaths, flm.manager.stripJailPath(destination))
                     .then(function (result) {
-                            // in case we are in destination
-                            flm.Refresh(filePaths.length > 1 ? destination : cPath);
+                            // refresh in case we are in destination
+                            destination === flm.getCurrentPath()
+                            && flm.Refresh();
+                            $.noty(
+                                {
+                                    text: theUILang.flm_popup_copy + ": " +filePaths.length,
+                                    layout : 'bottomLeft',
+                                    type: 'success',
+                                    timeout : false,
+                                    closeOnSelfClick: true
+                                });
                             return result;
                         },
                         function (response) {
@@ -56,9 +74,8 @@
 
             self.onStart = function () {
                 dialogs.disableStartButton();
-                return self.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId)).then(
-
-                );
+                return self.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId))
+                    .then();
             };
 
             self.updateFilePath = function () {

@@ -73,14 +73,15 @@ class Filesystem
      */
     public function copy($files, $dest): array
     {
-        $commands = [];
         $to = $this->rootPath($dest);
 
         $commands = ['echo ' . Helper::mb_escapeshellarg('-> '.$dest)];
         foreach ($files as $file)
         {
             $commands[] = "echo ".Helper::mb_escapeshellarg(basename($file) . " ... ");
-            $commands[] = ShellCmds::recursiveCopy($this->rootPath($file), $to)->cmd();
+            $commands[] = ShellCmds::recursiveCopy($this->rootPath($file), $to)
+              /*  ->end(' && echo ✔')*/
+                ->cmd();
         }
 
         $rtask = TaskController::task([

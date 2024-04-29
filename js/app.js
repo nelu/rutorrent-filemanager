@@ -297,12 +297,22 @@
         };
 
         utils.replaceFilePath = function (newPath, oldPath, ext, forceExtension = false) {
-            let fileName = oldPath
-                ? this.isDir(newPath) ? oldPath : newPath + (forceExtension ? '.' + forceExtension : '')
-                : flm.ui.browser.recommendedFileName(ext, forceExtension);
+            let fileDir = this.basedir(newPath);
+            let fileName =  this.basename(newPath);
 
-            fileName = ext ? this.stripFileExtension(fileName, [ext]) : this.basename(fileName);
-            let fileDir = this.isDir(newPath) ? newPath : this.basedir(newPath);
+            if(oldPath)
+            {
+                if(this.isDir(newPath)) {
+                    fileDir = newPath;
+                    fileName = !this.isDir(oldPath) ? this.basename(oldPath) : '';
+                }
+
+                fileName = ext
+                    ? this.stripFileExtension(fileName, [ext]) + (forceExtension ? '.' + forceExtension : '')
+                    : fileName;
+            } else {
+                fileName = flm.ui.browser.recommendedFileName(ext, forceExtension);
+            }
 
             return this.buildPath([fileDir, fileName]);
         };
@@ -955,12 +965,14 @@
                 };
 
                 browse.handleKeyMove = function () {
-                    browse.handleKeyCopy();
+                    browse.clipaboardEvent = 'move';
+                    browse.clipboardEntries = browse.getSelection(true);
                 };
 
                 browse.handleKeyPaste = function () {
                     if (browse.clipaboardEvent) {
                         browse.selectedEntries = browse.clipboardEntries;
+                        browse.selectedTarget = null;
                         flm.ui.getDialogs().showDialog(browse.clipaboardEvent)
                     }
                 };
@@ -1412,7 +1424,7 @@
                 },
 
                 getTargetPath: function (container) {
-                    var ele = this.pathBrowserInput(container)
+                    var ele = this.dirBrowserInput(container)
                     return ele[0].tagName.toLowerCase() === 'input' ? ele.val() : ele.text();
                 },
                 hide: function (dialogId, afterHide) {
@@ -1433,11 +1445,11 @@
                 },
 
                 updateTargetPath: function (container, path) {
-                    var ele = this.pathBrowserInput(container)
+                    var ele = this.dirBrowserInput(container)
                     return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
                 },
 
-                pathBrowserInput: function (diagId) {
+                dirBrowserInput: function (diagId) {
                     return $(diagId + '.dlg-window .flm-diag-nav-path');
                 },
 
