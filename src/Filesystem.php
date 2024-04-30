@@ -128,7 +128,7 @@ class Filesystem
             'files' => $files
         ]);
 
-        $ret = $rtask->start($commands, 0);
+        $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
 
         return $ret;
     }
@@ -148,7 +148,7 @@ class Filesystem
             'files' => $files
         ]);
 
-        $ret = $rtask->start($commands, 0);
+        $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
 
         return $ret;
     }
@@ -161,8 +161,7 @@ class Filesystem
      */
     public function rename($from, $to): bool
     {
-        $res = ShellCmd::bin('mv', ['-f', $this->rootPath($from), $this->rootPath($to)])
-            ->end('&& echo')->addArgs([$to])
+        $res = ShellCmds::recursiveMove($this->rootPath($from), $this->rootPath($to))
             ->runRemote();
 
         if ($res[0] > 0)
