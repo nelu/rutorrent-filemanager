@@ -29,14 +29,12 @@ class Filesystem
      */
     public function mkdir($target, $recursive = false, $mode = null)
     {
-        if (self::isDir($target))
-        {
+        if (self::isDir($target)) {
             throw new Exception($target, 16);
         }
         $res = ShellCmds::mkdir($this->rootPath($target), $recursive, $mode)->runRemote();
 
-        if ($res[0] > 0)
-        {
+        if ($res[0] > 0) {
             throw new Exception("Error Processing Request: " . $target, 4);
         }
 
@@ -75,17 +73,16 @@ class Filesystem
     {
         $to = $this->rootPath($dest);
 
-        $commands = ['echo ' . Helper::mb_escapeshellarg('-> '.$dest)];
-        foreach ($files as $file)
-        {
-            $commands[] = "printf '%s' ".Helper::mb_escapeshellarg(basename($file) . " ... ");
+        $commands = ['echo ' . Helper::mb_escapeshellarg('-> ' . $dest)];
+        foreach ($files as $file) {
+            $commands[] = "printf '%s' " . Helper::mb_escapeshellarg(basename($file) . " ... ");
             $commands[] = ShellCmds::recursiveCopy($this->rootPath($file), $to)
                 ->cmd();
 
             $commands =
-                array_merge( $commands,
-                    [ "{", 'echo '.Helper::mb_escapeshellarg( "✔"), '}'],
-                    ['!{', 'echo '.Helper::mb_escapeshellarg( "✖"), '}' ]
+                array_merge($commands,
+                    ["{", 'echo ' . Helper::mb_escapeshellarg("✔"), '}'],
+                    ['!{', 'echo ' . Helper::mb_escapeshellarg("✖"), '}']
                 );
         }
 
@@ -94,7 +91,7 @@ class Filesystem
             'arg' => count($files) . ' files'
         ]);
 
-        return $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
+        return $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
     }
 
     /**
@@ -103,21 +100,20 @@ class Filesystem
     public function move($files, $to): array
     {
         $commands = [];
-        $commands = ['echo ' . Helper::mb_escapeshellarg('-> '.$to)];
+        $commands = ['echo ' . Helper::mb_escapeshellarg('-> ' . $to)];
 
         $to = $this->rootPath($to);
 
-        foreach ($files as $file)
-        {
+        foreach ($files as $file) {
             $file = $this->rootPath($file);
-            $commands[] = "printf '%s' ".Helper::mb_escapeshellarg(basename($file) . " ... ");
+            $commands[] = "printf '%s' " . Helper::mb_escapeshellarg(basename($file) . " ... ");
             $commands[] = ShellCmds::recursiveMove($file, $to)->cmd();
 
             $commands =
-               array_merge( $commands,
-                   [ "{", 'echo '.Helper::mb_escapeshellarg( "✔"), '}'],
-                 ['!{', 'echo '.Helper::mb_escapeshellarg( "✖"), '}' ]
-               );
+                array_merge($commands,
+                    ["{", 'echo ' . Helper::mb_escapeshellarg("✔"), '}'],
+                    ['!{', 'echo ' . Helper::mb_escapeshellarg("✖"), '}']
+                );
 
             // ->end('&& echo')->addArgs(['✓ ' . basename($file)])
         }
@@ -128,7 +124,7 @@ class Filesystem
             'files' => $files
         ]);
 
-        $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
+        $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
 
         return $ret;
     }
@@ -137,8 +133,7 @@ class Filesystem
     {
         $commands = [];
 
-        foreach ($files as $file)
-        {
+        foreach ($files as $file) {
             $commands[] = ShellCmds::recursiveRemove($this->rootPath($file))->cmd();
         }
 
@@ -148,7 +143,7 @@ class Filesystem
             'files' => $files
         ]);
 
-        $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD  );
+        $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
 
         return $ret;
     }
@@ -164,8 +159,7 @@ class Filesystem
         $res = ShellCmds::recursiveMove($this->rootPath($from), $this->rootPath($to))
             ->runRemote();
 
-        if ($res[0] > 0)
-        {
+        if ($res[0] > 0) {
             throw new Exception(implode("\n", $res[1]), 4);
         }
 
@@ -187,10 +181,8 @@ class Filesystem
         $i = 0;
         $result = ShellCmd::bin('find', $find_args)->runRemote();
 
-        foreach ($result[1] as $fileline)
-        {
-            if (!empty($fileline))
-            {
+        foreach ($result[1] as $fileline) {
+            if (!empty($fileline)) {
 
                 $item = explode("\t", trim($fileline));
                 $f = [
@@ -202,8 +194,7 @@ class Filesystem
                 ];
 
 
-                if ($f['type'] == 'd')
-                {
+                if ($f['type'] == 'd') {
                     $f['name'] .= DIRECTORY_SEPARATOR;
                     $f['size'] = '';
                 }

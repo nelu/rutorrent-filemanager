@@ -46,6 +46,13 @@ class FileChecksum implements Iterator
         return $filelines;
     }
 
+    public static function parseFilehashLine($fileLine)
+    {
+        $parts = explode(" ", trim($fileLine));
+        $hash = trim(array_pop($parts));
+        return [implode(" ", $parts), $hash];
+    }
+
     public function setFiles($files = [])
     {
         $this->files = (array)$files;
@@ -66,13 +73,14 @@ class FileChecksum implements Iterator
 
         $fcount = $check_files->length();
         $success = 0;
+        (self::$logger)::log("-> " . $checksum_file . "\n");
 
         foreach ($check_files as $i => $item) {
 
             $i++;
 
             $file = $item[0];
-            echo "({$i}/{$fcount}) Checking {$file} ... ".$item[1];
+            echo "({$i}/{$fcount}) Checking {$file} ... " . $item[1];
 
             try {
 
@@ -88,7 +96,7 @@ class FileChecksum implements Iterator
             }
 
         }
-        (self::$logger)::log("\nSuccess: " . $success . " | Failure: " . ($fcount-$success));
+        (self::$logger)::log("\nSuccess: " . $success . " | Failure: " . ($fcount - $success));
         return $success == $fcount;
     }
 
@@ -97,13 +105,7 @@ class FileChecksum implements Iterator
         return count($this->files);
     }
 
-    public function getCurFile()
-    {
-        return $this->file;
-    }
-
-    #[\ReturnTypeWillChange]
-
+    #[ReturnTypeWillChange]
     public function checkFileHash($type = 'CRC32')
     {
         if (count($this->file) < 2) {
@@ -119,8 +121,7 @@ class FileChecksum implements Iterator
 
     }
 
-    #[\ReturnTypeWillChange]
-
+    #[ReturnTypeWillChange]
     /**
      * @param $file
      * @param string $type
@@ -138,16 +139,14 @@ class FileChecksum implements Iterator
 
         $parts = static::parseFilehashLine($entries[1][0]);
 
-        if(empty($parts[0]))
-        {
-            throw new Exception('File hashing error: '. $file, 1);
+        if (empty($parts[0])) {
+            throw new Exception('File hashing error: ' . $file, 1);
         }
 
         return $parts[0];
     }
 
-    #[\ReturnTypeWillChange]
-
+    #[ReturnTypeWillChange]
     public static function checksumFromFilelist(string $fileList, $checksumFile, $type = ' CRC32')
     {
         $files = json_decode(file_get_contents($fileList));
@@ -163,24 +162,23 @@ class FileChecksum implements Iterator
 
         $self->write("; ruTorrent filemanager plugin ;\n");
 
-        foreach ($self as $i => $file)
-        {
+        foreach ($self as $i => $file) {
             $i++;
 
-            echo "({$i}/{$fileCount}) ".basename($file)." ... ";
+            echo "({$i}/{$fileCount}) " . basename($file) . " ... ";
 
             try {
                 $hash = self::getFileHash($file, $type);
                 $self->writeFileHash($hash);
                 $hashed_count++;
-                (self::$logger)::log($hash. ' ✓' );
+                (self::$logger)::log($hash . ' ✓');
 
             } catch (Exception $err) {
                 (self::$logger)::log(' X FAILED:' . $err->getMessage());
             }
 
         }
-        (self::$logger)::log("\n -> ".$checksumFile);
+        (self::$logger)::log("\n -> " . $checksumFile);
 
         $self = null;
 
@@ -188,24 +186,21 @@ class FileChecksum implements Iterator
 
     }
 
-    public static function parseFilehashLine($fileLine) {
-        $parts = explode(" ", trim($fileLine));
-        $hash = trim(array_pop($parts));
-        return [implode(" ", $parts), $hash];
-    }
-
-    #[\ReturnTypeWillChange]
-
+    #[ReturnTypeWillChange]
     public function write($line)
     {
         return fwrite($this->sfvfile, $line . "\n");
     }
 
-    #[\ReturnTypeWillChange]
-
+    #[ReturnTypeWillChange]
     public function writeFileHash($hash)
     {
         return $this->write(basename($this->getCurFile()) . ' ' . $hash);
+    }
+
+    public function getCurFile()
+    {
+        return $this->file;
     }
 
     function rewind()
