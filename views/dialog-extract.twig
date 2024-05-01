@@ -17,59 +17,59 @@
 {% set startButtonValue = theUILang.flm_diag_extract_button %}
 
 {% block scripts %}
-<script>
-    (function (global) {
-        console.log('doing extract');
-        var dialogs = flm.ui.getDialogs();
-        var diagId = dialogs.getDialogId('window');
+    <script>
 
-        if(!flm.manager.hasOwnProperty('doExtract'))
-        {
-            // service
-            flm.manager.doExtract = function(archiveFiles, toDir) {
+        if (!flm.ui.hasOwnProperty('dialogExtract')) {
 
-                var password = $("#fman-extract-password");
+            flm.ui.dialogExtract = function (global) {
+                var dialogs = flm.ui.getDialogs();
+                var diagId = dialogs.getDialogId('window');
 
-                var deferred = $.Deferred();
+                let self = this;
 
-                if (!toDir.length || !flm.utils.isDir(toDir)) {
-                    deferred.reject( theUILang.fDiagNoPath + ' : ' + toDir);
-                    return deferred.promise();
+                // service
+                self.doExtract = function (archiveFiles, toDir) {
+
+                    var password = $("#fman-extract-password");
+
+                    var deferred = $.Deferred();
+
+                    if (!toDir.length || !flm.utils.isDir(toDir)) {
+                        deferred.reject(theUILang.fDiagNoPath + ' : ' + toDir);
+                        return deferred.promise();
+                    }
+
+                    if (!$type(archiveFiles) || archiveFiles.length === 0) {
+                        deferred.reject('Empty paths');
+                        return deferred.promise();
+                    }
+
+                    var cPath = flm.getCurrentPath();
+
+                    return flm.api.extractFiles(
+                        flm.manager.getFullPaths(archiveFiles),
+                        flm.manager.stripJailPath(toDir),
+                        password.val()
+                    )
+                        .then(function (response) {
+                                flm.Refresh(cPath);
+                                return response;
+                            },
+                            function (response) {
+                                return response;
+                            });
                 }
 
-                if(!$type(archiveFiles) || archiveFiles.length === 0)
-                {
-                    deferred.reject('Empty paths');
-                    return deferred.promise();
-                }
+                // form submit
+                dialogs.onStart(function () {
 
-                var cPath = flm.getCurrentPath();
-
-                return flm.api.extractFiles(
-                    flm.manager.getFullPaths(archiveFiles),
-                    flm.manager.stripJailPath(toDir),
-                   password.val()
-            )
-                    .then(function (response) {
-                        flm.Refresh(cPath);
-                        return response;
-                    },
-                    function (response) {
-                        return response;
-                    });
-            };
+                    return self.doExtract(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId) + '/');
+                });
+            }
         }
 
-
-        // form submit
-        dialogs.onStart(function () {
-
-            return flm.manager.doExtract(dialogs.getCheckedList(diagId),  dialogs.getTargetPath(diagId)+'/');
-        });
-
-    })
-    (window);
-</script>
+        (flm.ui.dialogExtract)(window);
+    </script>
 {% endblock %}
 
 

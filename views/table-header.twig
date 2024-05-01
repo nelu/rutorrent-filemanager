@@ -1,6 +1,7 @@
-<table width="100%" border="0" id="fMan_navpath" cellspacing="0" cellpadding="0">
+<table width="100%" border="0" id="fMan_navpath">
     <tr>
-        <td width="19"><input type="button" name="flm-nav-refresh" id="flm-nav-refresh" class="flm-nav-refresh flm-sprite sprite-curdir"
+        <td width="19"><input type="button" name="flm-nav-refresh" id="flm-nav-refresh"
+                              class="flm-nav-refresh flm-sprite sprite-curdir"
                               value=""/></td>
         <td><select name="flm-navpath" id="flm-navpath" style="width:100%;">
             </select>
@@ -16,3 +17,60 @@
     <input type="hidden" name="target" value="">
     <input type="hidden" name="action" value="fileDownload">
 </form>
+
+<script>
+    (function (global) {
+        var cpath = $('#flm-navpath');
+
+        flm.ui.updateNavbarPath = function () {
+
+            var currentPath = flm.getCurrentPath();
+            var historySize = flm.ui.settings.getSettingValue('histpath');
+            var entries = [];
+
+            entries.push(currentPath);
+
+
+            cpath.children('option').each(function (index, val) {
+                if (entries.length < historySize) {
+                    if (val.value !== currentPath && val.value !== '/') {
+                        entries.push(val.value);
+                    }
+                }
+            });
+
+            currentPath !== '/' && entries.push('/');
+
+            var stripDirs = flm.ui.settings.getSettingValue('stripdirs');
+
+            cpath.empty();
+            var path;
+            for (var i = 0; i < entries.length; i++) {
+                path = entries[i];
+                var option = $('<option>' + (stripDirs ? flm.utils.rtrim(path, '/') : path) + '</option>');
+                (path === currentPath) && option.attr('selected', 'selected');
+                cpath.append(option);
+            }
+
+        };
+
+        $(document).on(flm.EVENTS.changeDir, function () {
+            flm.ui.updateNavbarPath();
+        });
+
+        cpath.change(function () {
+            var path = $(this).val();
+            if (path === flm.getCurrentPath()) {
+                return false;
+            }
+
+            flm.goToPath(path);
+        });
+
+        $('#flm-nav-refresh').on('click', function () {
+            flm.Refresh();
+        });
+
+    })(window)
+
+</script>

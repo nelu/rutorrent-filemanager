@@ -48,7 +48,7 @@
             flm.ui.dialogArchive = function () {
                 var dialogs = flm.ui.getDialogs();
                 var diagId = dialogs.getDialogId();
-                var settings = flm.getConfig().archives;
+                var settings = flm.config.archives;
 
                 var pathBrowser = dialogs.dirBrowserInput(diagId);
                 var archiveType = $("#fMan_archtype");

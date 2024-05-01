@@ -5,68 +5,18 @@ plugin.ui = {
     readyPromise: $.Deferred(),
     EVENTS: {
         taskDone: 'flm.taskDone',
-        'delete': 'flm.filesDelete',
-        'move': 'flm.filesDelete',
-        'settingsShow': "flm.settingsOnShow",
-        'entryMenu': "flm.onSetEntryMenu",
-        'browserVisible': "flm.onBrowserVisible",
-        'rename': 'flm.filesDelete',
-        'torrentFileEntryMenu': 'torrentFileEntryMenu'
+        delete: 'flm.filesDelete',
+        move: 'flm.filesDelete',
+        settingsShow: "flm.settingsOnShow",
+        entryMenu: "flm.onSetEntryMenu",
+        browserVisible: "flm.onBrowserVisible",
+        rename: 'flm.filesDelete',
+        torrentFileEntryMenu: 'torrentFileEntryMenu',
+        changeDir: 'flm.onChangeCurrentDir'
     }
 };
+
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer + "-table";
-
-
-// will be updated on languageLoad
-// with missing localisations and methods
-var tableSchema = {
-    obj: new dxSTable(),
-    format: function (table, arr) {
-        console.log('valled frm bootstrap format');
-        return (arr);
-    },
-    ondblclick: function (table, arr) {
-        console.log('valled frm bootstrap format');
-        return (arr);
-    },
-    onselect: function (table, arr) {
-        console.log('valled frm bootstrap format');
-        return (arr);
-    },
-    ondelete: function (table, arr) {
-        console.log('valled frm bootstrap format');
-        return (arr);
-    },
-    columns: [
-        {
-            text: theUILang.Name,
-            width: "210px",
-            id: "name",
-            type: TYPE_STRING
-        }, {
-            text: theUILang.Size,
-            width: "60px",
-            id: "size",
-            type: TYPE_NUMBER
-        }, {
-            text: '',
-            width: "120px",
-            id: "time",
-            type: TYPE_STRING,
-            "align": ALIGN_CENTER
-        }, {
-            text: '',
-            width: "80px",
-            id: "type",
-            type: TYPE_STRING
-        }, {
-            text: '',
-            width: "80px",
-            id: "perm",
-            type: TYPE_NUMBER
-        }],
-    container: plugin.ui.fsBrowserTableContainer
-};
 
 // boostrap ui elements, at a early stage in rutorrent ui load
 plugin.ui.setConfig = function () {
@@ -78,15 +28,55 @@ plugin.ui.setConfig = function () {
             .get(0),
         "filemanager", "lcont");
 
-    theWebUI.tables.flm = tableSchema;
-};
+    theWebUI.tables.flm =  {
+        obj: new dxSTable(),
+        format: function (){return flm.ui.browser.uiTableFormat.apply(flm.ui.browser, arguments)},
+        ondblclick: function () {
+            flm.ui.browser.open(flm.ui.browser.selectedTarget);
+            return false;
+        },
+        onselect: function () { flm.ui.browser.onSelectEntry.apply(flm.ui.browser, arguments);},
+        ondelete: function () {
+            flm.ui.browser.selectedEntries = flm.ui.browser.getSelection();
+            flm.ui.getDialogs().showDialog('delete')
+        },
+        columns: [
+            {
+                text: theUILang.Name,
+                width: "210px",
+                id: "name",
+                type: TYPE_STRING
+            }, {
+                text: theUILang.Size,
+                width: "60px",
+                id: "size",
+                type: TYPE_NUMBER
+            }, {
+                text: '',
+                width: "120px",
+                id: "time",
+                type: TYPE_STRING,
+                "align": ALIGN_CENTER
+            }, {
+                text: '',
+                width: "80px",
+                id: "type",
+                type: TYPE_STRING
+            }, {
+                text: '',
+                width: "80px",
+                id: "perm",
+                type: TYPE_NUMBER
+            }],
+        container: plugin.ui.fsBrowserTableContainer
+    };
 
+};
 
 plugin.ui.onTorrentFilesMenu = function (call) {
     $(document).on(plugin.ui.EVENTS.torrentFileEntryMenu, function (e, menu, table) {
         call(menu, table);
     });
-
 };
 
 plugin.ui.getContextMenuEntryPosition = function (menu, what, atIndex) {
