@@ -700,15 +700,12 @@
                     var table = browse.table();
                     if (table) {
                         flm.goToPath('/').then(function () {
-                            table.refreshRows();
-                            $(document).trigger(flm.EVENTS.browserVisible, browse);
                             theWebUI.resize();
-
+                            $(document).trigger(flm.EVENTS.browserVisible, browse);
                         });
 
                         // display table columns
                         table.refreshRows();
-
                     }
                 } else {
                     $(document).trigger(flm.EVENTS.browserVisible, browse);
@@ -1236,7 +1233,7 @@
                         dirBrowse.monitorUpdates(function () {
                             this.edit.data('previousValue', this.edit.val());
                         }, function () {
-                            this.edit.val(flm.manager.stripJailPath(this.edit.val()) + '/');
+                            this.edit.val(flm.manager.stripJailPath(this.edit.val()));
                             this.edit.trigger('change');
                         });
 
@@ -1520,7 +1517,8 @@
             },
 
             stripJailPath: function (entry) {
-                return flm.utils.stripBasePath(entry, flm.config.homedir);
+                const path = flm.utils.stripBasePath(entry, flm.config.homedir) ;
+                return flm.utils.isDir(entry) ? path + '/' : path;
             },
 
             addJailPath: function (entries) {
