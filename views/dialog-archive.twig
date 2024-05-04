@@ -29,10 +29,10 @@
         </label>
 
         <div>
-            <label style="clear:both; float: left; display:none;"
+            <label style="clear:both; float: left; display:none; margin-top: 5px;"
                    class="fman-archive-settings-pass fman-archive-settings-rar">
-                Password: <input name="fman-archive-apassword" class="TextboxLarge" type="text" value=""
-                                 id="fman-archive-apassword"/>
+                Password: <input name="fman-archive-apassword" class="TextboxLarge" type="password" value=""
+                                 id="fman-archive-apassword"/> Show<input type='checkbox' id='showpass' />
             </label>
 
         </div>
@@ -56,6 +56,7 @@
                 var password = $("#fman-archive-apassword");
                 var volumeSize = $("#fman-archive-vsize");
                 var format = $('#fman-archive-arcnscheme');
+                var pass = $(diagId + ' .fman-archive-settings-pass');
 
                 let self = this;
                 // service
@@ -116,7 +117,6 @@
                     self.updateFilePath(pathBrowser);
                     self.updateCompression();
                     var typeOpts = settings[archiveType.val().toLowerCase()];
-                    var pass = $(diagId + ' .fman-archive-settings-pass');
 
                     if ($type(typeOpts['has_password']) && typeOpts['has_password'] === false) {
                         pass.hide();
@@ -152,6 +152,10 @@
                         archiveType.append('<option value="' + type + '">' + type.toUpperCase() + '</option>');
                     }
                 }
+
+                $('#showpass').on('change',function(){
+                    password.attr('type', $(this).is(':checked') ? 'text' : 'password');
+                });
 
                 self.updateFilePath(pathBrowser);
                 self.updateCompression();

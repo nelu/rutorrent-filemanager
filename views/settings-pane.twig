@@ -6,15 +6,6 @@
                 <td><input type="text" name="flm-settings-opt-histpath" class="Textbox num1" id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/></td>
             </tr>
             <tr>
-                <td>Strip trailing slashes from directory names:</td>
-                <td><input type="checkbox"
-                           name="flm-settings-opt-stripdirs"
-                           id="flm-settings-opt-stripdirs"
-                           value="{{ opts.stripdirs }}"
-                           {{ (opts.stripdirs) ? 'checked': '' }}
-                    /></td>
-            </tr>
-            <tr>
                 <td>Show hidden files:</td>
                 <td><input type="checkbox" name="flm-settings-opt-showhidden" id="flm-settings-opt-showhidden"
                             {{ (opts.showhidden) ? 'checked': '' }}

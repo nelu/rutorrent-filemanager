@@ -40,14 +40,11 @@
             });
 
             currentPath !== '/' && entries.push('/');
-
-            var stripDirs = flm.ui.settings.getSettingValue('stripdirs');
-
             cpath.empty();
             var path;
             for (var i = 0; i < entries.length; i++) {
                 path = entries[i];
-                var option = $('<option>' + (stripDirs ? flm.utils.rtrim(path, '/') : path) + '</option>');
+                var option = $('<option>' + flm.utils.rtrim(path, '/') + '</option>');
                 (path === currentPath) && option.attr('selected', 'selected');
                 cpath.append(option);
             }

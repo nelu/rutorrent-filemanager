@@ -422,7 +422,6 @@
         var self = {};
         self.settings = {
             defaults: {
-                "stripdirs": false,
                 "showhidden": true,
                 "histpath": 5,
                 "timef": '%d-%M-%y %h:%m:%s',
@@ -513,8 +512,7 @@
                                     if (flm.ui.browser.isTopDir(arr[i])) {
                                         arr[i] = '../';
                                     }
-                                    if (self.settings.getSettingValue('stripdirs')
-                                        && flm.utils.isDir(arr[i])) {
+                                    if (flm.utils.isDir(arr[i])) {
                                         arr[i] = flm.utils.trimslashes(arr[i]);
                                     }
                                     break;
