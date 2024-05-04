@@ -44,7 +44,7 @@
                 if($type(hasError))
                 {
                     var def = $.Deferred();
-                    def.reject(theUILang.fcSFV +' - ' +hasError, checksumFile);
+                    def.reject({errcode: theUILang.fcSFV, msg: hasError + ': '+checksumFile});
                     return def.promise();
                 }
 

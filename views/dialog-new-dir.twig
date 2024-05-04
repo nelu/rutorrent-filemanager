@@ -35,7 +35,7 @@
 
                     if ($type(hasError)) {
                         var def = $.Deferred();
-                        def.reject(theUILang.fcNewDir, hasError + ' - ' + dirname);
+                        def.reject({errcode: theUILang.fcNewDir, msg: hasError + ' - ' + dirname});
                     }
 
                     return $type(hasError)

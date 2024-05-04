@@ -27,20 +27,15 @@
                 var deferred = $.Deferred();
                 //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
 
-                if (!destination.length) {
-                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                    deferred.reject(theUILang.fDiagInvalidname);
-                    return deferred.promise();
-                }
-
                 if (!$type(filePaths) || filePaths.length === 0) {
-                    deferred.reject('Empty paths');
+                    deferred.reject({errcode: 'copy', msg: 'Empty paths'});
                     return deferred.promise();
                 }
 
                 if (!flm.utils.isValidPath(destination)) {
                     // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                    deferred.reject(theUILang.fDiagInvalidname);
+                    deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": "+destination});
+
                     return deferred.promise();
                 }
 

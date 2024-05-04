@@ -34,18 +34,16 @@
                     var hasError;
 
                     if (!flm.utils.isValidPath(destination)) {
-                        //flm.manager.logAction('rename', theUILang.fDiagInvalidname);
                         hasError = theUILang.fDiagInvalidname;
                     } else if (flm.utils.basename(destination) === flm.utils.basename(source) || flm.ui.browser.fileExists(destination)) //dir check
                     {
-                        //flm.manager.logAction('rename', theUILang.fDiagAexist);
                         hasError = theUILang.fDiagAexist;
                     }
 
                     if($type(hasError))
                     {
                         var def = $.Deferred();
-                        def.reject(theUILang.fDiagRenameBut +' '+source+' - ' +hasError, destination);
+                        def.reject({errcode: theUILang.fDiagRenameBut + ' '+flm.utils.basename(source), msg: flm.utils.basename(destination) + ' - '+ hasError });
                         return def.promise();
                     }
 

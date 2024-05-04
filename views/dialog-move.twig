@@ -24,19 +24,13 @@
 
                 var deferred = $.Deferred();
 
-                if (!destination.length) {
-                    deferred.reject('move: ' + theUILang.fDiagInvalidname);
-                    return deferred.promise();
-                }
-
                 if (!$type(filePaths) || filePaths.length === 0) {
-                    deferred.reject('move: ' + 'Empty paths');
+                    deferred.reject({errcode: 'move', msg: 'Empty paths'});
                     return deferred.promise();
                 }
 
                 if (!flm.utils.isValidPath(destination)) {
-                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                    deferred.reject('move: ' + theUILang.fDiagInvalidname);
+                    deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname+": "+destination});
                     return deferred.promise();
                 }
 

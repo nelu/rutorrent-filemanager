@@ -73,7 +73,8 @@
 
                     if ($type(hasError)) {
                         var def = $.Deferred();
-                        def.reject(theUILang.fDiagArchive + ' - ' + hasError, archive);
+                        def.reject({errcode: theUILang.fDiagArchive, msg: hasError + ' - ' + archive});
+
                         return def.promise();
                     }
 

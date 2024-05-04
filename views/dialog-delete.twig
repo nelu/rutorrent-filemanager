@@ -20,7 +20,7 @@
                     var deferred = $.Deferred();
 
                     if (!$type(paths) || paths.length === 0) {
-                        deferred.reject('Empty paths');
+                        deferred.reject({errcode: 'delete', msg: 'Empty paths'});
                         return deferred.promise();
                     }
 

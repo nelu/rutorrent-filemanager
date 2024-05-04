@@ -29,7 +29,7 @@
             if($type(hasError))
             {
                 var def = $.Deferred();
-                def.reject(theUILang.fcheckSFV +' - ' +hasError, checksumFile);
+                def.reject({errcode: theUILang.fcheckSFV, msg: hasError + ': '+checksumFile});
                 return def.promise();
             }
 

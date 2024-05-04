@@ -17,28 +17,30 @@
             return (element.charAt(element.length - 1) === '/');
         };
 
-        utils.logSystem = function () {
+        utils.logSystem = function (component) {
+            let logMsg = '';
 
-            var logMsg = arguments[0];
+            component = component || 'filemanager';
 
             for (var i = 1; i < arguments.length; i++) {
                 logMsg += arguments[i];
             }
-            log('filemanager: ' + logMsg)
+            log(component + ': '+ logMsg);
         };
 
-        utils.logError = function (errcode, extra) {
+        utils.logError = function (errcode, extra, component) {
 
             if (!$type(extra)) {
                 extra = '';
             }
 
-            if (errcode) {
-                var codeMsg = $type(theUILang.fErrMsg[errcode])
+            // take 0 as valid error code
+            if ($type(errcode)) {
+                let codeMsg = $type(theUILang.fErrMsg[errcode])
                     ? theUILang.fErrMsg[errcode]
                     : errcode;
 
-                flm.utils.logSystem(codeMsg, " -> ", extra);
+                flm.utils.logSystem(component, codeMsg,  " -> ", extra);
             }
 
         };
@@ -989,6 +991,7 @@
 
             activeDialogs: {},
             onStartEvent: null,
+            startedPromise: null,
             dirBrowser: {},
             // multiple file operations are ui blocking
             forms: {
@@ -1106,12 +1109,12 @@
                                     dialogs.disableStartButton();
                                     dialogs.hide(diagId);
 
-                                    var promise = diags.onStartEvent.apply(diags, arguments);
-                                    promise.then(function () {
+                                    diags.startedPromise = diags.onStartEvent.apply(diags, arguments);
+                                    diags.startedPromise.then(function () {
                                             dialogs.hide(diagId);
                                         },
-                                        function (data, msg) {
-                                            flm.utils.logError(data, msg);
+                                        function (data) {
+                                            flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
                                         });
                                 }
                             });
@@ -1130,7 +1133,7 @@
             },
 
             startButton: function (diag) {
-                diag = this.getDialogId(diag);
+                diag = diag ? '#'+flm.utils.ltrim(diag, '#') : this.getDialogId(diag);
                 return $(diag + ' .flm-diag-start');
             },
             disableStartButton: function (diag) {
@@ -1184,6 +1187,7 @@
             },
 
             onStart: function (callback) {
+                this.startedPromise = null;
                 this.onStartEvent = callback;
             },
 
@@ -1198,6 +1202,7 @@
             },
 
             dirBrowserInput: function (diagId) {
+                diagId = '#'+flm.utils.ltrim(diagId, '#');
                 return $(diagId + '.dlg-window .flm-diag-nav-path');
             },
 
@@ -1637,7 +1642,7 @@
                         if (data.hasOwnProperty('errcode')
                             || (data.hasOwnProperty('error') && data.error)) {
 
-                            deferred.reject(data.errcode, data.msg);
+                            deferred.reject(data);
 
                         } else {
                             deferred.resolve(data);

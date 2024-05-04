@@ -35,12 +35,12 @@
                     var deferred = $.Deferred();
 
                     if (!toDir.length || !flm.utils.isDir(toDir)) {
-                        deferred.reject(theUILang.fDiagNoPath + ' : ' + toDir);
+                        deferred.reject({errcode: theUILang.fDiagNoPath, msg: toDir});
                         return deferred.promise();
                     }
 
                     if (!$type(archiveFiles) || archiveFiles.length === 0) {
-                        deferred.reject('Empty paths');
+                        deferred.reject({errcode: 'extract', msg: 'Empty paths'});
                         return deferred.promise();
                     }
 
