@@ -261,7 +261,7 @@ plugin.ui.init = function () {
         if (plugin.enabled) {
             window.flm.ui.settings.onSave(arg);
         }
-        plugin.flmSetSettings.call(this);
+        plugin.flmSetSettings.call(this, arg);
 
     };
 

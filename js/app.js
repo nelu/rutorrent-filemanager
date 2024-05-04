@@ -433,11 +433,10 @@
                 "sccols": 4,
                 "scwidth": 300
             },
-            init: false,
             getSettingValue: function (name) {
                 return $type(theWebUI.settings["webui.flm.settings." + name])
-                    && theWebUI.settings["webui.flm.settings." + name]
-                    || this.defaults[name];
+                    ? theWebUI.settings["webui.flm.settings." + name]
+                    : this.defaults[name];
             },
 
             getSettings: function () {
@@ -450,49 +449,41 @@
 
                 return all;
             },
-
+            // plugin config tab in UI settings
             onShow: function () {
-                // plugin config tab in UI settings
+                if (!$('#flm-settings-pane').length) {
+                    // load view
+                    flm.views.getView(flm.views.viewsPath + '/' + 'settings-pane',
+                        {'opts': this.getSettings()},
+                        function (view) {
+                            flm.getPlugin()
+                                .attachPageToOptions($('<div id="flm-settings-pane">'+view+'</div>').get(0), theUILang.fManager);
 
-                var self = this;
-                // 1 dialog is enough :)
-
-                flm.views.getView(flm.views.viewsPath + '/' + 'settings-pane', {'opts': this.getSettings()}, function (view) {
-                    if (!self.init) {
-                        self.init = true;
-                        flm.getPlugin()
-                            .attachPageToOptions($('<div id="flm-settings-pane"></div>').get(0), theUILang.fManager);
-                    }
-
-                    $(document).trigger(flm.EVENTS.settingsShow, view);
-
-                    $('#flm-settings-pane').html(view);
-
-                });
-
+                            $(document).trigger(flm.EVENTS.settingsShow, view);
+                        }
+                    );
+                } else {
+                    $(document).trigger(flm.EVENTS.settingsShow);
+                }
             },
             onSave: function () {
                 var needsave = false;
 
                 $('#flm-settings-pane').find('input,select').each(function (index, ele) {
-                    var inid = $(ele).attr('id').split('flm-settings-opt-');
-                    var inval;
+                    var inid = $(ele).attr('id').split('flm-settings-opt-')[1];
+                    var inval = $(ele).attr('type') === 'checkbox'
+                        ? $(ele).is(':checked')
+                        : $(ele).val();
 
-                    if ($(ele).attr('type') === 'checkbox') {
-                        inval = $(ele).is(':checked');
-                    } else {
-                        inval = $(ele).val();
-                    }
-
-                    if (inval !== self.settings.getSettingValue(inid[1])) {
-                        theWebUI.settings["webui.flm.settings." + inid[1]] = inval;
+                    if (inval !== self.settings.getSettingValue(inid)) {
+                        theWebUI.settings["webui.flm.settings." + inid] = inval;
                         needsave = true;
                     }
                 });
 
                 if (needsave) {
                     theWebUI.save();
-                    self.browser.table().refreshRows();
+                    flm.Refresh();
                 }
             }
         };
@@ -961,7 +952,7 @@
 
                     table.addRowById(entry, hash, flm.utils.getICO(file.name));
 
-                    if (!self.settings.getSettingValue('showhidden') && (file.name.charAt(0) === '.')) {
+                    if (!flm.ui.settings.getSettingValue('showhidden') && (file.name.charAt(0) === '.')) {
                         table.hideRow(hash);
                     }
                 });
