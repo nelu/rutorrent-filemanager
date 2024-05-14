@@ -62,13 +62,16 @@ $pathToExternals['7zip']
 ...
         'bin' =>'7zip',
 ```
-See these additional filemanager plugins for extended functionality:
 
+### Support 
+You can anytime create an new issue regarding your problem or discuss it directly on telegram: [https://t.me/filemanagerplugin](https://t.me/filemanagerplugin). Also you can contribute with feature suggestions, fixes and documentation at any time.
+
+
+See these additional filemanager plugins for extended functionality:
 
 - [filemanager-media](https://github.com/nelu/rutorrent-filemanager-media): Media view and screenshots
 - [filemanager-share](https://github.com/nelu/rutorrent-filemanager-share): File sharing functionality
 
-Feel free to contribute with feature suggestions, fixes and documentation
 
 TODO:
 - enable more file checksum algos
