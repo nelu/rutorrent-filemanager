@@ -23,7 +23,7 @@ plugin.ui.setConfig = function () {
     plugin.attachPageToTabs(
         $('<div>')
             .attr("id", plugin.ui.fsBrowserContainer)
-            .addClass('table_tab')
+            .addClass('table_tab stable')
             .html('<div id="' + plugin.ui.fsBrowserTableContainer + '" class="stable"></div>')
             .get(0),
         "filemanager", "lcont");
@@ -280,22 +280,6 @@ plugin.ui.init = function () {
 
     plugin.markLoaded();
 
-};
-
-// trigger input change events from iframe visibility
-theWebUI.rDirBrowser.prototype.editObserver = null;
-theWebUI.rDirBrowser.prototype.monitorUpdates = function (beforeUpdate, afterUpdate) {
-    if (!this.editObserver) {
-        const self = this;
-        const observer = new MutationObserver(function () {
-            self.frame.css("visibility") === "hidden" ? afterUpdate.apply(self) : beforeUpdate.apply(self);
-        });
-
-        self.editObserver = observer.observe(this.frame[0], {attributes: true, attributeFilter: ["style"]});
-        self.edit.on(browser.isIE ? "focusin" : "focus", function () {
-            beforeUpdate.apply(self);
-        });
-    }
 };
 
 // hooks

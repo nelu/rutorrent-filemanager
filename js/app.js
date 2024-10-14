@@ -1195,51 +1195,13 @@
                 return $(diagId + '.dlg-window .flm-diag-nav-path');
             },
 
-            setDirBrowser: function (diagId, withFiles) {
-
+            setDirBrowser: function (diagId) {
                 var inputSelectors = $(diagId + ' .flm-diag-nav-path');
-                var buttonSelectors = $(diagId + ' .flm-diag-nav-browse-but');
-
-                diagId = flm.utils.ltrim(diagId, '#');
-                withFiles = withFiles || false;
-
-                var browseBtn;
-                var editField
-                var dirBrowse;
-                var self = this;
                 for (var i = 0; i < inputSelectors.length; i++) {
-                    editField = inputSelectors[i];
-                    browseBtn = buttonSelectors[i];
-
                     if (thePlugins.isInstalled("_getdir")) {
-
-                        if (!this.dirBrowser.hasOwnProperty(diagId)) {
-                            this.dirBrowser[diagId] = []
-                        }
-
-                        dirBrowse = new theWebUI.rDirBrowser(
-                            diagId,
-                            editField.id,
-                            browseBtn.id,
-                            null,
-                            withFiles
-                        );
-                        dirBrowse.monitorUpdates(function () {
-                            this.edit.data('previousValue', this.edit.val());
-                        }, function () {
-                            this.edit.val(flm.manager.stripJailPath(this.edit.val()));
-                            this.edit.trigger('change');
-                        });
-
-                        this.dirBrowser[diagId][i] = dirBrowse;
-
-
-                    } else {
-                        $(browseBtn).hide();
+                        new theWebUI.rDirBrowser(inputSelectors[i].id);
                     }
-
                 }
-                return this.dirBrowser[diagId];
             },
 
             //makeVisbile
@@ -1451,7 +1413,7 @@
         };
 
         self.initFileBrowser = function () {
-            $('#tab_lcont').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
+            $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
             $('#fMan_showconsole').click(function () {
                 self.console.show();
             });
