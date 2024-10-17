@@ -349,19 +349,12 @@ if (plugin.canChangeTabs()) {
     };
 }
 
+Promise.all([
+    import('./'+plugin.path + 'js/app.js')
+]).then(([twig]) => {
+    // localisation + app
+    plugin.loadLang();
+});
 
-// 2. delayed loading of the lib
-// load view dependencies, first (hopefully)
-injectScript(plugin.path + 'js/twig.min.js',
-    // view engine
-    function () {
-        injectScript(plugin.path + 'js/app.js',
-            function () {
-
-                // localisation + app
-                plugin.loadLang();
-            });
-
-    });
 plugin.loadCSS('css/main');
 
