@@ -348,11 +348,12 @@ if (plugin.canChangeTabs()) {
 
     };
 }
-
+// load view dependencies, first (hopefully)
+// localisation + app
 Promise.all([
+    import('./'+plugin.path + 'js/twig.min.js'),
     import('./'+plugin.path + 'js/app.js')
-]).then(([twig]) => {
-    // localisation + app
+]).then(([]) => {
     plugin.loadLang();
 });
 
