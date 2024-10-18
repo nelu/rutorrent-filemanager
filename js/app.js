@@ -47,8 +47,8 @@ import {userInterface} from "./ui.js";
 
     };
 
-    const manager = function() {
-        let self =  {
+    const manager = function () {
+        let self = {
             inaction: false,
 
             cleanactions: function () {
@@ -66,7 +66,7 @@ import {userInterface} from "./ui.js";
             },
 
             stripJailPath: function (entry) {
-                const path = flm.utils.stripBasePath(entry, flm.config.homedir) ;
+                const path = flm.utils.stripBasePath(entry, flm.config.homedir);
                 return flm.utils.isDir(entry) ? path + '/' : path;
             },
 
@@ -131,8 +131,7 @@ import {userInterface} from "./ui.js";
             doMediainfo: function (target) {
 
                 theWebUI.startConsoleTask("mediainfo", flm.getPlugin().name, {
-                    'action': 'fileMediaInfo',
-                    'target': target
+                    'action': 'fileMediaInfo', 'target': target
                 }, {noclose: true});
 
             }
@@ -172,6 +171,74 @@ import {userInterface} from "./ui.js";
             return flm.getPlugin().config;
         }
 
+
+        flm.handleFilesTabMenu = function (selected) {
+
+            plugin.fno = null;
+            plugin.mode = null;
+            var table = theWebUI.getTable("fls");
+
+
+            var fid = table.getFirstSelected();
+            var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
+
+            var selectedName = selected ? selectIsDir ? selected.name += '/' : selected.name : '/';
+
+            var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID]) ? theWebUI.torrents[theWebUI.dID] : null;
+
+            var torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
+            var currentTorrentDirPath = flm.manager.stripJailPath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
+
+            var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]);
+
+            selectedPath = flm.manager.stripJailPath(selectedPath);
+
+
+            var selectedEntries = [];
+            var rows = table.rowSel;
+
+            var entry;
+            var entryPath;
+            for (var i in rows) {
+                if (rows[i]) {
+                    entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
+                    if (entry) {
+                        entryPath = flm.utils.buildPath([torrentPath, entry.name]);
+                        entryPath = flm.manager.stripJailPath(entryPath);
+                        if (theWebUI.dirs[theWebUI.dID].isDirectory(i)) {
+                            entryPath += '/';
+                        }
+
+                        selectedEntries.push(entryPath);
+                    }
+                }
+            }
+            const fileManagerSubmenu = selected
+                                            ? flm.ui.getFilesTabMenu(currentTorrentDirPath, selectedName, selectedPath, selectedEntries)
+                                            : [];
+
+            var el = theContextMenu.get(theUILang.Priority);
+            if (el) {
+                theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
+            }
+
+            $(document).trigger(plugin.ui.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
+        };
+
+        flm.createDataFrame = () => {
+            $(document.body).append($("<iframe name='datafrm'/>").css({
+                visibility: "hidden"
+            }).attr({
+                name: "datafrm", id: "datafrm"
+            }).width(0).height(0).on('load', function () {
+                var d = (this.contentDocument || this.contentWindow.document);
+                if (d.location.href !== "about:blank") try {
+                    eval(d.body.innerHTML);
+                } catch (e) {
+                }
+            }));
+        };
+
         // expose api client
         flm.client = function (endpoint) {
             return apiClient(endpoint);
@@ -196,17 +263,16 @@ import {userInterface} from "./ui.js";
 
             return flm.api.getDir(dir)
                 .then(function (response) {
-                        flm.manager.inaction = false;
-                        flm.ui.enableNavigation();
+                    flm.manager.inaction = false;
+                    flm.ui.enableNavigation();
 
-                        flm.currentPath = flm.utils.buildPath([dir]);
-                        $(document).trigger(flm.EVENTS.changeDir, [flm.currentPath]);
-                        flm.ui.browser.setTableEntries(response.listing);
-                    },
-                    function (code, msg) {
-                        flm.utils.logError(1, msg);
-                        flm.ui.enableNavigation();
-                    });
+                    flm.currentPath = flm.utils.buildPath([dir]);
+                    $(document).trigger(flm.EVENTS.changeDir, [flm.currentPath]);
+                    flm.ui.browser.setTableEntries(response.listing);
+                }, function (code, msg) {
+                    flm.utils.logError(1, msg);
+                    flm.ui.enableNavigation();
+                });
 
         };
 
@@ -220,17 +286,14 @@ import {userInterface} from "./ui.js";
                 if (highlight) {
                     flm.showPathPromise = $.Deferred();
 
-                    flm.showPathPromise.promise().then(
-                        function () {
-                            $(document.getElementById(flm.ui.browser.getEntryHash(highlight)))
-                                .trigger("mousedown");
-                        }
-                    );
+                    flm.showPathPromise.promise().then(function () {
+                        $(document.getElementById(flm.ui.browser.getEntryHash(highlight)))
+                            .trigger("mousedown");
+                    });
 
                 }
 
                 theTabs.show(flm.getPlugin().ui.fsBrowserContainer);
-
 
                 return value;
             });
@@ -250,15 +313,37 @@ import {userInterface} from "./ui.js";
             return flm.goToPath(dir);
         };
 
+        flm.init = () => {
 
-        // events binding
-        $(document).on(flm.EVENTS.browserVisible, function () {
+            flm.ui.init();
 
-            if (flm.showPathPromise) {
-                flm.showPathPromise.resolve();
-                flm.showPathPromise = null;
-            }
-        });
+            // listening on events from ruTorrent components
+            $(document).on('theTabs:onShow', (ev, id) => (id === plugin.ui.fsBrowserContainer) &&
+                flm.ui.browser.onShow());
+            $(document).on('theTabs:show', (ev, id) => {
+                (id !== plugin.ui.fsBrowserContainer)
+                && flm.ui.browser.onHide(id)
+                || $('#fMan_showconsole').css('display', 'inline');
+            });
+
+            $(document).on('theWebUI:addAndShowSettings', (ev, data) => plugin.enabled && flm.ui.settings.onShow(data));
+
+            $(document).on('theWebUI:setSettings', (ev, data) => plugin.enabled && flm.ui.settings.onSave(data));
+
+            $(document).on('theWebUI:createFileMenu', (ev, data) => plugin.enabled && plugin.canChangeMenu() &&
+                flm.handleFilesTabMenu(data));
+
+            $(document).on(flm.EVENTS.browserVisible, function () {
+
+                if (flm.showPathPromise) {
+                    flm.showPathPromise.resolve();
+                    flm.showPathPromise = null;
+                }
+            });
+
+            // notify plugin loaded
+            plugin.ui.readyPromise.resolve(flm.ui);
+        }
 
         flm.utils = FileManagerUtils(flm);
         flm.api = apiClient(flm.pluginUrl + 'action.php');
@@ -270,9 +355,8 @@ import {userInterface} from "./ui.js";
     }
 
 // namespace
+    let app = new FileManager();
+    theWebUI.FileManager = app
+    global.flm = app;
 
-    theWebUI.FileManager = new FileManager();
-    global.flm = theWebUI.FileManager;
-
-})
-(window);
+})(window);

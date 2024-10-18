@@ -1,6 +1,6 @@
 import {FileManagerUtils} from "./utils.js";
 
-export function userInterface (flm) {
+export function userInterface(flm) {
 
     var self = {};
     self.settings = {
@@ -39,7 +39,7 @@ export function userInterface (flm) {
                     {'opts': this.getSettings()},
                     function (view) {
                         flm.getPlugin()
-                            .attachPageToOptions($('<div id="flm-settings-pane">'+view+'</div>').get(0), theUILang.fManager);
+                            .attachPageToOptions($('<div id="flm-settings-pane">' + view + '</div>').get(0), theUILang.fManager);
 
                         $(document).trigger(flm.EVENTS.settingsShow, view);
                     }
@@ -287,7 +287,7 @@ export function userInterface (flm) {
 
         };
 
-        browse.onHide = function () {
+        browse.onHide = function (id) {
             $('#fMan_showconsole').hide();
             isVisible = false;
 
@@ -340,8 +340,7 @@ export function userInterface (flm) {
         browse.handleKeyRename = function () {
             if (browse.selectedEntries.length === 1
                 && browse.selectedTarget
-                && !browse.isTopDir(browse.selectedTarget))
-            {
+                && !browse.isTopDir(browse.selectedTarget)) {
                 flm.ui.getDialogs().showDialog('rename')
             }
         };
@@ -705,7 +704,7 @@ export function userInterface (flm) {
         },
 
         startButton: function (diag) {
-            diag = diag ? '#'+flm.utils.ltrim(diag, '#') : this.getDialogId(diag);
+            diag = diag ? '#' + flm.utils.ltrim(diag, '#') : this.getDialogId(diag);
             return $(diag + ' .flm-diag-start');
         },
         disableStartButton: function (diag) {
@@ -774,7 +773,7 @@ export function userInterface (flm) {
         },
 
         dirBrowserInput: function (diagId) {
-            diagId = '#'+flm.utils.ltrim(diagId, '#');
+            diagId = '#' + flm.utils.ltrim(diagId, '#');
             return $(diagId + '.dlg-window .flm-diag-nav-path');
         },
 
@@ -965,15 +964,59 @@ export function userInterface (flm) {
         return dialogs;
     };
 
+    self.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
+
+        self.browser.selectedTarget = selectedPath;
+        self.browser.selectedEntries = selectedEntries;
+        let fileManagerSubmenu = [];
+
+
+        fileManagerSubmenu = self.browser.getEntryMenu(selectedName, selectedEntries);
+
+        $(document).trigger(flm.EVENTS.entryMenu, [fileManagerSubmenu, selectedPath]);
+
+        var remove = [theUILang.fOpen, //theUILang.fCopy,
+            theUILang.fMove, theUILang.fDelete, theUILang.fRename, theUILang.fcNewDir,
+
+            theUILang.fMediaI, theUILang.fRefresh];
+        var subCreateMenu = null;
+
+        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry) {
+
+            if (menuEntry[0] === CMENU_SEP) {
+                return false;
+            }
+
+            if (menuEntry[1] === theUILang.fcreate) {
+                //subCreateMenuPos = lastElement+"";
+                subCreateMenu = menuEntry[2];
+                return false;
+            }
+
+            var inRemove = remove.indexOf(menuEntry[0]);
+            return (inRemove < 0);
+        });
+
+        fileManagerSubmenu = fileManagerSubmenu.concat(subCreateMenu);
+
+        // round 2 of filtering :\
+        // with entries from create sub menu
+        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry) {
+            var inRemove = remove.indexOf(menuEntry[0]);
+            return (inRemove < 0);
+        });
+
+        fileManagerSubmenu.unshift([theUILang.fOpen, function () {
+            flm.showPath(currentTorrentDirPath, selectedName);
+        }]);
+
+        return fileManagerSubmenu;
+    }
+
     self.init = function () {
-        console.log('init', this);
 
         // file navigation
         self.initFileBrowser();
-
-        // operation dialogs
-        flm.getPlugin().ui.readyPromise.resolve(self);
-
     };
 
     self.disableNavigation = function () {
