@@ -769,6 +769,7 @@ export function userInterface(flm) {
 
         updateTargetPath: function (container, path) {
             var ele = this.dirBrowserInput(container)
+            path = flm.manager.addJailPath([path])[0]
             return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
         },
 
@@ -777,11 +778,18 @@ export function userInterface(flm) {
             return $(diagId + '.dlg-window .flm-diag-nav-path');
         },
 
-        setDirBrowser: function (diagId) {
+        setDirBrowser: function (diagId, withFiles) {
             var inputSelectors = $(diagId + ' .flm-diag-nav-path');
-            for (var i = 0; i < inputSelectors.length; i++) {
-                if (thePlugins.isInstalled("_getdir")) {
-                    new theWebUI.rDirBrowser(inputSelectors[i].id);
+
+            diagId = flm.utils.ltrim(diagId, '#');
+
+            if (thePlugins.isInstalled("_getdir")) {
+                if (!this.dirBrowser.hasOwnProperty(diagId)) {
+                    this.dirBrowser[diagId] = []
+                }
+                for (var i = 0; i < inputSelectors.length; i++) {
+                    this.dirBrowser[diagId][i] = new theWebUI.rDirBrowser(inputSelectors[i].id, withFiles);
+
                 }
             }
         },
