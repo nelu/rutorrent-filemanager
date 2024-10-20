@@ -303,7 +303,7 @@ export function FileManagerUtils(flm) {
             if (oldPath) {
                 if (this.isDir(newPath)) {
                     fileDir = newPath;
-                    fileName = !this.isDir(oldPath) ? this.basename(oldPath) : '';
+                    fileName = !this.isDir(oldPath) ? this.basename(oldPath) : flm.ui.browser.recommendedFileName(ext, forceExtension);
                 }
 
                 fileName = ext
