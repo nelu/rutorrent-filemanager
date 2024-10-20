@@ -15,10 +15,12 @@
 {% endmacro %}
 
 {% macro pathBrowser(default="/", title = false) %}
-<fieldset>
-    <legend>{{ title }}</legend>
-    <input type="text" id="flm-nav-path-{{ random() }}" class="flm-diag-nav-path TextboxLarge text-long" value="{{ default }}" autocomplete="off"/>
-</fieldset>
+
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">{{ title }}</span>
+        <input value="{{ default }}" type="text"  id="flm-nav-path-{{ random() }}" class="form-control flm-diag-nav-path">
+    </div>
+
 {% endmacro %}
 
 {% import _self as window %}

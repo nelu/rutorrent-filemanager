@@ -10,8 +10,18 @@
 {% endblock %}
 
 {% block content %}
+    <div>
+        {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
 
-    {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
+        <div class="input-group mb-3">
+            <span class="input-group-text">Password:</span>
+            <input class="form-control" type="password" id="fman-archive-apassword" name="fman-archive-apassword" placeholder="Password" value="">
+            <div class="form-check form-switch ">
+                <input class="form-check-input" type="checkbox" role="switch" id="showpass">
+                <label class="form-check-label" for="showpass">Show</label>
+            </div>
+        </div>
+    </div>
     <fieldset>
         <legend>{{ theUILang.fDiagOptions }}</legend>
         <label style="float: left;"> {{ theUILang.fDiagCArchType }}
@@ -28,16 +38,8 @@
             <input name="fman-archive-vsize" id="fman-archive-vsize" class="Textbox num1" type="text" value=""/>
         </label>
 
-        <div>
-            <label style="clear:both; float: left; display:none; margin-top: 5px;"
-                   class="fman-archive-settings-pass fman-archive-settings-rar">
-                Password: <input name="fman-archive-apassword" class="TextboxLarge" type="password" value=""
-                                 id="fman-archive-apassword"/> Show<input type='checkbox' id='showpass' />
-            </label>
-
-        </div>
-
     </fieldset>
+
     <div style="clear:both;"></div>
 {% endblock %}
 

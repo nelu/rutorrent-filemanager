@@ -38,6 +38,8 @@ import {userInterface} from "./ui.js";
                 options.settings['twig options'].allow_async = options.async;
             }
 
+            flm.debug && Twig.cache(false);
+
             return Twig.renderFile(undefined, options, function (dumb, template) {
                 $type(fn) && fn(template);
             });
