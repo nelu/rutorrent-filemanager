@@ -2,6 +2,7 @@
 if (plugin === undefined) {
     let plugin = {};
 }
+plugin.debug = false;
 
 plugin.ui = {
     fsBrowserContainer: "flm-browser",

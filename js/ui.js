@@ -35,12 +35,12 @@ export function userInterface(flm) {
         onShow: function () {
             if (!$('#flm-settings-pane').length) {
                 // load view
-                flm.views.getView(flm.views.viewsPath + '/' + 'settings-pane',
-                    {'opts': this.getSettings()},
+                flm.views.loadView({
+                        template: 'settings-pane',
+                        options: {'opts': this.getSettings()}
+                    },
                     function (view) {
-                        flm.getPlugin()
-                            .attachPageToOptions($('<div id="flm-settings-pane">' + view + '</div>').get(0), theUILang.fManager);
-
+                        flm.getPlugin().attachPageToOptions($(view).get(0), theUILang.fManager);
                         $(document).trigger(flm.EVENTS.settingsShow, view);
                     }
                 );
@@ -253,7 +253,10 @@ export function userInterface(flm) {
 
         browse.loadNavigation = function () {
             if (!browse.navigationLoaded) {
-                flm.views.getView(flm.views.viewsPath + '/' + 'table-header', {apiUrl: flm.api.endpoint},
+                flm.views.loadView({
+                        template: 'table-header',
+                        options: {apiUrl: flm.api.endpoint}
+                    },
                     function (view) {
                         browse.navigationLoaded = true;
                         var plugin = flm.getPlugin();
@@ -627,77 +630,44 @@ export function userInterface(flm) {
 
             if (this.dirBrowser.hasOwnProperty(dialogId)) {
                 for (var i = 0; i < this.dirBrowser[dialogId].length; i++) {
+
+                    // closing the dialog, doesn't close the frame
                     this.dirBrowser[dialogId][i].hide();
-                    this.dirBrowser[dialogId][i].frame.remove();
+                    this.dirBrowser[dialogId][i].edit.remove();
                 }
 
                 this.dirBrowser[dialogId] = [];
             }
 
+            // remove the whole dialog window
+            setTimeout(() => {
+                $("#"+dialogId).remove();
+            })
         },
         // common before event handle
         beforeShow: function (id, what) {
             var diags = this;
             var diagId = '#' + id;
+            var newContent = $(diagId);
 
-            diags.getDialogHeader(diagId)
-                .empty()
-                .html(theUILang['flm_popup_' + what])
-                .prepend('<span class="flm-sprite-diag flm-sprite sprite-' + what + '"></span>');
+            dialogs.disableStartButton();
 
-            var config = this.forms[what];
+            newContent.find('.flm-diag-start').attr('disabled', false)
+                .click(function () {
+                    if ($type(diags.onStartEvent) === "function") {
+                        dialogs.disableStartButton();
+                        dialogs.hide(diagId);
 
-            /*   if ($type(config.modal) && config.modal) {
-                   theDialogManager.setModalState();
-               } else {
-                   theDialogManager.clearModalState();
-               }*/
-
-
-            var options = $type(config.options) ? config.options : {};
-            options.apiUrl = flm.api.endpoint;
-            options.selectedEntries = browser.selectedEntries;
-//                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
-
-            options.selectedTarget = !browser.selectedTarget ? '/' : browser.selectedTarget;
-            options.currentPath = flm.getCurrentPath('/');
-
-            flm.views.getView($type(config.options) ? config.template : flm.views.viewsPath + '/' + config.template, options,
-                function (html) {
-                    var newContent = $(diagId + ' .flm_popup-content')
-                        .html(html);
-
-                    newContent.find('.flm-diag-cancel')
-                        .click(function () {
-                            dialogs.hide(diagId);
-                        });
-
-                    dialogs.disableStartButton();
-
-                    newContent.find('.flm-diag-start').attr('disabled', false)
-                        .click(function () {
-                            if ($type(diags.onStartEvent) === "function") {
-                                dialogs.disableStartButton();
+                        diags.startedPromise = diags.onStartEvent.apply(diags, arguments);
+                        diags.startedPromise.then(function () {
                                 dialogs.hide(diagId);
+                            },
+                            function (data) {
+                                flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
+                            });
+                    }
+                });
 
-                                diags.startedPromise = diags.onStartEvent.apply(diags, arguments);
-                                diags.startedPromise.then(function () {
-                                        dialogs.hide(diagId);
-                                    },
-                                    function (data) {
-                                        flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
-                                    });
-                            }
-                        });
-
-                    diags.afterLoad(diagId, what);
-                    $type(config.pathbrowse) && config.pathbrowse && diags.setDirBrowser(diagId);
-                }
-            );
-
-        },
-
-        afterLoad: function (id, what) {
             setTimeout(function () {
                 flm.ui.dialogs.startButton().select().focus();
             });
@@ -742,7 +712,7 @@ export function userInterface(flm) {
         },
 
         getDialogHeader: function (diagId) {
-            return $(diagId + "-header");
+            return $('#'+flm.utils.ltrim(diagId, '#') + "-header");
         },
 
         getTargetPath: function (container) {
@@ -779,9 +749,8 @@ export function userInterface(flm) {
         },
 
         setDirBrowser: function (diagId, withFiles) {
-            var inputSelectors = $(diagId + ' .flm-diag-nav-path');
-
             diagId = flm.utils.ltrim(diagId, '#');
+            let inputSelectors = $('#'+diagId + ' .flm-diag-nav-path');
 
             if (thePlugins.isInstalled("_getdir")) {
                 if (!this.dirBrowser.hasOwnProperty(diagId)) {
@@ -789,50 +758,73 @@ export function userInterface(flm) {
                 }
                 for (var i = 0; i < inputSelectors.length; i++) {
                     this.dirBrowser[diagId][i] = new theWebUI.rDirBrowser(inputSelectors[i].id, withFiles);
-
                 }
             }
         },
 
-        //makeVisbile
-        showDialog: function (what, viewEvents) {
+        createDialog: (diagId, content, config, viewEvents, what) => {
 
             viewEvents = viewEvents || {};
+
+            // create it
+           // if (!theDialogManager.items.hasOwnProperty(diagId)) {
+                theDialogManager.make(diagId, theUILang['flm_popup_' + what], content, config.modal); // prevent the user from changing table selection by default
+                $type(config.pathbrowse) && config.pathbrowse && dialogs.setDirBrowser(diagId);
+
+                dialogs.getDialogHeader(diagId)
+                    .prepend('<span class="flm-sprite-diag flm-sprite sprite-' + what + '"></span>');
+
+                // $("#"+diagId).find('.flm-diag-cancel')
+                //     .click(function () {
+                //         console.log("cancel triggered");
+                //         dialogs.hide(diagId);
+                //     });
+            //}
+
+            const eventNames =  ['beforeHide', 'beforeShow', 'afterHide', 'afterShow'];
+
+            for (let i = 0; i < eventNames.length;i++) {
+                const evName = eventNames[i];
+                theDialogManager.setHandler(diagId, evName, function (id) {
+                    $type(dialogs[evName])
+                    && dialogs[evName].apply(dialogs, [id, what]);
+
+                    viewEvents.hasOwnProperty(evName)
+                    && viewEvents[evName].apply(dialogs, [id, what]);
+
+                });
+            }
+
+        },
+
+        showDialog: function (what, viewEvents) {
 
             if (!this.forms.hasOwnProperty(what)) {
                 console.error('No such dialog configured: ', what);
                 return;
             }
 
-            var config = this.forms[what];
+            let config = this.forms[what];
+            config.modal = $type(config.modal) ? config.modal : true;
 
-            var modal = $type(config.modal) ? config.modal : true;
+            // modal dialogs use the same window for user blocking of input
+            var diagId = flm.utils.ltrim(this.getDialogId(!config.modal ? what : 'window'), '#');
 
-            var diagId = flm.utils.ltrim(this.getDialogId(!modal ? what : 'window'), '#');
-            var diags = this;
+            let templateVars = $type(config.options) ? config.options : {};
+            templateVars.apiUrl = flm.api.endpoint;
+            templateVars.selectedEntries = browser.selectedEntries;
+//                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
 
-            // create it
-            if (!theDialogManager.items.hasOwnProperty(diagId)) {
+            templateVars.selectedTarget = !browser.selectedTarget ? '/' : browser.selectedTarget;
+            templateVars.currentPath = flm.getCurrentPath('/');
 
-                theDialogManager.make(diagId,
-                    '',
-                    $('<div class="cont fxcaret flm_popup-content"></div>').get(0),
-                    modal); // prevent the user from changing table selection by default
+            config.options = templateVars;
 
-            }
-            $.each(['beforeHide', 'beforeShow', 'afterHide', 'afterShow'], function (ndx, evName) {
-
-                theDialogManager.setHandler(diagId, evName, function (id) {
-                    $type(diags[evName])
-                    && diags[evName].apply(diags, [id, what]);
-
-                    viewEvents.hasOwnProperty(evName)
-                    && viewEvents[evName].apply(diags, [id, what]);
-
-                });
-
-            });
-            theDialogManager.show(diagId);
+            flm.views.loadView(config, (html) => {
+                    dialogs.createDialog(diagId, html, config, viewEvents, what);
+                    theDialogManager.show(diagId);
+                }
+            );
 
         }
 

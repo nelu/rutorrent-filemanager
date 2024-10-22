@@ -1,6 +1,7 @@
 import {FileManagerUtils} from "./utils.js";
 import {apiClient} from "./api.js";
 import {userInterface} from "./ui.js";
+// import {Twig} from "./twig.js";
 
 (function (global) {
 
@@ -23,14 +24,17 @@ import {userInterface} from "./ui.js";
             options = options || {};
             var filename = name + '.twig';
 
-            options.views = options.views || 'flm';
+            options.views = options.views || self.viewsPath;
             options.theUILang = theUILang;
             options.utils = flm.utils;
             options.settings = {
                 'twig options': {
                     namespaces: self.namespaces,
-                    name: filename,
-                    href: filename
+                   // id: filename,
+                    href: filename,
+                    //allowInlineIncludes: true,
+                    debug: flm.getPlugin().debug,
+                    trace: flm.getPlugin().debug
                 }
             };
 
@@ -38,12 +42,18 @@ import {userInterface} from "./ui.js";
                 options.settings['twig options'].allow_async = options.async;
             }
 
-            flm.debug && Twig.cache(false);
-
-            return Twig.renderFile(undefined, options, function (dumb, template) {
+            Twig.renderFile(undefined, options, function (error, template) {
+                $type(error) && console.log("GOT ERROR: ", error, options);
                 $type(fn) && fn(template);
             });
         };
+
+        self.loadView = function (config, call) {
+            const templatePath = flm.utils.isValidPath(config.template)
+                ? config.template
+                : flm.utils.buildPath([self.viewsPath, config.template]);
+            flm.views.getView( templatePath, config.options, call);
+        }
 
         return self;
 
