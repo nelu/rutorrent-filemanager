@@ -1,9 +1,9 @@
 import {FileManagerUtils} from "./utils.js";
 import {FileManagerDialogs} from "./ui-dialogs.js";
 
-export function userInterface(flm) {
+export function FileManagerUi(flm) {
 
-    var self = {};
+    var self = this;
     self.settings = {
         defaults: {
             "showhidden": true,
@@ -72,18 +72,17 @@ export function userInterface(flm) {
     };
 
     var fsBrowser = function () {
+        let browse = this;
 
-        var browse = {
-            tableEntryPrefix: "_flm_",
-            uiTable: $('#flm-browser-table table'),
-            clipaboardEvent: null,
-            clipboardEntries: [],
-            selectedEntries: [],
-            selectedTarget: null,
-            navigationLoaded: false
-        };
+        browse.tableEntryPrefix = "_flm_";
+        browse.uiTable = $('#flm-browser-table table');
+        browse.clipaboardEvent = null;
+        browse.clipboardEntries = [];
+        browse.selectedEntries = [];
+        browse.selectedTarget = null;
+        browse.navigationLoaded = false;
+
         var isVisible = false;
-
 
         browse.uiTableFormat = function (table, arr) {
             var i;
@@ -388,7 +387,7 @@ export function userInterface(flm) {
 
                 create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && entries.length ? function () {
 
-                    flm.manager.createTorrent(target);
+                    flm.actions.createTorrent(target);
                 } : null]);
                 create_sub.push([CMENU_SEP]);
                 create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
@@ -433,7 +432,7 @@ export function userInterface(flm) {
 
                 (!pathIsDir && thePlugins.isInstalled('mediainfo'))
                 && menu.push([theUILang.fMediaI, function () {
-                    flm.manager.doMediainfo(target);
+                    flm.actions.doMediainfo(target);
                 }]);
             } else {
                 menu.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
@@ -559,10 +558,10 @@ export function userInterface(flm) {
         return browse;
     };
 
-    var browser = fsBrowser();
+    var browser = new fsBrowser();
 
     // file operation dialogs
-    var dialogs = FileManagerDialogs(browser);
+    var dialogs = new FileManagerDialogs(browser);
 
 
     self.console = {
@@ -692,11 +691,29 @@ export function userInterface(flm) {
 
     };
 
+    // filesystem navigation
+    self.browser = browser;
+
     // operation dialogs
     self.dialogs = dialogs;
     self.getDialogs = function () {
         return self.dialogs;
     };
+
+    self.createDataFrame = () => {
+        $(document.body).append($("<iframe name='datafrm'/>").css({
+            visibility: "hidden"
+        }).attr({
+            name: "datafrm", id: "datafrm"
+        }).width(0).height(0).on('load', function () {
+            var d = (this.contentDocument || this.contentWindow.document);
+            if (d.location.href !== "about:blank") try {
+                eval(d.body.innerHTML);
+            } catch (e) {
+            }
+        }));
+    };
+
 
     self.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
 
@@ -809,7 +826,6 @@ export function userInterface(flm) {
         });
     };
 
-    self.browser = browser;
 
     return self;
 

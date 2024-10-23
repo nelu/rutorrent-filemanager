@@ -1,38 +1,40 @@
 export function FileManagerDialogs(browser) {
-    let self = {
-        activeDialogs: {},
-        currentDialog: "window",
-        onStartEvent: null,
-        startedPromise: null,
-        dirBrowser: {}, // multiple file operations are ui blocking
-        forms: {
-            archive: {
-                modal: true, pathbrowse: true, template: "dialog-archive"
-            }, copy: {
-                modal: true, pathbrowse: true, template: "dialog-copy"
-            }, console: {
-                template: "dialog-console"
-            }, mkdir: {
-                modal: false, template: 'dialog-new-dir'
-            }, move: {
-                modal: true, pathbrowse: true, template: "dialog-move"
-            }, delete: {
-                modal: true, pathbrowse: false, template: "dialog-delete"
-            }, extract: {
-                modal: true, pathbrowse: true, template: "dialog-extract"
-            }, permissions: {
-                modal: false, template: "dialog-permissions"
-            }, rename: {
-                modal: true, template: "dialog-rename"
-            }, sfv_check: {
-                modal: true, template: "dialog-svf_check"
-            }, sfv_create: {
-                modal: true, pathbrowse: true, multiselectFilesOnly: true, template: "dialog-svf_create"
-            }, nfo_view: {
-                modal: false, template: "dialog-nfo_view"
-            }
+
+    let self = this;
+
+    self.forms = {
+        archive: {
+            modal: true, pathbrowse: true, template: "dialog-archive"
+        }, copy: {
+            modal: true, pathbrowse: true, template: "dialog-copy"
+        }, console: {
+            template: "dialog-console"
+        }, mkdir: {
+            modal: false, template: 'dialog-new-dir'
+        }, move: {
+            modal: true, pathbrowse: true, template: "dialog-move"
+        }, delete: {
+            modal: true, pathbrowse: false, template: "dialog-delete"
+        }, extract: {
+            modal: true, pathbrowse: true, template: "dialog-extract"
+        }, permissions: {
+            modal: false, template: "dialog-permissions"
+        }, rename: {
+            modal: true, template: "dialog-rename"
+        }, sfv_check: {
+            modal: true, template: "dialog-svf_check"
+        }, sfv_create: {
+            modal: true, pathbrowse: true, multiselectFilesOnly: true, template: "dialog-svf_create"
+        }, nfo_view: {
+            modal: false, template: "dialog-nfo_view"
         }
     };
+    self.activeDialogs = {};
+    self.currentDialog = "window";
+    self.onStartEvent = null;
+    self.startedPromise = null;
+    self.dirBrowser = {}; // multiple file operations are ui blocking
+
     // common after event handle
     self.afterHide = function (dialogId, what) {
 
@@ -144,7 +146,7 @@ export function FileManagerDialogs(browser) {
 
     self.updateTargetPath = function (container, path) {
         var ele = self.dirBrowserInput(container);
-        path = flm.manager.addJailPath(path);
+        path = flm.addJailPath(path);
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
     }
 
