@@ -223,7 +223,7 @@ export function FileManagerDialogs(browser) {
 //                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
 
         templateVars.selectedTarget = !browser.selectedTarget ? '/' : browser.selectedTarget;
-        templateVars.currentPath = flm.getCurrentPath('/');
+        templateVars.currentPath = flm.addJailPath(flm.getCurrentPath('/'));
 
         config.options = templateVars;
 

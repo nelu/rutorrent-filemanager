@@ -39,7 +39,7 @@ import {FileManagerUi} from "./ui.js";
                     href: filename,
                     //allowInlineIncludes: true,
                     //debug: flm.getPlugin().debug,
-                    trace: flm.getPlugin().debug
+                    //trace: flm.getPlugin().debug
                 }
             };
 
@@ -294,7 +294,8 @@ import {FileManagerUi} from "./ui.js";
 
             let i;
             for (i = 0; i < entries.length; i++) {
-                entries[i] = flm.utils.buildPath([flm.config.homedir, this.stripJailPath(entries[i])]);
+                // ensure trailing slash on dirs
+                entries[i] = flm.utils.buildPath([flm.config.homedir+"/", this.stripJailPath(entries[i])]);
             }
 
             return Array.isArray(paths) ? entries : entries[0];

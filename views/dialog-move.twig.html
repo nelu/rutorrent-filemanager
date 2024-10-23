@@ -5,22 +5,21 @@
 
 {% extends "flm::dialog-window.twig.html" %}
 {% block heading %}
-    <legend>{{ theUILang.fDiagMoveSel }}</legend>
+<legend>{{ theUILang.fDiagMoveSel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        if (!flm.ui.hasOwnProperty('dialogMove')) {
-            flm.ui.dialogMove = function () {
-
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId('window');
+<script>
+    if (!flm.ui.hasOwnProperty('dialogMove')) {
+        flm.ui.dialogMove = function () {
+            let dialogs = flm.ui.getDialogs();
+            const diagId = dialogs.getCurrentDialog();
             let self = this;
 
             // service
             self.doMove = function (filePaths, destination) {
 
-                destination = $.trim(destination);
+                destination = flm.stripJailPath($.trim(destination));
 
                 var deferred = $.Deferred();
 
@@ -30,11 +29,11 @@
                 }
 
                 if (!flm.utils.isValidPath(destination)) {
-                    deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname+": "+destination});
+                    deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname + ": " + destination});
                     return deferred.promise();
                 }
 
-                filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
+                filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
                 var cPath = flm.getCurrentPath();
 
                 self.noty = $.noty(
@@ -74,10 +73,10 @@
             });
 
         }
-        }
+    }
 
-        (flm.ui.dialogMove)(window);
-    </script>
+    (flm.ui.dialogMove)();
+</script>
 {% endblock %}
 
 

@@ -1,28 +1,27 @@
-{% set pathbrowse = isValidPath(currentPath)? currentPath : '/' %}
+{% set pathbrowse = currentPath %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
 {% set startButtonValue = theUILang.fDiagCopyBut %}
 
 {% extends "flm::dialog-window.twig.html" %}
 {% block heading %}
-    <legend>{{ theUILang.fDiagCopySel }} </legend>
+<legend>{{ theUILang.fDiagCopySel }}</legend>
 {% endblock %}
 
 {% block scripts %}
 <script>
-
     if (!flm.ui.hasOwnProperty('dialogCopy')) {
 
         flm.ui.dialogCopy = function () {
-            const dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getDialogId();
+            let dialogs = flm.ui.getDialogs();
+            const diagId = dialogs.getCurrentDialog();
             const pathBrowser = dialogs.dirBrowserInput(diagId);
 
             let self = this;
 
             self.doCopy = function (destination, filePaths) {
 
-                destination = $.trim(destination);
+                destination = flm.stripJailPath($.trim(destination));
 
                 var deferred = $.Deferred();
                 //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
@@ -34,13 +33,13 @@
 
                 if (!flm.utils.isValidPath(destination)) {
                     // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                    deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": "+destination});
+                    deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": " + destination});
 
                     return deferred.promise();
                 }
 
                 // check if its empty from clipboard
-                filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
+                filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
 
                 self.noty = $.noty(
                     {
@@ -51,15 +50,15 @@
                         closeOnSelfClick: true
                     });
 
-                return flm.api.copy(filePaths, flm.manager.stripJailPath(destination))
+                return flm.api.copy(filePaths, destination)
                     .then(function (result) {
                             // refresh in case we are in destination
-                        if(!flm.utils.isDir(destination)) {
-                            // when destination is a directory name
-                            destination = flm.utils.basedir(destination)
-                        }
+                            if (!flm.utils.isDir(destination)) {
+                                // when destination is a directory name
+                                destination = flm.utils.basedir(destination)
+                            }
 
-                        destination === flm.getCurrentPath()
+                            destination === flm.getCurrentPath()
                             && flm.Refresh();
                             self.noty = $.noty(
                                 {
