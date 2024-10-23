@@ -1,20 +1,18 @@
 {% extends "flm::dialog-window.twig.html" %}
 {% block content %}
     <div>
-        {{ window.pathBrowser('New Folder', theUILang.Name) }}
+        {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name) }}
     </div>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript">
-        (function (global) {
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId();
+        (function (dialogs) {
+            var diagId = dialogs.getCurrentDialog();
             var nameInput = dialogs.dirBrowserInput(diagId);
 
-            flm.ui.getDialogs().onStart(
+            dialogs.onStart(
                 function () {
                     var dirname = flm.utils.basename(nameInput.val());
-                    var currentPath = flm.getCurrentPath();
                     var hasError;
 
                     if (!dirname) {
@@ -47,7 +45,7 @@
                 nameInput.select();
             });
         })
-        (window);
+        (flm.ui.getDialogs());
     </script>
 {% endblock %}
 

@@ -564,6 +564,7 @@ export function userInterface(flm) {
     var dialogs = {
 
         activeDialogs: {},
+        currentDialog: "window",
         onStartEvent: null,
         startedPromise: null,
         dirBrowser: {},
@@ -645,21 +646,20 @@ export function userInterface(flm) {
             })
         },
         // common before event handle
-        beforeShow: function (id, what) {
-            var diags = this;
-            var diagId = '#' + id;
+        beforeShow: function (diagId, what) {
+            diagId = '#' + diagId;
             var newContent = $(diagId);
 
-            dialogs.disableStartButton();
+            //dialogs.disableStartButton();
 
-            newContent.find('.flm-diag-start').attr('disabled', false)
-                .click(function () {
-                    if ($type(diags.onStartEvent) === "function") {
-                        dialogs.disableStartButton();
+            dialogs.enableStartButton(diagId).on('click', function () {
+                console.log("start button click");
+                if ($type(dialogs.onStartEvent) === "function") {
+                        dialogs.disableStartButton(diagId);
                         dialogs.hide(diagId);
 
-                        diags.startedPromise = diags.onStartEvent.apply(diags, arguments);
-                        diags.startedPromise.then(function () {
+                        dialogs.startedPromise = dialogs.onStartEvent.apply(dialogs, arguments);
+                        dialogs.startedPromise.then(function () {
                                 dialogs.hide(diagId);
                             },
                             function (data) {
@@ -669,19 +669,18 @@ export function userInterface(flm) {
                 });
 
             setTimeout(function () {
-                flm.ui.dialogs.startButton().select().focus();
+                flm.ui.dialogs.startButton(diagId).select().focus();
             });
         },
 
         startButton: function (diag) {
-            diag = diag ? '#' + flm.utils.ltrim(diag, '#') : this.getDialogId(diag);
-            return $(diag + ' .flm-diag-start');
+            return $(`${diag} .flm-diag-start`);
         },
         disableStartButton: function (diag) {
-            this.startButton(diag).attr('disabled', true);
+            return this.startButton(diag).attr('disabled', true);
         },
         enableStartButton: function (diag) {
-            this.startButton(diag).attr('disabled', false);
+            return this.startButton(diag).attr('disabled', false);
         },
 
         getCheckedList: function (diag) {
@@ -699,20 +698,21 @@ export function userInterface(flm) {
             return list;
         },
 
-        getDialogId: function (formId) {
-            formId = formId || 'window';
-
-            return '#' + this.getTheDialogsId(formId);
+        getCurrentDialog: () => {
+            return dialogs.currentDialog;
         },
 
-        getTheDialogsId: function (formId) {
-            var config = dialogs.forms.hasOwnProperty(formId) ? dialogs.forms[formId] : {};
+        getDialogId: function (formId) {
+            formId = formId || 'window';
+            return '#' + this.getDialogsPrefix(flm.utils.ltrim(formId, '#'));
+        },
 
-            return 'flm_popup_' + (!config.hasOwnProperty('modal') || config.modal ? 'modal_' : '') + formId;
+        getDialogsPrefix: function (formId) {
+            return 'flm_popup_' + formId;
         },
 
         getDialogHeader: function (diagId) {
-            return $('#'+flm.utils.ltrim(diagId, '#') + "-header");
+            return $(`#${diagId}-header`);
         },
 
         getTargetPath: function (container) {
@@ -808,7 +808,7 @@ export function userInterface(flm) {
             config.modal = $type(config.modal) ? config.modal : true;
 
             // modal dialogs use the same window for user blocking of input
-            var diagId = flm.utils.ltrim(this.getDialogId(!config.modal ? what : 'window'), '#');
+            var diagId = this.getDialogsPrefix(!config.modal ? what : 'window');
 
             let templateVars = $type(config.options) ? config.options : {};
             templateVars.apiUrl = flm.api.endpoint;
@@ -821,7 +821,9 @@ export function userInterface(flm) {
             config.options = templateVars;
 
             flm.views.loadView(config, (html) => {
+                    dialogs.currentDialog = diagId;
                     dialogs.createDialog(diagId, html, config, viewEvents, what);
+
                     theDialogManager.show(diagId);
                 }
             );
