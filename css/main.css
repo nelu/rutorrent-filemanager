@@ -5,24 +5,15 @@
 }
 
 input.flm-nav-refresh {
-    margin-left: 2px;
-    margin-right: 2px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-/*    background-image: url(images/curdir.png);
-    background-repeat: no-repeat;
-        background-position: center center;
- */
-    background-color: transparent;
+    margin: 0 2px;
+    background-color: transparent !important;
     height: 18px;
     width: 18px;
-    padding: 0px;
-
-
+    padding: 0;
     border: 1px solid #FBFBFC;
 }
 input.flm-nav-refresh:hover {
-    background-position: -57px -83px;
+    background-position: -57px -83px !important;
     border-top-style: outset;
     border-right-style: outset;
     border-bottom-style: outset;
@@ -41,11 +32,6 @@ div[id^="flm_popup_"].dlg-window
 {
     min-width: 350px;
     overflow: visible;
-}
-
-div[id^="flm_popup_"].dlg-header {
-    margin-left: 1px;
-    padding-left: 2px;
 }
 
 #editor {
@@ -107,11 +93,8 @@ input.text-long {
     text-align: left;
 }
 .checklist ul {
-    margin-top: 0px;
-    padding-top: 0px;
-    padding-right: 0px;
-    padding-bottom: 0px;
-    padding-left: 0px;
+    margin-top: 0;
+    padding: 0;
 }
 .checklist ul li {
     list-style-type: none;
@@ -119,16 +102,14 @@ input.text-long {
 }
 .checklist ul li input {
     vertical-align: top;
-    margin-bottom: 0px;
-    padding: 0px;
-    margin-top: 0px;
-    margin-right: 5px;
-    margin-left: 0px;
+    padding: 0;
+    margin: 0 5px 0 0;
 }
 
 .flm-sprite-diag {
     float: left;
     margin-right: 6px;
+    margin-top: 2%;
 }
 
 .flm-sprite {
@@ -158,7 +139,7 @@ input.text-long {
 .sprite-curdir {
     width: 16px;
     height: 16px;
-    background-position: -83px -5px;
+    background-position: -83px -5px !important;
 }
 
 .sprite-delete {
@@ -262,4 +243,8 @@ input.text-long {
     width: 16px;
     height: 16px;
     background-position: -5px -109px;
+}
+
+div[id^="flm_popup_"] > div.dlg-header > div:first-child {
+    padding-left: 0;
 }
