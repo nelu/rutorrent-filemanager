@@ -1,4 +1,4 @@
-{% extends "flm::dialog-window.twig" %}
+{% extends "flm::dialog-window.twig.html" %}
 {% block heading %}
     <legend>{{ isDir(selectedTarget) ? 'Directory': 'File' }}</legend>
     <div style="padding-top:3px; padding-bottom:4px;">{{ selectedTarget }}</div>

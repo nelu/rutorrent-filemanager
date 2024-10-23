@@ -1,24 +1,15 @@
-{% extends "flm::dialog-window.twig" %}
+{% extends "flm::dialog-window.twig.html" %}
 {% block content %}
     <div>
-        <fieldset>
-            <legend>{{ theUILang.fcNewDir }}</legend>
-            <form>
-                <label for="fMan-ndirname"><strong>{{ theUILang.Name }}:</strong></label>
-                <input type="text"
-                   name="fMan-ndirname"
-                   id="fMan-ndirname"
-                   value="New Folder"
-                   style="min-width:200px;width:70%;"/>
-            </form>
-        </fieldset>
+        {{ window.pathBrowser('New Folder', theUILang.Name) }}
     </div>
 {% endblock %}
 {% block scripts %}
-    <script>
+    <script type="text/javascript">
         (function (global) {
-
-            var nameInput = $('#fMan-ndirname');
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId();
+            var nameInput = dialogs.dirBrowserInput(diagId);
 
             flm.ui.getDialogs().onStart(
                 function () {

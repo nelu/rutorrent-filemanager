@@ -15,7 +15,7 @@
 
 {% macro pathBrowser(default="/", title = false) %}
 
-    <div class="input-group mb-3">
+    <div class="input-group">
         <span class="input-group-text" id="inputGroup-sizing-default">{{ title }}</span>
         <input value="{{ default }}" type="text" id="flm-nav-path-{{ random() }}"
                class="form-control flm-diag-nav-path">
