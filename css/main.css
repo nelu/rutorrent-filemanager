@@ -5,9 +5,8 @@
 }
 
 input.flm-nav-refresh {
-    margin: 0 2px;
     background-color: transparent !important;
-    height: 18px;
+    height: 20px;
     width: 18px;
     padding: 0;
     border: 1px solid #FBFBFC;
