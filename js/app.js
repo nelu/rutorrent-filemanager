@@ -34,7 +34,7 @@ import {userInterface} from "./ui.js";
                     //id: filename,
                     href: filename,
                     //allowInlineIncludes: true,
-                    debug: flm.getPlugin().debug,
+                    //debug: flm.getPlugin().debug,
                     trace: flm.getPlugin().debug
                 }
             };
@@ -83,13 +83,15 @@ import {userInterface} from "./ui.js";
                 return flm.utils.isDir(entry) ? path + '/' : path;
             },
 
-            addJailPath: function (entries) {
+            addJailPath: function (paths) {
+                let entries = !Array.isArray(paths) ? [paths] : paths;
+
                 let i;
                 for (i = 0; i < entries.length; i++) {
                     entries[i] = flm.utils.buildPath([flm.config.homedir, this.stripJailPath(entries[i])]);
                 }
 
-                return entries;
+                return Array.isArray(paths) ? entries : entries[0];
             },
 
             getFullPaths: function (entries) {
@@ -154,7 +156,7 @@ import {userInterface} from "./ui.js";
             var relative = self.stripJailPath(target);
             var isRelative = (relative !== target);
 
-            var path = self.addJailPath([isRelative ? relative : target])[0];
+            var path = self.addJailPath(isRelative ? relative : target);
 
             $('#path_edit').val(path);
 
