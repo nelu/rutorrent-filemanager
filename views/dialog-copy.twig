@@ -5,77 +5,77 @@
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-<legend>{{ theUILang.fDiagCopySel }}</legend>
+    <legend>{{ theUILang.fDiagCopySel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    if (!flm.ui.hasOwnProperty('dialogCopy')) {
+    <script>
+        if (!flm.ui.hasOwnProperty('dialogCopy')) {
 
-        flm.ui.dialogCopy = function () {
-            let dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getCurrentDialog();
-            const pathBrowser = dialogs.dirBrowserInput(diagId);
+            flm.ui.dialogCopy = function () {
+                let dialogs = flm.ui.getDialogs();
+                const diagId = dialogs.getCurrentDialog();
+                const pathBrowser = dialogs.dirBrowserInput(diagId);
 
-            let self = this;
+                let self = this;
 
-            self.doCopy = function (destination, filePaths) {
+                self.doCopy = function (destination, filePaths) {
 
-                destination = flm.stripJailPath($.trim(destination));
+                    destination = flm.stripJailPath($.trim(destination));
 
-                var deferred = $.Deferred();
-                //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
+                    var deferred = $.Deferred();
+                    //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
 
-                if (!$type(filePaths) || filePaths.length === 0) {
-                    deferred.reject({errcode: 'copy', msg: 'Empty paths'});
-                    return deferred.promise();
+                    if (!$type(filePaths) || filePaths.length === 0) {
+                        deferred.reject({errcode: 'copy', msg: 'Empty paths'});
+                        return deferred.promise();
+                    }
+
+                    if (!flm.utils.isValidPath(destination)) {
+                        // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
+                        deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": " + destination});
+
+                        return deferred.promise();
+                    }
+
+                    // check if its empty from clipboard
+                    filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
+
+                    flm.actions.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
+
+                    return flm.api.copy(filePaths, destination)
+                        .then(function (result) {
+                                // refresh in case we are in destination
+                                flm.actions.refreshIfCurrentPath(destination);
+                                flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
+                                return result;
+                            },
+                            function (response) {
+                                return response;
+                            });
                 }
 
-                if (!flm.utils.isValidPath(destination)) {
-                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                    deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": " + destination});
 
-                    return deferred.promise();
+                self.updateFilePath = function () {
+                    let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
+                    dialogs.updateTargetPath(diagId, filePath);
+                };
+
+                dialogs.onStart(() => self.doCopy(
+                    dialogs.getTargetPath(diagId),
+                    dialogs.getCheckedList(diagId)
+                ).then());
+
+                pathBrowser.change(self.updateFilePath);
+
+                const entries = dialogs.getCheckedList(diagId);
+                if (entries.length === 1) {
+                    pathBrowser.data('previousValue', 'Copy of ' + flm.utils.basename(entries[0]))
+                        .change();
                 }
 
-                // check if its empty from clipboard
-                filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
-
-                flm.actions.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
-
-                return flm.api.copy(filePaths, destination)
-                    .then(function (result) {
-                            // refresh in case we are in destination
-                            flm.actions.refreshIfCurrentPath(destination);
-                            flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length,  'success', 10000);
-                            return result;
-                        },
-                        function (response) {
-                            return response;
-                        });
             }
-
-
-            self.updateFilePath = function () {
-                let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
-                dialogs.updateTargetPath(diagId, filePath);
-            };
-
-            dialogs.onStart(() => self.doCopy(
-                dialogs.getTargetPath(diagId),
-                dialogs.getCheckedList(diagId)
-            ).then());
-
-            pathBrowser.change(self.updateFilePath);
-
-            const entries = dialogs.getCheckedList(diagId);
-            if (entries.length === 1) {
-                pathBrowser.data('previousValue', 'Copy of ' + flm.utils.basename(entries[0]))
-                    .change();
-            }
-
         }
-    }
-    (flm.ui.dialogCopy)(window);
-</script>
+        (flm.ui.dialogCopy)(window);
+    </script>
 {% endblock %}

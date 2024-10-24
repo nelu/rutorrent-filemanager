@@ -2,70 +2,70 @@
 {% set startButtonValue = theUILang.fDiagRenameBut %}
 
 {% block heading %}
-{{ window.pathBrowser(basename(selectedTarget), isDir(selectedTarget) ? 'Directory': 'File', "", "disabled readonly") }}
+    {{ window.pathBrowser(basename(selectedTarget), isDir(selectedTarget) ? 'Directory': 'File', "", "disabled readonly") }}
 {% endblock %}
 
 {% block content %}
-{{ window.pathBrowser(basename(selectedTarget), theUILang.fDiagRenameTo, "fman-rename-to") }}
+    {{ window.pathBrowser(basename(selectedTarget), theUILang.fDiagRenameTo, "fman-rename-to") }}
 {% endblock %}
 
 {% block scripts %}
-<script>
-    if (!flm.ui.hasOwnProperty('dialogRename')) {
+    <script>
+        if (!flm.ui.hasOwnProperty('dialogRename')) {
 
-        flm.ui.dialogRename = function () {
-            let dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getCurrentDialog();
-            const destination = $('.fman-rename-to');
-            const cPath = flm.getCurrentPath();
+            flm.ui.dialogRename = function () {
+                let dialogs = flm.ui.getDialogs();
+                const diagId = dialogs.getCurrentDialog();
+                const destination = $('.fman-rename-to');
+                const cPath = flm.getCurrentPath();
 
-            let self = this;
+                let self = this;
 
-            self.doRename = function (source, destination) {
+                self.doRename = function (source, destination) {
 
-                var hasError;
+                    var hasError;
 
-                if (!flm.utils.isValidPath(destination)) {
-                    hasError = theUILang.fDiagInvalidname;
-                } else if (flm.utils.basename(destination) === flm.utils.basename(source)
+                    if (!flm.utils.isValidPath(destination)) {
+                        hasError = theUILang.fDiagInvalidname;
+                    } else if (flm.utils.basename(destination) === flm.utils.basename(source)
                         || flm.ui.browser.fileExists(destination)) //dir check
-                {
-                    hasError = theUILang.fDiagAexist;
-                }
-
-                if ($type(hasError)) {
-                    var def = $.Deferred();
-                    def.reject({
-                        errcode: theUILang.fDiagRenameBut + ' ' + flm.utils.basename(source),
-                        msg: flm.utils.basename(destination) + ' - ' + hasError
-                    });
-                    return def.promise();
-                }
-
-
-                return flm.api.rename(source, destination).done(
-                    function (response) {
-                        flm.actions.refreshIfCurrentPath(cPath);
-                        $(document).trigger(flm.EVENTS.rename, [source, destination]);
-                        return response;
+                    {
+                        hasError = theUILang.fDiagAexist;
                     }
-                );
+
+                    if ($type(hasError)) {
+                        var def = $.Deferred();
+                        def.reject({
+                            errcode: theUILang.fDiagRenameBut + ' ' + flm.utils.basename(source),
+                            msg: flm.utils.basename(destination) + ' - ' + hasError
+                        });
+                        return def.promise();
+                    }
+
+
+                    return flm.api.rename(source, destination).done(
+                        function (response) {
+                            flm.actions.refreshIfCurrentPath(cPath);
+                            $(document).trigger(flm.EVENTS.rename, [source, destination]);
+                            return response;
+                        }
+                    );
+
+                };
+
+                dialogs.onStart(() => self.doRename(
+                    flm.utils.buildPath([cPath, flm.utils.basename(dialogs.getTargetPath(diagId))]),
+                    flm.utils.buildPath([cPath, flm.utils.basename(destination.val())])
+                ));
+
+                setTimeout(function () {
+                    destination.click();
+                    destination.select();
+                }, 1);
 
             };
-
-            dialogs.onStart(() => self.doRename(
-                flm.utils.buildPath([cPath, flm.utils.basename(dialogs.getTargetPath(diagId))]),
-                flm.utils.buildPath([cPath, flm.utils.basename(destination.val())])
-            ));
-
-            setTimeout(function () {
-                destination.click();
-                destination.select();
-            }, 1);
-
-        };
-    }
-    (flm.ui.dialogRename)(window);
-</script>
+        }
+        (flm.ui.dialogRename)(window);
+    </script>
 {% endblock %}
 

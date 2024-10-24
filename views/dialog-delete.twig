@@ -4,19 +4,19 @@
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-<legend>{{ theUILang.fDiagDeleteSel }}</legend>
+    <legend>{{ theUILang.fDiagDeleteSel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    if (!flm.ui.hasOwnProperty('dialogDelete')) {
-        flm.ui.dialogDelete = function () {
-            var dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getCurrentDialog();
-            dialogs.onStart(() => flm.actions.doDelete(dialogs.getCheckedList(diagId)));
-        };
-    }
+    <script>
+        if (!flm.ui.hasOwnProperty('dialogDelete')) {
+            flm.ui.dialogDelete = function () {
+                var dialogs = flm.ui.getDialogs();
+                const diagId = dialogs.getCurrentDialog();
+                dialogs.onStart(() => flm.actions.doDelete(dialogs.getCheckedList(diagId)));
+            };
+        }
 
-    (flm.ui.dialogDelete)();
-</script>
+        (flm.ui.dialogDelete)();
+    </script>
 {% endblock %}

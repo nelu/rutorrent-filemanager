@@ -4,7 +4,8 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
                 <td>Paths history number of values:</td>
-                <td><input type="text" name="flm-settings-opt-histpath" class="Textbox num1" id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/></td>
+                <td><input type="text" name="flm-settings-opt-histpath" class="Textbox num1"
+                           id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/></td>
             </tr>
             <tr>
                 <td>Show hidden files:</td>
@@ -21,8 +22,9 @@
             <tr>
                 <td>Permissions format:</td>
                 <td><select name="flm-settings-opt-permf" id="flm-settings-opt-permf">
-                        <option value="1"{% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
-                        <option value="2"{% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)</option>
+                        <option value="1" {% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
+                        <option value="2" {% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)
+                        </option>
                     </select></td>
             </tr>
             <tr>
@@ -53,11 +55,12 @@
                 <td>
                     <table width="100%" border="0" align="right" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td>Format: <strong>%d</strong>.<strong>%M</strong>.<strong>%y</strong>
-                                <strong>%h</strong>:<strong>%m</strong>:<strong>%s</strong></td>
+                            <td><strong>Format:</strong> %d.%M.%y
+                                %h:%m:%s</td>
                         </tr>
                         <tr>
-                            <td>Equals to: <strong>03</strong>.<strong>12</strong>.<strong>2011</strong> <strong>22</strong>:<strong>55</strong>:<strong>47</strong>
+                            <td><strong>Equals to:</strong> 03.12.2011
+                                22:55:47
                             </td>
                         </tr>
                     </table>

@@ -1,66 +1,66 @@
 {% extends "flm::dialog-window.twig" %}
 {% block content %}
 
-<div>
-    {#
-    <ul class="tabbar">
+    <div>
+        {#
+        <ul class="tabbar">
 
 
-        <li id="flm_nfo_tab_view" style="z-index: 1;"><a class="selected" href="javascript://void();"
-                                                         onfocus="this.blur();">View</a>
-        </li>
-        <li id="flm_nfo_tab_edit" style="z-index: 0;"><a href="javascript://void();" onfocus="this.blur();">Edit</a>
-        </li>
+            <li id="flm_nfo_tab_view" style="z-index: 1;"><a class="selected" href="javascript://void();"
+                                                             onfocus="this.blur();">View</a>
+            </li>
+            <li id="flm_nfo_tab_edit" style="z-index: 0;"><a href="javascript://void();" onfocus="this.blur();">Edit</a>
+            </li>
 
-    </ul>
-    #}
+        </ul>
+        #}
 
-    <div id="flm_nfo_tab_content">
-        <div class="table_tab"
-             style="">
-            <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                    <td width="8%"><strong>Format:</strong></td>
-                    <td width="92%">
-                        <select id="fMan_nfoformat" name="fMan_nfoformat">
-                            <option selected="selected" value="dos">DOS</option>
-                            <option value="win">WIN</option>
-                        </select>
-                        {% set nfoFile = buildPath([currentPath, selectedTarget]) %}
-                        <input class="flm-diag-nav-path" name="flm-diag-nav-path" type="hidden"
-                               value="{{ selectedTarget }}"/></td>
-                </tr>
-            </table>
-            <div id="flm_popup_nfo_view-content">
-                <pre>Loading...</pre>
+        <div id="flm_nfo_tab_content">
+            <div class="table_tab"
+                 style="">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                        <td width="8%"><strong>Format:</strong></td>
+                        <td width="92%">
+                            <select id="fMan_nfoformat" name="fMan_nfoformat">
+                                <option selected="selected" value="dos">DOS</option>
+                                <option value="win">WIN</option>
+                            </select>
+                            {% set nfoFile = buildPath([currentPath, selectedTarget]) %}
+                            <input class="flm-diag-nav-path" name="flm-diag-nav-path" type="hidden"
+                                   value="{{ selectedTarget }}"/></td>
+                    </tr>
+                </table>
+                <div id="flm_popup_nfo_view-content">
+                    <pre>Loading...</pre>
 
-            </div>
-            <span class="stable-scrollpos"></span>
-        </div>
-
-        <div class="table_tab" id="flm-nfo_view-edit" style="display: block;">
-            {#
-            <div id="editor">function foo(items) {
-                var x = "All this is syntax highlighted";
-                return x;
-                }
+                </div>
+                <span class="stable-scrollpos"></span>
             </div>
 
-            <script>
-                var editor;
-                $(document).ready(function () {
-                    injectScript('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js',
-                        function () {
-                            editor = ace.edit("editor");
-                            editor.setTheme("ace/theme/monokai");
-                            editor.session.setMode("ace/mode/javascript");
-                        });
-                });
-            </script>
-            #}
+            <div class="table_tab" id="flm-nfo_view-edit" style="display: block;">
+                {#
+                <div id="editor">function foo(items) {
+                    var x = "All this is syntax highlighted";
+                    return x;
+                    }
+                </div>
+
+                <script>
+                    var editor;
+                    $(document).ready(function () {
+                        injectScript('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js',
+                            function () {
+                                editor = ace.edit("editor");
+                                editor.setTheme("ace/theme/monokai");
+                                editor.session.setMode("ace/mode/javascript");
+                            });
+                    });
+                </script>
+                #}
+            </div>
         </div>
     </div>
-</div>
 
 
 {% endblock %}
@@ -69,41 +69,41 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    (function (global) {
-        var dialogs = flm.ui.getDialogs();
-        var diagId = dialogs.getDialogId('nfo_view');
-        var cont = $('#flm_popup_nfo_view-content pre');
+    <script>
+        (function (global) {
+            var dialogs = flm.ui.getDialogs();
+            var diagId = dialogs.getDialogId('nfo_view');
+            var cont = $('#flm_popup_nfo_view-content pre');
 
-        theDialogManager.center(flm.utils.ltrim(diagId, '#'));
+            theDialogManager.center(flm.utils.ltrim(diagId, '#'));
 
-        function getNfo(selection, mode) {
+            function getNfo(selection, mode) {
 
-            return flm.api.getNfo(selection, mode).then(
-                function (data) {
-                    cont.empty();
+                return flm.api.getNfo(selection, mode).then(
+                    function (data) {
+                        cont.empty();
 
-                    if (browser.isIE) {
-                        document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
-                    } else {
-                        cont.html(data.nfo);
+                        if (browser.isIE) {
+                            document.getElementById("nfo_content").innerHTML = "<pre>" + data.nfo + "</pre>";
+                        } else {
+                            cont.html(data.nfo);
+                        }
+
+                    },
+                    function (reason) {
+                        cont.text('Failed fetching .nfo data: ' + JSON.stringify(reason));
                     }
+                );
+            }
 
-                },
-                function (reason) {
-                    cont.text('Failed fetching .nfo data: ' + JSON.stringify(reason));
-                }
-            );
-        }
+            $("#fMan_nfoformat").change(function () {
+                var mode = $(this).val();
+                getNfo(dialogs.getTargetPath(diagId), mode);
+            });
 
-        $("#fMan_nfoformat").change(function () {
-            var mode = $(this).val();
-            getNfo(dialogs.getTargetPath(diagId), mode);
-        });
-
-        getNfo(dialogs.getTargetPath(diagId), $('#fMan_nfoformat').val());
-    })
-    (window);
-</script>
+            getNfo(dialogs.getTargetPath(diagId), $('#fMan_nfoformat').val());
+        })
+        (window);
+    </script>
 {% endblock %}
 

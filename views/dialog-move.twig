@@ -5,62 +5,62 @@
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-<legend>{{ theUILang.fDiagMoveSel }}</legend>
+    <legend>{{ theUILang.fDiagMoveSel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    if (!flm.ui.hasOwnProperty('dialogMove')) {
-        flm.ui.dialogMove = function () {
-            let dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getCurrentDialog();
-            let self = this;
+    <script>
+        if (!flm.ui.hasOwnProperty('dialogMove')) {
+            flm.ui.dialogMove = function () {
+                let dialogs = flm.ui.getDialogs();
+                const diagId = dialogs.getCurrentDialog();
+                let self = this;
 
-            // service
-            self.doMove = function (filePaths, destination) {
+                // service
+                self.doMove = function (filePaths, destination) {
 
-                destination = flm.stripJailPath($.trim(destination));
+                    destination = flm.stripJailPath($.trim(destination));
 
-                var deferred = $.Deferred();
+                    var deferred = $.Deferred();
 
-                if (!$type(filePaths) || filePaths.length === 0) {
-                    deferred.reject({errcode: 'move', msg: 'Empty paths'});
-                    return deferred.promise();
-                }
+                    if (!$type(filePaths) || filePaths.length === 0) {
+                        deferred.reject({errcode: 'move', msg: 'Empty paths'});
+                        return deferred.promise();
+                    }
 
-                if (!flm.utils.isValidPath(destination)) {
-                    deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname + ": " + destination});
-                    return deferred.promise();
-                }
+                    if (!flm.utils.isValidPath(destination)) {
+                        deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname + ": " + destination});
+                        return deferred.promise();
+                    }
 
-                filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
-                var cPath = flm.getCurrentPath();
+                    filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
+                    var cPath = flm.getCurrentPath();
 
-                flm.actions.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
+                    flm.actions.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
 
-                return flm.api.move(filePaths, destination)
-                    .then(function (result) {
+                    return flm.api.move(filePaths, destination)
+                        .then(function (result) {
 
-                            flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
+                                flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
 
-                            $(document).trigger(flm.EVENTS.move, [filePaths, destination]);
-                            flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length,  'success', 10000);
+                                $(document).trigger(flm.EVENTS.move, [filePaths, destination]);
+                                flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
 
-                            return result;
-                        },
-                        function (response) {
-                            return response;
-                        });
-            };
+                                return result;
+                            },
+                            function (response) {
+                                return response;
+                            });
+                };
 
 
-            dialogs.onStart(() => self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
+                dialogs.onStart(() => self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
 
+            }
         }
-    }
 
-    (flm.ui.dialogMove)();
-</script>
+        (flm.ui.dialogMove)();
+    </script>
 {% endblock %}
 
 

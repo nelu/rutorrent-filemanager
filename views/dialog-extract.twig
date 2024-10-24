@@ -5,61 +5,61 @@
 {% extends "flm::dialog-window.twig" %}
 
 {% block heading %}
-<legend>{{ theUILang.fDiagArchive }}</legend>
+    <legend>{{ theUILang.fDiagArchive }}</legend>
 {% endblock %}
 
 {% block content %}
-{{ window.passwordField("fman-extract-password", "Password") }}
+    {{ window.passwordField("fman-extract-password", "Password") }}
 {% endblock %}
 
 {% set startButtonValue = theUILang.flm_diag_extract_button %}
 
 {% block scripts %}
-<script>
-    if (!flm.ui.hasOwnProperty('dialogExtract')) {
-        flm.ui.dialogExtract = function (global) {
-            var dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getCurrentDialog();
+    <script>
+        if (!flm.ui.hasOwnProperty('dialogExtract')) {
+            flm.ui.dialogExtract = function (global) {
+                var dialogs = flm.ui.getDialogs();
+                const diagId = dialogs.getCurrentDialog();
 
-            let self = this;
+                let self = this;
 
-            // service
-            self.doExtract = function (archiveFiles, toDir) {
+                // service
+                self.doExtract = function (archiveFiles, toDir) {
 
-                var password = $("#fman-extract-password");
-                var deferred = $.Deferred();
-                toDir = flm.stripJailPath(toDir)
+                    var password = $("#fman-extract-password");
+                    var deferred = $.Deferred();
+                    toDir = flm.stripJailPath(toDir)
 
-                if (!toDir.length || !flm.utils.isDir(toDir)) {
-                    deferred.reject({errcode: theUILang.fDiagNoPath, msg: toDir});
-                    return deferred.promise();
-                }
+                    if (!toDir.length || !flm.utils.isDir(toDir)) {
+                        deferred.reject({errcode: theUILang.fDiagNoPath, msg: toDir});
+                        return deferred.promise();
+                    }
 
-                if (!$type(archiveFiles) || archiveFiles.length === 0) {
-                    deferred.reject({errcode: 'extract', msg: 'Empty paths'});
-                    return deferred.promise();
-                }
+                    if (!$type(archiveFiles) || archiveFiles.length === 0) {
+                        deferred.reject({errcode: 'extract', msg: 'Empty paths'});
+                        return deferred.promise();
+                    }
 
-                return flm.api.extractFiles(
-                    flm.getFullPaths(archiveFiles),
-                    toDir,
-                    password.val()
-                ).then(function (response) {
+                    return flm.api.extractFiles(
+                        flm.getFullPaths(archiveFiles),
+                        toDir,
+                        password.val()
+                    ).then(function (response) {
                             flm.actions.refreshIfCurrentPath(toDir);
                             return response;
                         },
                         function (response) {
                             return response;
                         });
+                }
+
+                // form submit
+                dialogs.onStart(() => self.doExtract(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
             }
-
-            // form submit
-            dialogs.onStart(() => self.doExtract(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
         }
-    }
 
-    (flm.ui.dialogExtract)(window);
-</script>
+        (flm.ui.dialogExtract)(window);
+    </script>
 {% endblock %}
 
 
