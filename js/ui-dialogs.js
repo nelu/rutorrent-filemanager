@@ -35,6 +35,28 @@ export function FileManagerDialogs(browser) {
     self.startedPromise = null;
     self.dirBrowser = {}; // multiple file operations are ui blocking
 
+
+    self.setDialogConfig = (diagId, config) => {
+        self.forms[diagId] = config;
+
+        return self;
+    }
+
+    self.getDialogConfig = (diagId) => {
+        if (!self.forms.hasOwnProperty(diagId)) {
+            console.error('No such dialog configured: ', diagId);
+            return false;
+        }
+
+        let config = self.forms[diagId];
+        config.modal = $type(config.modal) ? config.modal : true;
+
+        // modal dialogs use the same window for user blocking of input
+        config.diagWindow = self.getDialogsPrefix(!config.modal ? diagId : 'window');
+
+        return config;
+    }
+
     // common after event handle
     self.afterHide = function (dialogId, what) {
 
@@ -52,8 +74,9 @@ export function FileManagerDialogs(browser) {
         // remove the whole dialog window
         setTimeout(() => {
             $("#" + dialogId).remove();
-        })
+        });
     }
+
     // common before event handle
     self.beforeShow = function (diagId, what) {
         diagId = '#' + diagId;
@@ -81,7 +104,8 @@ export function FileManagerDialogs(browser) {
     }
 
     self.startButton = function (diag) {
-        return $(`${diag} .flm-diag-start`);
+        diag = flm.utils.ltrim(diag, '#');
+        return $(`#${diag} .flm-diag-start`);
     }
 
     self.disableStartButton = function (diag) {
@@ -128,9 +152,7 @@ export function FileManagerDialogs(browser) {
     }
 
     self.hide = function (dialogId, afterHide) {
-        dialogId = dialogId || 'window';
         dialogId = flm.utils.ltrim(dialogId, '#');
-
         theDialogManager.hide(dialogId, afterHide);
     }
 
@@ -202,20 +224,21 @@ export function FileManagerDialogs(browser) {
 
     }
 
+    self.hideDialog = (diagId, afterHide) => {
+        let config = self.getDialogConfig(diagId);
+        config && self.hide(config.diagWindow, afterHide)
+    }
+
     self.showDialog = function (what, viewEvents) {
 
-        if (!self.forms.hasOwnProperty(what)) {
-            console.error('No such dialog configured: ', what);
+        let config = self.getDialogConfig(what);
+
+        if (!config) {
             return;
         }
-
-        let config = self.forms[what];
         //let browser = flm.ui.browser;
-
-        config.modal = $type(config.modal) ? config.modal : true;
-
         // modal dialogs use the same window for user blocking of input
-        var diagId = self.getDialogsPrefix(!config.modal ? what : 'window');
+        const diagWindow = config.diagWindow;
 
         let templateVars = $type(config.options) ? config.options : {};
         templateVars.apiUrl = flm.api.endpoint;
@@ -228,10 +251,10 @@ export function FileManagerDialogs(browser) {
         config.options = templateVars;
 
         flm.views.loadView(config, (html) => {
-            self.currentDialog = diagId;
-            self.createDialog(diagId, html, config, viewEvents, what);
+            self.currentDialog = diagWindow;
+            self.createDialog(diagWindow, html, config, viewEvents, what);
 
-            theDialogManager.show(diagId);
+            theDialogManager.show(diagWindow);
         });
 
     }

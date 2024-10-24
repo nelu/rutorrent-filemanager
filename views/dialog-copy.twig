@@ -19,49 +19,12 @@
 
                 let self = this;
 
-                self.doCopy = function (destination, filePaths) {
-
-                    destination = flm.stripJailPath($.trim(destination));
-
-                    var deferred = $.Deferred();
-                    //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
-
-                    if (!$type(filePaths) || filePaths.length === 0) {
-                        deferred.reject({errcode: 'copy', msg: 'Empty paths'});
-                        return deferred.promise();
-                    }
-
-                    if (!flm.utils.isValidPath(destination)) {
-                        // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                        deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": " + destination});
-
-                        return deferred.promise();
-                    }
-
-                    // check if its empty from clipboard
-                    filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
-
-                    flm.actions.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
-
-                    return flm.api.copy(filePaths, destination)
-                        .then(function (result) {
-                                // refresh in case we are in destination
-                                flm.actions.refreshIfCurrentPath(destination);
-                                flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
-                                return result;
-                            },
-                            function (response) {
-                                return response;
-                            });
-                }
-
-
                 self.updateFilePath = function () {
                     let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
                     dialogs.updateTargetPath(diagId, filePath);
                 };
 
-                dialogs.onStart(() => self.doCopy(
+                dialogs.onStart(() => flm.actions.doCopy(
                     dialogs.getTargetPath(diagId),
                     dialogs.getCheckedList(diagId)
                 ).then());

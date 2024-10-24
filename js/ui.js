@@ -9,8 +9,7 @@ export function FileManagerUi(flm) {
     self.browser = new FsBrowser();
 
     //  operation dialogs
-    let dialogs = new FileManagerDialogs(self.browser);
-    self.dialogs = dialogs;
+    self.dialogs = new FileManagerDialogs(self.browser);
 
     self.settings = {
         defaults: {
@@ -86,7 +85,7 @@ export function FileManagerUi(flm) {
             : 'default',
         loaded: null,
         dialog: function () {
-            return $(dialogs.getDialogId('console'));
+            return $(self.dialogs.getDialogId('console'));
         },
 
         writeConsole: function (text) {
@@ -105,9 +104,10 @@ export function FileManagerUi(flm) {
                 }
             );
         },
+
         loadConsole: function (onLoaded) {
-            var config = dialogs.forms['console'];
-            var diagId = dialogs.getDialogId('console');
+            var config = self.dialogs.getDialogConfig('console');
+            var diagId = self.dialogs.getDialogId('console');
             diagId = flm.utils.ltrim(diagId, '#');
 
             if (self.console.loaded) {
@@ -121,7 +121,7 @@ export function FileManagerUi(flm) {
                     theDialogManager.make(diagId, theUILang.flm_popup_console,
                         $(html).get(0),
                         config.modal); // prevent the user from changing table selection by default
-                    dialogs.getDialogHeader('#' + diagId)
+                    self.dialogs.getDialogHeader('#' + diagId)
                         .prepend('<span class="flm-sprite-diag flm-sprite sprite-console"></span>');
 
                     $('#flm-diag-console-clear').click(function () {
@@ -168,7 +168,7 @@ export function FileManagerUi(flm) {
         },
 
         show: function (msg, viewEvents) {
-            var diagId = dialogs.getDialogId('console');
+            var diagId = self.dialogs.getDialogId('console');
 
             return self.console.loadConsole().then(
                 function () {
@@ -352,21 +352,21 @@ export function FileManagerUi(flm) {
     };
 
     self.showArchive = function () {
-        return dialogs.showDialog('archive');
+        return self.dialogs.showDialog('archive');
     };
 
     self.viewNFO = function (file) {
         file && (self.browser.selectedTarget = file);
-        dialogs.showDialog('nfo_view');
+        self.dialogs.showDialog('nfo_view');
     };
 
     self.showPermissions = function () {
-        dialogs.showDialog('permissions');
+        self.dialogs.showDialog('permissions');
 
     };
 
     self.showSFVcreate = function () {
-        dialogs.showDialog('sfv_create', {
+        self.dialogs.showDialog('sfv_create', {
             afterShow: function () {
             }
         });

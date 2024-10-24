@@ -1,41 +1,20 @@
 {% extends "flm::dialog-window.twig" %}
+
 {% block content %}
     {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name) }}
 {% endblock %}
+
 {% block scripts %}
     <script type="text/javascript">
         (function (dialogs) {
             var diagId = dialogs.getCurrentDialog();
             var nameInput = dialogs.dirBrowserInput(diagId);
 
-            dialogs.onStart(
-                function () {
-                    var dirname = flm.utils.basename(nameInput.val());
-                    var hasError;
-
-                    if (!dirname) {
-                        hasError = theUILang.fDiagInvalidname;
-                    } else if (flm.ui.browser.fileExists(dirname)) {
-                        hasError = theUILang.fDiagAexist;
-                    }
-
-                    if ($type(hasError)) {
-                        var def = $.Deferred();
-                        def.reject({errcode: theUILang.fcNewDir, msg: hasError + ' - ' + dirname});
-                    }
-
-                    return $type(hasError)
-                        ? def.promise()
-                        : flm.api.mkDir(flm.getCurrentPath(dirname))
-                            .done(function (response) {
-                                flm.Refresh();
-                                return response;
-                            });
-
-                });
+            dialogs.onStart(() => flm.actions.doNewDir(nameInput.val()));
 
             nameInput.parent().on('submit', function () {
-                flm.ui.dialogs.startButton('mkdir').click();
+                flm.getPlugin().debug && console.log("Submit triggered on input", nameInput);
+                flm.ui.dialogs.startButton(diagId).click();
                 return false
             });
             setTimeout(function () {
@@ -46,7 +25,3 @@
         (flm.ui.getDialogs());
     </script>
 {% endblock %}
-
-
-
-

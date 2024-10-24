@@ -19,44 +19,11 @@
                 const destination = $('.fman-rename-to');
                 const cPath = flm.getCurrentPath();
 
-                let self = this;
-
-                self.doRename = function (source, destination) {
-
-                    var hasError;
-
-                    if (!flm.utils.isValidPath(destination)) {
-                        hasError = theUILang.fDiagInvalidname;
-                    } else if (flm.utils.basename(destination) === flm.utils.basename(source)
-                        || flm.ui.browser.fileExists(destination)) //dir check
-                    {
-                        hasError = theUILang.fDiagAexist;
-                    }
-
-                    if ($type(hasError)) {
-                        var def = $.Deferred();
-                        def.reject({
-                            errcode: theUILang.fDiagRenameBut + ' ' + flm.utils.basename(source),
-                            msg: flm.utils.basename(destination) + ' - ' + hasError
-                        });
-                        return def.promise();
-                    }
-
-
-                    return flm.api.rename(source, destination).done(
-                        function (response) {
-                            flm.actions.refreshIfCurrentPath(cPath);
-                            $(document).trigger(flm.EVENTS.rename, [source, destination]);
-                            return response;
-                        }
-                    );
-
-                };
-
-                dialogs.onStart(() => self.doRename(
+                dialogs.onStart(() => flm.actions.doRename(
                     flm.utils.buildPath([cPath, flm.utils.basename(dialogs.getTargetPath(diagId))]),
-                    flm.utils.buildPath([cPath, flm.utils.basename(destination.val())])
-                ));
+                    flm.utils.buildPath([cPath, flm.utils.basename(destination.val())]),
+                    cPath
+                ))
 
                 setTimeout(function () {
                     destination.click();

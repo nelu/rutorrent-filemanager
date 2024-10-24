@@ -53,36 +53,10 @@
                 var volumeSize = $("#fman-archive-vsize");
                 var format = $('#fman-archive-arcnscheme');
                 var pass = $(diagId + ' .fman-archive-settings-pass');
+                const cPath = flm.getCurrentPath();
 
                 let self = this;
                 // service
-                self.doArchive = function (archive, files, options) {
-
-                    var hasError;
-
-                    if (!archive.length) {
-                        hasError = theUILang.fDiagNoPath;
-                    } else if (!$type(files) || files.length === 0) {
-                        hasError = theUILang.fErrMsg[22];
-                    } else if (!flm.utils.isValidPath(archive)) {
-                        hasError = theUILang.fDiagInvalidname;
-                    }
-
-                    if ($type(hasError)) {
-                        var def = $.Deferred();
-                        def.reject({errcode: theUILang.fDiagArchive, msg: hasError + ' - ' + archive});
-
-                        return def.promise();
-                    }
-
-                    var cPath = flm.getCurrentPath();
-
-                    return flm.api.createArchive(flm.stripJailPath(archive), flm.getFullPaths(files), options)
-                        .done(function (response) {
-                            flm.Refresh(cPath);
-                            return response;
-                        });
-                };
 
                 self.updateCompression = function () {
                     var type = archiveType.val().toLowerCase();
@@ -121,7 +95,7 @@
                     }
                 };
 
-                dialog.onStart(() => self.doArchive(
+                dialog.onStart(() => flm.actions.doArchive(
                     dialog.getTargetPath(diagId),
                     dialog.getCheckedList(diagId),
                     {
@@ -130,8 +104,9 @@
                         password: password.val(),
                         volumeSize: volumeSize.val(),
                         format: format.val()
-                    }
-                ));
+                    },
+                    cPath
+                ))
 
                 archiveType.change(self.onFormatChange);
 
