@@ -124,7 +124,7 @@ plugin.ui.init = function () {
         }
     };
 
-    !thePlugins.isInstalled('data') && flm.createDataFrame();
+    !thePlugins.isInstalled('data') && flm.ui.createDataFrame();
 
     if (plugin.canChangeTabs()) {
         plugin.renameTab(plugin.ui.fsBrowserContainer, theUILang.fManager);

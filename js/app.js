@@ -55,7 +55,7 @@ import {FileManagerUi} from "./ui.js";
 
         self.loadView = function (config, call) {
             const templatePath = flm.utils.isValidPath(config.template) ? config.template : flm.utils.buildPath([self.viewsPath, config.template]);
-            flm.views.getView(templatePath, config.options, call, '.twig.html');
+            flm.views.getView(templatePath, config.options, call, '.twig');
         }
 
         return self.setup();
