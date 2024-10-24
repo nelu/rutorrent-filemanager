@@ -50,6 +50,7 @@ export function FsBrowser() {
         return arr;
     };
     const ctrlKey = 17,
+        rightMouseKey = 2,
         vKey = 86,
         xKey = 88,
         cKey = 67,
@@ -214,7 +215,7 @@ export function FsBrowser() {
         self.selectedTarget = !self.isTopDir(target) ? flm.getCurrentPath(target) : target;
 
         // handles right/left click events
-        if ($type(id) && (e.button === 2)) {
+        if ($type(id) && (e.button === rightMouseKey)) {
 
             theContextMenu.clear();
             self.selectedEntries = self.getSelection(false);
@@ -281,10 +282,10 @@ export function FsBrowser() {
     };
 
     self.getEntryMenu = function (target, entries) {
+        let flm = theWebUI.FileManager;
+        let utils = flm.utils;
 
-        var utils = flm.utils;
         var pathIsDir = utils.isDir(target);
-        var flm = theWebUI.FileManager;
         var menu = [];
 
         menu.push([
@@ -300,10 +301,7 @@ export function FsBrowser() {
             var txtRe = new RegExp(flm.config.textExtensions);
 
             if (fext.match(txtRe)) {
-                menu.push([theUILang.fView,
-                    function () {
-                        self.viewNFO(target);
-                    }]);
+                menu.push([theUILang.fView, () => { flm.ui.viewNFO(target); }]);
                 menu.push([CMENU_SEP]);
             }
 

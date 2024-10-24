@@ -1,4 +1,3 @@
-import {FileManagerUtils} from "./utils.js";
 import {FileManagerDialogs} from "./ui-dialogs.js";
 import {FsBrowser} from "./ui-fs.js";
 
