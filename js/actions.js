@@ -7,7 +7,6 @@ export function FileManagerActions () {
     self.cleanactions = () => {
 
         $(".fMan_Stop").attr('disabled', true);
-        flm.ui.console.hideProgress();
     }
 
     self.doDelete = function (paths) {

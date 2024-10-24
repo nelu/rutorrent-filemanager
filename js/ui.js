@@ -1,9 +1,18 @@
 import {FileManagerUtils} from "./utils.js";
 import {FileManagerDialogs} from "./ui-dialogs.js";
+import {FsBrowser} from "./ui-fs.js";
 
 export function FileManagerUi(flm) {
 
-    var self = this;
+    let self = this;
+
+    // table filesystem navigation
+    self.browser = new FsBrowser();
+
+    //  operation dialogs
+    let dialogs = new FileManagerDialogs(self.browser);
+    self.dialogs = dialogs;
+
     self.settings = {
         defaults: {
             "showhidden": true,
@@ -70,499 +79,6 @@ export function FileManagerUi(flm) {
             }
         }
     };
-
-    var fsBrowser = function () {
-        let browse = this;
-
-        browse.tableEntryPrefix = "_flm_";
-        browse.uiTable = $('#flm-browser-table table');
-        browse.clipaboardEvent = null;
-        browse.clipboardEntries = [];
-        browse.selectedEntries = [];
-        browse.selectedTarget = null;
-        browse.navigationLoaded = false;
-
-        var isVisible = false;
-
-        browse.uiTableFormat = function (table, arr) {
-            var i;
-            for (i = 0; i < arr.length; i++) {
-                if (arr[i] == null) {
-                    arr[i] = '';
-                } else {
-                    switch (table.getIdByCol(i)) {
-                        case 'name':
-                            if (flm.ui.browser.isTopDir(arr[i])) {
-                                arr[i] = '../';
-                            }
-                            if (flm.utils.isDir(arr[i])) {
-                                arr[i] = flm.utils.trimslashes(arr[i]);
-                            }
-                            break;
-                        case 'size' :
-                            if (arr[i] !== '') {
-                                arr[i] = theConverter.bytes(arr[i], 2);
-                            }
-                            break;
-                        case 'type' :
-                            arr[i] = flm.utils.isDir(arr[i])
-                                ? ''
-                                : flm.utils.getExt(arr[i]);
-                            break;
-                        case 'time' :
-                            arr[i] = flm.ui.formatDate(arr[i]);
-                            break;
-                        case 'perm':
-                            if (self.settings.getSettingValue('permf') > 1) {
-                                arr[i] = flm.utils.formatPermissions(arr[i]);
-                            }
-                            break;
-                    }
-                }
-            }
-            return arr;
-        };
-        var bindKeys = function () {
-            var ctrlDown = false,
-                f2key = 113,
-                ctrlKey = 17,
-                cmdKey = 91,
-                vKey = 86,
-                xKey = 88,
-                cKey = 67;
-
-            $(document).keydown(function (e) {
-                if (e.keyCode === ctrlKey || e.keyCode === cmdKey) ctrlDown = true;
-            }).keyup(function (e) {
-                if (e.keyCode === ctrlKey || e.keyCode === cmdKey) ctrlDown = false;
-            });
-
-            $("#flm-browser-table").keydown(function (e) {
-                if (ctrlDown && (e.keyCode === vKey || e.keyCode === cKey || e.keyCode === xKey)) return false;
-            });
-
-            // Document Ctrl + C/V/X
-            $(document).keydown(function (e) {
-
-                if (browse.isVisible() && theDialogManager.visible.length === 0) {
-                    // only if the tab is visible and no dialogs are open
-
-                    if (ctrlDown && (e.keyCode === cKey)) {
-                        browse.handleKeyCopy();
-                    }
-                    if (ctrlDown && (e.keyCode === vKey)) {
-                        browse.handleKeyPaste();
-                    }
-                    if (ctrlDown && (e.keyCode === xKey)) {
-                        browse.handleKeyMove();
-                    }
-
-                    if (e.keyCode === f2key) {
-                        browse.handleKeyRename();
-                    }
-                }
-
-            });
-
-        };
-
-        browse.init = function () {
-            browse.updateUiTable();
-            browse.setSorting();
-            bindKeys();
-            browse.loadNavigation();
-        };
-
-        browse.isVisible = function () {
-            return isVisible;
-        };
-
-        // up dir path check
-        browse.isTopDir = function (path) {
-            var parentDir = flm.utils.basedir(flm.currentPath);
-            return (path === parentDir);
-        };
-
-        browse.disableTable = function () {
-            browse.uiTable.addClass('disabled_table');
-        };
-        browse.enableTable = function () {
-            browse.uiTable.removeClass('disabled_table');
-        };
-
-        browse.disableRefresh = function () {
-            $('#flm-nav-refresh').attr('disabled', true);
-        };
-        browse.enableRefresh = function () {
-            $('#flm-nav-refresh').attr('disabled', false);
-        };
-
-        browse.fileExists = function (what) {
-
-            var exists = false;
-            what = flm.utils.basename(what);
-
-            var checkInTable = function (path) {
-
-                try {
-                    return (browse.table().getValueById(browse.tableEntryPrefix + path, 'name'));
-                } catch (dx) {
-                    console.log(dx);
-                }
-
-                return exists;
-            };
-
-            return (checkInTable(what) || checkInTable(what + '/'));
-        };
-
-        browse.getSelectedEntry = function () {
-            return browse.selectedTarget;
-        };
-
-        browse.getSelection = function (fullpath) {
-            fullpath = fullpath || false;
-            var selectedEntries = [];
-            var rows = browse.table().rowSel;
-            var entryName;
-            for (var i in rows) {
-                entryName = i.split(browse.tableEntryPrefix)[1];
-                if ((!rows[i]) || browse.isTopDir(entryName)) {
-                    continue;
-                }
-                if (fullpath) {
-                    entryName = flm.getCurrentPath(entryName);
-                }
-                selectedEntries.push(entryName);
-            }
-
-            return selectedEntries;
-
-        };
-
-        browse.recommendedFileName = function (ext, desiredExt) {
-            // use the current dir name as base if multiple files are selected
-            desiredExt = desiredExt || ext
-            let file = browse.selectedEntries.length > 1 && !browse.isTopDir(flm.getCurrentPath())
-                ? flm.getCurrentPath()
-                : browse.getSelectedEntry()
-
-            file = ext ? flm.utils.stripFileExtension(file, ext) + '.' + desiredExt : '';
-            return file;
-        };
-
-        browse.loadNavigation = function () {
-            if (!browse.navigationLoaded) {
-                flm.views.loadView({
-                        template: 'table-header',
-                        options: {apiUrl: flm.api.endpoint}
-                    },
-                    function (view) {
-                        browse.navigationLoaded = true;
-                        var plugin = flm.getPlugin();
-                        $('#' + plugin.ui.fsBrowserContainer).prepend(view);
-                    }
-                );
-            }
-        };
-
-        browse.onShow = function () {
-            if (isVisible) {
-                return;
-            }
-            isVisible = true;
-
-
-            if (!flm.currentPath) {
-                var table = browse.table();
-                if (table) {
-                    flm.goToPath('/').then(function () {
-                        theWebUI.resize();
-                        $(document).trigger(flm.EVENTS.browserVisible, browse);
-                    });
-
-                    // display table columns
-                    table.refreshRows();
-                }
-            } else {
-                $(document).trigger(flm.EVENTS.browserVisible, browse);
-            }
-
-        };
-
-        browse.onHide = function (id) {
-            $('#fMan_showconsole').hide();
-            isVisible = false;
-
-        };
-
-        // executed outside the browse/this scope
-        browse.onSelectEntry = function (e, id) {
-
-            var target = id.split(browse.tableEntryPrefix)[1];
-
-            browse.selectedTarget = !browse.isTopDir(target) ? flm.getCurrentPath(target) : target;
-
-            // handles right/left click events
-            if ($type(id) && (e.button === 2)) {
-
-                theContextMenu.clear();
-                browse.selectedEntries = browse.getSelection(false);
-
-                var menuEntries = browse.getEntryMenu(browse.selectedTarget, browse.selectedEntries);
-                $(document).trigger(flm.EVENTS.entryMenu, [menuEntries, target]);
-
-                $.each(menuEntries, function (index, value) {
-                    theContextMenu.add(value);
-                });
-
-                theContextMenu.show();
-            } else {
-                // normal click - focus
-            }
-        };
-
-        browse.handleKeyCopy = function () {
-            browse.clipaboardEvent = 'copy';
-            browse.clipboardEntries = browse.getSelection(true);
-        };
-
-        browse.handleKeyMove = function () {
-            browse.clipaboardEvent = 'move';
-            browse.clipboardEntries = browse.getSelection(true);
-        };
-
-        browse.handleKeyPaste = function () {
-            if (browse.clipaboardEvent) {
-                browse.selectedEntries = browse.clipboardEntries;
-                browse.selectedTarget = null;
-                flm.ui.getDialogs().showDialog(browse.clipaboardEvent)
-            }
-        };
-
-        browse.handleKeyRename = function () {
-            if (browse.selectedEntries.length === 1
-                && browse.selectedTarget
-                && !browse.isTopDir(browse.selectedTarget)) {
-                flm.ui.getDialogs().showDialog('rename')
-            }
-        };
-
-        browse.onSetEntryMenu = function (call) {
-            $(document).on(flm.EVENTS.entryMenu, function (e, menu, path) {
-                call(menu, path);
-            });
-
-        };
-
-        browse.getEntryMenu = function (target, entries) {
-
-            var utils = FileManagerUtils(theWebUI.FileManager);
-            var pathIsDir = utils.isDir(target);
-            var flm = theWebUI.FileManager;
-            var menu = [];
-
-            menu.push([
-                theUILang.fOpen,
-                (entries.length > 1) ? null : function () {
-                    browse.open(target);
-                }]);
-
-            if (!browse.isTopDir(target)) {
-
-                var fext = utils.getExt(target);
-
-                var txtRe = new RegExp(flm.config.textExtensions);
-
-                if (fext.match(txtRe)) {
-                    menu.push([theUILang.fView,
-                        function () {
-                            self.viewNFO(target);
-                        }]);
-                    menu.push([CMENU_SEP]);
-                }
-
-                // create submenu
-                var create_sub = [];
-
-                create_sub.push([theUILang.fcNewTor, thePlugins.isInstalled('create') && entries.length ? function () {
-
-                    flm.actions.createTorrent(target);
-                } : null]);
-                create_sub.push([CMENU_SEP]);
-                create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
-                create_sub.push([theUILang.fcNewArchive, "flm.ui.showArchive()"]);
-
-                if (!utils.hasDir(entries)) {
-                    create_sub.push([CMENU_SEP]);
-                    create_sub.push([theUILang.fcSFV, "flm.ui.showSFVcreate()"]);
-                }
-
-                menu.push([CMENU_CHILD, theUILang.fcreate, create_sub]);
-                menu.push([CMENU_SEP]);
-
-
-                menu.push([theUILang.fCopy, "flm.ui.getDialogs().showDialog('copy')"]);
-                menu.push([theUILang.fMove, "flm.ui.getDialogs().showDialog('move')"]);
-                menu.push([theUILang.fDelete, "flm.ui.getDialogs().showDialog('delete')"]);
-
-                if (!(entries.length > 1)) {
-                    menu.push([theUILang.fRename, "flm.ui.getDialogs().showDialog('rename')"]);
-                }
-                menu.push([CMENU_SEP]);
-
-                if (utils.isArchive(target)) {
-
-                    menu.push([theUILang.fExtracta, function () {
-                        var archives = [];
-                        var entry;
-                        for (var i = 0; i < browse.selectedEntries.length; i++) {
-                            entry = browse.selectedEntries[i];
-                            utils.isArchive(entry) && archives.push(entry)
-                        }
-                        browse.selectedEntries = archives;
-
-                        window.flm.ui.getDialogs().showDialog('extract');
-                    }]);
-                    menu.push([CMENU_SEP]);
-                }
-
-                (fext === 'sfv')
-                && menu.push([theUILang.fcheckSFV, "flm.ui.getDialogs().showDialog('sfv_check')"]);
-
-                (!pathIsDir && thePlugins.isInstalled('mediainfo'))
-                && menu.push([theUILang.fMediaI, function () {
-                    flm.actions.doMediainfo(target);
-                }]);
-            } else {
-                menu.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
-            }
-
-            if (menu[menu.length - 1][0] !== CMENU_SEP) {
-                menu.push([CMENU_SEP]);
-            }
-
-            /*  menu.push(["Permissions", "flm.ui.showPermissions()"]);*/
-
-            menu.push([theUILang.fRefresh, "flm.goToPath(flm.currentPath)"]);
-
-            return menu;
-        };
-
-        // navigation
-        browse.open = function (path) {
-            if (flm.utils.isDir(path)) {
-                flm.goToPath(path);
-            } else {
-                flm.getFile(path);
-            }
-        };
-
-        // table
-        browse.setSorting = function () {
-            const table = browser.table();
-            table.initialGetSortFunc = table.getSortFunc;
-            table.getSortFunc = function (id, reverse, valMapping) {
-                const sortResult = table.initialGetSortFunc(id, reverse, valMapping);
-                return function (x, y) {
-
-                    //debugger;
-                    var xVal = x.split(browse.tableEntryPrefix)[1];
-                    var yVal = y.split(browse.tableEntryPrefix)[1];
-
-                    if (flm.ui.browser.isTopDir(xVal) || flm.ui.browser.isTopDir(yVal)) {
-                        return 1;
-                    } else if (!flm.utils.isDir(xVal) && flm.utils.isDir(yVal)) {
-                        return 1;
-                    } else if (flm.utils.isDir(xVal) && !flm.utils.isDir(yVal)) {
-                        return -1;
-                    } else {
-                        return sortResult(x, y);
-                    }
-
-                }
-
-            }
-        };
-
-        browse.getEntryHash = function (fileName) {
-            return browse.tableEntryPrefix + fileName;
-        };
-
-        browse.setTableEntries = function (data) {
-
-            var table = browse.table();
-
-            table.clearRows();
-
-            if (flm.currentPath !== '/') {
-                var path = flm.utils.basedir(flm.currentPath); // trailing slash required, its a dir
-                table.addRowById({
-                        name: path,
-                        size: '',
-                        time: '',
-                        type: '/',
-                        perm: ''
-                    },
-                    browse.getEntryHash(path),
-                    'flm-sprite flm-sprite-dir_up');
-            } else {
-                if (data.length < 1) {
-                    data = {
-                        0: {
-                            name: '/',
-                            size: '',
-                            time: '',
-                            perm: ''
-                        }
-                    };
-                }
-            }
-
-            $.each(data, function (ndx, file) {
-
-                var ftype = flm.utils.isDir(file.name) ? 0 : 1;
-
-                var entry = {
-                    name: file.name,
-                    size: file.size,
-                    time: file.time,
-                    type: ftype + file.name,
-                    perm: file.perm
-                };
-
-                var hash = browse.getEntryHash(file.name);
-
-                table.addRowById(entry, hash, flm.utils.getICO(file.name));
-
-                if (!flm.ui.settings.getSettingValue('showhidden') && (file.name.charAt(0) === '.')) {
-                    table.hideRow(hash);
-                }
-            });
-            table.refreshRows();
-
-        };
-
-        browse.table = function () {
-            return theWebUI.getTable("flm");
-        };
-
-        browse.updateUiTable = function () {
-            var table = browse.table();
-
-            table.renameColumnById('time', theUILang.fTime);
-            table.renameColumnById('type', theUILang.fType);
-            table.renameColumnById('perm', theUILang.fPerm);
-        };
-
-        return browse;
-    };
-
-    var browser = new fsBrowser();
-
-    // file operation dialogs
-    var dialogs = new FileManagerDialogs(browser);
-
 
     self.console = {
 
@@ -676,36 +192,20 @@ export function FileManagerUi(flm) {
 
         },
 
-        showProgress: function () {
-            return this.loadConsole().then(
-                function () {
-                    self.console.dialog()
-                        .find('.buttons-list').addClass("flm-sprite-loading-" + self.console.loader);
-                }
-            )
-        },
-        hideProgress: function () {
-            self.console.dialog()
-                .find('.buttons-list').removeClass("flm-sprite-loading-" + self.console.loader);
-        }
-
     };
 
-    // filesystem navigation
-    self.browser = browser;
-
-    // operation dialogs
-    self.dialogs = dialogs;
     self.getDialogs = function () {
         return self.dialogs;
     };
 
     self.createDataFrame = () => {
-        $(document.body).append($("<iframe name='datafrm'/>").css({
+        $(document.body).append($("<iframe name='datafrm'/>")
+            .css({
             visibility: "hidden"
         }).attr({
             name: "datafrm", id: "datafrm"
-        }).width(0).height(0).on('load', function () {
+        }).width(0).height(0)
+            .on('load', function () {
             var d = (this.contentDocument || this.contentWindow.document);
             if (d.location.href !== "about:blank") try {
                 eval(d.body.innerHTML);
@@ -713,7 +213,6 @@ export function FileManagerUi(flm) {
             }
         }));
     };
-
 
     self.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
 
@@ -837,17 +336,13 @@ export function FileManagerUi(flm) {
         return flm.utils.formatDate(timestamp, this.settings.timef || '%d.%M.%y %h:%m:%s')
     };
 
-    self.getPopupId = function (popupName) {
-        return 'fMan_' + popupName;
-    };
-
     self.initFileBrowser = function () {
         $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
         $('#fMan_showconsole').click(function () {
             self.console.show();
         });
         // file navigation
-        browser.init();
+        self.browser.init();
     };
 
     self.onSettingsShow = function (call) {
@@ -862,7 +357,7 @@ export function FileManagerUi(flm) {
     };
 
     self.viewNFO = function (file) {
-        file && (browser.selectedTarget = file);
+        file && (self.browser.selectedTarget = file);
         dialogs.showDialog('nfo_view');
     };
 
@@ -877,7 +372,6 @@ export function FileManagerUi(flm) {
             }
         });
     };
-
 
     return self;
 
