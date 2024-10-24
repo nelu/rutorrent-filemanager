@@ -1,6 +1,7 @@
 import {FileManagerUtils} from "./utils.js";
 import {apiClient} from "./api.js";
 import {FileManagerUi} from "./ui.js";
+import {FileManagerActions} from "./actions.js";
 // import {Twig} from "./twig.js";
 
 (function (global) {
@@ -62,135 +63,6 @@ import {FileManagerUi} from "./ui.js";
 
     };
 
-    const FileManagerActions = function () {
-        let self = this;
-
-        self.inaction = false;
-        self.notification = null;
-
-        self.cleanactions = () => {
-
-            $(".fMan_Stop").attr('disabled', true);
-            clearTimeout(theWebUI.FileManager.actiontimeout);
-            flm.ui.console.hideProgress();
-            theWebUI.FileManager.activediag = '';
-            theWebUI.FileManager.actionlist = {};
-            theWebUI.FileManager.actionstats = 0;
-            theWebUI.FileManager.actiontoken = 0;
-            theWebUI.FileManager.actiontimeout = 0;
-            theWebUI.FileManager.actionlp = 0;
-
-        }
-
-        self.doDelete = function (paths) {
-
-            var deferred = $.Deferred();
-
-            if (!$type(paths) || paths.length === 0) {
-                deferred.reject({errcode: 'delete', msg: 'Empty paths'});
-                return deferred.promise();
-            }
-
-            paths = flm.getFullPaths(paths);
-            const cPath = flm.getCurrentPath();
-            flm.actions.notify(theUILang.fStarts.delete + ": " + paths.length + " files");
-
-            return flm.api.removeFiles(paths).then(function (result) {
-                flm.actions.refreshIfCurrentPath(cPath);
-                $(document).trigger(flm.EVENTS.delete, [paths]);
-                return result;
-            });
-        };
-
-        self.logStop = () => {
-
-            flm.ui.console.hideProgress();
-            this.action.request('action=kill&target=' + encodeURIComponent(theWebUI.FileManager.actiontoken));
-            this.cleanactions();
-
-            /*
-            this.clearlog();
-                    this.cmdlog("Fetching...");
-
-                    var self = this;
-
-                    this.makeVisbile('fMan_Console');
-                    var loader = './images/ajax-loader.gif';
-                    if (thePlugins.isInstalled('create')) {
-                        loader = './plugins/create/images/ajax-loader.gif';
-                    }
-                    $('#fMan_Console .buttons-list').css("background", "transparent url(" + loader + ") no-repeat 15px 2px");
-                    $(".fMan_Stop").attr('disabled', true);
-
-                    this.action.request('action=minfo&target=' + encodeURIComponent(what), function(data) {
-                        if (theWebUI.FileManager.isErr(data.errcode, what)) {
-                            self.cmdlog('Failed fetching data');
-                            return false;
-                        }
-                        self.clearlog();
-                        self.cmdlog(data.minfo);
-                    });
-
-                                flm.ui.console.hideProgress();*/
-        }
-
-        self.logAction = (action, text) => {
-            flm.ui.console.show(action + ': ' + text);
-        }
-
-        self.logConsole = (action, text) => {
-            flm.ui.console.logMsg(action + ': ' + text);
-        }
-
-        self.refreshIfCurrentPath = (path) => {
-            // refresh in case we are in path
-            if (!flm.utils.isDir(path)) {
-                // when destination is a directory name
-                path = flm.utils.basedir(path)
-            }
-
-            const same = (path === flm.getCurrentPath());
-            same && flm.Refresh()
-            return same;
-        }
-
-        self.notify = (contents, color = 'information', hideAfter= 5000) => {
-            self.notification = $.noty(
-                {
-                    text: contents,
-                    layout: 'bottomLeft',
-                    type: color,
-                    timeout: hideAfter,
-                    closeOnSelfClick: true
-                });
-
-//            flm.actions.logConsole('rename', source + ' -> ' + destination);
-
-        }
-
-        self.doMediainfo = (target) => {
-            theWebUI.startConsoleTask("mediainfo", flm.getPlugin().name, {
-                'action': 'fileMediaInfo', 'target': target
-            }, {noclose: true});
-
-        }
-
-        self.createTorrent = function (target) {
-            var relative = self.stripJailPath(target);
-            var isRelative = (relative !== target);
-
-            var path = flm.addJailPath(isRelative ? relative : target);
-
-            $('#path_edit').val(path);
-
-            if ($('#tcreate').css('display') === 'none') {
-                theWebUI.showCreate();
-            }
-        }
-
-        return self;
-    }
-
     function FileManager() {
 
         let flm = this
@@ -198,7 +70,7 @@ import {FileManagerUi} from "./ui.js";
             return thePlugins.get('filemanager');
         };
 
-        const plugin = flm.getPlugin();
+        let plugin = flm.getPlugin();
 
         flm.currentPath = null;
         flm.showPathPromise = null;
@@ -246,56 +118,6 @@ import {FileManagerUi} from "./ui.js";
 
         };
 
-        flm.handleFilesTabMenu = function (selected) {
-
-            plugin.fno = null;
-            plugin.mode = null;
-            var table = theWebUI.getTable("fls");
-
-
-            var fid = table.getFirstSelected();
-            var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
-
-            var selectedName = selected ? selectIsDir ? selected.name += '/' : selected.name : '/';
-
-            var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID]) ? theWebUI.torrents[theWebUI.dID] : null;
-
-            var torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
-            var currentTorrentDirPath = flm.stripJailPath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
-
-            var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]);
-
-            selectedPath = flm.stripJailPath(selectedPath);
-
-
-            var selectedEntries = [];
-            var rows = table.rowSel;
-
-            var entry;
-            var entryPath;
-            for (var i in rows) {
-                if (rows[i]) {
-                    entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
-                    if (entry) {
-                        entryPath = flm.utils.buildPath([torrentPath, entry.name]);
-                        entryPath = flm.stripJailPath(entryPath);
-                        if (theWebUI.dirs[theWebUI.dID].isDirectory(i)) {
-                            entryPath += '/';
-                        }
-
-                        selectedEntries.push(entryPath);
-                    }
-                }
-            }
-            const fileManagerSubmenu = selected ? flm.ui.getFilesTabMenu(currentTorrentDirPath, selectedName, selectedPath, selectedEntries) : [];
-
-            var el = theContextMenu.get(theUILang.Priority);
-            if (el) {
-                theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
-            }
-
-            $(document).trigger(plugin.ui.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
-        };
 
         flm.showPath = function (dir, highlight) {
 
@@ -377,7 +199,7 @@ import {FileManagerUi} from "./ui.js";
             $(document).on('theWebUI:setSettings', (ev, data) => plugin.enabled && flm.ui.settings.onSave(data));
 
             $(document).on('theWebUI:createFileMenu', (ev, data) => plugin.enabled && plugin.canChangeMenu() &&
-                flm.handleFilesTabMenu(data));
+                flm.ui.handleFilesTabMenu(data));
 
             $(document).on(flm.EVENTS.browserVisible, function () {
 

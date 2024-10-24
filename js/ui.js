@@ -616,7 +616,7 @@ export function FileManagerUi(flm) {
                     theDialogManager.setHandler(diagId, 'beforeShow', function () {
                         $('#flm-diag-stop').click(function () {
                             self.console.logMsg(theUILang.fStops[theWebUI.FileManager.activediag] + "\n");
-                            theWebUI.FileManager.logStop();
+                            //theWebUI.FileManager.logStop();
 
                         });
                     });
@@ -763,6 +763,58 @@ export function FileManagerUi(flm) {
 
         return fileManagerSubmenu;
     }
+
+    self.handleFilesTabMenu = function (selected) {
+        let plugin = flm.getPlugin();
+
+        plugin.fno = null;
+        plugin.mode = null;
+        var table = theWebUI.getTable("fls");
+
+
+        var fid = table.getFirstSelected();
+        var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
+
+        var selectedName = selected ? selectIsDir ? selected.name += '/' : selected.name : '/';
+
+        var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID]) ? theWebUI.torrents[theWebUI.dID] : null;
+
+        var torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
+        var currentTorrentDirPath = flm.stripJailPath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
+
+        var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]);
+
+        selectedPath = flm.stripJailPath(selectedPath);
+
+
+        var selectedEntries = [];
+        var rows = table.rowSel;
+
+        var entry;
+        var entryPath;
+        for (var i in rows) {
+            if (rows[i]) {
+                entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
+                if (entry) {
+                    entryPath = flm.utils.buildPath([torrentPath, entry.name]);
+                    entryPath = flm.stripJailPath(entryPath);
+                    if (theWebUI.dirs[theWebUI.dID].isDirectory(i)) {
+                        entryPath += '/';
+                    }
+
+                    selectedEntries.push(entryPath);
+                }
+            }
+        }
+        const fileManagerSubmenu = selected ? self.getFilesTabMenu(currentTorrentDirPath, selectedName, selectedPath, selectedEntries) : [];
+
+        var el = theContextMenu.get(theUILang.Priority);
+        if (el) {
+            theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
+        }
+
+        $(document).trigger(flm.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
+    };
 
     self.init = function () {
 
