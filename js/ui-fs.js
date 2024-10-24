@@ -25,6 +25,8 @@ export function FsBrowser() {
                         if (flm.utils.isDir(arr[i])) {
                             arr[i] = flm.utils.trimslashes(arr[i]);
                         }
+                        // display proper spaces in filenames
+                        arr[i] = arr[i].replace(/ /g, '\u00a0')
                         break;
                     case 'size' :
                         if (arr[i] !== '') {
@@ -237,14 +239,17 @@ export function FsBrowser() {
         if (self.isVisible() && theDialogManager.visible.length === 0) {
             // only if the tab is visible and no dialogs are open
             if (ctrlDown) {
+                const setClipboard = (evType) => {
+                    self.clipaboardEvent = evType;
+                    self.clipboardEntries = self.getSelection(true);
+                    flm.actions.notify(theUILang.fManager + ": " + self.clipboardEntries.length + " in clipboard");
+                }
                 switch (e.keyCode) {
                     case cKey:
-                        self.clipaboardEvent = 'copy';
-                        self.clipboardEntries = self.getSelection(true);
+                        setClipboard('copy');
                         break;
                     case xKey:
-                        self.clipaboardEvent = 'move';
-                        self.clipboardEntries = self.getSelection(true);
+                        setClipboard('move');
                         break;
                     case vKey:
                         self.handleKeyPaste()
@@ -261,6 +266,7 @@ export function FsBrowser() {
     self.handleKeyPaste = function () {
         if (self.clipaboardEvent) {
             self.selectedEntries = self.clipboardEntries;
+            self.clipboardEntries = [];
             self.selectedTarget = null;
             flm.ui.getDialogs().showDialog(self.clipaboardEvent)
         }
