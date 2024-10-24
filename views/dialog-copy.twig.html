@@ -41,33 +41,13 @@
                 // check if its empty from clipboard
                 filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
 
-                self.noty = $.noty(
-                    {
-                        text: theUILang.fStarts.copy + ": " + filePaths.length + " files",
-                        layout: 'bottomLeft',
-                        type: 'information',
-                        timeout: 5000,
-                        closeOnSelfClick: true
-                    });
+                flm.actions.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
 
                 return flm.api.copy(filePaths, destination)
                     .then(function (result) {
                             // refresh in case we are in destination
-                            if (!flm.utils.isDir(destination)) {
-                                // when destination is a directory name
-                                destination = flm.utils.basedir(destination)
-                            }
-
-                            destination === flm.getCurrentPath()
-                            && flm.Refresh();
-                            self.noty = $.noty(
-                                {
-                                    text: theUILang.flm_popup_copy + ": " + filePaths.length,
-                                    layout: 'bottomLeft',
-                                    type: 'success',
-                                    timeout: 10000,
-                                    closeOnSelfClick: true
-                                });
+                            flm.actions.refreshIfCurrentPath(destination);
+                            flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length,  'success', 10000);
                             return result;
                         },
                         function (response) {
@@ -75,18 +55,17 @@
                         });
             }
 
-            self.onStart = function () {
-                dialogs.disableStartButton();
-                return self.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId))
-                    .then();
-            };
 
             self.updateFilePath = function () {
                 let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
                 dialogs.updateTargetPath(diagId, filePath);
             };
 
-            dialogs.onStart(self.onStart);
+            dialogs.onStart(() => self.doCopy(
+                dialogs.getTargetPath(diagId),
+                dialogs.getCheckedList(diagId)
+            ).then());
+
             pathBrowser.change(self.updateFilePath);
 
             const entries = dialogs.getCheckedList(diagId);

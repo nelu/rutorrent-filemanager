@@ -10,37 +10,31 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-        {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
 
-        <div class="input-group mb-3">
-            <span class="input-group-text">Password:</span>
-            <input class="form-control" type="password" id="fman-archive-apassword" name="fman-archive-apassword" placeholder="Password" value="">
-            <div class="form-check form-switch ">
-                <input class="form-check-input" type="checkbox" role="switch" id="showpass">
-                <label class="form-check-label" for="showpass">Show</label>
-            </div>
-        </div>
+    {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
+
+    {{ window.passwordField("fman-archive-apassword", "Password") }}
+
+    <div class="mb-3 row">
+        <fieldset>
+            <legend>{{ theUILang.fDiagOptions }}</legend>
+            <label style="float: left;"> {{ theUILang.fDiagCArchType }}
+                <select id="fMan_archtype" name="fMan_archtype">
+
+                </select>
+            </label>
+            <label style="float: left; margin-left: 10px;">
+                {{ theUILang.fDiagCompression }}
+                <select id="fman-archive-archcompr" name="fman-archive-archcompr"> </select>
+            </label>
+            <label class="fman-archive-settings-rar" for="fman-archive-vsize" style="float: right;">
+                {{ theUILang.fDiagCArchVsize }}
+                <input class="Textbox num1" id="fman-archive-vsize" name="fman-archive-vsize" type="text" value=""/>
+            </label>
+        </fieldset>
+
     </div>
-    <fieldset>
-        <legend>{{ theUILang.fDiagOptions }}</legend>
-        <label style="float: left;"> {{ theUILang.fDiagCArchType }}
-            <select name="fMan_archtype" id="fMan_archtype">
 
-            </select>
-        </label>
-        <label style="float: left; margin-left: 10px;">
-            {{ theUILang.fDiagCompression }}
-            <select name="fman-archive-archcompr" id="fman-archive-archcompr"> </select>
-        </label>
-        <label style="float: right;" for="fman-archive-multiv" class="fman-archive-settings-rar">
-            {{ theUILang.fDiagCArchVsize }}
-            <input name="fman-archive-vsize" id="fman-archive-vsize" class="Textbox num1" type="text" value=""/>
-        </label>
-
-    </fieldset>
-
-    <div style="clear:both;"></div>
 {% endblock %}
 
 {% block scripts %}
@@ -48,11 +42,11 @@
         if (!flm.ui.hasOwnProperty('dialogArchive')) {
 
             flm.ui.dialogArchive = function () {
-                var dialogs = flm.ui.getDialogs();
-                var diagId = dialogs.getDialogId();
+                let dialog = flm.ui.getDialogs();
+                const diagId = dialog.getCurrentDialog();
                 var settings = flm.config.archives;
 
-                var pathBrowser = dialogs.dirBrowserInput(diagId);
+                var pathBrowser = dialog.dirBrowserInput(diagId);
                 var archiveType = $("#fMan_archtype");
                 var compression = $("#fman-archive-archcompr");
                 var password = $("#fman-archive-apassword");
@@ -83,7 +77,7 @@
 
                     var cPath = flm.getCurrentPath();
 
-                    return flm.api.createArchive(flm.manager.stripJailPath(archive), flm.manager.getFullPaths(files), options)
+                    return flm.api.createArchive(flm.stripJailPath(archive), flm.getFullPaths(files), options)
                         .done(function (response) {
                             flm.Refresh(cPath);
                             return response;
@@ -112,7 +106,7 @@
                     const extensions = $.uniqueSort(Object.keys(settings)).join('|');
                     const extension = archiveType.val().toLowerCase();
                     let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), extensions, extension);
-                    dialogs.updateTargetPath(diagId, filePath);
+                    dialog.updateTargetPath(diagId, filePath);
                 }
 
                 self.onFormatChange = function () {
@@ -127,21 +121,17 @@
                     }
                 };
 
-                self.onStart = function () {
-                    return self.doArchive(
-                        dialogs.getTargetPath(diagId),
-                        dialogs.getCheckedList(diagId),
-                        {
-                            type: archiveType.val(),
-                            compression: compression.val(),
-                            password: password.val(),
-                            volumeSize: volumeSize.val(),
-                            format: format.val()
-                        }
-                    );
-                }
-
-                dialogs.onStart(self.onStart);
+                dialog.onStart(() => self.doArchive(
+                    dialog.getTargetPath(diagId),
+                    dialog.getCheckedList(diagId),
+                    {
+                        type: archiveType.val(),
+                        compression: compression.val(),
+                        password: password.val(),
+                        volumeSize: volumeSize.val(),
+                        format: format.val()
+                    }
+                ));
 
                 archiveType.change(self.onFormatChange);
 
@@ -155,7 +145,7 @@
                     }
                 }
 
-                $('#showpass').on('change',function(){
+                $('#showpass').on('change', function () {
                     password.attr('type', $(this).is(':checked') ? 'text' : 'password');
                 });
 

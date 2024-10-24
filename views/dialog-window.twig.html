@@ -1,26 +1,44 @@
 {% macro showMultiple(entries, filesOnly = false) %}
-    <ul>
-        {% for path in entries %}
-            {% if not (filesOnly and isDir(path)) %}
-                <li>
-                    <label>
-                        <input type="checkbox" value="{{ path }}" checked="checked"/>{{ path }}
-                    </label>
-                </li>
-            {% endif %}
+<ul>
+    {% for path in entries %}
+    {% if not (filesOnly and isDir(path)) %}
+    <li>
+        <label>
+            <input checked="checked" type="checkbox" value="{{ path }}"/>{{ path }}
+        </label>
+    </li>
+    {% endif %}
 
-        {% endfor %}
-    </ul>
+    {% endfor %}
+</ul>
 {% endmacro %}
 
-{% macro pathBrowser(default="/", title = false) %}
-
+{% macro pathBrowser(default="", title = false, class = "", disabled="") %}
+{% set default = default == "/" ? "" : default %}
+{% set class = class == "" ? "flm-diag-nav-path" : class %}
+{% set randId = random() %}
+<div class="mb-3 row">
     <div class="input-group">
-        <span class="input-group-text" id="inputGroup-sizing-default">{{ title }}</span>
-        <input value="{{ default }}" type="text" id="flm-nav-path-{{ random() }}"
-               class="form-control flm-diag-nav-path">
+        <label class="input-group-text" for="flm-nav-path-{{ randId }}">{{ title }}</label>
+        <input class="form-control {{ class }}" id="flm-nav-path-{{ randId }}" type="text"
+               value="{{ default }}" {{ disabled }}>
     </div>
+</div>
+{% endmacro %}
 
+{% macro passwordField(id, title="Password") %}
+<div class="mb-3 row">
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="{{ id }}">{{ title }}</label>
+
+        <input class="form-control" id="{{ id }}" name="{{ id }}" placeholder="{{ title }}"
+               type="password" value="">
+        <div class="form-check form-switch ">
+            <input class="form-check-input" id="{{ id }}-showpass" role="switch" type="checkbox">
+            <label class="form-check-label" for="{{ id }}-showpass">Show</label>
+        </div>
+    </div>
+</div>
 {% endmacro %}
 
 {% import _self as window %}
@@ -28,36 +46,36 @@
 <div class="cont fxcaret flm_popup-content">
     <div class="flm-popup-diag-content">
         {% if multiselect %}
-            <fieldset>
-                {% block heading %}
-                {% endblock %}
-                <div id="flm-diag-paths-list" class="checklist">
-
-                    {{ window.showMultiple(selectedEntries, multiselectFilesOnly) }}
-                </div>
-            </fieldset>
-        {% else %}
+        <fieldset>
             {% block heading %}
             {% endblock %}
+            <div class="checklist" id="flm-diag-paths-list">
+
+                {{ window.showMultiple(selectedEntries, multiselectFilesOnly) }}
+            </div>
+        </fieldset>
+        {% else %}
+        {% block heading %}
+        {% endblock %}
         {% endif %}
 
         {% block content %}
         {% endblock %}
     </div>
     {% block navigation %}
-        {% if pathbrowse %}
-            {{ window.pathBrowser(pathbrowse, theUILang.fDiagTo) }}
-        {% endif %}
+    {% if pathbrowse %}
+    {{ window.pathBrowser(pathbrowse, theUILang.fDiagTo) }}
+    {% endif %}
     {% endblock %}
 
     {% block buttons %}
-        <div class="buttons-list">
-            <input type="submit" class="flm-diag-start Button"
-                   value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}" disabled="disabled"
-                   class="Button"/>
-            <input type="button" class="flm-diag-cancel Cancel Button"
-                   value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
-        </div>
+    <div class="buttons-list">
+        <input class="flm-diag-start Button" class="Button"
+               disabled="disabled" type="submit"
+               value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}"/>
+        <input class="flm-diag-cancel Cancel Button" type="button"
+               value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
+    </div>
     {% endblock %}
 
 

@@ -36,30 +36,16 @@
                 filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
                 var cPath = flm.getCurrentPath();
 
-                self.noty = $.noty(
-                    {
-                        text: theUILang.fStarts.move + " " + filePaths.length + " files",
-                        layout: 'bottomLeft',
-                        type: 'information',
-                        timeout: 5000,
-                        closeOnSelfClick: true
-                    });
+                flm.actions.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
 
                 return flm.api.move(filePaths, destination)
                     .then(function (result) {
-                            (destination === flm.getCurrentPath()
-                                || cPath === flm.getCurrentPath())
-                            && flm.Refresh();
+
+                            flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
 
                             $(document).trigger(flm.EVENTS.move, [filePaths, destination]);
-                            self.noty = $.noty(
-                                {
-                                    text: theUILang.flm_popup_move + ": " + filePaths.length,
-                                    layout: 'bottomLeft',
-                                    type: 'success',
-                                    timeout: 10000,
-                                    closeOnSelfClick: true
-                                });
+                            flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length,  'success', 10000);
+
                             return result;
                         },
                         function (response) {
@@ -68,9 +54,7 @@
             };
 
 
-            dialogs.onStart(function () {
-                return self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
-            });
+            dialogs.onStart(() => self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
 
         }
     }

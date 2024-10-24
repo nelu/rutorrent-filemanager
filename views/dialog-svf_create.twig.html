@@ -4,70 +4,75 @@
 
 {% extends "flm::dialog-window.twig.html" %}
 {% block heading %}
-    <legend>{{ theUILang.fDiagSFVCreateSel }}</legend>
+<legend>{{ theUILang.fDiagSFVCreateSel }}</legend>
 {% endblock %}
 
 {% block content %}
-    {{ window.pathBrowser(selectedTarget, theUILang.fDiagTo) }}
+{{ window.pathBrowser(selectedTarget, theUILang.fDiagTo) }}
 
-{#  <legend> {{ theUILang.fDiagCArchType }} </legend>#}
-{#    <label style="float: left;">#}
-{#        <select name="fman-checksum-type"  class="fman-checksum-type">#}
-{#            <option value="sfv">sfv</option>#}
-{#        </select>#}
-{#    </label>#}
+<div class="mb-3 row">
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="fman-checksum-type">Algorithm</label>
+        <select id="fman-checksum-type" class="form-select fman-checksum-type" name="fman-checksum-type" aria-label="Algorithm" disabled >
+            <option value="CRC32" selected>Default - CRC32</option>
+        </select>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        (function () {
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId();
-            var pathBrowser = dialogs.dirBrowserInput(diagId);
-            var ext = 'sfv';
+<script>
+    (function () {
+        let dialog = flm.ui.getDialogs();
+        const diagId = dialog.getCurrentDialog();
+        const cPath = flm.getCurrentPath();
+        var pathBrowser = dialog.dirBrowserInput(diagId);
+        var ext = 'sfv';
 
-            dialogs.onStart(function () {
-                var checksumFile = $.trim(dialogs.getTargetPath(diagId));
-                var filePaths = dialogs.getCheckedList(diagId);
-                var hasError;
+        dialog.onStart(function () {
+            var checksumFile = $.trim(dialog.getTargetPath(diagId));
+            var filePaths = dialog.getCheckedList(diagId);
+            var hasError;
 
-                if (!checksumFile.length) {
-                    hasError = theUILang.fDiagSFVempty;
-                }
-                else if (!$type(filePaths) || filePaths.length === 0) {
-                    hasError = 'Empty paths';
-                }
-                else if (!flm.utils.isValidPath(checksumFile)) {
-                    hasError = theUILang.fDiagInvalidname;
-                }
-                if($type(hasError))
-                {
-                    var def = $.Deferred();
-                    def.reject({errcode: theUILang.fcSFV, msg: hasError + ': '+checksumFile});
-                    return def.promise();
-                }
+            if (!checksumFile.length) {
+                hasError = theUILang.fDiagSFVempty;
+            } else if (!$type(filePaths) || filePaths.length === 0) {
+                hasError = 'Empty paths';
+            } else if (!flm.utils.isValidPath(checksumFile)) {
+                hasError = theUILang.fDiagInvalidname;
+            }
+            if ($type(hasError)) {
+                var def = $.Deferred();
+                def.reject({errcode: theUILang.fcSFV, msg: hasError + ': ' + checksumFile});
+                return def.promise();
+            }
 
-                var cPath = flm.getCurrentPath();
-                return flm.api.sfvCreate(flm.manager.stripJailPath(checksumFile), flm.manager.getFullPaths(filePaths))
-                    .done(function (response) {
-                        flm.Refresh(cPath);
-                        return response;
-                    });
-            });
+            flm.actions.notify(theUILang.fStarts.create_sfv + ": "
+                + flm.utils.basename(checksumFile) + ' <- ' + filePaths.length + " files"
+            );
 
-            const updateFilePath = function (path) {
-                let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), ext, ext);
-                dialogs.updateTargetPath(diagId, filePath);
-            };
+            return flm.api.sfvCreate(flm.stripJailPath(checksumFile), flm.getFullPaths(filePaths))
+                .done(function (response) {
+                    flm.actions.refreshIfCurrentPath(cPath);
+                    flm.actions.notify(theUILang.flm_popup_sfv_create + ": " + checksumFile,  'success', 10000);
 
-            pathBrowser.change(function () {
-                updateFilePath($(this));
-            });
+                    return response;
+                });
+        });
 
-            updateFilePath(pathBrowser);
-        })
-        (window);
-    </script>
+        const updateFilePath = function (path) {
+            let filePath = flm.utils.replaceFilePath(path.val(), path.data('previousValue'), ext);
+            dialog.updateTargetPath(diagId, filePath);
+        };
+
+        pathBrowser.change(function () {
+            updateFilePath($(this));
+        });
+
+        updateFilePath(pathBrowser);
+    })
+    (window);
+</script>
 {% endblock %}
 

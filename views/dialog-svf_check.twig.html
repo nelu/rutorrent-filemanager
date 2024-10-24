@@ -1,41 +1,34 @@
 {% extends "flm::dialog-window.twig.html" %}
 {% set startButtonValue = theUILang.fDiagStart %}
 
-{% block heading %}
-    <legend>{{ theUILang.fDiagSFVCheckf  }}</legend>
+{% block content %}
+{{ window.pathBrowser(basename(selectedTarget), theUILang.fDiagSFVCheckf, "", "disabled readonly") }}
 {% endblock %}
 
-{% block content %}
-<fieldset>
-    <div class="flm-diag-nav-path" style="padding-top:3px; padding-bottom:4px; width:440px;">{{ selectedTarget }}</div>
-</fieldset>
-{% endblock %}
 {% block scripts %}
 <script>
     (function (global) {
-        var dialogs = flm.ui.getDialogs();
+        let dialog = flm.ui.getDialogs();
+        const diagId = dialog.getCurrentDialog();
+        const checksumFile = flm.getCurrentPath(dialog.getTargetPath(diagId));
 
-        var diagId = dialogs.getDialogId('window');
-
-        dialogs.onStart(function () {
+        dialog.onStart(function () {
             var hasError;
-            var checksumFile = $.trim(dialogs.getTargetPath(diagId));
-
             if (!checksumFile.length) {
-                hasError =theUILang.fDiagSFVempty;
+                hasError = theUILang.fDiagSFVempty;
             } else if (!flm.utils.isValidPath(checksumFile)) {
                 hasError = theUILang.fDiagInvalidname;
             }
-            if($type(hasError))
-            {
+            if ($type(hasError)) {
                 var def = $.Deferred();
-                def.reject({errcode: theUILang.fcheckSFV, msg: hasError + ': '+checksumFile});
+                def.reject({errcode: theUILang.fcheckSFV, msg: hasError + ': ' + checksumFile});
                 return def.promise();
             }
+            flm.actions.notify(theUILang.fStarts.check_sfv + ": " + flm.utils.basename(checksumFile));
 
             return flm.api.sfvCheck(checksumFile)
-                .done(function (response) {
-                    //flm.manager.logAction('sfvcheck', ' checksum file ' + checksumFile);
+                .then(function (response) {
+                    flm.actions.notify(theUILang.fDiagSFVCheckf + " " +flm.utils.basename(checksumFile), 'success', 10000);
                     return response;
                 });
         });

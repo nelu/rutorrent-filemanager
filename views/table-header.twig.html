@@ -1,21 +1,21 @@
-<table width="100%" border="0" id="fMan_navpath">
+<table border="0" id="fMan_navpath" width="100%">
     <tr>
-        <td width="19"><input type="button" name="flm-nav-refresh" id="flm-nav-refresh"
-                              class="flm-nav-refresh flm-sprite sprite-curdir"
+        <td width="19"><input class="flm-nav-refresh flm-sprite sprite-curdir" id="flm-nav-refresh" name="flm-nav-refresh"
+                              type="button"
                               value=""/></td>
-        <td><select name="flm-navpath" id="flm-navpath" style="width:100%;">
-            </select>
+        <td><select id="flm-navpath" name="flm-navpath" style="width:100%;">
+        </select>
         </td>
     </tr>
 </table>
 <form action="{{ apiUrl }}"
-      style="display:none"
       id="flm-get-data"
       method="post"
+      style="display:none"
       target="datafrm">
-    <input type="hidden" name="dir" value="">
-    <input type="hidden" name="target" value="">
-    <input type="hidden" name="action" value="fileDownload">
+    <input name="dir" type="hidden" value="">
+    <input name="target" type="hidden" value="">
+    <input name="action" type="hidden" value="fileDownload">
 </form>
 
 <script>
