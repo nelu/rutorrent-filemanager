@@ -108,7 +108,7 @@ export function FileManagerActions() {
         }
 
         // check if its empty from clipboard
-        filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
+        filePaths = flm.ui.filenav.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
 
         self.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
 
@@ -188,7 +188,7 @@ export function FileManagerActions() {
             return deferred.promise();
         }
 
-        filePaths = flm.ui.browser.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
+        filePaths = flm.ui.filenav.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
         var cPath = flm.getCurrentPath();
 
         flm.actions.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
@@ -214,7 +214,7 @@ export function FileManagerActions() {
 
         if (!dirName) {
             hasError = theUILang.fDiagInvalidname;
-        } else if (flm.ui.browser.fileExists(dirName)) {
+        } else if (flm.ui.filenav.fileExists(dirName)) {
             hasError = theUILang.fDiagAexist;
         }
 
@@ -240,7 +240,7 @@ export function FileManagerActions() {
         if (!flm.utils.isValidPath(destination)) {
             hasError = theUILang.fDiagInvalidname;
         } else if (flm.utils.basename(destination) === flm.utils.basename(source)
-            || flm.ui.browser.fileExists(destination)) //dir check
+            || flm.ui.filenav.fileExists(destination)) //dir check
         {
             hasError = theUILang.fDiagAexist;
         }

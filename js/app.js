@@ -110,7 +110,7 @@ import {FileManagerActions} from "./actions.js";
 
                     flm.currentPath = flm.utils.buildPath([dir]);
                     $(document).trigger(flm.EVENTS.changeDir, [flm.currentPath]);
-                    flm.ui.browser.setTableEntries(response.listing);
+                    flm.ui.filenav.setTableEntries(response.listing);
                 }, function (code, msg) {
                     flm.utils.logError(1, msg);
                     flm.ui.enableNavigation();
@@ -130,7 +130,7 @@ import {FileManagerActions} from "./actions.js";
                     flm.showPathPromise = $.Deferred();
 
                     flm.showPathPromise.promise().then(function () {
-                        $(document.getElementById(flm.ui.browser.getEntryHash(highlight)))
+                        $(document.getElementById(flm.ui.filenav.getEntryHash(highlight)))
                             .trigger("mousedown");
                     });
 
@@ -187,10 +187,10 @@ import {FileManagerActions} from "./actions.js";
 
             // listening on events from ruTorrent components
             $(document).on('theTabs:onShow', (ev, id) => (id === plugin.ui.fsBrowserContainer) &&
-                flm.ui.browser.onShow());
+                flm.ui.filenav.onShow());
             $(document).on('theTabs:show', (ev, id) => {
                 (id !== plugin.ui.fsBrowserContainer)
-                && flm.ui.browser.onHide(id)
+                && flm.ui.filenav.onHide(id)
                 || $('#fMan_showconsole').css('display', 'inline');
             });
 

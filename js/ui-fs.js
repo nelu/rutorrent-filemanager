@@ -19,7 +19,7 @@ export function FsBrowser() {
             } else {
                 switch (table.getIdByCol(i)) {
                     case 'name':
-                        if (flm.ui.browser.isTopDir(arr[i])) {
+                        if (flm.ui.filenav.isTopDir(arr[i])) {
                             arr[i] = '../';
                         }
                         if (flm.utils.isDir(arr[i])) {
@@ -399,7 +399,7 @@ export function FsBrowser() {
                 var xVal = x.split(self.tableEntryPrefix)[1];
                 var yVal = y.split(self.tableEntryPrefix)[1];
 
-                if (flm.ui.browser.isTopDir(xVal) || flm.ui.browser.isTopDir(yVal)) {
+                if (flm.ui.filenav.isTopDir(xVal) || flm.ui.filenav.isTopDir(yVal)) {
                     return 1;
                 } else if (!flm.utils.isDir(xVal) && flm.utils.isDir(yVal)) {
                     return 1;

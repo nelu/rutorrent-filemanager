@@ -1,6 +1,6 @@
 // shut up
-if (plugin === undefined) {
-    let plugin = {};
+if (typeof plugin === undefined) {
+    let plugin = new rPlugin();
 }
 plugin.debug = false;
 
@@ -36,17 +36,17 @@ plugin.ui.setConfig = function () {
     theWebUI.tables.flm = {
         obj: new dxSTable(),
         format: function () {
-            return flm.ui.browser.uiTableFormat.apply(flm.ui.browser, arguments)
+            return flm.ui.filenav.uiTableFormat.apply(flm.ui.filenav, arguments)
         },
         ondblclick: function () {
-            flm.ui.browser.open(flm.ui.browser.selectedTarget);
+            flm.ui.filenav.open(flm.ui.filenav.selectedTarget);
             return false;
         },
         onselect: function () {
-            flm.ui.browser.onSelectEntry.apply(flm.ui.browser, arguments);
+            flm.ui.filenav.onSelectEntry.apply(flm.ui.filenav, arguments);
         },
         ondelete: function () {
-            flm.ui.browser.selectedEntries = flm.ui.browser.getSelection();
+            flm.ui.filenav.selectedEntries = flm.ui.filenav.getSelection();
             flm.ui.getDialogs().showDialog('delete')
         },
         columns: [
@@ -118,7 +118,7 @@ plugin.ui.init = function () {
             h -= TR_HEIGHT + 2;
         }
 
-        var table = flm.ui.browser.table();
+        var table = flm.ui.filenav.table();
         if (table) {
             table.resize(w, h);
         }

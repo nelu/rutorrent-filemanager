@@ -6,10 +6,10 @@ export function FileManagerUi(flm) {
     let self = this;
 
     // table filesystem navigation
-    self.browser = new FsBrowser();
+    self.filenav = new FsBrowser();
 
     //  operation dialogs
-    self.dialogs = new FileManagerDialogs(self.browser);
+    self.dialogs = new FileManagerDialogs(self.filenav);
 
     self.settings = {
         defaults: {
@@ -215,12 +215,12 @@ export function FileManagerUi(flm) {
 
     self.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
 
-        self.browser.selectedTarget = selectedPath;
-        self.browser.selectedEntries = selectedEntries;
+        self.filenav.selectedTarget = selectedPath;
+        self.filenav.selectedEntries = selectedEntries;
         let fileManagerSubmenu = [];
 
 
-        fileManagerSubmenu = self.browser.getEntryMenu(selectedName, selectedEntries);
+        fileManagerSubmenu = self.filenav.getEntryMenu(selectedName, selectedEntries);
 
         $(document).trigger(flm.EVENTS.entryMenu, [fileManagerSubmenu, selectedPath]);
 
@@ -321,13 +321,13 @@ export function FileManagerUi(flm) {
     };
 
     self.disableNavigation = function () {
-        self.browser.disableTable();
-        self.browser.disableRefresh();
+        self.filenav.disableTable();
+        self.filenav.disableRefresh();
     };
 
     self.enableNavigation = function () {
-        self.browser.enableTable();
-        self.browser.enableRefresh();
+        self.filenav.enableTable();
+        self.filenav.enableRefresh();
 
     };
 
@@ -341,7 +341,7 @@ export function FileManagerUi(flm) {
             self.console.show();
         });
         // file navigation
-        self.browser.init();
+        self.filenav.init();
     };
 
     self.onSettingsShow = function (call) {
@@ -356,7 +356,7 @@ export function FileManagerUi(flm) {
     };
 
     self.viewNFO = function (file) {
-        file && (self.browser.selectedTarget = file);
+        file && (self.filenav.selectedTarget = file);
         self.dialogs.showDialog('nfo_view');
     };
 

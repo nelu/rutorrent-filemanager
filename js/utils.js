@@ -303,14 +303,14 @@ export function FileManagerUtils(flm) {
             if (oldPath) {
                 if (this.isDir(newPath)) {
                     fileDir = newPath;
-                    fileName = !this.isDir(oldPath) ? this.basename(oldPath) : flm.ui.browser.recommendedFileName(ext, forceExtension);
+                    fileName = !this.isDir(oldPath) ? this.basename(oldPath) : flm.ui.filenav.recommendedFileName(ext, forceExtension);
                 }
 
                 fileName = ext
                     ? this.stripFileExtension(fileName, [ext]) + (forceExtension ? '.' + forceExtension : '')
                     : fileName;
             } else {
-                fileName = flm.ui.browser.recommendedFileName(ext, forceExtension);
+                fileName = flm.ui.filenav.recommendedFileName(ext, forceExtension);
             }
 
             return this.buildPath([fileDir, fileName]);
