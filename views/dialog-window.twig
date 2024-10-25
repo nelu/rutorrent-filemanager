@@ -1,16 +1,19 @@
 {% macro showMultiple(entries, filesOnly = false) %}
-    <ul>
+
         {% for path in entries %}
             {% if not (filesOnly and isDir(path)) %}
-                <li>
-                    <label>
-                        <input checked="checked" type="checkbox" value="{{ path }}"/>{{ path }}
+                {% set randId = random() %}
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="{{ path }}" id="{{ randId }}" checked>
+                    <label class="form-check-label" for="{{ randId }}">
+                        {{ path }}
                     </label>
-                </li>
+                </div>
             {% endif %}
 
         {% endfor %}
-    </ul>
+
 {% endmacro %}
 
 {% macro pathBrowser(default="", title = false, class = "", disabled="") %}
@@ -50,7 +53,6 @@
                 {% block heading %}
                 {% endblock %}
                 <div class="checklist" id="flm-diag-paths-list">
-
                     {{ window.showMultiple(selectedEntries, multiselectFilesOnly) }}
                 </div>
             </fieldset>

@@ -268,8 +268,9 @@ export function FileManagerActions() {
         flm.ui.console.show(action + ': ' + text);
     }
 
-    self.logConsole = (action, text) => {
-        flm.ui.console.logMsg(action + ': ' + text);
+    self.logConsole = (text) => {
+        const ts = Math.floor(Date.now() / 1000);
+        flm.ui.console.logMsg(flm.ui.formatDate(ts) + " " + text);
     }
 
     self.refreshIfCurrentPath = (path) => {
@@ -294,8 +295,7 @@ export function FileManagerActions() {
                 closeOnSelfClick: true
             });
 
-//            flm.actions.logConsole('rename', source + ' -> ' + destination);
-
+         flm.actions.logConsole(contents);
     }
 
     self.doMediainfo = (target) => {

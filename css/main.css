@@ -86,23 +86,18 @@ input.text-long {
     background: transparent url(../../../images/ajax-loader.gif ) no-repeat 15px 2px
 }
 .checklist {
-    min-width:460px;
-    height: 120px;
+    min-width: 460px;
+    min-height: 12rem;
+    max-height: 14rem;
     overflow: scroll;
-    text-align: left;
+    padding-left: 1%;
 }
-.checklist ul {
-    margin-top: 0;
-    padding: 0;
+.checklist div.form-check label {
+    margin: 0;
+    overflow: inherit;
 }
-.checklist ul li {
-    list-style-type: none;
+.checklist div.form-check {
     margin-bottom: 4px;
-}
-.checklist ul li input {
-    vertical-align: top;
-    padding: 0;
-    margin: 0 5px 0 0;
 }
 
 .flm-sprite-diag {

@@ -121,7 +121,7 @@ export function FileManagerUi(flm) {
                     theDialogManager.make(diagId, theUILang.flm_popup_console,
                         $(html).get(0),
                         config.modal); // prevent the user from changing table selection by default
-                    self.dialogs.getDialogHeader('#' + diagId)
+                    self.dialogs.getDialogHeader(diagId)
                         .prepend('<span class="flm-sprite-diag flm-sprite sprite-console"></span>');
 
                     $('#flm-diag-console-clear').click(function () {
