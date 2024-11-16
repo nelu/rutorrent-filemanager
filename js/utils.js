@@ -288,8 +288,7 @@ export function FileManagerUtils(flm) {
 
         utils.isValidPath = function (what) {
             what = what || '';
-            //starts with /
-            return (what.split('/').length > 1);
+            return what.includes('/');
         }
 
         utils.basename = function (what) {
