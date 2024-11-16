@@ -198,8 +198,8 @@ import {FileManagerActions} from "./actions.js";
 
             $(document).on('theWebUI:setSettings', (ev, data) => plugin.enabled && flm.ui.settings.onSave(data));
 
-            $(document).on('theWebUI:createFileMenu', (ev, data) => plugin.enabled && plugin.canChangeMenu() &&
-                flm.ui.handleFilesTabMenu(data));
+            $(document).on('theWebUI:createFileMenu', (ev, data, e) => plugin.enabled && plugin.canChangeMenu() &&
+                flm.ui.handleFilesTabMenu(data, e));
 
             $(document).on(flm.EVENTS.browserVisible, function () {
 

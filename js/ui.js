@@ -262,56 +262,88 @@ export function FileManagerUi(flm) {
         return fileManagerSubmenu;
     }
 
-    self.handleFilesTabMenu = function (selected) {
+    self.handleFilesTabMenu = function (selected, event) {
         let plugin = flm.getPlugin();
 
         plugin.fno = null;
         plugin.mode = null;
-        var table = theWebUI.getTable("fls");
 
+        let selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID]) ? theWebUI.torrents[theWebUI.dID] : null;
 
-        var fid = table.getFirstSelected();
-        var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
+        if(!selectedTorrent)
+        {
+            console.error('No torrent files');
+            return false;
+        }
 
-        var selectedName = selected ? selectIsDir ? selected.name += '/' : selected.name : '/';
-
-        var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID]) ? theWebUI.torrents[theWebUI.dID] : null;
-
-        var torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
-        var currentTorrentDirPath = flm.stripJailPath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
-
-        var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]);
-
-        selectedPath = flm.stripJailPath(selectedPath);
-
-
-        var selectedEntries = [];
-        var rows = table.rowSel;
-
-        var entry;
-        var entryPath;
-        for (var i in rows) {
-            if (rows[i]) {
-                entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
-                if (entry) {
-                    entryPath = flm.utils.buildPath([torrentPath, entry.name]);
-                    entryPath = flm.stripJailPath(entryPath);
-                    if (theWebUI.dirs[theWebUI.dID].isDirectory(i)) {
-                        entryPath += '/';
-                    }
-
-                    selectedEntries.push(entryPath);
+        const torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
+        let getEntry = (item) => {
+            let r;
+            let itemPath;
+            if(item.split('_d_').length > 1) {
+                r = theWebUI.dirs[theWebUI.dID].getEntry(item);
+                // topdircheck
+                if(r === null)
+                {
+                    return false;
                 }
+                itemPath = flm.utils.buildPath([theWebUI.dirs[theWebUI.dID].current, r.name + '/']);
+            } else {
+                r = theWebUI.files[theWebUI.dID][iv(item.split('_f_')[1])];
+                itemPath = r.name;
             }
-        }
-        const fileManagerSubmenu = selected ? self.getFilesTabMenu(currentTorrentDirPath, selectedName, selectedPath, selectedEntries) : [];
 
-        var el = theContextMenu.get(theUILang.Priority);
-        if (el) {
-            theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
+            return {
+                name: flm.utils.basename(itemPath),
+                path: flm.stripJailPath(flm.utils.buildPath([torrentPath, itemPath])),
+                size: r.size,
+                complete: iv(r.percent) === 100
+            };
         }
 
-        $(document).trigger(flm.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
+        // another way of getting the selected row id
+        // since not available in the call stack
+        const selectedId = event.originalEvent.srcElement.parentNode.parentElement.id;
+
+        // get entry in local format
+        selected = getEntry(selectedId);
+
+        let table = theWebUI.getTable("fls");
+        let validEntries = [];
+
+        $.each(table.getSelected(), (i, row)=>
+        {
+            let entry = getEntry(row);
+            entry && entry.complete && validEntries.push(entry.path);
+        });
+
+        if(validEntries.length) {
+
+            let selectedPath = validEntries[0];
+            if(selected && selected.complete)
+            {
+                selectedPath =  selected.path;
+            }
+
+            var el = theContextMenu.get(theUILang.Priority);
+            if (el) {
+                theContextMenu.add(el,
+                    [CMENU_CHILD, theUILang.fManager,
+                    self.getFilesTabMenu(
+                        flm.utils.basedir(selectedPath),
+                        selectedPath,
+                        selectedPath,
+                        validEntries
+                    )
+                    ]
+                );
+            }
+
+            $(document).trigger(flm.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, validEntries, table]);
+        } else {
+            console.debug('No valid files selected');
+        }
+
     };
 
     self.init = function () {

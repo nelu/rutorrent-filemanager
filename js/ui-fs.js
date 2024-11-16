@@ -170,17 +170,17 @@ export function FsBrowser() {
 
     };
 
-    self.onDeleteEntry = () => {
+    self.handleDeleteEntry = () => {
         self.selectedEntries = self.getSelection();
         flm.ui.getDialogs().showDialog('delete');
     }
 
-    self.onOpenEntry = () => {
+    self.handleOpenEntry = () => {
         self.open(self.selectedTarget);
     }
 
     // executed outside the browse/this scope
-    self.onSelectEntry = function (e, id) {
+    self.handleSelectEntry = function (e, id) {
 
         var target = id.split(self.tableEntryPrefix)[1];
 
@@ -448,7 +448,7 @@ export function FsBrowser() {
         return theWebUI.getTable("flm");
     };
 
-    self.uiTableFormat = function (table, arr) {
+    self.handleTableFormat = function (table, arr) {
         var i;
         for (i = 0; i < arr.length; i++) {
             if (arr[i] == null) {

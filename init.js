@@ -35,10 +35,10 @@ plugin.ui.setConfig = function () {
 
     theWebUI.tables.flm = {
         obj: new dxSTable(),
-        format: (table, arr) => flm.ui.filenav.uiTableFormat(table, arr),
-        ondblclick: () => flm.ui.filenav.onOpenEntry(),
-        onselect: (e, id) => flm.ui.filenav.onSelectEntry(e, id),
-        ondelete: () => flm.ui.filenav.onDeleteEntry(),
+        format: (table, arr) => flm.ui.filenav.handleTableFormat(table, arr),
+        ondblclick: () => flm.ui.filenav.handleOpenEntry(),
+        onselect: (e, id) => flm.ui.filenav.handleSelectEntry(e, id),
+        ondelete: () => flm.ui.filenav.handleDeleteEntry(),
         columns: [
             {
                 text: theUILang.Name,
@@ -171,7 +171,7 @@ plugin.onLangLoaded = () => {
 
     plugin.createTorrentFileMenu = theWebUI.createFileMenu;
     theWebUI.createFileMenu = (e, data) => (plugin.createTorrentFileMenu.call(theWebUI, e, data) &&
-        $(document).trigger('theWebUI:createFileMenu', [data]));
+        $(document).trigger('theWebUI:createFileMenu', [data, e]));
 
     Promise.all([
         import('./' + plugin.path + 'js/twig.min.js'),
