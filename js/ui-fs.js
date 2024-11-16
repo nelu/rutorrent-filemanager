@@ -11,46 +11,7 @@ export function FsBrowser() {
 
     var isVisible = false;
 
-    self.uiTableFormat = function (table, arr) {
-        var i;
-        for (i = 0; i < arr.length; i++) {
-            if (arr[i] == null) {
-                arr[i] = '';
-            } else {
-                switch (table.getIdByCol(i)) {
-                    case 'name':
-                        if (flm.ui.filenav.isTopDir(arr[i])) {
-                            arr[i] = '../';
-                        }
-                        if (flm.utils.isDir(arr[i])) {
-                            arr[i] = flm.utils.trimslashes(arr[i]);
-                        }
-                        // display proper spaces in filenames
-                        arr[i] = arr[i].replace(/ /g, '\u00a0')
-                        break;
-                    case 'size' :
-                        if (arr[i] !== '') {
-                            arr[i] = theConverter.bytes(arr[i], 2);
-                        }
-                        break;
-                    case 'type' :
-                        arr[i] = flm.utils.isDir(arr[i])
-                            ? ''
-                            : flm.utils.getExt(arr[i]);
-                        break;
-                    case 'time' :
-                        arr[i] = flm.ui.formatDate(arr[i]);
-                        break;
-                    case 'perm':
-                        if (flm.ui.settings.getSettingValue('permf') > 1) {
-                            arr[i] = flm.utils.formatPermissions(arr[i]);
-                        }
-                        break;
-                }
-            }
-        }
-        return arr;
-    };
+
     const ctrlKey = 17,
         rightMouseKey = 2,
         vKey = 86,
@@ -208,6 +169,15 @@ export function FsBrowser() {
         isVisible = false;
 
     };
+
+    self.onDeleteEntry = () => {
+        self.selectedEntries = self.getSelection();
+        flm.ui.getDialogs().showDialog('delete');
+    }
+
+    self.onOpenEntry = () => {
+        self.open(self.selectedTarget);
+    }
 
     // executed outside the browse/this scope
     self.onSelectEntry = function (e, id) {
@@ -385,6 +355,8 @@ export function FsBrowser() {
         } else {
             flm.getFile(path);
         }
+
+        return false;
     };
 
     // table
@@ -476,8 +448,50 @@ export function FsBrowser() {
         return theWebUI.getTable("flm");
     };
 
+    self.uiTableFormat = function (table, arr) {
+        var i;
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i] == null) {
+                arr[i] = '';
+            } else {
+                switch (table.getIdByCol(i)) {
+                    case 'name':
+                        if (flm.ui.filenav.isTopDir(arr[i])) {
+                            arr[i] = '../';
+                        }
+                        if (flm.utils.isDir(arr[i])) {
+                            arr[i] = flm.utils.trimslashes(arr[i]);
+                        }
+                        // display proper spaces in filenames
+                        arr[i] = arr[i].replace(/ /g, '\u00a0')
+                        break;
+                    case 'size' :
+                        if (arr[i] !== '') {
+                            arr[i] = theConverter.bytes(arr[i], 2);
+                        }
+                        break;
+                    case 'type' :
+                        arr[i] = flm.utils.isDir(arr[i])
+                            ? ''
+                            : flm.utils.getExt(arr[i]);
+                        break;
+                    case 'time' :
+                        arr[i] = flm.ui.formatDate(arr[i]);
+                        break;
+                    case 'perm':
+                        if (flm.ui.settings.getSettingValue('permf') > 1) {
+                            arr[i] = flm.utils.formatPermissions(arr[i]);
+                        }
+                        break;
+                }
+            }
+        }
+        return arr;
+    };
+
     self.updateUiTable = function () {
-        var table = self.table();
+        let table = self.table();
+
 
         table.renameColumnById('time', theUILang.fTime);
         table.renameColumnById('type', theUILang.fType);

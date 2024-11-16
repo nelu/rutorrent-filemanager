@@ -35,20 +35,10 @@ plugin.ui.setConfig = function () {
 
     theWebUI.tables.flm = {
         obj: new dxSTable(),
-        format: function () {
-            return flm.ui.filenav.uiTableFormat.apply(flm.ui.filenav, arguments)
-        },
-        ondblclick: function () {
-            flm.ui.filenav.open(flm.ui.filenav.selectedTarget);
-            return false;
-        },
-        onselect: function () {
-            flm.ui.filenav.onSelectEntry.apply(flm.ui.filenav, arguments);
-        },
-        ondelete: function () {
-            flm.ui.filenav.selectedEntries = flm.ui.filenav.getSelection();
-            flm.ui.getDialogs().showDialog('delete')
-        },
+        format: (table, arr) => flm.ui.filenav.uiTableFormat(table, arr),
+        ondblclick: () => flm.ui.filenav.onOpenEntry(),
+        onselect: (e, id) => flm.ui.filenav.onSelectEntry(e, id),
+        ondelete: () => flm.ui.filenav.onDeleteEntry(),
         columns: [
             {
                 text: theUILang.Name,

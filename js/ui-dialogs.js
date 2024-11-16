@@ -57,6 +57,11 @@ export function FileManagerDialogs(browser) {
         return config;
     }
 
+    self.afterShow = (diagId) => {
+        setTimeout(function () {
+            self.startButton(diagId).select().focus();
+        });
+    }
     // common after event handle
     self.afterHide = function (dialogId, what) {
 
