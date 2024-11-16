@@ -463,7 +463,7 @@ export function FsBrowser() {
                             arr[i] = flm.utils.trimslashes(arr[i]);
                         }
                         // display proper spaces in filenames
-                        arr[i] = arr[i].replace(/ /g, '\u00a0')
+                        //arr[i] = arr[i].replace(/ /g, '\u00a0')
                         break;
                     case 'size' :
                         if (arr[i] !== '') {

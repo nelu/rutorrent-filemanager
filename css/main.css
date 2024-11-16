@@ -242,3 +242,7 @@ input.text-long {
 div[id^="flm_popup_"] > div.dlg-header > div:first-child {
     padding-left: 0;
 }
+
+td.stable-flm-browser-table-col-0, .clear-filename {
+    white-space: pre;
+}
