@@ -181,13 +181,12 @@ export function FsBrowser() {
 
     // executed outside the browse/this scope
     self.handleSelectEntry = function (e, id) {
-
-        var target = id.split(self.tableEntryPrefix)[1];
-
-        self.selectedTarget = !self.isTopDir(target) ? flm.getCurrentPath(target) : target;
-
         // handles right/left click events
         if ($type(id) && (e.button === rightMouseKey)) {
+            let target = id.split(self.tableEntryPrefix)[1];
+
+            self.selectedTarget = !self.isTopDir(target) ? flm.getCurrentPath(target) : target;
+
 
             theContextMenu.clear();
             self.selectedEntries = self.getSelection(false);
