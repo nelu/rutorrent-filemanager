@@ -222,9 +222,7 @@ import {FileManagerActions} from "./actions.js";
         return flm;
     }
 
-// namespace
-    let app = new FileManager();
-    theWebUI.FileManager = app
-    global.flm = app;
+    // namespace
+    global.flm = theWebUI.FileManager = new FileManager();
 
 })(window);

@@ -13,7 +13,7 @@
 
     {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
 
-    {{ window.passwordField("fman-archive-apassword", "Password") }}
+    {{ window.passwordField("fman-archive-apassword") }}
 
     <div class="mb-3 row">
         <fieldset>
@@ -119,10 +119,6 @@
                         archiveType.append('<option value="' + type + '">' + type.toUpperCase() + '</option>');
                     }
                 }
-
-                $('#showpass').on('change', function () {
-                    password.attr('type', $(this).is(':checked') ? 'text' : 'password');
-                });
 
                 self.updateFilePath(pathBrowser);
                 self.updateCompression();

@@ -29,18 +29,24 @@
     </div>
 {% endmacro %}
 
-{% macro passwordField(id, title="Password") %}
+{% macro passwordField(id, title = null) %}
+    {% set title = title ?? theUILang.flm_password %}
     <div class="mb-3 row">
         <div class="input-group mb-3">
             <label class="input-group-text" for="{{ id }}">{{ title }}</label>
-
-            <input class="form-control" id="{{ id }}" name="{{ id }}" placeholder="{{ title }}"
+            <input class="form-control" id="{{ id }}" name="{{ id }}" aria-label="{{ title }}"
                    type="password" value="">
-            <div class="form-check form-switch ">
-                <input class="form-check-input" id="{{ id }}-showpass" role="switch" type="checkbox">
-                <label class="form-check-label" for="{{ id }}-showpass">Show</label>
+
+            <div class="input-group-text">
+                <input class="form-check-input mt-0" id="{{ id }}-showpass" role="switch" type="checkbox" value="" aria-label="Show password">
+                <label class="form-check-label mt-0" for="{{ id }}-showpass">Show</label>
             </div>
         </div>
+        <script>
+            $('#{{ id }}-showpass').on('change', function () {
+                $("#{{ id }}").attr('type', $(this).is(':checked') ? 'text' : 'password');
+            });
+        </script>
     </div>
 {% endmacro %}
 
@@ -70,7 +76,7 @@
 
     {% block buttons %}
         <div class="buttons-list">
-            <input class="flm-diag-start Button" class="Button"
+            <input class="flm-diag-start Button"
                    disabled="disabled" type="button"
                    value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}"/>
             <input class="flm-diag-cancel Cancel Button" type="button"
