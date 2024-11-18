@@ -191,7 +191,10 @@ export function FileManagerDialogs(browser) {
                 self.dirBrowser[diagId] = []
             }
             for (var i = 0; i < inputSelectors.length; i++) {
-                self.dirBrowser[diagId][i] = new theWebUI.rDirBrowser(inputSelectors[i].id, withFiles);
+                let rdb = new theWebUI.rDirBrowser(inputSelectors[i].id, withFiles);
+                self.dirBrowser[diagId][i] = rdb;
+                rdb.btn.addClass(['m-0', 'p-1']);
+
             }
         }
     }

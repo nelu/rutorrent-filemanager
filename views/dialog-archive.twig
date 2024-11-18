@@ -10,30 +10,43 @@
 {% endblock %}
 
 {% block content %}
-
-    {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
-
-    {{ window.passwordField("fman-archive-apassword") }}
-
-    <div class="mb-3 row">
-        <fieldset>
+    <div class="mt-3">
+        {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive) }}
+    </div>
+        <fieldset class="mb-3">
             <legend>{{ theUILang.fDiagOptions }}</legend>
-            <label style="float: left;"> {{ theUILang.fDiagCArchType }}
-                <select id="fMan_archtype" name="fMan_archtype">
+            <div class="mt-3 row">
+                <div class="mb-3 col">
+                    <div class="input-group">
+                        <label class="input-group-text m-0 p-1" for="fMan_archtype">{{ theUILang.fDiagCArchType }}</label>
+                        <select class="form-select m-0 p-1" id="fMan_archtype" name="fMan_archtype"
+                                aria-label="{{ theUILang.fDiagCArchType }}">
+                        </select>
+                    </div>
+                </div>
 
-                </select>
-            </label>
-            <label style="float: left; margin-left: 10px;">
-                {{ theUILang.fDiagCompression }}
-                <select id="fman-archive-archcompr" name="fman-archive-archcompr"> </select>
-            </label>
-            <label class="fman-archive-settings-rar" for="fman-archive-vsize" style="float: right;">
-                {{ theUILang.fDiagCArchVsize }}
-                <input class="Textbox num1" id="fman-archive-vsize" name="fman-archive-vsize" type="text" value=""/>
-            </label>
+                <div class="mb-3 col">
+                    <div class="input-group">
+                        <label class="input-group-text m-0 p-1" for="fman-archive-archcompr">{{ theUILang.fDiagCompression }}</label>
+                        <select class="form-select m-0 p-1" id="fman-archive-archcompr" name="fman-archive-archcompr"
+                                aria-label="{{ theUILang.fDiagCompression }}">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3 col fman-archive-settings-rar">
+                    <div class="input-group">
+                        <label class="input-group-text m-0 p-1" for="fman-archive-vsize">{{ theUILang.fDiagCArchVsize }}</label>
+                        <input class="form-control m-0 p-1" id="fman-archive-vsize" name="fman-archive-vsize" aria-label="{{ theUILang.fDiagCArchVsize }}"
+                               type="number" value="">
+                    </div>
+                </div>
+
+            </div>
+            {{ window.passwordField("fman-archive-apassword") }}
+
         </fieldset>
 
-    </div>
 
 {% endblock %}
 
