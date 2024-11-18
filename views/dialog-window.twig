@@ -1,62 +1,92 @@
-
 {% macro showMultiple(entries, filesOnly = false) %}
-<ul>
-{% for path in entries %}
-    {% if not (filesOnly and isDir(path)) %}
-        <li>
-            <label>
-                <input type="checkbox" value="{{ path }}" checked="checked" />{{ path }}
-            </label>
-        </li>
-    {% endif %}
+    <div class="checklist">
+        {% for path in entries %}
+            {% if not (filesOnly and isDir(path)) %}
+                {% set randId = random() %}
 
-{% endfor %}
-</ul>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="{{ path }}" id="flm-paths-list-{{ randId }}" checked>
+                    <label class="form-check-label" for="flm-paths-list-{{ randId }}">
+                        <span class="clear-filename">{{ path }}</span>
+                    </label>
+                </div>
+            {% endif %}
+
+        {% endfor %}
+    </div>
 {% endmacro %}
 
-{% macro pathBrowser(default="/", title = false) %}
-<fieldset>
-    <legend>{{ title }}</legend>
-    <input type="text" id="flm-nav-path-{{ random() }}" class="flm-diag-nav-path TextboxLarge text-long" value="{{ default }}" autocomplete="off"/>
-    <input id="flm-nav-but-{{ random() }}" class="flm-diag-nav-browse-but Button aright" type="button" value="..." />
-</fieldset>
+{% macro pathBrowser(default="", title = false, class = "", disabled="") %}
+    {% set default = default == "/" ? "" : default %}
+    {% set class = class == "" ? "flm-diag-nav-path" : class %}
+    {% set randId = random() %}
+    <div class="row">
+        <div class="input-group mb-3">
+            <label class="input-group-text m-0 pt-1 pb-1" for="flm-nav-path-{{ randId }}">{{ title }}</label>
+            <input class="form-control m-0 p-1 {{ class }}" id="flm-nav-path-{{ randId }}" type="text"
+                   value="{{ default }}" {{ disabled }}>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro passwordField(id, title = null) %}
+    {% set title = title ?? theUILang.flm_password %}
+    <div class="row">
+        <div class="input-group mb-2">
+            <label class="input-group-text m-0 pt-1 pb-1" for="{{ id }}">{{ title }}</label>
+            <input class="form-control m-0 p-1" id="{{ id }}" name="{{ id }}" aria-label="{{ title }}"
+                   type="password" value="">
+
+            <div class="input-group-text m-0 p-1">
+                <input class="form-check-input mt-0" id="{{ id }}-showpass" role="switch" type="checkbox" value="" aria-label="Show password">
+                <label class="form-check-label m-0" for="{{ id }}-showpass">Show</label>
+            </div>
+        </div>
+        <script>
+            $('#{{ id }}-showpass').on('change', function () {
+                $("#{{ id }}").attr('type', $(this).is(':checked') ? 'text' : 'password');
+            });
+        </script>
+    </div>
 {% endmacro %}
 
 {% import _self as window %}
 
-<div class="flm-popup-diag-content">
-    {% if multiselect %}
-        <fieldset>
+<div class="cont fxcaret flm_popup-content">
+    <div class="flm-popup-diag-content">
+        {% if multiselect %}
+            <fieldset>
+                {% block heading %}
+                {% endblock %}
+                {{ window.showMultiple(selectedEntries, multiselectFilesOnly) }}
+            </fieldset>
+        {% else %}
             {% block heading %}
             {% endblock %}
-            <div id="flm-diag-paths-list" class="checklist">
+        {% endif %}
 
-                {{ window.showMultiple(selectedEntries, multiselectFilesOnly) }}
-            </div>
-        </fieldset>
-    {% else %}
-    {% block heading %}
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% block navigation %}
+        {% if pathbrowse %}
+            {{ window.pathBrowser(pathbrowse, theUILang.fDiagTo) }}
+        {% endif %}
     {% endblock %}
-    {% endif %}
 
-    {% block content %}
+    {% block buttons %}
+        <div class="buttons-list">
+            <input class="flm-diag-start Button"
+                   disabled="disabled" type="button"
+                   value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}"/>
+            <input class="flm-diag-cancel Cancel Button" type="button"
+                   value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
+        </div>
     {% endblock %}
+
+
+    {% block scripts %}
+    {% endblock %}
+
+
 </div>
-{% block navigation %}
-    {% if pathbrowse %}
-        {{ window.pathBrowser(pathbrowse, theUILang.fDiagTo) }}
-   {% endif %}
-{% endblock %}
-
-{% block buttons %}
-<div class="aright buttons-list">
-    <input type="submit" class="flm-diag-start Button" value="{{ startButtonValue is defined ? startButtonValue : theUILang.fcreate }}" disabled="disabled" class="Button" />
-    <input type="button" class="flm-diag-cancel Button" value="{{ closeButtonValue is defined ? closeButtonValue : theUILang.fDiagClose }}"/>
-</div>
-{% endblock %}
-
-
-{% block scripts %}
-{% endblock %}
-
-

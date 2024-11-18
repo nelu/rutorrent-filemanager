@@ -115,6 +115,7 @@ theUILang.fDiagExtract	= 'Entpacke Archive';
 theUILang.fDiagArchive	= 'Archiv:';
 theUILang.fDiagCompression	= 'Kompression:';
 theUILang.flm_diag_extract_button		= 'Entpacke';
+theUILang.flm_password		= 'Password';
 theUILang.fDiagArchempty	= 'Bitte Archivnamen eingeben!';
 
 theUILang.fStarts = { 

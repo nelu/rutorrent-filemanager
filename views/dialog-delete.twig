@@ -10,36 +10,13 @@
 {% block scripts %}
     <script>
         if (!flm.ui.hasOwnProperty('dialogDelete')) {
-            flm.ui.dialogDelete = function (global) {
+            flm.ui.dialogDelete = function () {
                 var dialogs = flm.ui.getDialogs();
-                var diagId = dialogs.getDialogId();
-
-                let self = this
-                self.doDelete = function (paths) {
-
-                    var deferred = $.Deferred();
-
-                    if (!$type(paths) || paths.length === 0) {
-                        deferred.reject({errcode: 'delete', msg: 'Empty paths'});
-                        return deferred.promise();
-                    }
-
-                    paths = flm.manager.getFullPaths(paths);
-
-                    return flm.api.removeFiles(paths).then(function (result) {
-                        flm.Refresh(result.params.workdir);
-                        $(document).trigger(flm.EVENTS.delete, [paths]);
-                        return result;
-                    });
-
-                };
-                dialogs.onStart(function () {
-                    return self.doDelete(dialogs.getCheckedList(diagId));
-                });
-
+                const diagId = dialogs.getCurrentDialog();
+                dialogs.onStart(() => flm.actions.doDelete(dialogs.getCheckedList(diagId)));
             };
         }
 
-        (flm.ui.dialogDelete)(window);
+        (flm.ui.dialogDelete)();
     </script>
 {% endblock %}

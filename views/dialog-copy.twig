@@ -1,103 +1,44 @@
-{% set pathbrowse = isValidPath(currentPath)? currentPath : '/' %}
+{% set pathbrowse = currentPath %}
 {% set multiselect = 1 %}
 {% set multiselectFilesOnly = false %}
 {% set startButtonValue = theUILang.fDiagCopyBut %}
 
 {% extends "flm::dialog-window.twig" %}
 {% block heading %}
-    <legend>{{ theUILang.fDiagCopySel }} </legend>
+    <legend>{{ theUILang.fDiagCopySel }}</legend>
 {% endblock %}
 
 {% block scripts %}
-<script>
+    <script>
+        if (!flm.ui.hasOwnProperty('dialogCopy')) {
 
-    if (!flm.ui.hasOwnProperty('dialogCopy')) {
+            flm.ui.dialogCopy = function () {
+                let dialogs = flm.ui.getDialogs();
+                const diagId = dialogs.getCurrentDialog();
+                const pathBrowser = dialogs.dirBrowserInput(diagId);
 
-        flm.ui.dialogCopy = function () {
-            const dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getDialogId();
-            const pathBrowser = dialogs.dirBrowserInput(diagId);
+                let self = this;
 
-            let self = this;
+                self.updateFilePath = function () {
+                    let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
+                    dialogs.updateTargetPath(diagId, filePath);
+                };
 
-            self.doCopy = function (destination, filePaths) {
+                dialogs.onStart(() => flm.actions.doCopy(
+                    dialogs.getTargetPath(diagId),
+                    dialogs.getCheckedList(diagId)
+                ).then());
 
-                destination = $.trim(destination);
+                pathBrowser.change(self.updateFilePath);
 
-                var deferred = $.Deferred();
-                //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
-
-                if (!$type(filePaths) || filePaths.length === 0) {
-                    deferred.reject({errcode: 'copy', msg: 'Empty paths'});
-                    return deferred.promise();
+                const entries = dialogs.getCheckedList(diagId);
+                if (entries.length === 1) {
+                    pathBrowser.data('previousValue', 'Copy of ' + flm.utils.basename(entries[0]))
+                        .change();
                 }
 
-                if (!flm.utils.isValidPath(destination)) {
-                    // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-                    deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": "+destination});
-
-                    return deferred.promise();
-                }
-
-                // check if its empty from clipboard
-                filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
-
-                self.noty = $.noty(
-                    {
-                        text: theUILang.fStarts.copy + ": " + filePaths.length + " files",
-                        layout: 'bottomLeft',
-                        type: 'information',
-                        timeout: 5000,
-                        closeOnSelfClick: true
-                    });
-
-                return flm.api.copy(filePaths, flm.manager.stripJailPath(destination))
-                    .then(function (result) {
-                            // refresh in case we are in destination
-                        if(!flm.utils.isDir(destination)) {
-                            // when destination is a directory name
-                            destination = flm.utils.basedir(destination)
-                        }
-
-                        destination === flm.getCurrentPath()
-                            && flm.Refresh();
-                            self.noty = $.noty(
-                                {
-                                    text: theUILang.flm_popup_copy + ": " + filePaths.length,
-                                    layout: 'bottomLeft',
-                                    type: 'success',
-                                    timeout: 10000,
-                                    closeOnSelfClick: true
-                                });
-                            return result;
-                        },
-                        function (response) {
-                            return response;
-                        });
             }
-
-            self.onStart = function () {
-                dialogs.disableStartButton();
-                return self.doCopy(dialogs.getTargetPath(diagId), dialogs.getCheckedList(diagId))
-                    .then();
-            };
-
-            self.updateFilePath = function () {
-                let filePath = flm.utils.replaceFilePath(pathBrowser.val(), pathBrowser.data('previousValue'));
-                dialogs.updateTargetPath(diagId, filePath);
-            };
-
-            dialogs.onStart(self.onStart);
-            pathBrowser.change(self.updateFilePath);
-
-            const entries = dialogs.getCheckedList(diagId);
-            if (entries.length === 1) {
-                pathBrowser.data('previousValue', 'Copy of ' + flm.utils.basename(entries[0]))
-                    .change();
-            }
-
         }
-    }
-    (flm.ui.dialogCopy)(window);
-</script>
+        (flm.ui.dialogCopy)(window);
+    </script>
 {% endblock %}

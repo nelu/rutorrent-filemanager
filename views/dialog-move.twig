@@ -10,74 +10,12 @@
 
 {% block scripts %}
     <script>
-        if (!flm.ui.hasOwnProperty('dialogMove')) {
-            flm.ui.dialogMove = function () {
+        (function (flm) {
+            let dialogs = flm.ui.getDialogs();
+            const diagId = dialogs.getCurrentDialog();
 
-            var dialogs = flm.ui.getDialogs();
-            var diagId = dialogs.getDialogId('window');
-            let self = this;
+            dialogs.onStart(() => flm.actions.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
 
-            // service
-            self.doMove = function (filePaths, destination) {
-
-                destination = $.trim(destination);
-
-                var deferred = $.Deferred();
-
-                if (!$type(filePaths) || filePaths.length === 0) {
-                    deferred.reject({errcode: 'move', msg: 'Empty paths'});
-                    return deferred.promise();
-                }
-
-                if (!flm.utils.isValidPath(destination)) {
-                    deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname+": "+destination});
-                    return deferred.promise();
-                }
-
-                filePaths = flm.ui.browser.selectedTarget ? flm.manager.getFullPaths(filePaths) : filePaths;
-                var cPath = flm.getCurrentPath();
-
-                self.noty = $.noty(
-                    {
-                        text: theUILang.fStarts.move + " " + filePaths.length + " files",
-                        layout: 'bottomLeft',
-                        type: 'information',
-                        timeout: 5000,
-                        closeOnSelfClick: true
-                    });
-
-                return flm.api.move(filePaths, destination)
-                    .then(function (result) {
-                            (destination === flm.getCurrentPath()
-                                || cPath === flm.getCurrentPath())
-                            && flm.Refresh();
-
-                            $(document).trigger(flm.EVENTS.move, [filePaths, destination]);
-                            self.noty = $.noty(
-                                {
-                                    text: theUILang.flm_popup_move + ": " + filePaths.length,
-                                    layout: 'bottomLeft',
-                                    type: 'success',
-                                    timeout: 10000,
-                                    closeOnSelfClick: true
-                                });
-                            return result;
-                        },
-                        function (response) {
-                            return response;
-                        });
-            };
-
-
-            dialogs.onStart(function () {
-                return self.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId));
-            });
-
-        }
-        }
-
-        (flm.ui.dialogMove)(window);
+        })(flm);
     </script>
 {% endblock %}
-
-

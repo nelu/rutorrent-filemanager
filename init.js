@@ -1,4 +1,8 @@
-plugin = plugin || {}; // shut up
+// shut up
+if (typeof plugin === undefined) {
+    let plugin = new rPlugin();
+}
+plugin.debug = false;
 
 plugin.ui = {
     fsBrowserContainer: "flm-browser",
@@ -18,28 +22,27 @@ plugin.ui = {
 
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer + "-table";
 
+
+plugin.ready = () => {
+    return plugin.ui.readyPromise;
+};
 // boostrap ui elements, at a early stage in rutorrent ui load
 plugin.ui.setConfig = function () {
+
     plugin.attachPageToTabs(
         $('<div>')
             .attr("id", plugin.ui.fsBrowserContainer)
-            .addClass('table_tab')
+            .addClass('table_tab stable')
             .html('<div id="' + plugin.ui.fsBrowserTableContainer + '" class="stable"></div>')
             .get(0),
         "filemanager", "lcont");
 
-    theWebUI.tables.flm =  {
+    theWebUI.tables.flm = {
         obj: new dxSTable(),
-        format: function (){return flm.ui.browser.uiTableFormat.apply(flm.ui.browser, arguments)},
-        ondblclick: function () {
-            flm.ui.browser.open(flm.ui.browser.selectedTarget);
-            return false;
-        },
-        onselect: function () { flm.ui.browser.onSelectEntry.apply(flm.ui.browser, arguments);},
-        ondelete: function () {
-            flm.ui.browser.selectedEntries = flm.ui.browser.getSelection();
-            flm.ui.getDialogs().showDialog('delete')
-        },
+        format: (table, arr) => flm.ui.filenav.handleTableFormat(table, arr),
+        ondblclick: (id) => flm.ui.filenav.handleOpenEntry(id),
+        onselect: (e, id) => flm.ui.filenav.handleSelectEntry(e, id),
+        ondelete: () => flm.ui.filenav.handleDeleteEntry(),
         columns: [
             {
                 text: theUILang.Name,
@@ -93,244 +96,42 @@ plugin.ui.getContextMenuEntryPosition = function (menu, what, atIndex) {
     return pos;
 };
 
-// final stage:
-plugin.ui.handleTorrentFilesMenu = function (e, selected) {
-
-    plugin.fno = null;
-    plugin.mode = null;
-    var table = theWebUI.getTable("fls");
-
-
-    var fid = table.getFirstSelected();
-    var selectIsDir = theWebUI.dirs[theWebUI.dID].isDirectory(fid);
-
-    var selectedName = selected
-        ? selectIsDir ? selected.name += '/' : selected.name
-        : '/';
-
-    var selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID])
-        ? theWebUI.torrents[theWebUI.dID]
-        : null;
-
-    var torrentPath = selectedTorrent.multi_file ? selectedTorrent.base_path : selectedTorrent.save_path;
-    var currentTorrentDirPath = flm.manager.stripJailPath(flm.utils.buildPath([torrentPath, theWebUI.dirs[theWebUI.dID].current]));
-
-    var selectedPath = flm.utils.buildPath([currentTorrentDirPath, selectedName]);
-
-    selectedPath = flm.manager.stripJailPath(selectedPath);
-
-
-    var selectedEntries = [];
-    var rows = table.rowSel;
-
-    var entry;
-    var entryPath;
-    for (var i in rows) {
-        if (rows[i]) {
-            entry = theWebUI.dirs[theWebUI.dID].getEntry(i);
-            if (entry) {
-                entryPath = flm.utils.buildPath([torrentPath, entry.name]);
-                entryPath = flm.manager.stripJailPath(entryPath);
-                if (theWebUI.dirs[theWebUI.dID].isDirectory(i)) {
-                    entryPath += '/';
-                }
-
-                selectedEntries.push(entryPath);
-            }
-        }
-    }
-
-    flm.ui.browser.selectedTarget = selectedPath;
-    flm.ui.browser.selectedEntries = selectedEntries;
-    var fileManagerSubmenu = [];
-    if (selected) {
-
-        fileManagerSubmenu = flm.ui.browser.getEntryMenu(selectedName, selectedEntries);
-
-        $(document).trigger(plugin.ui.EVENTS.entryMenu, [fileManagerSubmenu, selectedPath]);
-
-        var remove = [
-            theUILang.fOpen,
-            //theUILang.fCopy,
-            theUILang.fMove,
-            theUILang.fDelete,
-            theUILang.fRename,
-            theUILang.fcNewDir,
-
-            theUILang.fMediaI,
-            theUILang.fRefresh
-        ];
-        var subCreateMenu = null;
-
-        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry) {
-
-            if (menuEntry[0] === CMENU_SEP) {
-                return false;
-            }
-
-            if (menuEntry[1] === theUILang.fcreate) {
-                //subCreateMenuPos = lastElement+"";
-                subCreateMenu = menuEntry[2];
-                return false;
-            }
-
-            var inRemove = remove.indexOf(menuEntry[0]);
-            return (inRemove < 0);
-        });
-
-
-        fileManagerSubmenu = fileManagerSubmenu.concat(subCreateMenu);
-
-        // round 2 of filtering :\
-        // with entries from create sub menu
-        fileManagerSubmenu = jQuery.grep(fileManagerSubmenu, function (menuEntry) {
-            var inRemove = remove.indexOf(menuEntry[0]);
-            return (inRemove < 0);
-        });
-
-    }
-
-    fileManagerSubmenu.unshift([theUILang.fOpen, function () {
-        flm.showPath(currentTorrentDirPath, selectedName);
-    }
-    ]);
-
-    var el = theContextMenu.get(theUILang.Priority);
-    if (el) {
-        theContextMenu.add(el, [CMENU_CHILD, theUILang.fManager, fileManagerSubmenu]);
-    }
-
-    $(document).trigger(plugin.ui.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, selectedEntries, table]);
-
-};
 //  update/initialize rest ui elements, when localisation is loaded
 plugin.ui.init = function () {
 
     plugin.resizeBottom = theWebUI.resizeBottom;
     theWebUI.resizeBottom = function (w, h) {
         plugin.resizeBottom.call(this, w, h);
-
+/*
         if (w !== null) {
             w -= 16;
         }
         if (h !== null) {
-            h -= ($("#fMan_navpath").outerHeight());
+            h -= ($("#flm-navigation-head").outerHeight());
             h -= ($("#tabbar").outerHeight());
             h -= TR_HEIGHT + 2;
         }
 
-        var table = flm.ui.browser.table();
+        var table = flm.ui.filenav.table();
         if (table) {
             table.resize(w, h);
-        }
+        }*/
     };
 
-    if (!thePlugins.isInstalled('data')) {
-
-        $(document.body).append($("<iframe name='datafrm'/>").css({
-            visibility: "hidden"
-        }).attr({
-            name: "datafrm",
-            id: "datafrm"
-        }).width(0).height(0).on('load', function () {
-            var d = (this.contentDocument || this.contentWindow.document);
-            if (d.location.href !== "about:blank")
-                try {
-                    eval(d.body.innerHTML);
-                } catch (e) {
-                }
-        }));
-    }
+    !thePlugins.isInstalled('data') && flm.ui.createDataFrame();
 
     if (plugin.canChangeTabs()) {
         plugin.renameTab(plugin.ui.fsBrowserContainer, theUILang.fManager);
-        window.flm.ui.init();
-    }
-
-    plugin.addAndShowSettings = theWebUI.addAndShowSettings;
-    theWebUI.addAndShowSettings = function (arg) {
-        if (plugin.enabled) {
-            window.flm.ui.settings.onShow(arg);
-        }
-        plugin.addAndShowSettings.call(theWebUI, arg);
-    };
-
-    plugin.flmSetSettings = theWebUI.setSettings;
-    theWebUI.setSettings = function (arg) {
-
-        if (plugin.enabled) {
-            window.flm.ui.settings.onSave(arg);
-        }
-        plugin.flmSetSettings.call(this, arg);
-
-    };
-
-    if (plugin.canChangeMenu()) {
-        plugin.createTorrentFileMenu = theWebUI.createFileMenu;
-        theWebUI.createFileMenu = function (e, id) {
-            if (plugin.createTorrentFileMenu.call(this, e, id)) {
-                if (plugin.enabled) {
-                    plugin.ui.handleTorrentFilesMenu(e, id);
-                }
-                return true;
-            }
-            return false;
-        }
+        window.flm.init();
     }
 
     plugin.markLoaded();
-
-};
-
-// trigger input change events from iframe visibility
-theWebUI.rDirBrowser.prototype.editObserver = null;
-theWebUI.rDirBrowser.prototype.monitorUpdates = function (beforeUpdate, afterUpdate) {
-    if (!this.editObserver) {
-        const self = this;
-        const observer = new MutationObserver(function () {
-            self.frame.css("visibility") === "hidden" ? afterUpdate.apply(self) : beforeUpdate.apply(self);
-        });
-
-        self.editObserver = observer.observe(this.frame[0], {attributes: true, attributeFilter: ["style"]});
-        self.edit.on(browser.isIE ? "focusin" : "focus", function () {
-            beforeUpdate.apply(self);
-        });
-    }
 };
 
 // hooks
-plugin.flmOnShow = theTabs.onShow;
-theTabs.onShow = function (id) {
-
-    if (id === plugin.ui.fsBrowserContainer) {
-        window.flm.ui.browser.onShow();
-    }
-    plugin.flmOnShow.call(this, id);
-
-};
-
-plugin.flmTabsShow = theTabs.show;
-theTabs.show = function (id) {
-
-    if (id !== plugin.ui.fsBrowserContainer) {
-        if (window.flm) {
-            window.flm.ui.browser.onHide();
-        }
-    } else {
-        $('#fMan_showconsole').css('display', 'inline');
-    }
-    plugin.flmTabsShow.call(this, id);
-
-};
-
 plugin.onRemove = function () {
     this.removePageFromTabs(plugin.ui.fsBrowserContainer);
-    $('#fMan_showconsole').remove();
     $('[id^="fMan_"]').remove();
-};
-
-plugin.onLangLoaded = function () {
-    return plugin.enabled && plugin.ui.init();
 };
 
 plugin.onTaskFinished = function (task, onBackground) {
@@ -352,32 +153,45 @@ plugin.onTaskFinished = function (task, onBackground) {
 
 };
 
-// plugin init
-// 1. early plugin setup of rutorrent components (UI mostly)
-if (plugin.canChangeTabs()) {
+// load language strings first + start app
+plugin.onLangLoaded = () => {
+// ruTorrent component overrides
+    plugin.flmOnShow = theTabs.onShow;
+    theTabs.onShow = (id) => $(document).trigger('theTabs:onShow', [id]) && plugin.flmOnShow.call(theTabs, id);
 
-    plugin.flmConfig = theWebUI.config;
-    theWebUI.config = function (data) {
-        plugin.ui.setConfig();
-        // continue the init of the webUI
-        plugin.flmConfig.call(this, data);
-
+    plugin.flmTabsShow = theTabs.show;
+    theTabs.show = (id) => {
+        $(document).trigger('theTabs:show', [id]);
+        plugin.flmTabsShow.call(theTabs, id);
     };
+
+    plugin.addAndShowSettings = theWebUI.addAndShowSettings;
+    theWebUI.addAndShowSettings = (data) => $(document).trigger('theWebUI:addAndShowSettings', [data]) &&
+        plugin.addAndShowSettings.call(theWebUI, data);
+
+    plugin.flmSetSettings = theWebUI.setSettings;
+    theWebUI.setSettings = (data) => $(document).trigger('theWebUI:setSettings', [data]) &&
+        plugin.flmSetSettings.call(theWebUI, data);
+
+    plugin.createTorrentFileMenu = theWebUI.createFileMenu;
+    theWebUI.createFileMenu = (e, data) => (plugin.createTorrentFileMenu.call(theWebUI, e, data) &&
+        $(document).trigger('theWebUI:createFileMenu', [data, e]));
+
+    Promise.all([
+        import('./' + plugin.path + 'js/twig.min.js'),
+        import('./' + plugin.path + 'js/app.js')
+    ]).then(([]) => {
+        plugin.ui.init();
+    });
 }
 
+if (plugin.enabled) {
 
-// 2. delayed loading of the lib
-// load view dependencies, first (hopefully)
-injectScript(plugin.path + 'js/twig.min.js',
-    // view engine
-    function () {
-        injectScript(plugin.path + 'js/app.js',
-            function () {
+    plugin.flmConfig = theWebUI.config;
+    theWebUI.config = (data) => $(document).trigger('theWebUI:config', [data]) && plugin.flmConfig.call(theWebUI, data);
+    $(document).on('theWebUI:config', () => plugin.canChangeTabs() && plugin.ui.setConfig());
 
-                // localisation + app
-                plugin.loadLang();
-            });
-
-    });
-plugin.loadCSS('css/main');
+    plugin.loadLang();
+    plugin.loadCSS('css/main');
+}
 

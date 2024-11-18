@@ -119,6 +119,7 @@ theUILang.fDiagExtract		= "Extraire une archive";
 theUILang.fDiagArchive		= "Archive :";
 theUILang.fDiagCompression	= "Compression :";
 theUILang.flm_diag_extract_button = "Extraire";
+theUILang.flm_password		= 'Mot de passe';
 theUILang.fDiagArchempty	= "Veuillez entrer un nom d'archive.";
 
 theUILang.fStarts = {
