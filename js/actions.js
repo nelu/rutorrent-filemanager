@@ -108,7 +108,7 @@ export function FileManagerActions() {
         }
 
         // check if its empty from clipboard
-        filePaths = flm.ui.filenav.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
+        filePaths = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(filePaths) : filePaths;
 
         self.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
 
@@ -188,7 +188,7 @@ export function FileManagerActions() {
             return deferred.promise();
         }
 
-        filePaths = flm.ui.filenav.selectedTarget ? flm.getFullPaths(filePaths) : filePaths;
+        filePaths = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(filePaths) : filePaths;
         var cPath = flm.getCurrentPath();
 
         flm.actions.notify(theUILang.fStarts.move + " " + filePaths.length + " files");

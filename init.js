@@ -40,7 +40,7 @@ plugin.ui.setConfig = function () {
     theWebUI.tables.flm = {
         obj: new dxSTable(),
         format: (table, arr) => flm.ui.filenav.handleTableFormat(table, arr),
-        ondblclick: () => flm.ui.filenav.handleOpenEntry(),
+        ondblclick: (id) => flm.ui.filenav.handleOpenEntry(id),
         onselect: (e, id) => flm.ui.filenav.handleSelectEntry(e, id),
         ondelete: () => flm.ui.filenav.handleDeleteEntry(),
         columns: [

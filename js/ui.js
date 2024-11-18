@@ -215,7 +215,7 @@ export function FileManagerUi(flm) {
 
     self.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
 
-        self.filenav.selectedTarget = selectedPath;
+        self.filenav.setSelectedTarget(selectedPath);
         self.filenav.selectedEntries = selectedEntries;
         let fileManagerSubmenu = [];
 
@@ -388,7 +388,7 @@ export function FileManagerUi(flm) {
     };
 
     self.viewNFO = function (file) {
-        file && (self.filenav.selectedTarget = file);
+        file && self.filenav.setSelectedTarget(file);
         self.dialogs.showDialog('nfo_view');
     };
 

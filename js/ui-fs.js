@@ -90,9 +90,20 @@ export function FsBrowser() {
         return (checkInTable(what) || checkInTable(what + '/'));
     };
 
-    self.getSelectedEntry = function () {
+    self.getSelectedTarget = function () {
         return self.selectedTarget;
     };
+
+    self.setSelectedTarget = function (target) {
+        self.selectedTarget = target;
+        return self;
+    }
+
+    self.setSelectedEntry = (id) => {
+        const entry = id.split(self.tableEntryPrefix)[1];
+        self.setSelectedTarget(!self.isTopDir(entry) ? flm.getCurrentPath(entry) : entry);
+        return entry;
+    }
 
     self.getSelection = function (fullpath) {
         fullpath = fullpath || false;
@@ -119,7 +130,7 @@ export function FsBrowser() {
         desiredExt = desiredExt || ext
         let file = self.selectedEntries.length > 1 && !self.isTopDir(flm.getCurrentPath())
             ? flm.getCurrentPath()
-            : self.getSelectedEntry()
+            : self.getSelectedTarget()
 
         file = ext ? flm.utils.stripFileExtension(file, ext) + '.' + desiredExt : '';
         return file;
@@ -175,7 +186,8 @@ export function FsBrowser() {
         flm.ui.getDialogs().showDialog('delete');
     }
 
-    self.handleOpenEntry = () => {
+    self.handleOpenEntry = (row) => {
+        self.setSelectedEntry(row.id)
         self.open(self.selectedTarget);
     }
 
@@ -183,16 +195,13 @@ export function FsBrowser() {
     self.handleSelectEntry = function (e, id) {
         // handles right/left click events
         if ($type(id) && (e.button === rightMouseKey)) {
-            let target = id.split(self.tableEntryPrefix)[1];
-
-            self.selectedTarget = !self.isTopDir(target) ? flm.getCurrentPath(target) : target;
-
+            self.setSelectedEntry(id);
 
             theContextMenu.clear();
             self.selectedEntries = self.getSelection(false);
 
             var menuEntries = self.getEntryMenu(self.selectedTarget, self.selectedEntries);
-            $(document).trigger(flm.EVENTS.entryMenu, [menuEntries, target]);
+            $(document).trigger(flm.EVENTS.entryMenu, [menuEntries, self.selectedTarget]);
 
             $.each(menuEntries, function (index, value) {
                 theContextMenu.add(value);

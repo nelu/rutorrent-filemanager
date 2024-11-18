@@ -250,7 +250,7 @@ export function FileManagerDialogs(browser) {
         templateVars.selectedEntries = browser.selectedEntries;
 //                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
 
-        templateVars.selectedTarget = !browser.selectedTarget ? '/' : browser.selectedTarget;
+        templateVars.selectedTarget = !browser.getSelectedTarget() ? '/' : browser.getSelectedTarget();
         templateVars.currentPath = flm.addJailPath(flm.getCurrentPath('/'));
 
         config.options = templateVars;
