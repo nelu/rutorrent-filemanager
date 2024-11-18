@@ -102,12 +102,12 @@ plugin.ui.init = function () {
     plugin.resizeBottom = theWebUI.resizeBottom;
     theWebUI.resizeBottom = function (w, h) {
         plugin.resizeBottom.call(this, w, h);
-
+/*
         if (w !== null) {
             w -= 16;
         }
         if (h !== null) {
-            h -= ($("#fMan_navpath").outerHeight());
+            h -= ($("#flm-navigation-head").outerHeight());
             h -= ($("#tabbar").outerHeight());
             h -= TR_HEIGHT + 2;
         }
@@ -115,7 +115,7 @@ plugin.ui.init = function () {
         var table = flm.ui.filenav.table();
         if (table) {
             table.resize(w, h);
-        }
+        }*/
     };
 
     !thePlugins.isInstalled('data') && flm.ui.createDataFrame();

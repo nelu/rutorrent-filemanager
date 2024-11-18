@@ -1,14 +1,16 @@
-<table border="0" id="fMan_navpath" width="100%">
-    <tr>
-        <td width="19"><input class="flm-nav-refresh flm-sprite sprite-curdir" id="flm-nav-refresh"
-                              name="flm-nav-refresh"
-                              type="button"
-                              value=""/></td>
-        <td><select id="flm-navpath" name="flm-navpath" style="width:100%;">
+<div class="container-fluid" id="flm-navigation-head">
+    <div class="row">
+        <div class="input-group mb-3">
+            <button type="button" id="flm-nav-refresh" class="btn w-auto lh-1 m-0 p-0 flm-nav-refresh">
+                <i class="flm-sprite sprite-refresh"></i>
+            </button>
+            <span class="input-group-text pb-0 pt-0"><i class="flm-sprite sprite-curdir"></i></span>
+
+            <select class="form-select lh-1 m-0" id="flm-navpath" name="flm-navpath" aria-label="History">
             </select>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+</div>
 <form action="{{ apiUrl }}"
       id="flm-get-data"
       method="post"
