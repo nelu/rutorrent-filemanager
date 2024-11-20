@@ -62,24 +62,23 @@ export function FileManagerDialogs(browser) {
             self.startButton(diagId).select().focus();
         });
     }
-    // common after event handle
+    // common dialog cleanup
     self.afterHide = function (dialogId, what) {
 
+        let diagConf = self.getDialogConfig(what);
+        const persistentDiag = ($type(diagConf.persist) && diagConf.persist);
+
         if (self.dirBrowser.hasOwnProperty(dialogId)) {
-            for (var i = 0; i < self.dirBrowser[dialogId].length; i++) {
-
-                // closing the dialog, doesn't close the frame
+            for (let i = 0; i < self.dirBrowser[dialogId].length; i++) {
                 self.dirBrowser[dialogId][i].hide();
-               // self.dirBrowser[dialogId][i].edit.remove();
+                if (!persistentDiag) {
+                    self.deleteDirBrowser(dialogId, i);
+                }
             }
-
-            self.dirBrowser[dialogId] = [];
         }
 
-        // remove the whole dialog window
-        setTimeout(() => {
-            $("#" + dialogId).remove();
-        });
+        // use setTimeout for modal background needs to be removed first
+        !persistentDiag && setTimeout(() => self.deleteDialog(dialogId, what));
     }
 
     // common before event handle
@@ -88,7 +87,7 @@ export function FileManagerDialogs(browser) {
         var newContent = $(diagId);
 
         self.enableStartButton(diagId).on('click', function () {
-            flm.getPlugin().debug && console.log("Start button click "+diagId);
+            flm.getPlugin().debug && console.log("Start button click " + diagId);
 
             if ($type(self.onStartEvent) === "function") {
                 self.disableStartButton(diagId);
@@ -206,7 +205,7 @@ export function FileManagerDialogs(browser) {
         // create it
         // if (!theDialogManager.items.hasOwnProperty(diagId)) {
         theDialogManager.make(diagId, theUILang['flm_popup_' + what], content, config.modal); // prevent the user from changing table selection by default
-        $type(config.pathbrowse) && config.pathbrowse && self.setDirBrowser(diagId);
+        $type(config.pathbrowse) && config.pathbrowse && self.setDirBrowser(diagId, config.pathbrowseFiles);
 
         self.getDialogHeader(diagId)
             .prepend('<icon class="flm-sprite-diag flm-sprite sprite-' + what + '"></icon>');
@@ -232,9 +231,27 @@ export function FileManagerDialogs(browser) {
 
     }
 
+    self.deleteDialog = (dialogId) => {
+        console.log("deleteDialog: ", dialogId);
+        $("#" + dialogId).remove();
+        delete theDialogManager.items[dialogId];
+    }
+
+    self.deleteDirBrowser = (id, i) => {
+        // cleanup dom
+        self.dirBrowser[id][i].edit.remove();
+        self.dirBrowser[id][i].btn.remove();
+        self.dirBrowser[id][i].frame.remove();
+        delete self.dirBrowser[id][i];
+    }
+
+    self.dialogExists = (id) => {
+        return $type(theDialogManager.items[id]) ? theDialogManager.items[id] : false;
+    }
+
     self.hideDialog = (diagId, afterHide) => {
         let config = self.getDialogConfig(diagId);
-        config && self.hide(config.diagWindow, afterHide)
+        config && self.hide(config.diagWindow, afterHide);
     }
 
     self.showDialog = function (what, viewEvents) {
@@ -244,26 +261,30 @@ export function FileManagerDialogs(browser) {
         if (!config) {
             return;
         }
+
         //let browser = flm.ui.browser;
         // modal dialogs use the same window for user blocking of input
         const diagWindow = config.diagWindow;
+        self.currentDialog = diagWindow;
 
-        let templateVars = $type(config.options) ? config.options : {};
-        templateVars.apiUrl = flm.api.endpoint;
-        templateVars.selectedEntries = browser.selectedEntries;
+        if (!self.dialogExists(diagWindow)) {
+            let templateVars = $type(config.options) ? config.options : {};
+            templateVars.apiUrl = flm.api.endpoint;
+            templateVars.selectedEntries = browser.selectedEntries;
 //                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
 
-        templateVars.selectedTarget = !browser.getSelectedTarget() ? '/' : browser.getSelectedTarget();
-        templateVars.currentPath = flm.addJailPath(flm.getCurrentPath('/'));
+            templateVars.selectedTarget = !browser.getSelectedTarget() ? '/' : browser.getSelectedTarget();
+            templateVars.currentPath = flm.addJailPath(flm.getCurrentPath('/'));
 
-        config.options = templateVars;
+            config.options = templateVars;
 
-        flm.views.loadView(config, (html) => {
-            self.currentDialog = diagWindow;
-            self.createDialog(diagWindow, html, config, viewEvents, what);
-
+            flm.views.loadView(config, (html) => {
+                self.createDialog(diagWindow, html, config, viewEvents, what);
+                theDialogManager.show(diagWindow);
+            });
+        } else {
             theDialogManager.show(diagWindow);
-        });
+        }
 
     }
 
