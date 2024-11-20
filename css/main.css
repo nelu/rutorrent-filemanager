@@ -97,15 +97,17 @@ input.text-long {
 }
 
 .flm-sprite-diag {
+    height: 2rem;
+    width: 2rem;
     float: left;
     margin-right: 6px;
-    margin-top: 2%;
 }
 
 .flm-sprite {
     background-image: url(spritesheet.png) !important;
     background-repeat: no-repeat !important;
-    display: block;
+    display: inline-block;
+    content: "";
 }
 
 .sprite-archive {
@@ -150,22 +152,10 @@ input.text-long {
     background-position: -57px -31px;
 }
 
-.sprite-image {
-    width: 16px;
-    height: 16px;
-    background-position: -83px -31px;
-}
-
 .sprite-move {
     width: 16px;
     height: 16px;
     background-position: -5px -57px;
-}
-
-.sprite-mp3 {
-    width: 16px;
-    height: 16px;
-    background-position: -31px -57px;
 }
 
 .sprite-mkdir {
@@ -173,12 +163,6 @@ input.text-long {
     height: 16px;
     background-attachment: scroll;
     background-position: -57px -57px !important;
-}
-
-.sprite-nfo, .sprite-nfo_view {
-    width: 16px;
-    height: 16px;
-    background-position: -83px -57px;
 }
 
 .sprite-rar {
@@ -217,22 +201,22 @@ input.text-long {
     background-position: -109px -31px;
 }
 
-.sprite-video {
-    width: 16px;
-    height: 16px;
-    background-position: -109px -57px;
-}
-
 .sprite-vplay {
     width: 16px;
     height: 16px;
     background-position: -109px -83px;
 }
 
-.sprite-zip {
+.flm-icon-archive {
     width: 16px;
     height: 16px;
     background-position: -5px -109px;
+}
+
+.flm-icon-text, .sprite-nfo_view {
+    width: 16px;
+    height: 16px;
+    background-position: -83px -57px;
 }
 
 div[id^="flm_popup_"] > div.dlg-header > div:first-child {

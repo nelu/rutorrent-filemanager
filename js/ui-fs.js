@@ -282,9 +282,7 @@ export function FsBrowser() {
 
             var fext = utils.getExt(target);
 
-            var txtRe = new RegExp(flm.config.textExtensions);
-
-            if (fext.match(txtRe)) {
+            if (flm.utils.isTextfile(fext)) {
                 menu.push([theUILang.fView, () => { flm.ui.viewNFO(target); }]);
                 menu.push([CMENU_SEP]);
             }

@@ -1,14 +1,23 @@
 export function FileManagerUtils(flm) {
+        let fileType;
         let utils = {
             perm_map: ['-', '-xx', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx']
         };
 
+        utils.extTypes = {
+            archive: (ext) => utils.isArchive(ext),
+            text: (ext) => utils.isTextfile(ext)
+        };
+
         utils.isArchive = function (element) {
-            var re = new RegExp('('
-                + flm.config.fileExtractExtensions
-                + ')$', "i");
+            var re = new RegExp('(' + flm.config.fileExtractExtensions + ')$', "i");
 
             return this.basename(element).match(re);
+        };
+
+        utils.isTextfile = (extension) => {
+            let re = new RegExp(flm.config.textExtensions + '$', "i");
+            return utils.basename(extension).match(re);
         };
 
         utils.isDir = function (element) {
@@ -104,6 +113,16 @@ export function FileManagerUtils(flm) {
             return hasDirs;
         };
 
+        utils.getFileTypeByExtension = (extension) => {
+            for (let i in utils.extTypes) {
+                if(utils.extTypes[i](extension)) {
+                    return i;
+                }
+            }
+
+            return false;
+        };
+
         utils.getICO = function (element) {
 
             if (this.isDir(element)) {
@@ -111,56 +130,25 @@ export function FileManagerUtils(flm) {
             }
 
             var iko = 'flm-sprite ';
-
-            switch (this.getExt(element).toLowerCase()) {
-
-                case 'mp3' :
-                    iko += 'sprite-mp3';
-                    break;
-                case 'avi':
-                case 'mp4':
-                case 'wmv':
-                case 'mkv':
-                case 'divx':
-                case 'mov':
-                case 'flv':
-                case 'mpeg':
-                    iko += 'sprite-video';
-                    break;
-                case 'bmp':
-                case 'jpg':
-                case 'jpeg':
-                case 'png':
-                case 'gif':
-                    iko += 'sprite-image';
-                    break;
-                case 'log':
-                case 'txt':
-                case 'nfo':
-                    iko += 'sprite-nfo';
-                    break;
+            const ext = this.getExt(element).toLowerCase();
+            switch (ext) {
                 case 'sfv':
                     iko += 'sprite-sfv';
                     break;
-                /*                    case 'rar':
-                                        iko += 'sprite-rar';
-                                        break;
-                                    case 'zip':
-                                        iko += 'sprite-zip';
-                                        break;*/
                 case 'torrent':
                     iko += 'sprite-torrent';
                     break;
                 default:
-                    if (flm.utils.isArchive(element)) {
-                        iko += 'sprite-zip';
+                    fileType = utils.getFileTypeByExtension(ext);
+
+                    if(fileType) {
+                        iko += `flm-icon-${fileType} flm-icon-${ext}`;
                     } else {
-                        iko = 'Icon_File';
+                        iko = `Icon_File`;
                     }
             }
 
-
-            return (iko);
+            return iko;
         };
 
         utils.getExt = function (element) {
