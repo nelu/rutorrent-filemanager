@@ -209,7 +209,7 @@ export function FileManagerDialogs(browser) {
         $type(config.pathbrowse) && config.pathbrowse && self.setDirBrowser(diagId);
 
         self.getDialogHeader(diagId)
-            .prepend('<span class="flm-sprite-diag flm-sprite sprite-' + what + '"></span>');
+            .prepend('<icon class="flm-sprite-diag flm-sprite sprite-' + what + '"></icon>');
 
         // $("#"+diagId).find('.flm-diag-cancel')
         //     .click(function () {
