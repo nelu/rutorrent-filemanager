@@ -1,3 +1,20 @@
+class FlmRdb extends theWebUI.rDirBrowser {
+
+    xhr = null;
+    hide(notify = true) {
+        notify && this.edit.change();
+        return super.hide();
+    }
+
+    unload() {
+        //kill the request
+        //this.xhr && this.xhr.abort()
+
+        this.edit.remove();
+        this.btn.remove();
+        this.frame.remove();
+    }
+}
 export function FileManagerDialogs(browser) {
 
     let self = this;
@@ -70,7 +87,7 @@ export function FileManagerDialogs(browser) {
 
         if (self.dirBrowser.hasOwnProperty(dialogId)) {
             for (let i = 0; i < self.dirBrowser[dialogId].length; i++) {
-                self.dirBrowser[dialogId][i].hide();
+                self.dirBrowser[dialogId][i].hide(false);
                 if (!persistentDiag) {
                     self.deleteDirBrowser(dialogId, i);
                 }
@@ -190,7 +207,7 @@ export function FileManagerDialogs(browser) {
                 self.dirBrowser[diagId] = []
             }
             for (var i = 0; i < inputSelectors.length; i++) {
-                let rdb = new theWebUI.rDirBrowser(inputSelectors[i].id, withFiles);
+                let rdb = new FlmRdb(inputSelectors[i].id, withFiles);
                 self.dirBrowser[diagId][i] = rdb;
                 rdb.btn.addClass(['m-0', 'p-1']);
 
@@ -223,9 +240,7 @@ export function FileManagerDialogs(browser) {
             const evName = eventNames[i];
             theDialogManager.setHandler(diagId, evName, function (id) {
                 $type(self[evName]) && self[evName].apply(self, [id, what]);
-
                 viewEvents.hasOwnProperty(evName) && viewEvents[evName].apply(self, [id, what]);
-
             });
         }
 
@@ -239,9 +254,7 @@ export function FileManagerDialogs(browser) {
 
     self.deleteDirBrowser = (id, i) => {
         // cleanup dom
-        self.dirBrowser[id][i].edit.remove();
-        self.dirBrowser[id][i].btn.remove();
-        self.dirBrowser[id][i].frame.remove();
+        $type(self.dirBrowser[id][i]) && self.dirBrowser[id][i].unload();
         delete self.dirBrowser[id][i];
     }
 
