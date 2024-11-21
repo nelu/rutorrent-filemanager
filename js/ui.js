@@ -219,10 +219,9 @@ export function FileManagerUi(flm) {
         self.filenav.selectedEntries = selectedEntries;
         let fileManagerSubmenu = [];
 
-
         fileManagerSubmenu = self.filenav.getEntryMenu(selectedName, selectedEntries);
 
-        $(document).trigger(flm.EVENTS.entryMenu, [fileManagerSubmenu, selectedPath]);
+        $(document).trigger(flm.EVENTS.entryMenu, [fileManagerSubmenu, selectedName]);
 
         var remove = [theUILang.fOpen, //theUILang.fCopy,
             theUILang.fMove, theUILang.fDelete, theUILang.fRename, theUILang.fcNewDir,
