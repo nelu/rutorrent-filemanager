@@ -14,6 +14,10 @@ ruTorrent file management plugin with a javascript user interface running on rTo
 - hotkey shortcuts for file operations: copy (ctrl+c), move (ctrl+x), paste (ctrl+v), delete, rename (F2)
 
 ### Configuration
+The plugin runs jailed inside the path configured in ```$topDirectory``` variable in ``rutorrent/conf/config.php``.
+Its important that this variable is properly including the TRAILING /, the default is ```'/'```, meaning the root filesystem.
+which is not ideal in most cases, since rtorrent SHOULD NOT BE RUN AS ROOT! 
+
 #### Text Viewer
 You can specify what file extensions are supported for viewing files as text:
 ```php

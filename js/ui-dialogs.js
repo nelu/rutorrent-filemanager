@@ -89,7 +89,9 @@ export function FileManagerDialogs(browser) {
             for (let i = 0; i < self.dirBrowser[dialogId].length; i++) {
                 self.dirBrowser[dialogId][i].hide(false);
                 if (!persistentDiag) {
-                    self.deleteDirBrowser(dialogId, i);
+                    // use setTimeout for dom elements to be removed after this afterHide call
+                    // for scripts running inside the dialog views
+                    !persistentDiag && setTimeout(() => self.deleteDirBrowser(dialogId, i));
                 }
             }
         }
@@ -112,7 +114,7 @@ export function FileManagerDialogs(browser) {
 
                 self.startedPromise = self.onStartEvent.apply(self, arguments);
                 self.startedPromise.then(function () {
-                    self.hide(diagId);
+                    //self.hide(diagId);
                 }, function (data) {
                     flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
                 });
