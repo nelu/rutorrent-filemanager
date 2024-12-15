@@ -111,9 +111,7 @@ input.text-long {
 }
 
 .sprite-archive {
-    width: 16px;
-    height: 16px;
-    background-position: -5px -5px;
+    background-image: url("package.svg") !important;
 }
 
 .sprite-console {
@@ -184,15 +182,11 @@ input.text-long {
 }
 
 .sprite-rename {
-    width: 16px;
-    height: 16px;
-    background-position: -83px -83px;
+    background-image: url("edit.svg") !important;
 }
 
 .sprite-sfv, .sprite-sfv_create, .sprite-sfv_check {
-    width: 16px;
-    height: 16px;
-    background-position: -109px -5px;
+    background-image: url("data_protection.svg") !important;
 }
 
 .sprite-torrent {
@@ -208,9 +202,8 @@ input.text-long {
 }
 
 .flm-icon-archive {
-    width: 16px;
-    height: 16px;
-    background-position: -5px -109px;
+    background-size: 16px 16px;
+    background-image: url("rar.svg") !important;
 }
 
 .flm-icon-text, .sprite-nfo_view {
