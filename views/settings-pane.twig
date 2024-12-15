@@ -1,71 +1,60 @@
 <div id="flm-settings-pane">
     <fieldset>
         <legend>Display Settings</legend>
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td>Paths history number of values:</td>
-                <td><input type="text" name="flm-settings-opt-histpath" class="Textbox num1"
-                           id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/></td>
-            </tr>
-            <tr>
-                <td>Show hidden files:</td>
-                <td><input type="checkbox" name="flm-settings-opt-showhidden" id="flm-settings-opt-showhidden"
-                            {{ (opts.showhidden) ? 'checked': '' }}
-                           value="{{ opts.showhidden }}"/></td>
-            </tr>
-            <tr>
-                <td>Clean console log automatically:</td>
-                <td><input type="checkbox" name="flm-settings-opt-cleanlog" id="flm-settings-opt-cleanlog"
-                            {{ (opts.cleanlog) ? 'checked': '' }}
-                           value="{{ opts.cleanlog }}"/></td>
-            </tr>
-            <tr>
-                <td>Permissions format:</td>
-                <td><select name="flm-settings-opt-permf" id="flm-settings-opt-permf">
-                        <option value="1" {% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
-                        <option value="2" {% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)
-                        </option>
-                    </select></td>
-            </tr>
-            <tr>
-                <td>Date - Time format:</td>
-                <td><input type="text" name="flm-settings-opt-timef"
-                           class="TextboxLarge" style="width: 160px;"
-                           id="flm-settings-opt-timef"
-                           value="{{ opts.timef }}"/>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <table border="0" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <td><strong>%s</strong> - seconds</td>
-                            <td><strong>%m</strong> - minutes</td>
-                        </tr>
-                        <tr>
-                            <td><strong>%h</strong> - hours</td>
-                            <td><strong>%d</strong> - day</td>
-                        </tr>
-                        <tr>
-                            <td><strong>%M</strong> - month</td>
-                            <td><strong>%y </strong>- year</td>
-                        </tr>
-                    </table>
-                </td>
-                <td>
-                    <table width="100%" border="0" align="right" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td><strong>Format:</strong> %d.%M.%y
-                                %h:%m:%s</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Equals to:</strong> 03.12.2011
-                                22:55:47
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <label for="flm-settings-opt-histpath">Paths history number of values:</label>
+            </div>
+            <div class="col-12 col-md-6">
+                <input type="text" name="flm-settings-opt-histpath" class="Textbox num1" id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/>
+            </div>
+            <div class="col-12 col-md-6">
+                <input type="checkbox" name="flm-settings-opt-showhidden" id="flm-settings-opt-showhidden" {{ (opts.showhidden) ? 'checked': '' }} value="{{ opts.showhidden }}"/>
+                <label for="flm-settings-opt-showhidden">Show hidden files</label>
+            </div>
+            <div class="col-12 col-md-6">
+                <input type="checkbox" name="flm-settings-opt-cleanlog" id="flm-settings-opt-cleanlog" {{ (opts.cleanlog) ? 'checked': '' }} value="{{ opts.cleanlog }}"/>
+                <label for="flm-settings-opt-cleanlog">Clean console log automatically</label>
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="flm-settings-opt-permf">Permissions format:</label>
+            </div>
+            <div class="col-12 col-md-6">
+                <select name="flm-settings-opt-permf" id="flm-settings-opt-permf">
+                    <option value="1"{% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
+                    <option value="2"{% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="flm-settings-opt-timef">Date - Time format:</label>
+            </div>
+            <div class="col-12 col-md-6">
+                <input type="text" name="flm-settings-opt-timef" id="flm-settings-opt-timef" value="{{ opts.timef }}" />
+            </div>
+            <div class="col-12 col-md-4">
+                <span><strong>%s</strong> - seconds</span>
+            </div>
+            <div class="col-12 col-md-4">
+                <span><strong>%m</strong> - minutes</span>
+            </div>
+            <div class="col-12 col-md-4">
+                <span><strong>%h</strong> - hours</span>
+            </div>
+            <div class="col-12 col-md-4">
+                <span><strong>%d</strong> - day</span>
+            </div>
+            <div class="col-12 col-md-4">
+                <span><strong>%M</strong> - month</span>
+            </div>
+            <div class="col-12 col-md-4">
+                <span><strong>%y </strong>- year</span>
+            </div>
+            <div class="col-12 col-md-6">
+                <span><strong>Format:</strong> %d.%M.%y %h:%m:%s</span>
+            </div>
+            <div class="col-12 col-md-6">
+                <span><strong>Equals to</strong>: 03.12.2011 22:55:47</span>
+            </div>
+        </div>
     </fieldset>
 </div>
