@@ -125,7 +125,7 @@ export function FileManagerDialogs(browser) {
         var newContent = $(diagId);
 
         self.enableStartButton(diagId).on('click', function () {
-            flm.getPlugin().debug && console.log("Start button click " + diagId);
+            flm.getConfig().debug && console.log("Start button click " + diagId);
 
             if ($type(self.onStartEvent) === "function") {
                 self.disableStartButton(diagId);

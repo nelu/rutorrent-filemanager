@@ -39,15 +39,15 @@ import {FileManagerActions} from "./actions.js";
                     //id: filename,
                     href: filename,
                     //allowInlineIncludes: true,
-                    //debug: flm.getPlugin().debug,
-                    //trace: flm.getPlugin().debug
+                    //debug: flm.getConfig().debug,
+                    //trace: flm.getConfig().debug
                 }
             };
 
             if ($type(options.async)) {
                 options.settings['twig options'].allow_async = options.async;
             }
-            Twig.cache(!flm.getPlugin().debug);
+            Twig.cache(!flm.getConfig().debug);
             Twig.renderFile(undefined, options, function (error, template) {
                 $type(error) && console.log("GOT ERROR: ", error, options);
                 $type(fn) && fn(template);

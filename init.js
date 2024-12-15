@@ -2,7 +2,6 @@
 if (typeof plugin === undefined) {
     let plugin = new rPlugin();
 }
-plugin.debug = false;
 
 plugin.ui = {
     fsBrowserContainer: "flm-browser",

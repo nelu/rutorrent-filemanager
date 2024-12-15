@@ -29,6 +29,7 @@ class WebController extends BaseController
         $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);
         $settings['mkdefmask'] = $this->config['mkdperm'];
         $settings['archives'] = $archive;
+        $settings['debug'] = $this->config['debug'];
 
         return $settings;
     }

@@ -13,7 +13,7 @@
             dialogs.onStart(() => flm.actions.doNewDir(nameInput.val()));
 
             nameInput.parent().on('submit', function () {
-                flm.getPlugin().debug && console.log("Submit triggered on input", nameInput);
+                flm.getConfig().debug && console.log("Submit triggered on input", nameInput);
                 flm.ui.dialogs.startButton(diagId).click();
                 return false
             });
