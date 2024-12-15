@@ -71,6 +71,11 @@ export function FileManagerDialogs(browser) {
     self.startedPromise = null;
     self.dirBrowser = {}; // multiple file operations are ui blocking
 
+    self.bindKeys =  (diagId) => {
+        $("#"+diagId).keydown(function (e) {
+             (e.keyCode === 13) && self.startButton(diagId).click();
+        });
+    };
 
     self.setDialogConfig = (diagId, config) => {
         self.forms[diagId] = config;
@@ -95,7 +100,7 @@ export function FileManagerDialogs(browser) {
 
     self.afterShow = (diagId) => {
         setTimeout(function () {
-            self.startButton(diagId).select().focus();
+            $("#"+diagId).select().focus();
         });
     }
     // common dialog cleanup
@@ -247,6 +252,8 @@ export function FileManagerDialogs(browser) {
 
         self.getDialogHeader(diagId)
             .prepend('<icon class="flm-sprite-diag flm-sprite sprite-' + what + '"></icon>');
+
+        self.bindKeys(diagId);
 
         // $("#"+diagId).find('.flm-diag-cancel')
         //     .click(function () {
