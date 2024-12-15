@@ -93,8 +93,8 @@ class RemoteShell extends rXMLRPCRequest
         }
 
         $exitCode = $code;
-        $debug = false;
-        $debug && FileUtil::toLog(__METHOD__ . ' DEBUG cmd ' . var_export([$shell_cmd, trim($this->val[0])], true));
+
+        Helper::getConfig("debug") && FileUtil::toLog(__METHOD__ . ' DEBUG cmd ' . var_export([$shell_cmd, trim($this->val[0])], true));
 
         return explode("\n", trim($this->val[0]));
     }

@@ -41,9 +41,9 @@ class P7zip extends ShellCmd
         self::DISABLE_ARCHIVE_FILE_ARG => null,
         self::HASHER_SWITCH => null,
         self::OUTPUT_DIR_SWITCH => null,
-        self::SWITCHES_DELIMITER => true,
         self::ARCHIVE_FILE_ARG => null,
         self::FILE_LIST_ARG => null,
+        self::SWITCHES_DELIMITER => true,
     ];
 
     /**

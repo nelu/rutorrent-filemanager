@@ -8,7 +8,7 @@ ruTorrent file management plugin with a javascript user interface running on rTo
 - archive file support, with configurable formats
 - using 7zip for archive related and file checksum operations
 - option to run all operations as chroot user
-- virtual jailed home dir support
+- jailed home dir support
 - using twigjs for views
 - integrated menu in Files tab
 - hotkey shortcuts for file operations: copy (ctrl+c), move (ctrl+x), paste (ctrl+v), delete, rename (F2)

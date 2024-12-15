@@ -5,6 +5,7 @@ global $pathToExternals;
 $pathToExternals['rar'] = '';
 $pathToExternals['7zip'] = '/usr/bin/7z';
 
+$config['debug'] = false;
 $config['mkdperm'] = 755; // default permission to set to new created directories
 
 $config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';

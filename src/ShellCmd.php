@@ -5,6 +5,7 @@ namespace Flm;
 
 
 use Exception;
+use FileUtil;
 
 class ShellCmd
 {
@@ -107,6 +108,9 @@ class ShellCmd
     {
         $cmd = $this->end('2>&1')->cmd();
         exec($cmd, $output, $exit);
+
+        Helper::getConfig("debug") && FileUtil::toLog(__METHOD__ . ' DEBUG cmd ' . var_export([$cmd, $output, $exit], true));
+
         return [$exit, $output];
     }
 
