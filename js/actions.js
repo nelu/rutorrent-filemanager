@@ -29,11 +29,10 @@ export function FileManagerActions() {
         }
 
         return flm.api.createArchive(flm.stripJailPath(archive), flm.getFullPaths(files), options)
-            .done(function (response) {
-                flm.actions.refreshIfCurrentPath(flm.utils.basedir(archive));
-
-                return response;
-            });
+            .done((response) => {
+                    self.refreshIfCurrentPath(flm.utils.basedir(archive)) || self.refreshIfCurrentPath(cPath);
+                    return response;
+                });
     };
 
     self.doChecksumCreate = function (filePaths, checksumFile) {
@@ -162,12 +161,13 @@ export function FileManagerActions() {
         return flm.api.extractFiles(
             flm.getFullPaths(archiveFiles),
             toDir,
-            password.val()
+            password
         ).then(function (response) {
                 flm.actions.refreshIfCurrentPath(toDir);
                 return response;
             },
             function (response) {
+                flm.actions.refreshIfCurrentPath(toDir);
                 return response;
             });
     }

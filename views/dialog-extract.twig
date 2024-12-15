@@ -26,7 +26,7 @@
                 dialogs.onStart(() => flm.actions.doExtract(
                     dialogs.getCheckedList(diagId),
                     dialogs.getTargetPath(diagId)),
-                    password
+                    password.val()
                 );
             }
         }

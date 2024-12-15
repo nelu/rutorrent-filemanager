@@ -65,7 +65,7 @@ import {FileManagerActions} from "./actions.js";
 
     function FileManager() {
 
-        let flm = this
+        let flm = this;
         flm.getPlugin = function () {
             return thePlugins.get('filemanager');
         };
@@ -217,9 +217,9 @@ import {FileManagerActions} from "./actions.js";
         flm.api = apiClient(flm.pluginUrl + 'action.php');
         flm.views = new FileManagerViews(flm);
         flm.ui = new FileManagerUi(flm);
-        flm.actions = new FileManagerActions();
+        flm.actions  = new FileManagerActions();
 
-        return flm;
+        return this;
     }
 
     // namespace

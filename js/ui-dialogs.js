@@ -21,29 +21,48 @@ export function FileManagerDialogs(browser) {
 
     self.forms = {
         archive: {
-            modal: true, pathbrowse: true, template: "dialog-archive"
+            modal: true,
+            pathbrowse: true,
+            template: "dialog-archive"
         }, copy: {
-            modal: true, pathbrowse: true, template: "dialog-copy"
+            modal: true,
+            athbrowse: true,
+            template: "dialog-copy"
         }, console: {
-            template: "dialog-console"
+            template: "dialog-console",
+            persist: true
         }, mkdir: {
-            modal: false, template: 'dialog-new-dir'
+            modal: false,
+            template: 'dialog-new-dir'
         }, move: {
-            modal: true, pathbrowse: true, template: "dialog-move"
+            modal: true,
+            pathbrowse: true,
+            template: "dialog-move"
         }, delete: {
-            modal: true, pathbrowse: false, template: "dialog-delete"
+            modal: true,
+            pathbrowse: false,
+            template: "dialog-delete"
         }, extract: {
-            modal: true, pathbrowse: true, template: "dialog-extract"
+            modal: true,
+            pathbrowse: true,
+            template: "dialog-extract"
         }, permissions: {
-            modal: false, template: "dialog-permissions"
+            modal: false,
+            template: "dialog-permissions"
         }, rename: {
-            modal: true, template: "dialog-rename"
+            modal: true,
+            template: "dialog-rename"
         }, sfv_check: {
-            modal: true, template: "dialog-svf_check"
+            modal: true,
+            template: "dialog-svf_check"
         }, sfv_create: {
-            modal: true, pathbrowse: true, multiselectFilesOnly: true, template: "dialog-svf_create"
+            modal: true,
+            pathbrowse: true,
+            multiselectFilesOnly: true,
+            template: "dialog-svf_create"
         }, nfo_view: {
-            modal: false, template: "dialog-nfo_view"
+            modal: false,
+            template: "dialog-nfo_view"
         }
     };
     self.activeDialogs = {};
@@ -87,7 +106,7 @@ export function FileManagerDialogs(browser) {
 
         if (self.dirBrowser.hasOwnProperty(dialogId)) {
             for (let i = 0; i < self.dirBrowser[dialogId].length; i++) {
-                self.dirBrowser[dialogId][i].hide(false);
+                $type(self.dirBrowser[dialogId][i]) && $type(self.dirBrowser[dialogId][i]) && self.dirBrowser[dialogId][i].hide(false);
                 if (!persistentDiag) {
                     // use setTimeout for dom elements to be removed after this afterHide call
                     // for scripts running inside the dialog views
