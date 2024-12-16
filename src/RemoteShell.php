@@ -3,7 +3,6 @@
 namespace Flm;
 
 use Exception;
-use FileUtil;
 use rXMLRPCCommand;
 use rXMLRPCRequest;
 
@@ -93,8 +92,6 @@ class RemoteShell extends rXMLRPCRequest
         }
 
         $exitCode = $code;
-
-        Helper::getConfig("debug") && FileUtil::toLog(__METHOD__ . ' DEBUG cmd ' . var_export([$shell_cmd, trim($this->val[0])], true));
 
         return explode("\n", trim($this->val[0]));
     }
