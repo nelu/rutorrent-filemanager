@@ -6,6 +6,7 @@ namespace Flm;
 
 use Exception;
 use FileUtil;
+use rTask;
 
 class ShellCmd
 {
@@ -118,10 +119,27 @@ class ShellCmd
      * @return array
      * @throws Exception
      */
-    public function runRemote()
+    public function runRemote($force_clean = false)
     {
         $expectedCode = 255;
-        $output = RemoteShell::get()->execOutput($this, $expectedCode);
+        if(Helper::getConfig("unicode_emoji_fix"))
+        {
+            $cmd = $this->cmd();
+            $task = TaskController::from([
+                'name' => 'runRemote',
+                'arg' => $cmd
+            ]);
+            $result = $task->start([$cmd], (rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD) | rTask::FLG_WAIT );
+            $output = $result['log'];
+
+            $expectedCode = $result['status'];
+            ($force_clean || ($result['status'] == 0 && count($result['errors']) == 0))
+            && rTask::clean(rTask::formatPath($task->id));
+        } else {
+            $output = RemoteShell::get()->execOutput($this, $expectedCode);
+        }
+
+        Helper::getConfig("debug") && FileUtil::toLog(__METHOD__ . ' DEBUG cmd ' . var_export([$this->cmd(), $output], true));
 
         return [$expectedCode, $output];
     }
