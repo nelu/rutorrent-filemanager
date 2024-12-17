@@ -14,61 +14,18 @@ ruTorrent file management plugin with a javascript user interface running on rTo
 - hotkey shortcuts for file operations: copy (ctrl+c), move (ctrl+x), paste (ctrl+v), delete, rename (F2)
 
 ### Configuration
-The plugin runs jailed inside the path configured in ```$topDirectory``` variable in ``rutorrent/conf/config.php``.
-Its important that this variable is properly including the TRAILING /, the default is ```'/'```, meaning the root filesystem.
-which is not ideal in most cases, since rtorrent SHOULD NOT BE RUN AS ROOT! 
+The plugin configuration with all it's option can be edited in ``conf.php`` inside the plugin directory.
 
-#### Text Viewer
-You can specify what file extensions are supported for viewing files as text:
-```php
-$config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';
-```
-#### Archives
-Currently the plugin supports handling archive files with 7zip and rar (non free). 
-All archive manipulation is done with the use of 7zip, while rar is used ONLY for creation.
- 
-The paths for each archive util can be configured by changing with a value suited for your linux distribution in `conf.php`:
-```php
-// sample config for debian based
-$pathToExternals['rar'] = '';
-$pathToExternals['7zip'] = '/usr/bin/7z';
-```
-For a hint on how to add support for rar [see this](https://github.com/nelu/rutorrent-dock/blob/5357bd94bfc026ff0a6645501487ac140d7a92fe/src/build/Dockerfile#L48)
+See the **[Configuration section](https://github.com/nelu/rutorrent-filemanager/wiki#configuration)** in the plugin 
+[Wiki](https://github.com/nelu/rutorrent-filemanager/wiki) page for information regarding the available settings and how they work.
 
-Since all extraction is handled by 7zip, you can specify which file extensions are available for extraction using a regex syntax:
-```php
-// see what 7zip extraction supports as type by file extension
-$config['fileExtractExtensions'] = '7z|bzip2|t?bz2|t?g|gz[ip]?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim';
-```
-See what archive formats your 7zip supports with: `7z i`
-
-Configuration for creating different archive formats is done by specifing each archive extension with its configuration:
-```php
-// archive type extension and binary for new archive
-$config['archive']['type'] = [
-    '7z' => [
-        'bin' =>'7zip',
-        'compression' => [0, 5, 9],
-    ],
-    'rar' => [
-        'bin' =>'rar',
-        'compression' => range(0, 5),
-    ]];
-
-// using 7z for zip file creation
-$config['archive']['type']['zip'] = $config['archive']['type']['7z'];
-```
-In the example above we are adding `.zip` archive support (as extension) by using the same config as for `.7z`
-
-The `'bin'` value must a be a valid `$pathToExternals` key, ex: 
-```php
-$pathToExternals['7zip']
-...
-        'bin' =>'7zip',
-```
 
 ### Support 
-You can anytime create an new issue regarding your problem or discuss it directly on telegram: [https://t.me/filemanagerplugin](https://t.me/filemanagerplugin). Also you can contribute with feature suggestions, fixes and documentation at any time.
+Take a look at the [Wiki](https://github.com/nelu/rutorrent-filemanager/wiki) for more information.
+
+You can open a new issue regarding your problem or discuss it directly on telegram: [https://t.me/filemanagerplugin](https://t.me/filemanagerplugin). 
+
+Also you can contribute with feature suggestions, fixes and documentation at any time.
 
 
 See these additional filemanager plugins for extended functionality:
@@ -76,6 +33,7 @@ See these additional filemanager plugins for extended functionality:
 - [filemanager-media](https://github.com/nelu/rutorrent-filemanager-media): Media view and screenshots
 - [filemanager-share](https://github.com/nelu/rutorrent-filemanager-share): File sharing functionality
 
-
-TODO:
-- enable more file checksum algos
+### Thanks
+Many thanks to all contributors, users and the projects behind this plugin:
+- [ruTorrent](https://github.com/Novik/ruTorrent)
+- [rtorrent](https://github.com/rakshasa/rtorrent)
