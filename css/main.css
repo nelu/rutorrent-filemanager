@@ -211,6 +211,12 @@ input.text-long {
     height: 16px;
     background-position: -83px -57px;
 }
+div[id^="flm"] .input-group input, div[id^="flm"] .input-group select
+{
+    color: inherit;
+    background-color: field;
+}
+
 
 div[id^="flm_popup_"] > div.dlg-header > div:first-child {
     padding-left: 0;
