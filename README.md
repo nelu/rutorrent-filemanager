@@ -19,7 +19,6 @@ The plugin configuration with all it's option can be edited in ``conf.php`` insi
 See the **[Configuration section](https://github.com/nelu/rutorrent-filemanager/wiki#configuration)** in the plugin 
 [Wiki](https://github.com/nelu/rutorrent-filemanager/wiki) page for information regarding the available settings and how they work.
 
-
 ### Support 
 Take a look at the [Wiki](https://github.com/nelu/rutorrent-filemanager/wiki) for more information.
 
