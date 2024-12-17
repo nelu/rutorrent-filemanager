@@ -26,7 +26,7 @@ export function FileManagerDialogs(browser) {
             template: "dialog-archive"
         }, copy: {
             modal: true,
-            athbrowse: true,
+            pathbrowse: true,
             template: "dialog-copy"
         }, console: {
             template: "dialog-console",
