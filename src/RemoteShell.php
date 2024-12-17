@@ -16,7 +16,7 @@ class RemoteShell extends rXMLRPCRequest
     public static function test($target, $o): bool
     {
         $args = ['-' . $o, $target];
-        $res = ShellCmd::bin('test', $args)->runRemote();
+        $res = ShellCmd::bin('test', $args)->runRemote(true);
         $exitCode = $res[0];
         return ($exitCode === 0);
     }

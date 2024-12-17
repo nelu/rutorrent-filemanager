@@ -119,7 +119,7 @@ class ShellCmd
      * @return array
      * @throws Exception
      */
-    public function runRemote()
+    public function runRemote($force_clean = false)
     {
         $expectedCode = 255;
         if(Helper::getConfig("unicode_emoji_fix"))
@@ -133,7 +133,8 @@ class ShellCmd
             $output = $result['log'];
 
             $expectedCode = $result['status'];
-            $result['status'] == 0 && count($result['errors']) == 0 && rTask::clean(rTask::formatPath($task->id));
+            ($force_clean || ($result['status'] == 0 && count($result['errors']) == 0))
+            && rTask::clean(rTask::formatPath($task->id));
         } else {
             $output = RemoteShell::get()->execOutput($this, $expectedCode);
         }
