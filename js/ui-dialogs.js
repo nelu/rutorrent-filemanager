@@ -52,14 +52,14 @@ export function FileManagerDialogs(browser) {
         }, rename: {
             modal: true,
             template: "dialog-rename"
-        }, sfv_check: {
+        }, checksum_check: {
             modal: true,
-            template: "dialog-svf_check"
-        }, sfv_create: {
+            template: "dialog-checksum_check"
+        }, checksum_create: {
             modal: true,
             pathbrowse: true,
             multiselectFilesOnly: true,
-            template: "dialog-svf_create"
+            template: "dialog-checksum_create"
         }, nfo_view: {
             modal: false,
             template: "dialog-nfo_view"

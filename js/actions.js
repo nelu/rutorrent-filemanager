@@ -35,11 +35,11 @@ export function FileManagerActions() {
                 });
     };
 
-    self.doChecksumCreate = function (filePaths, checksumFile) {
+    self.doChecksumCreate = function (filePaths, checksumFile, type) {
         let hasError;
 
         if (!checksumFile.length) {
-            hasError = theUILang.fDiagSFVempty;
+            hasError = theUILang.flm_checksum_empty_file;
         } else if (!$type(filePaths) || filePaths.length === 0) {
             hasError = 'Empty paths';
         } else if (!flm.utils.isValidPath(checksumFile)) {
@@ -48,7 +48,7 @@ export function FileManagerActions() {
 
         if ($type(hasError)) {
             var def = $.Deferred();
-            def.reject({errcode: theUILang.fcSFV, msg: hasError + ': ' + checksumFile});
+            def.reject({errcode: theUILang.flm_checksum_menu, msg: hasError + ': ' + checksumFile});
             return def.promise();
         }
 
@@ -56,10 +56,11 @@ export function FileManagerActions() {
             + flm.utils.basename(checksumFile) + ' <- ' + filePaths.length + " files"
         );
 
-        return flm.api.sfvCreate(flm.stripJailPath(checksumFile), flm.getFullPaths(filePaths))
+        //console.log("got type", type);
+        return flm.api.checksumCreate(flm.stripJailPath(checksumFile), flm.getFullPaths(filePaths), type)
             .done(function (response) {
                 flm.actions.refreshIfCurrentPath(flm.utils.basedir(checksumFile));
-                flm.actions.notify(theUILang.flm_popup_sfv_create + ": " + checksumFile, 'success', 10000);
+                flm.actions.notify(theUILang.flm_popup_checksum_create + ": " + checksumFile, 'success', 10000);
 
                 return response;
             });
@@ -68,20 +69,20 @@ export function FileManagerActions() {
     self.doChecksumVerify = function (checksumFile) {
         let hasError;
         if (!checksumFile.length) {
-            hasError = theUILang.fDiagSFVempty;
+            hasError = theUILang.flm_checksum_empty_file;
         } else if (!flm.utils.isValidPath(checksumFile)) {
             hasError = theUILang.fDiagInvalidname;
         }
         if ($type(hasError)) {
             var def = $.Deferred();
-            def.reject({errcode: theUILang.fcheckSFV, msg: hasError + ': ' + checksumFile});
+            def.reject({errcode: theUILang.flm_checksum_menu_check, msg: hasError + ': ' + checksumFile});
             return def.promise();
         }
         flm.actions.notify(theUILang.fStarts.check_sfv + ": " + flm.utils.basename(checksumFile));
 
-        return flm.api.sfvCheck(checksumFile)
+        return flm.api.checksumVerify(checksumFile)
             .then(function (response) {
-                flm.actions.notify(theUILang.fDiagSFVCheckf + " " + flm.utils.basename(checksumFile), 'success', 10000);
+                flm.actions.notify(theUILang.flm_checksum_file + " " + flm.utils.basename(checksumFile), 'success', 10000);
                 return response;
             });
 

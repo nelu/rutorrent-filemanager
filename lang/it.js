@@ -9,14 +9,15 @@ theUILang.fRename		= "Rinomina...";
 theUILang.fDelete		= "Rimuovere";
 theUILang.fExtracta		= "Estrai tutto...";
 theUILang.fExtracth		= "Estrai qui";
-theUILang.fcheckSFV		= "Verifica con SFV";
+theUILang.flm_checksum_menu_check		= "Verifica con SFV";
 theUILang.fMediaI		= "Informazioni file";
 theUILang.fView		= "Vista";
 theUILang.fcreate		= "Creare";
 theUILang.fcNewDir		= "Nuova cartella";
 theUILang.fcNewArchive		= "Nuovo archivio";
 theUILang.fcNewTor		= "Nuovo file .torrent";
-theUILang.fcSFV		= "Nuovo file SFV...";
+theUILang.flm_checksum_algorithm	= 'Algorithm';
+theUILang.flm_checksum_menu		= "Nuovo file SFV...";
 theUILang.fcScreens		= "Screenshot";
 theUILang.fRefresh		= "Aggiorna";
 
@@ -87,14 +88,14 @@ theUILang.fDiagCopySel	= "File contrassegnati per la copia:";
 theUILang.fDiagCopyTo	= "Copia file verso:";
 
 theUILang.flm_popup_nfo_view		= "Visualizzatore file di testo";
-theUILang.flm_popup_sfv_check	= "Simple File Verification";
-theUILang.fDiagSFVCheckf	= "File di checksum:";
+theUILang.flm_popup_checksum_check	= "Checksum File Verification";
+theUILang.flm_checksum_file	= "File di checksum:";
 
-theUILang.flm_popup_sfv_create	= "Crea un file SFV";
-theUILang.fDiagSFVCreateSel	= "File contrassegnati per l'hashing:";
-theUILang.fDiagSFVHashfile	= "Salva il file hash in:";
+theUILang.flm_popup_checksum_create	= "Crea un file SFV";
+theUILang.flm_checksum_selected_files	= "File contrassegnati per l'hashing:";
+theUILang.flm_checksum_save_to	= "Salva il file hash in:";
 
-theUILang.fDiagSFVempty	= "Inserisci un nome per il file SFV";
+theUILang.flm_checksum_empty_file	= "Inserisci un nome per il file SFV";
 
 theUILang.flm_popup_archive	= "Crea un archivio";
 theUILang.fDiagOptions		= "Opzioni:";

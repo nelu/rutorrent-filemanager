@@ -1,0 +1,68 @@
+{% set pathbrowse = false %}
+{% set multiselect = 1 %}
+{% set multiselectFilesOnly = true %}
+
+{% extends "flm::dialog-window.twig" %}
+{% block heading %}
+    <legend>{{ theUILang.flm_checksum_selected_files }}</legend>
+{% endblock %}
+
+{% block content %}
+    {{ window.pathBrowser(selectedTarget, theUILang.flm_checksum_save_to) }}
+
+    <div class="mb-3 row">
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="fman-checksum-type">{{ theUILang.flm_checksum_algorithm }}</label>
+            <select id="fman-checksum-type" class="form-select fman-checksum-type" name="fman-checksum-type"
+                    aria-label="{{ theUILang.flm_checksum_algorithm }}">
+                {% for algo, ext in config.extensions.checksum %}
+                <option value="{{ algo }}">{{ algo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        (function () {
+            let dialog = flm.ui.getDialogs();
+            const diagId = dialog.getCurrentDialog();
+            const cPath = flm.getCurrentPath();
+            var pathBrowser = dialog.dirBrowserInput(diagId);
+
+            const checksumTypesExt = flm.config.extensions.checksum;
+
+            let type = $('#fman-checksum-type');
+
+            let algo = () => { return type.find(":selected").val() };
+
+            dialog.onStart(() => flm.actions.doChecksumCreate(
+                dialog.getCheckedList(diagId),
+                $.trim(dialog.getTargetPath(diagId)),
+                algo()
+                )
+            );
+
+            const updateFilePath = function (path, previous) {
+                const ext = checksumTypesExt[algo()];
+                let filePath = flm.utils.replaceFilePath(path, previous, Object.values(checksumTypesExt), ext);
+                dialog.updateTargetPath(diagId, filePath);
+            };
+
+            pathBrowser.change(function (ev) {
+                console.log('got triggered', $(this));
+                updateFilePath($(this).val(), $(this).data('previousValue'));
+                $(this).data('previousValue', pathBrowser.val());
+            });
+
+            type.change(() => {
+                pathBrowser.change();
+            });
+            pathBrowser.change();
+        })
+        (window);
+    </script>
+{% endblock %}
+

@@ -185,7 +185,7 @@ input.text-long {
     background-image: url("edit.svg") !important;
 }
 
-.sprite-sfv, .sprite-sfv_create, .sprite-sfv_check {
+.flm-icon-checksum, .sprite-checksum_create, .sprite-checksum_check {
     background-image: url("data_protection.svg") !important;
 }
 

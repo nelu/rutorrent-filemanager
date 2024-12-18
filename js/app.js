@@ -31,6 +31,7 @@ import {FileManagerActions} from "./actions.js";
 
             options.views = options.views || self.viewsPath;
             options.theUILang = theUILang;
+            options.config = flm.config;
             options.utils = flm.utils;
             options.settings = {
                 'twig options': {

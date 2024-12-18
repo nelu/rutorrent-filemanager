@@ -111,19 +111,20 @@ export function apiClient  (endpoint) {
 
     };
 
-    client.sfvCheck = function (path) {
+    client.checksumVerify = function (path) {
         return this.runTask("checksum-verify", {
-            method: 'svfCheck',
+            method: 'checksumVerify',
             target: path
         });
 
     };
 
-    client.sfvCreate = function (path, files) {
+    client.checksumCreate = function (path, files, type) {
         return this.runTask("checksum-create", {
-            method: 'sfvCreate',
+            method: 'checksumCreate',
             target: path,
-            fls: files
+            fls: files,
+            type: type
         });
 
     };

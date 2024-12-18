@@ -6,18 +6,25 @@ export function FileManagerUtils(flm) {
 
         utils.extTypes = {
             archive: (ext) => utils.isArchive(ext),
+            checksum: (ext) => utils.isChecksumFile(ext),
             text: (ext) => utils.isTextfile(ext)
         };
 
-        utils.isArchive = function (element) {
-            var re = new RegExp('(' + flm.config.fileExtractExtensions + ')$', "i");
+        utils.fileMatches = (file, pattern) => {
+            let re = new RegExp(pattern + '$', "i");
+            return utils.basename(file).match(re);
+        }
 
-            return this.basename(element).match(re);
+        utils.isArchive = function (element) {
+            return utils.fileMatches(element, flm.config.extensions.fileExtract);
         };
 
         utils.isTextfile = (extension) => {
-            let re = new RegExp(flm.config.textExtensions + '$', "i");
-            return utils.basename(extension).match(re);
+            return utils.fileMatches(extension, flm.config.extensions.text);
+        };
+
+        utils.isChecksumFile = (f) => {
+            return utils.fileMatches(f, Object.values(flm.config.extensions.checksum).join('|'));
         };
 
         utils.isDir = function (element) {
@@ -132,9 +139,6 @@ export function FileManagerUtils(flm) {
             var iko = 'flm-sprite ';
             const ext = this.getExt(element).toLowerCase();
             switch (ext) {
-                case 'sfv':
-                    iko += 'sprite-sfv';
-                    break;
                 case 'torrent':
                     iko += 'sprite-torrent';
                     break;
@@ -158,7 +162,7 @@ export function FileManagerUtils(flm) {
             }
 
             var ext = element.split('.').pop();
-            var valid = (element.split('.').length > 1) && ext.match(/^[A-Za-z0-9]{2,5}$/);
+            var valid = (element.split('.').length > 1) && ext.match(/^[A-Za-z0-9]{2,50}$/);
 
             ext = valid ? ext : '';
 
@@ -286,19 +290,21 @@ export function FileManagerUtils(flm) {
         utils.replaceFilePath = function (newPath, oldPath, ext, forceExtension = false) {
             let fileDir = this.basedir(newPath);
             let fileName = this.basename(newPath);
+            const exts = $type(ext) === 'array' ? ext.join("|") : ext;
 
-            if (oldPath) {
-                if (this.isDir(newPath)) {
-                    fileDir = newPath;
-                    fileName = !this.isDir(oldPath) ? this.basename(oldPath) : flm.ui.filenav.recommendedFileName(ext, forceExtension);
-                }
-
-                fileName = ext
-                    ? this.stripFileExtension(fileName, [ext]) + (forceExtension ? '.' + forceExtension : '')
-                    : fileName;
-            } else {
-                fileName = flm.ui.filenav.recommendedFileName(ext, forceExtension);
+            if(this.isDir(newPath) && oldPath) {
+                fileDir = newPath;
+                fileName = this.isDir(oldPath)
+                    ? flm.ui.filenav.recommendedFileName(exts, forceExtension)
+                    : this.basename(oldPath);
             }
+            else if(this.isDir(newPath)) {
+                fileName = flm.ui.filenav.recommendedFileName(exts, forceExtension);
+            }
+
+            fileName = ext
+                ? this.stripFileExtension(fileName, exts) + (forceExtension ? '.' + forceExtension : '')
+                : fileName;
 
             return this.buildPath([fileDir, fileName]);
         };

@@ -396,13 +396,6 @@ export function FileManagerUi(flm) {
 
     };
 
-    self.showSFVcreate = function () {
-        self.dialogs.showDialog('sfv_create', {
-            afterShow: function () {
-            }
-        });
-    };
-
     return self;
 
 }

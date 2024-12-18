@@ -15,10 +15,18 @@ $config['unicode_emoji_fix'] = true;
 
 $config['mkdperm'] = 755; // default permission to set to new created directories
 
-$config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';
+// see what 7zip i supports for hashers
+$config['checksumExtensions'] = [
+    "CRC32" => 'sfv',
+    "SHA256" => 'sha256sum'
+];
 
-// see what 7zip extraction supports as type by file extension
-$config['fileExtractExtensions'] = '(7z|bzip2|t?bz2|tgz|gz(ip)?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim)(\.[0-9]+)?';
+$config['extensions'] = [
+    'checksum' => $config['checksumExtensions'],
+    'text' => 'log|txt|nfo|xml|html|' . implode("|", $config['checksumExtensions']),
+    // see what 7zip extraction supports as type by file extension
+    'fileExtract' => '(7z|bzip2|t?bz2|tgz|gz(ip)?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim)(\.[0-9]+)?'
+];
 
 // archive creation, see archiver man page before editing
 // archive.fileExt -> config

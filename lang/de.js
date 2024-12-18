@@ -9,14 +9,15 @@ theUILang.fRename		= 'Umbenennen...';
 theUILang.fDelete		= 'Löschen';
 theUILang.fExtracta		= 'Alle entpacken...';
 theUILang.fExtracth		= 'Hierher entpacken';
-theUILang.fcheckSFV		= 'Prüfe SFV';
+theUILang.flm_checksum_menu_check		= 'Prüfe SFV';
 theUILang.fMediaI		= 'MediaInfo';
 theUILang.fView		= 'Betrachten';
 theUILang.fcreate		= 'Erstellen';
 theUILang.fcNewDir		= 'Neues Verzeichnis';
 theUILang.fcNewArchive	= 'neues Archiv';
 theUILang.fcNewTor		= '.torrent Datei';
-theUILang.fcSFV		= 'SFV erstellen...';
+theUILang.flm_checksum_algorithm	= 'Algorithm';
+theUILang.flm_checksum_menu		= 'SFV erstellen...';
 theUILang.fcScreens 		= 'Screenshots';
 theUILang.fRefresh		= 'Aktualisieren';
 
@@ -86,14 +87,14 @@ theUILang.fDiagCopySel	= 'Dateien markiert zum Kopieren:';
 theUILang.fDiagCopyTo	= 'Kopiere Dateien nach:';
 
 theUILang.flm_popup_nfo_view		= 'Text File Viewer';
-theUILang.flm_popup_sfv_check	= 'Datei überprüfen';
-theUILang.fDiagSFVCheckf	= 'Prüfsumme der Datei:';
+theUILang.flm_popup_checksum_check	= 'Datei überprüfen';
+theUILang.flm_checksum_file	= 'Prüfsumme der Datei:';
 
-theUILang.flm_popup_sfv_create	= 'Erstelle SFV-Datei';
-theUILang.fDiagSFVCreateSel	= 'Datei markiert zum Prüfen:';
-theUILang.fDiagSFVHashfile	= 'Speichere SFV-Datei nach:';
+theUILang.flm_popup_checksum_create	= 'Erstelle SFV-Datei';
+theUILang.flm_checksum_selected_files	= 'Datei markiert zum Prüfen:';
+theUILang.flm_checksum_save_to	= 'Speichere SFV-Datei nach:';
 
-theUILang.fDiagSFVempty	= 'Benenne die SFV-Datei';
+theUILang.flm_checksum_empty_file	= 'Benenne die SFV-Datei';
 
 theUILang.flm_popup_archive	= 'Erstelle Archiv';
 theUILang.fDiagOptions		= 'Options:';

@@ -9,14 +9,12 @@ theUILang.fRename		= 'Rename...';
 theUILang.fDelete		= 'Delete';
 theUILang.fExtracta		= 'Extract all...';
 theUILang.fExtracth		= 'Extract here';
-theUILang.fcheckSFV		= 'Check SFV';
 theUILang.fMediaI		= 'Media info';
 theUILang.fView		= 'View';
 theUILang.fcreate		= 'Create';
 theUILang.fcNewDir		= 'New Directory';
 theUILang.fcNewArchive		= 'New Archive';
 theUILang.fcNewTor		= 'New .torrent';
-theUILang.fcSFV		= 'SFV file...';
 theUILang.fRefresh		= 'Refresh';
 
 theUILang.fErrMsg = [];
@@ -89,14 +87,18 @@ theUILang.fDiagCopySel	= 'Files marked for duplication:';
 theUILang.fDiagCopyTo	= 'Copy files to:';
 
 theUILang.flm_popup_nfo_view		= 'Text File Viewer';
-theUILang.flm_popup_sfv_check	= 'Simple File Verification';
-theUILang.fDiagSFVCheckf	= 'Checksum file:';
 
-theUILang.flm_popup_sfv_create	= 'Create SFV file';
-theUILang.fDiagSFVCreateSel	= 'Files marked for hashing:';
-theUILang.fDiagSFVHashfile	= 'Save hash file to:';
+theUILang.flm_popup_checksum_check	= 'Checksum File Verification';
+theUILang.flm_popup_checksum_create	= 'Checksum files';
+theUILang.flm_checksum_algorithm	= 'Algorithm';
+theUILang.flm_checksum_menu		= 'File Checksum';
+theUILang.flm_checksum_menu_check		= 'Check Hashes';
+theUILang.flm_checksum_file	= 'Checksum file:';
+theUILang.flm_checksum_selected_files	= 'Files marked for hashing:';
+theUILang.flm_checksum_save_to	= 'Hash file:';
+theUILang.flm_checksum_empty_file	= 'Please name a hash file';
 
-theUILang.fDiagSFVempty	= 'Please name a sfv file';
+
 
 theUILang.flm_popup_archive	= 'Create Archive';
 theUILang.fDiagOptions		= 'Options:';
@@ -136,8 +138,6 @@ theUILang.fStops = {
 	Delete: 	'File removal stopped',
 	Extract:	'Extraction stopped',
 	CArchive: 	'Archive creation stopped',
-	CheckSFV: 	'SFV check stopped',
-	CreateSFV:	'SFV creation stopped',
 	Move:		'File relocation stopped',
 	Copy:		'File duplication stopped'
 };

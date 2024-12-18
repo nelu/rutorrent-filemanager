@@ -268,6 +268,7 @@ export function FsBrowser() {
     self.getEntryMenu = function (target, entries) {
         let flm = theWebUI.FileManager;
         let utils = flm.utils;
+        let dialogs = flm.ui.dialogs;
 
         var pathIsDir = utils.isDir(target);
         var menu = [];
@@ -300,7 +301,7 @@ export function FsBrowser() {
 
             if (!utils.hasDir(entries)) {
                 create_sub.push([CMENU_SEP]);
-                create_sub.push([theUILang.fcSFV, "flm.ui.showSFVcreate()"]);
+                create_sub.push([theUILang.flm_checksum_menu, () => dialogs.showDialog('checksum_create')]);
             }
 
             menu.push([CMENU_CHILD, theUILang.fcreate, create_sub]);
@@ -332,8 +333,9 @@ export function FsBrowser() {
                 menu.push([CMENU_SEP]);
             }
 
-            (fext === 'sfv')
-            && menu.push([theUILang.fcheckSFV, "flm.ui.getDialogs().showDialog('sfv_check')"]);
+            console.log(fext,  Object.values(flm.config.extensions.checksum));
+            utils.isChecksumFile(fext)
+            && menu.push([theUILang.flm_checksum_menu_check, () => dialogs.showDialog('checksum_check')]);
 
             (!pathIsDir && thePlugins.isInstalled('mediainfo'))
             && menu.push([theUILang.fMediaI, function () {

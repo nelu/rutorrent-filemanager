@@ -364,7 +364,7 @@ class FileManager
             throw new Exception("File list is empty");
         }
 
-        $type = 'CRC32';
+        $type = $paths->type ?? 'CRC32';
 
         $task_opts = [
             'name' => 'checksum-create',
