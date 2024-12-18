@@ -333,7 +333,6 @@ export function FsBrowser() {
                 menu.push([CMENU_SEP]);
             }
 
-            console.log(fext,  Object.values(flm.config.extensions.checksum));
             utils.isChecksumFile(fext)
             && menu.push([theUILang.flm_checksum_menu_check, () => dialogs.showDialog('checksum_check')]);
 

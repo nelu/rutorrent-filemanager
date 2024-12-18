@@ -35,59 +35,6 @@ export function FileManagerActions() {
                 });
     };
 
-    self.doChecksumCreate = function (filePaths, checksumFile, type) {
-        let hasError;
-
-        if (!checksumFile.length) {
-            hasError = theUILang.flm_checksum_empty_file;
-        } else if (!$type(filePaths) || filePaths.length === 0) {
-            hasError = 'Empty paths';
-        } else if (!flm.utils.isValidPath(checksumFile)) {
-            hasError = theUILang.fDiagInvalidname;
-        }
-
-        if ($type(hasError)) {
-            var def = $.Deferred();
-            def.reject({errcode: theUILang.flm_checksum_menu, msg: hasError + ': ' + checksumFile});
-            return def.promise();
-        }
-
-        flm.actions.notify(theUILang.fStarts.create_sfv + ": "
-            + flm.utils.basename(checksumFile) + ' <- ' + filePaths.length + " files"
-        );
-
-        //console.log("got type", type);
-        return flm.api.checksumCreate(flm.stripJailPath(checksumFile), flm.getFullPaths(filePaths), type)
-            .done(function (response) {
-                flm.actions.refreshIfCurrentPath(flm.utils.basedir(checksumFile));
-                flm.actions.notify(theUILang.flm_popup_checksum_create + ": " + checksumFile, 'success', 10000);
-
-                return response;
-            });
-    };
-
-    self.doChecksumVerify = function (checksumFile) {
-        let hasError;
-        if (!checksumFile.length) {
-            hasError = theUILang.flm_checksum_empty_file;
-        } else if (!flm.utils.isValidPath(checksumFile)) {
-            hasError = theUILang.fDiagInvalidname;
-        }
-        if ($type(hasError)) {
-            var def = $.Deferred();
-            def.reject({errcode: theUILang.flm_checksum_menu_check, msg: hasError + ': ' + checksumFile});
-            return def.promise();
-        }
-        flm.actions.notify(theUILang.fStarts.check_sfv + ": " + flm.utils.basename(checksumFile));
-
-        return flm.api.checksumVerify(checksumFile)
-            .then(function (response) {
-                flm.actions.notify(theUILang.flm_checksum_file + " " + flm.utils.basename(checksumFile), 'success', 10000);
-                return response;
-            });
-
-    }
-
     self.doCopy = function (destination, filePaths) {
 
         destination = flm.stripJailPath($.trim(destination));

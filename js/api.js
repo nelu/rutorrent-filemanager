@@ -111,23 +111,6 @@ export function apiClient  (endpoint) {
 
     };
 
-    client.checksumVerify = function (path) {
-        return this.runTask("checksum-verify", {
-            method: 'checksumVerify',
-            target: path
-        });
-
-    };
-
-    client.checksumCreate = function (path, files, type) {
-        return this.runTask("checksum-create", {
-            method: 'checksumCreate',
-            target: path,
-            fls: files,
-            type: type
-        });
-
-    };
 
     client.createArchive = function (archive, files, options) {
         return this.runTask("compress", {

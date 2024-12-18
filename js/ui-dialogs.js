@@ -52,15 +52,8 @@ export function FileManagerDialogs(browser) {
         }, rename: {
             modal: true,
             template: "dialog-rename"
-        }, checksum_check: {
-            modal: true,
-            template: "dialog-checksum_check"
-        }, checksum_create: {
-            modal: true,
-            pathbrowse: true,
-            multiselectFilesOnly: true,
-            template: "dialog-checksum_create"
-        }, nfo_view: {
+        },
+        nfo_view: {
             modal: false,
             template: "dialog-nfo_view"
         }

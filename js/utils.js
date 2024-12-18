@@ -6,7 +6,6 @@ export function FileManagerUtils(flm) {
 
         utils.extTypes = {
             archive: (ext) => utils.isArchive(ext),
-            checksum: (ext) => utils.isChecksumFile(ext),
             text: (ext) => utils.isTextfile(ext)
         };
 
@@ -21,10 +20,6 @@ export function FileManagerUtils(flm) {
 
         utils.isTextfile = (extension) => {
             return utils.fileMatches(extension, flm.config.extensions.text);
-        };
-
-        utils.isChecksumFile = (f) => {
-            return utils.fileMatches(f, Object.values(flm.config.extensions.checksum).join('|'));
         };
 
         utils.isDir = function (element) {
@@ -121,7 +116,14 @@ export function FileManagerUtils(flm) {
         };
 
         utils.getFileTypeByExtension = (extension) => {
-            for (let i in utils.extTypes) {
+            let sorted = Object.keys(utils.extTypes)
+                .sort()
+                .reduce((Obj, key) => {
+                    Obj[key] = utils.extTypes[key];
+                    return Obj;
+                }, {});
+
+            for (let i in sorted) {
                 if(utils.extTypes[i](extension)) {
                     return i;
                 }

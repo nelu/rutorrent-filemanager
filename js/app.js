@@ -2,7 +2,6 @@ import {FileManagerUtils} from "./utils.js";
 import {apiClient} from "./api.js";
 import {FileManagerUi} from "./ui.js";
 import {FileManagerActions} from "./actions.js";
-// import {Twig} from "./twig.js";
 
 (function (global) {
 
@@ -210,8 +209,13 @@ import {FileManagerActions} from "./actions.js";
                 }
             });
 
-            // notify plugin loaded
-            plugin.ui.readyPromise.resolve(flm.ui);
+            Promise.all([
+                import("./file-checksum.js")
+            ]).then(([]) => {
+                // notify plugin loaded
+                plugin.ui.readyPromise.resolve(flm.ui);
+            });
+
         }
 
         flm.utils = FileManagerUtils(flm);
