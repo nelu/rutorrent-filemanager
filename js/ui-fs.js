@@ -333,7 +333,7 @@ export function FsBrowser() {
                 menu.push([CMENU_SEP]);
             }
 
-            utils.isChecksumFile(fext)
+            flm.checksum.isChecksumFile(fext)
             && menu.push([theUILang.flm_checksum_menu_check, () => dialogs.showDialog('checksum_check')]);
 
             (!pathIsDir && thePlugins.isInstalled('mediainfo'))

@@ -26,43 +26,7 @@
 
 {% block scripts %}
     <script>
-        (function () {
-            let dialog = flm.ui.getDialogs();
-            const diagId = dialog.getCurrentDialog();
-            const cPath = flm.getCurrentPath();
-            var pathBrowser = dialog.dirBrowserInput(diagId);
-
-            const checksumTypesExt = flm.config.extensions.checksum;
-
-            let type = $('#fman-checksum-type');
-
-            let algo = () => { return type.find(":selected").val() };
-
-            dialog.onStart(() => flm.actions.doChecksumCreate(
-                dialog.getCheckedList(diagId),
-                $.trim(dialog.getTargetPath(diagId)),
-                algo()
-                )
-            );
-
-            const updateFilePath = function (path, previous) {
-                const ext = checksumTypesExt[algo()];
-                let filePath = flm.utils.replaceFilePath(path, previous, Object.values(checksumTypesExt), ext);
-                dialog.updateTargetPath(diagId, filePath);
-            };
-
-            pathBrowser.change(function (ev) {
-                console.log('got triggered', $(this));
-                updateFilePath($(this).val(), $(this).data('previousValue'));
-                $(this).data('previousValue', pathBrowser.val());
-            });
-
-            type.change(() => {
-                pathBrowser.change();
-            });
-            pathBrowser.change();
-        })
-        (window);
+        flm.checksum.onShowCreate(flm.ui.dialogs.getCurrentDialog());
     </script>
 {% endblock %}
 
