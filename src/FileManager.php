@@ -320,17 +320,19 @@ class FileManager
      */
     public function checksumVerify($paths)
     {
-        $sfvfile = $this->currentDir($paths->target);
+        $hashesFile = $this->currentDir($paths->target);
 
-        if (Helper::getExt($sfvfile) != 'sfv') {
-            throw new Exception($sfvfile, 18);
+        if (!isset(Helper::getConfig('extensions')['checksum'][$paths->type])) {
+            throw new Exception($hashesFile, 18);
         }
 
-        if (!$this->fs->isFile($sfvfile)) {
-            throw new Exception($sfvfile, 6);
+        $hashType = $paths->type;
+
+        if (!$this->fs->isFile($hashesFile)) {
+            throw new Exception($hashesFile, 6);
         }
 
-        $sfvfile = $this->getFsPath($sfvfile);
+        $hashesFile = $this->getFsPath($hashesFile);
 
         $task_opts = [
             'name' => 'checksum-verify',
@@ -338,7 +340,7 @@ class FileManager
         ];
 
         $rtask = TaskController::from($task_opts);
-        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::fromChecksumFile', [$sfvfile])];
+        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::fromChecksumFile', [$hashesFile, $hashType])];
 
         $ret = $rtask->start($commands, 0);
 

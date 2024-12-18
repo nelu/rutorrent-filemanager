@@ -65,7 +65,7 @@ class FileChecksum implements Iterator
         }
     }
 
-    public static function fromChecksumFile($checksum_file)
+    public static function fromChecksumFile($checksum_file, $type)
     {
         chdir(dirname($checksum_file));
 
@@ -84,7 +84,7 @@ class FileChecksum implements Iterator
 
             try {
 
-                if (!$check_files->checkFileHash()) {
+                if (!$check_files->checkFileHash($type)) {
                     (self::$logger)::error(' X Hash mismatch!');
                 } else {
                     (self::$logger)::log(' ✓');
@@ -203,29 +203,34 @@ class FileChecksum implements Iterator
         return $this->file;
     }
 
+    #[\ReturnTypeWillChange]
     function rewind()
     {
         $this->position = 0;
         $this->file = null;
     }
 
+    #[\ReturnTypeWillChange]
     function current()
     {
         $this->file = $this->files[$this->position];
         return $this->file;
     }
 
+    #[\ReturnTypeWillChange]
     function key()
     {
         return $this->position;
     }
 
+    #[\ReturnTypeWillChange]
     function next()
     {
 
         ++$this->position;
     }
 
+    #[\ReturnTypeWillChange]
     function valid()
     {
         return isset($this->files[$this->position]);
