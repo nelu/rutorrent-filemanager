@@ -84,7 +84,8 @@ class FileManager
      */
     public function archive($paths)
     {
-        $archive_file = array_shift(Helper::makeRelative($this->currentDir($paths->target)));
+        $archive_path = Helper::makeRelative($this->currentDir($paths->target));
+        $archive_file = array_shift($archive_path);
         $options = empty($paths->mode) ? [] : (array)$paths->mode;
 
         $config = Helper::getConfig('archive');
@@ -320,17 +321,19 @@ class FileManager
      */
     public function checksumVerify($paths)
     {
-        $sfvfile = $this->currentDir($paths->target);
+        $hashesFile = $this->currentDir($paths->target);
 
-        if (Helper::getExt($sfvfile) != 'sfv') {
-            throw new Exception($sfvfile, 18);
+        if (!isset(Helper::getConfig('extensions')['checksum'][$paths->type])) {
+            throw new Exception($hashesFile, 18);
         }
 
-        if (!$this->fs->isFile($sfvfile)) {
-            throw new Exception($sfvfile, 6);
+        $hashType = $paths->type;
+
+        if (!$this->fs->isFile($hashesFile)) {
+            throw new Exception($hashesFile, 6);
         }
 
-        $sfvfile = $this->getFsPath($sfvfile);
+        $hashesFile = $this->getFsPath($hashesFile);
 
         $task_opts = [
             'name' => 'checksum-verify',
@@ -338,7 +341,7 @@ class FileManager
         ];
 
         $rtask = TaskController::from($task_opts);
-        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::fromChecksumFile', [$sfvfile])];
+        $commands = [TaskController::getTaskCmd(FileChecksum::class . '::fromChecksumFile', [$hashesFile, $hashType])];
 
         $ret = $rtask->start($commands, 0);
 
@@ -353,22 +356,22 @@ class FileManager
     public function checksumCreate($paths)
     {
 
-        $sfvfile = $this->currentDir($paths->target);
+        $checksums_file = $this->currentDir($paths->target);
         $files = array_map([$this, 'getFsPath'], (array)$paths->fls);
 
-        if ($this->fs->isFile($sfvfile)) {
-            throw new Exception($sfvfile, 16);
+        if ($this->fs->isFile($checksums_file)) {
+            throw new Exception($checksums_file, 16);
         }
 
         if (empty($files)) {
             throw new Exception("File list is empty");
         }
 
-        $type = 'CRC32';
+        $type = $paths->type ?? 'CRC32';
 
         $task_opts = [
             'name' => 'checksum-create',
-            'arg' => $sfvfile
+            'arg' => $type . ' ' . $checksums_file
         ];
 
         $rtask = TaskController::from($task_opts);
@@ -376,7 +379,7 @@ class FileManager
         $filelist = ($rtask->writeFile)("files.json", json_encode($files));
 
         $commands = [TaskController::getTaskCmd(FileChecksum::class . '::checksumFromFilelist',
-            [$filelist, $this->getFsPath($sfvfile), $type])];
+            [$filelist, $this->getFsPath($checksums_file), $type])];
 
         $ret = $rtask->start($commands, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
 

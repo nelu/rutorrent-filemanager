@@ -35,58 +35,6 @@ export function FileManagerActions() {
                 });
     };
 
-    self.doChecksumCreate = function (filePaths, checksumFile) {
-        let hasError;
-
-        if (!checksumFile.length) {
-            hasError = theUILang.fDiagSFVempty;
-        } else if (!$type(filePaths) || filePaths.length === 0) {
-            hasError = 'Empty paths';
-        } else if (!flm.utils.isValidPath(checksumFile)) {
-            hasError = theUILang.fDiagInvalidname;
-        }
-
-        if ($type(hasError)) {
-            var def = $.Deferred();
-            def.reject({errcode: theUILang.fcSFV, msg: hasError + ': ' + checksumFile});
-            return def.promise();
-        }
-
-        flm.actions.notify(theUILang.fStarts.create_sfv + ": "
-            + flm.utils.basename(checksumFile) + ' <- ' + filePaths.length + " files"
-        );
-
-        return flm.api.sfvCreate(flm.stripJailPath(checksumFile), flm.getFullPaths(filePaths))
-            .done(function (response) {
-                flm.actions.refreshIfCurrentPath(flm.utils.basedir(checksumFile));
-                flm.actions.notify(theUILang.flm_popup_sfv_create + ": " + checksumFile, 'success', 10000);
-
-                return response;
-            });
-    };
-
-    self.doChecksumVerify = function (checksumFile) {
-        let hasError;
-        if (!checksumFile.length) {
-            hasError = theUILang.fDiagSFVempty;
-        } else if (!flm.utils.isValidPath(checksumFile)) {
-            hasError = theUILang.fDiagInvalidname;
-        }
-        if ($type(hasError)) {
-            var def = $.Deferred();
-            def.reject({errcode: theUILang.fcheckSFV, msg: hasError + ': ' + checksumFile});
-            return def.promise();
-        }
-        flm.actions.notify(theUILang.fStarts.check_sfv + ": " + flm.utils.basename(checksumFile));
-
-        return flm.api.sfvCheck(checksumFile)
-            .then(function (response) {
-                flm.actions.notify(theUILang.fDiagSFVCheckf + " " + flm.utils.basename(checksumFile), 'success', 10000);
-                return response;
-            });
-
-    }
-
     self.doCopy = function (destination, filePaths) {
 
         destination = flm.stripJailPath($.trim(destination));

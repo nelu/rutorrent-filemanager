@@ -9,15 +9,12 @@ theUILang.fRename		= 'Rename...';
 theUILang.fDelete		= 'Delete';
 theUILang.fExtracta		= 'Extract all...';
 theUILang.fExtracth		= 'Extract here';
-theUILang.fcheckSFV		= 'Check SFV';
 theUILang.fMediaI		= 'Media info';
 theUILang.fView		= 'View';
 theUILang.fcreate		= 'Create';
 theUILang.fcNewDir		= 'New Directory';
 theUILang.fcNewArchive		= 'New Archive';
 theUILang.fcNewTor		= 'New .torrent';
-theUILang.fcSFV		= 'SFV file...';
-theUILang.fcScreens		= 'Screenshots';
 theUILang.fRefresh		= 'Refresh';
 
 theUILang.fErrMsg = [];
@@ -44,7 +41,7 @@ theUILang.fErrMsg[20]	= 'Command kill failed';
 theUILang.fErrMsg[21]	= 'Action has finished';
 theUILang.fErrMsg[22]	= 'Nothing to work with';
 theUILang.fErrMsg[23]	= 'Action failed';
-theUILang.fErrMsg[24]	= 'archive manipulation disabled (application not found)';
+theUILang.fErrMsg[24]	= 'File Manager: archive manipulation disabled (application not found) ';
 
 
 
@@ -54,7 +51,7 @@ theUILang.flm_popup_mkdir_cpath = 'Inside path:';
 theUILang.flm_popup_mkdir_new 	= 'New Folder';
 theUILang.fDiagndirname	= 'Directory name';
 theUILang.fDiagnodirname 	= 'Please enter a directory name!';
-theUILang.flm_popup_permissions = 'Permissions';
+theUILang.flm_popup_permissions = 'File permissions';
 theUILang.flm_popup_rename 	= 'Rename file / directory';
 theUILang.fDiagRenameTo 	= 'Rename to:';
 theUILang.fDiagRenameBut	= 'Rename';
@@ -69,6 +66,9 @@ theUILang.fDiagClose		= 'Close';
 theUILang.fDiagTo		= 'To:';
 theUILang.fDiagNoPath	= 'Destination not permitted';
 
+
+theUILang.fDiagCopyBut	= 'Copy';
+theUILang.fDiagMoveBut = ' Move';
 
 theUILang.flm_popup_delete	= 'Delete files and folders';
 theUILang.fDiagDeleteSel	= 'Files marked for removal:';
@@ -87,24 +87,29 @@ theUILang.fDiagCopySel	= 'Files marked for duplication:';
 theUILang.fDiagCopyTo	= 'Copy files to:';
 
 theUILang.flm_popup_nfo_view		= 'Text File Viewer';
-theUILang.flm_popup_sfv_check	= 'Simple File Verification';
-theUILang.fDiagSFVCheckf	= 'Checksum file:';
 
-theUILang.flm_popup_sfv_create	= 'Create SFV file';
-theUILang.fDiagSFVCreateSel	= 'Files marked for hashing:';
-theUILang.fDiagSFVHashfile	= 'Save hash file to:';
+theUILang.flm_popup_checksum_check	= 'Checksum File Verification';
+theUILang.flm_popup_checksum_create	= 'Checksum files';
+theUILang.flm_checksum_algorithm	= 'Algorithm';
+theUILang.flm_checksum_menu		= 'File Checksum';
+theUILang.flm_checksum_menu_check		= 'Check Hashes';
+theUILang.flm_checksum_file	= 'Checksum file:';
+theUILang.flm_checksum_selected_files	= 'Files marked for hashing:';
+theUILang.flm_checksum_save_to	= 'Hash file:';
+theUILang.flm_checksum_empty_file	= 'Please name a hash file';
 
-theUILang.fDiagSFVempty	= 'Please name a sfv file';
+
 
 theUILang.flm_popup_archive	= 'Create Archive';
 theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
 
-theUILang.fManArComp = {}; 
+theUILang.fManArComp = {};
 
 // rar
 theUILang.fManArComp.rar = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'];
+
 // zip
 theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 
@@ -112,31 +117,30 @@ theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
-theUILang.fDiagExtract	= 'Extract Archive';
+theUILang.flm_popup_extract	= 'Extract Archive';
 theUILang.fDiagArchive	= 'Archive:';
 theUILang.fDiagCompression	= 'Compression:';
 theUILang.flm_diag_extract_button		= 'Extract';
 theUILang.flm_password		= 'Password';
 theUILang.fDiagArchempty	= 'Please name an archive file';
 
-theUILang.fStarts = { 
-	Delete: 	'File removal started',
-	Extract:	'Archive extraction started',
-	CArchive: 	'File archiving started',
-	CheckSFV: 	'File checking started',
-	CreateSFV:	'File hashing started',
-	Move:		'File relocation started',
-	Copy:		'File duplication started',
-	Screenshots:	'Video screenshots creation started. Please wait this could take some time'
+theUILang.fStarts = {
+	delete: 	'File removal started',
+	extract:	'Archive extraction started',
+	archive: 	'File archiving started',
+	check_sfv: 	'File checking started',
+	create_sfv:	'File hashing started',
+	move:		'File relocation started',
+	copy:		'File duplication started'
 };
-theUILang.fStops = { 
+
+theUILang.fStops = {
 	Delete: 	'File removal stopped',
 	Extract:	'Extraction stopped',
 	CArchive: 	'Archive creation stopped',
-	CheckSFV: 	'SFV check stopped',
-	CreateSFV:	'SFV creation stopped',
 	Move:		'File relocation stopped',
-	Copy:		'File duplication stopped',
-	Screenshots:		'Video screenshots creation stopped'
+	Copy:		'File duplication stopped'
 };
+
+
 thePlugins.get("filemanager").langLoaded();

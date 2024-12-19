@@ -2,7 +2,7 @@
 {% set startButtonValue = theUILang.fDiagStart %}
 
 {% block content %}
-    {{ window.pathBrowser(basename(selectedTarget), theUILang.fDiagSFVCheckf, "", "disabled readonly") }}
+    {{ window.pathBrowser(basename(selectedTarget), theUILang.flm_checksum_file, "", "disabled readonly") }}
 {% endblock %}
 
 {% block scripts %}
@@ -13,7 +13,7 @@
             const diagId = dialog.getCurrentDialog();
             const checksumFile = flm.getCurrentPath(dialog.getTargetPath(diagId));
 
-            dialog.onStart(() => flm.actions.doChecksumVerify(checksumFile));
+            dialog.onStart(() => flm.checksum.doChecksumVerify(checksumFile));
         })();
     </script>
 {% endblock %}

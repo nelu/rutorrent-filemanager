@@ -14,30 +14,26 @@ class WebController extends BaseController
         global $topDirectory;
 
         $archive = [];
-        $bins = [];
 
         $settings = [
-            'textExtensions' => $this->config['textExtensions'],
-            'fileExtractExtensions' => $this->config['fileExtractExtensions']
+            'homedir' => rtrim($topDirectory, DIRECTORY_SEPARATOR),
+            'extensions' => $this->config['extensions'],
+            'debug' => $this->config['debug'],
+            'mkdefmask' => $this->config['mkdperm']
         ];
 
-        foreach ($this->config['archive']['type'] as $ext => $conf)
-        {
+        foreach ($this->config['archive']['type'] as $ext => $conf) {
             $archive[$ext] = $conf;
         }
 
-        $settings['homedir'] = rtrim($topDirectory, DIRECTORY_SEPARATOR);
-        $settings['mkdefmask'] = $this->config['mkdperm'];
         $settings['archives'] = $archive;
-        $settings['debug'] = $this->config['debug'];
 
         return $settings;
     }
 
     public function newDirectory($params)
     {
-        if (!isset($params->target))
-        {
+        if (!isset($params->target)) {
             self::jsonError(16, $params->target);
         }
 
@@ -51,8 +47,7 @@ class WebController extends BaseController
 
         $sf = $this->flm()->getFsPath($data['target']);
 
-        if (!SendFile::send($sf))
-        {
+        if (!SendFile::send($sf)) {
             CachedEcho::send('log(theUILang.fErrMsg[6]+" - ' . $sf . ' / "+theUILang.fErrMsg[3]);', "text/html");
         }
     }
@@ -69,13 +64,11 @@ class WebController extends BaseController
     public function fileRename($params)
     {
 
-        if (!isset($params->to))
-        {
+        if (!isset($params->to)) {
             self::jsonError(2);
         }
 
-        if (!isset($params->target))
-        {
+        if (!isset($params->target)) {
             self::jsonError(18);
         }
 
@@ -90,18 +83,15 @@ class WebController extends BaseController
 
     public function filesCompress($params)
     {
-        if (!isset($params->fls) || (count($params->fls) < 1))
-        {
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
 
-        if (!isset($params->target))
-        {
+        if (!isset($params->target)) {
             self::jsonError(16);
         }
 
-        if (!isset($params->mode))
-        {
+        if (!isset($params->mode)) {
             self::jsonError(300);
         }
 
@@ -112,12 +102,10 @@ class WebController extends BaseController
 
     public function filesExtract($params)
     {
-        if (!isset($params->to))
-        {
+        if (!isset($params->to)) {
             self::jsonError(2);
         }
-        if (!isset($params->fls) || (count($params->fls) < 1))
-        {
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
 
@@ -133,13 +121,11 @@ class WebController extends BaseController
     public function filesCopy($params)
     {
 
-        if (!isset($params->fls) || (count($params->fls) < 1))
-        {
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
 
-        if (!isset($params->to))
-        {
+        if (!isset($params->to)) {
             self::jsonError(2);
         }
 
@@ -151,13 +137,11 @@ class WebController extends BaseController
     public function filesMove($params)
     {
 
-        if (!isset($params->fls) || (count($params->fls) < 1))
-        {
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
 
-        if (!isset($params->to))
-        {
+        if (!isset($params->to)) {
             self::jsonError(2);
         }
 
@@ -168,8 +152,7 @@ class WebController extends BaseController
 
     public function filesRemove($params)
     {
-        if (!isset($params->fls) || (count($params->fls) < 1))
-        {
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
 
@@ -190,11 +173,10 @@ class WebController extends BaseController
         return $this->_getPostData(['fls' => 22, 'to' => 2], false);
     }
 
-    public function svfCheck($params)
+    public function checksumVerify($params)
     {
 
-        if (!isset($params->target))
-        {
+        if (!isset($params->target)) {
             self::jsonError(2);
         }
 
@@ -203,15 +185,13 @@ class WebController extends BaseController
         return $task;
     }
 
-    public function sfvCreate($params)
+    public function checksumCreate($params)
     {
 
-        if (!isset($params->fls) || (count($params->fls) < 1))
-        {
+        if (!isset($params->fls) || (count($params->fls) < 1)) {
             self::jsonError(22);
         }
-        if (!isset($params->target))
-        {
+        if (!isset($params->target)) {
             self::jsonError(2);
         }
 
@@ -234,13 +214,11 @@ class WebController extends BaseController
     public function viewNfo($params)
     {
 
-        if (!isset($params->mode))
-        {
+        if (!isset($params->mode)) {
             $params->mode = 0;
         }
 
-        if (!isset($params->target))
-        {
+        if (!isset($params->target)) {
             self::jsonError(2);
         }
 

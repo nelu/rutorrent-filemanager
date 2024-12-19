@@ -52,15 +52,8 @@ export function FileManagerDialogs(browser) {
         }, rename: {
             modal: true,
             template: "dialog-rename"
-        }, sfv_check: {
-            modal: true,
-            template: "dialog-svf_check"
-        }, sfv_create: {
-            modal: true,
-            pathbrowse: true,
-            multiselectFilesOnly: true,
-            template: "dialog-svf_create"
-        }, nfo_view: {
+        },
+        nfo_view: {
             modal: false,
             template: "dialog-nfo_view"
         }

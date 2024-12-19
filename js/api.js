@@ -111,22 +111,6 @@ export function apiClient  (endpoint) {
 
     };
 
-    client.sfvCheck = function (path) {
-        return this.runTask("checksum-verify", {
-            method: 'svfCheck',
-            target: path
-        });
-
-    };
-
-    client.sfvCreate = function (path, files) {
-        return this.runTask("checksum-create", {
-            method: 'sfvCreate',
-            target: path,
-            fls: files
-        });
-
-    };
 
     client.createArchive = function (archive, files, options) {
         return this.runTask("compress", {
