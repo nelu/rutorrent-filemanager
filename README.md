@@ -14,7 +14,7 @@ ruTorrent file management plugin with a javascript user interface running on rTo
 - hotkey shortcuts for file operations: copy (ctrl+c), move (ctrl+x), paste (ctrl+v), delete, rename (F2)
 
 ### Configuration
-The plugin configuration with all it's option can be edited in ``conf.php`` inside the plugin directory.
+The plugin configuration with all it's options can be edited in ``conf.php`` inside the plugin directory.
 
 See the **[Configuration section](https://github.com/nelu/rutorrent-filemanager/wiki#configuration)** in the plugin 
 [Wiki](https://github.com/nelu/rutorrent-filemanager/wiki) page for information regarding the available settings and how they work.
@@ -36,3 +36,4 @@ See these additional filemanager plugins for extended functionality:
 Many thanks to all contributors, users and the projects behind this plugin:
 - [ruTorrent](https://github.com/Novik/ruTorrent)
 - [rtorrent](https://github.com/rakshasa/rtorrent)
+- [7Zip](https://www.7-zip.org/)

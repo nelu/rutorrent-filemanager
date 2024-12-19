@@ -15,17 +15,16 @@ $config['unicode_emoji_fix'] = true;
 
 $config['mkdperm'] = 755; // default permission to set to new created directories
 
+// files that are viewable as text
+$config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';
+
+// see what 7zip extraction supports as type by file extension
+$config['fileExtractExtensions'] = '(7z|bzip2|t?bz2|tgz|gz(ip)?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim)(\.[0-9]+)?';
+
 // see what 7zip i supports for hashers
 $config['checksumExtensions'] = [
     "CRC32" => 'sfv',
     "SHA256" => 'sha256sum'
-];
-
-$config['extensions'] = [
-    'checksum' => $config['checksumExtensions'],
-    'text' => 'log|txt|nfo|xml|html|' . implode("|", $config['checksumExtensions']),
-    // see what 7zip extraction supports as type by file extension
-    'fileExtract' => '(7z|bzip2|t?bz2|tgz|gz(ip)?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim)(\.[0-9]+)?'
 ];
 
 // archive creation, see archiver man page before editing
@@ -57,3 +56,11 @@ $config['archive']['type']['tar.gz']['multipass'] = ['tar', 'gzip'];
 $config['archive']['type']['tar.bz2']['multipass'] = ['tar', 'bzip2'];
 $config['archive']['type']['tar.7z']['multipass'] = ['tar', '7z'];
 $config['archive']['type']['tar.xz']['multipass'] = ['tar', 'xz'];
+
+
+$config['extensions'] = [
+    'checksum' => $config['checksumExtensions'],
+    // make checksum files available to the text viewer
+    'text' => $config['textExtensions'] . '|' . implode("|", $config['checksumExtensions']),
+    'fileExtract' => $config['fileExtractExtensions']
+];

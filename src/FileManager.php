@@ -270,7 +270,7 @@ class FileManager
 
         if (!is_file($fullpath)) {
             throw new Exception($file, 6);
-        } elseif (!preg_match('/' . $this->settings['textExtensions'] . '/', Helper::getExt($fullpath))
+        } elseif (!preg_match('/' . $this->settings['extensions']['text'] . '/', Helper::getExt($fullpath))
             || (filesize($fullpath) > 50000)) {
             throw new Exception($file, 18);
         }
