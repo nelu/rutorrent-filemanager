@@ -126,12 +126,6 @@ input.text-long {
     background-position: -57px -5px;
 }
 
-.sprite-curdir {
-    width: 16px;
-    height: 16px;
-    background-position: -83px -5px !important;
-}
-
 .sprite-delete {
     width: 16px;
     height: 16px;
@@ -178,7 +172,11 @@ input.text-long {
 .sprite-refresh {
     width: 16px;
     height: 16px;
-    background-position: -57px -83px;
+    background-position: -83px -5px !important;
+}
+
+.flm-nav-refresh .sprite-refresh:hover {
+    background-position: -57px -83px !important;;
 }
 
 .sprite-rename {

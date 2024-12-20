@@ -156,8 +156,9 @@ export function FileManagerActions() {
                 });
     }
 
-    self.doNewDir = (dirName) => {
-        dirName = flm.utils.basename(dirName);
+    self.doNewDir = (path, validation) => {
+
+        const dirName = flm.utils.basename(path.val());
         let hasError;
 
         if (!dirName) {
@@ -168,6 +169,11 @@ export function FileManagerActions() {
 
         if ($type(hasError)) {
             var def = $.Deferred();
+            console.log(validation);
+            validation.html(hasError);
+            path[0].setCustomValidity(hasError);
+            path[0].reportValidity();
+//            //path.addClass('is-invalid');
             def.reject({errcode: theUILang.fcNewDir, msg: hasError + ' - ' + dirName});
         }
 

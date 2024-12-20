@@ -16,7 +16,7 @@
     </div>
 {% endmacro %}
 
-{% macro pathBrowser(default="", title = false, class = "", disabled="") %}
+{% macro pathBrowser(default="", title = false, class = "", disabled="", errorMsg="Invalid") %}
     {% set default = default == "/" ? "" : default %}
     {% set class = class == "" ? "flm-diag-nav-path" : class %}
     {% set randId = random() %}
@@ -25,6 +25,9 @@
             <label class="input-group-text m-0 pt-1 pb-1" for="flm-nav-path-{{ randId }}">{{ title }}</label>
             <input class="form-control m-0 p-1 {{ class }}" id="flm-nav-path-{{ randId }}" type="text"
                    value="{{ default }}" {{ disabled }}>
+            <div class="invalid-feedback">
+                {{ errorMsg }}
+            </div>
         </div>
     </div>
 {% endmacro %}

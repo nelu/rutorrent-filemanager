@@ -108,13 +108,13 @@ function FlmChecksum ()  {
 
     };
 
-    this.onShowCreate = function (diagId) {
+    this.onShowCreate = function (diagId, type) {
 
         const cPath = flm.getCurrentPath();
         var pathBrowser = dialog.dirBrowserInput(diagId);
 
 
-        let type = $('#fman-checksum-type');
+
 
         let algo = () => { return type.find(":selected").val() };
 

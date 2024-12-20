@@ -8,12 +8,14 @@
 {% endblock %}
 
 {% block content %}
-    {{ window.pathBrowser(selectedTarget, theUILang.flm_checksum_save_to) }}
+<form class="row g-3 needs-validation submitform" novalidate>
+
+{{ window.pathBrowser(selectedTarget, theUILang.flm_checksum_save_to, "", "required") }}
 
     <div class="mb-3 row">
         <div class="input-group mb-3">
             <label class="input-group-text" for="fman-checksum-type">{{ theUILang.flm_checksum_algorithm }}</label>
-            <select id="fman-checksum-type" class="form-select fman-checksum-type" name="fman-checksum-type"
+            <select id="fman-checksum-type" class="form-select fman-checksum-type" name="fman-checksum-type" required
                     aria-label="{{ theUILang.flm_checksum_algorithm }}">
                 {% for algo, ext in config.extensions.checksum %}
                 <option value="{{ algo }}">{{ algo }}</option>
@@ -21,12 +23,14 @@
             </select>
         </div>
     </div>
-
+</form>
 {% endblock %}
 
 {% block scripts %}
     <script>
-        flm.checksum.onShowCreate(flm.ui.dialogs.getCurrentDialog());
-    </script>
+            flm.checksum.onShowCreate(flm.ui.dialogs.getCurrentDialog(),
+                $('#fman-checksum-type')
+            );
+     </script>
 {% endblock %}
 

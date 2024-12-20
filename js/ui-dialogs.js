@@ -122,20 +122,43 @@ export function FileManagerDialogs(browser) {
         diagId = '#' + diagId;
         var newContent = $(diagId);
 
+        let dialogForms = document.querySelectorAll(diagId + ' .needs-validation');
+
+
         self.enableStartButton(diagId).on('click', function () {
             flm.getConfig().debug && console.log("Start button click " + diagId);
 
-            if ($type(self.onStartEvent) === "function") {
-                self.disableStartButton(diagId);
-                self.hide(diagId);
+            let validForms = 0;
+            Array.from(dialogForms).forEach(form => {
+                if (form.checkValidity()) {
+                    validForms++
+                }
+                form.classList.add('was-validated');
+            });
 
+            if (validForms === dialogForms.length && $type(self.onStartEvent) === "function") {
                 self.startedPromise = self.onStartEvent.apply(self, arguments);
-                self.startedPromise.then(function () {
-                    //self.hide(diagId);
-                }, function (data) {
-                    flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
-                });
+
+                if(self.startedPromise.state() === "rejected") {
+
+                    self.startedPromise.fail((data) =>  {
+                        console.log('validation not passed');
+                        flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
+                    });
+
+                } else {
+                    self.disableStartButton(diagId);
+                    self.hide(diagId);
+
+                    self.startedPromise.then(function () {
+                        //self.hide(diagId);
+                    }, function (data) {
+                        flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
+                    });
+                }
+
             }
+
         });
 
         setTimeout(function () {
@@ -227,6 +250,11 @@ export function FileManagerDialogs(browser) {
             }
             for (var i = 0; i < inputSelectors.length; i++) {
                 let rdb = new FlmRdb(inputSelectors[i].id, withFiles);
+                rdb.edit.on("input", () => {
+                    rdb.edit[0].setCustomValidity("");
+                    rdb.edit[0].checkValidity();
+                });
+
                 self.dirBrowser[diagId][i] = rdb;
                 rdb.btn.addClass(['m-0', 'p-1']);
 

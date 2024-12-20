@@ -129,7 +129,7 @@ class ShellCmd
                 'name' => 'runRemote',
                 'arg' => $cmd
             ]);
-            $result = $task->start([$cmd], (rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD) | rTask::FLG_WAIT );
+            $result = $task->start([$cmd], (rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD &~ rTask::FLG_STRIP_LOGS) | rTask::FLG_WAIT | rTask::FLG_DO_NOT_TRIM );
             $output = $result['log'];
 
             $expectedCode = $result['status'];

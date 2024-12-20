@@ -1,7 +1,10 @@
 {% extends "flm::dialog-window.twig" %}
 
 {% block content %}
-    {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name) }}
+    <form class="row g-3 needs-validation" novalidate>
+
+    {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name, "", "required", theUILang.fDiagInvalidname) }}
+    </form>
 {% endblock %}
 
 {% block scripts %}
@@ -9,14 +12,12 @@
         (function (dialogs) {
             var diagId = dialogs.getCurrentDialog();
             var nameInput = dialogs.dirBrowserInput(diagId);
-
-            dialogs.onStart(() => flm.actions.doNewDir(nameInput.val()));
-
-            nameInput.parent().on('submit', function () {
-                flm.getConfig().debug && console.log("Submit triggered on input", nameInput);
-                flm.ui.dialogs.startButton(diagId).click();
-                return false
+            nameInput.on("input", () => {
+                nameInput[0].setCustomValidity("");
+                nameInput[0].checkValidity();
             });
+            dialogs.onStart(() => flm.actions.doNewDir(nameInput, $('#'+diagId + ' .invalid-feedback')));
+
             setTimeout(function () {
                 nameInput.click();
                 nameInput.select();
