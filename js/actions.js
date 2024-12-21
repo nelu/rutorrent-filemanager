@@ -156,8 +156,7 @@ export function FileManagerActions() {
                 });
     }
 
-    self.doNewDir = (path, validation) => {
-
+    self.doNewDir = (path) => {
         const dirName = flm.utils.basename(path.val());
         let hasError;
 
@@ -169,17 +168,17 @@ export function FileManagerActions() {
 
         if ($type(hasError)) {
             var def = $.Deferred();
-            console.log(validation);
-            validation.html(hasError);
-            path[0].setCustomValidity(hasError);
-            path[0].reportValidity();
-//            //path.addClass('is-invalid');
-            def.reject({errcode: theUILang.fcNewDir, msg: hasError + ' - ' + dirName});
+
+            def.reject({
+                errcode: theUILang.fcNewDir,
+                msg: hasError + ' - ' + dirName,
+                fields: [{input: path, err: hasError}]
+            });
+
+            return def.promise();
         }
 
-        return $type(hasError)
-            ? def.promise()
-            : flm.api.mkDir(flm.getCurrentPath(dirName))
+        return flm.api.mkDir(flm.getCurrentPath(dirName))
                 .done(function (response) {
                     flm.Refresh();
                     return response;

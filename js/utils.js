@@ -349,6 +349,13 @@ export function FileManagerUtils(flm) {
             return (rar.join('/'));
         }
 
+        utils.setValidation = (field) => {
+            field.on("input", () => {
+                field[0].setCustomValidity("");
+                field[0].checkValidity();
+            })
+        };
+
         utils.stripFileExtension = function (currentPath, exts) {
             var file;
             var fileName = flm.utils.basename(currentPath);

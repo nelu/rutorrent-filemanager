@@ -81,7 +81,7 @@ export function FsBrowser() {
             try {
                 return (self.table().getValueById(self.tableEntryPrefix + path, 'name'));
             } catch (dx) {
-                console.log(dx);
+                flm.config.debug &&  console.log(dx);
             }
 
             return exists;

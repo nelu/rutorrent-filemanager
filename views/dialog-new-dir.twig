@@ -3,7 +3,7 @@
 {% block content %}
     <form class="row g-3 needs-validation" novalidate>
 
-    {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name, "", "required", theUILang.fDiagInvalidname) }}
+    {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name) }}
     </form>
 {% endblock %}
 
@@ -12,11 +12,10 @@
         (function (dialogs) {
             var diagId = dialogs.getCurrentDialog();
             var nameInput = dialogs.dirBrowserInput(diagId);
-            nameInput.on("input", () => {
-                nameInput[0].setCustomValidity("");
-                nameInput[0].checkValidity();
-            });
-            dialogs.onStart(() => flm.actions.doNewDir(nameInput, $('#'+diagId + ' .invalid-feedback')));
+
+            flm.utils.setValidation(nameInput);
+
+            dialogs.onStart(() => flm.actions.doNewDir(nameInput));
 
             setTimeout(function () {
                 nameInput.click();

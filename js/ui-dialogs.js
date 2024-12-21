@@ -1,9 +1,20 @@
 class FlmRdb extends theWebUI.rDirBrowser {
 
     xhr = null;
+
+    constructor(a, b, c) {
+        super(a, b, c);
+        flm.utils.setValidation(this.edit);
+    }
+
     hide(notify = true) {
         notify && this.edit.change();
         return super.hide();
+    }
+
+    selectItem(ev) {
+        super.selectItem(ev);
+        this.edit.change();
     }
 
     unload() {
@@ -15,6 +26,7 @@ class FlmRdb extends theWebUI.rDirBrowser {
         this.frame.remove();
     }
 }
+
 export function FileManagerDialogs(browser) {
 
     let self = this;
@@ -64,9 +76,9 @@ export function FileManagerDialogs(browser) {
     self.startedPromise = null;
     self.dirBrowser = {}; // multiple file operations are ui blocking
 
-    self.bindKeys =  (diagId) => {
-        $("#"+diagId).keydown(function (e) {
-             (e.keyCode === 13) && self.startButton(diagId).click();
+    self.bindKeys = (diagId) => {
+        $("#" + diagId).keydown(function (e) {
+            (e.keyCode === 13) && self.startButton(diagId).click();
         });
     };
 
@@ -93,7 +105,7 @@ export function FileManagerDialogs(browser) {
 
     self.afterShow = (diagId) => {
         setTimeout(function () {
-            $("#"+diagId).select().focus();
+            $("#" + diagId).select().focus();
         });
     }
     // common dialog cleanup
@@ -139,11 +151,23 @@ export function FileManagerDialogs(browser) {
             if (validForms === dialogForms.length && $type(self.onStartEvent) === "function") {
                 self.startedPromise = self.onStartEvent.apply(self, arguments);
 
-                if(self.startedPromise.state() === "rejected") {
+                if (self.startedPromise.state() === "rejected") {
 
-                    self.startedPromise.fail((data) =>  {
-                        console.log('validation not passed');
-                        flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
+                    self.startedPromise.fail((data) => {
+                        flm.config.debug && console.log('fields validation not passed', data);
+
+                        if($type(data.fields))
+                        {
+                            data.fields.map(function(f){
+                                let validation = f.input.parent().find('.invalid-feedback');
+                                f.input[0].setCustomValidity(f.err);
+                                validation.length && validation.html(f.err) || f.input[0].reportValidity();
+
+                                return f;
+                                });
+                        } else {
+                            flm.utils.logError(data.errcode ? data.errcode : "", data.msg || data);
+                        }
                     });
 
                 } else {
@@ -250,10 +274,6 @@ export function FileManagerDialogs(browser) {
             }
             for (var i = 0; i < inputSelectors.length; i++) {
                 let rdb = new FlmRdb(inputSelectors[i].id, withFiles);
-                rdb.edit.on("input", () => {
-                    rdb.edit[0].setCustomValidity("");
-                    rdb.edit[0].checkValidity();
-                });
 
                 self.dirBrowser[diagId][i] = rdb;
                 rdb.btn.addClass(['m-0', 'p-1']);
