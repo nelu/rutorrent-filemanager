@@ -5,6 +5,10 @@ class FlmRdb extends theWebUI.rDirBrowser {
     constructor(a, b, c) {
         super(a, b, c);
         flm.utils.setValidation(this.edit);
+
+        this.edit.on('change', e => {
+            this.edit.val(flm.stripJailPath(this.edit.val()));
+        });
     }
 
     hide(notify = true) {
@@ -14,7 +18,24 @@ class FlmRdb extends theWebUI.rDirBrowser {
 
     selectItem(ev) {
         super.selectItem(ev);
-        this.edit.change();
+        this.edit.val(flm.stripJailPath(this.edit.val()));
+        //this.edit.change();
+    }
+
+
+    setFilter(expression) {
+        this.frame.find('.filter-dir').val(expression);
+    }
+
+    requestDir() {
+
+        if(!flm.utils.isDir(this.edit.val()))
+        {
+            this.edit.val(flm.utils.basedir(this.edit.val()));
+        }
+        this.edit.val(flm.addJailPath(this.edit.val()));
+
+        return super.requestDir();
     }
 
     unload() {
@@ -132,7 +153,6 @@ export function FileManagerDialogs(browser) {
     // common before event handle
     self.beforeShow = function (diagId, what) {
         diagId = '#' + diagId;
-        var newContent = $(diagId);
 
         let dialogForms = document.querySelectorAll(diagId + ' .needs-validation');
 

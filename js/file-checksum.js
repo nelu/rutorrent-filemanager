@@ -9,6 +9,7 @@ flm.ui.dialogs.setDialogConfig('checksum_check',
         {
             modal: true,
             pathbrowse: true,
+            pathbrowseFiles: true,
             multiselectFilesOnly: true,
             template: "dialog-checksum_create"
         });
