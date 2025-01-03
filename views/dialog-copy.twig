@@ -12,10 +12,10 @@
     <script>
         if (!flm.ui.hasOwnProperty('dialogCopy')) {
 
-            flm.ui.dialogCopy = function () {
-                let dialogs = flm.ui.getDialogs();
+            flm.ui.dialogCopy = function (dialogs) {
                 const diagId = dialogs.getCurrentDialog();
-                const pathBrowser = dialogs.dirBrowserInput(diagId);
+                let pathBrowser = dialogs.dirBrowserInput(diagId);
+                let entries = dialogs.getCheckedList(diagId);
 
                 let self = this;
 
@@ -24,14 +24,10 @@
                     dialogs.updateTargetPath(diagId, filePath);
                 };
 
-                dialogs.onStart(() => flm.actions.doCopy(
-                    dialogs.getTargetPath(diagId),
-                    dialogs.getCheckedList(diagId)
-                ).then());
+                dialogs.onStart(() => flm.actions.doCopy(dialogs.getCheckList(diagId), pathBrowser));
 
                 pathBrowser.change(self.updateFilePath);
 
-                const entries = dialogs.getCheckedList(diagId);
                 if (entries.length === 1) {
                     pathBrowser.data('previousValue', 'Copy of ' + flm.utils.basename(entries[0]))
                         .change();
@@ -39,6 +35,6 @@
 
             }
         }
-        (flm.ui.dialogCopy)(window);
+        (flm.ui.dialogCopy)(flm.ui.getDialogs());
     </script>
 {% endblock %}

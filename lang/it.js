@@ -48,8 +48,8 @@ theUILang.fErrMsg[23]	= "Azione fallita";
 theUILang.fErrMsg[24]	= "gestione degli archivi disabilitata (applicazione non trovata)";
 
 
-
-
+ 
+theUILang.flm_empty_selection = 'Nothing selected';
 theUILang.flm_popup_mkdir		= "Crea nuova cartella";
 theUILang.flm_popup_mkdir_cpath = "Posizione:";
 theUILang.flm_popup_mkdir_new 	= "Nuova cartella";

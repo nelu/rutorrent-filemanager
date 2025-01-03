@@ -47,8 +47,8 @@ theUILang.fErrMsg[23]		= "Échec de l'action.";
 theUILang.fErrMsg[24]		= "Manipulation des archives désactivée (application introuvable)";
 
 
-
-
+ 
+theUILang.flm_empty_selection = 'Nothing selected';
 theUILang.flm_popup_mkdir	= "Créer un nouveau dossier";
 theUILang.flm_popup_mkdir_cpath = "Localisation :";
 theUILang.flm_popup_mkdir_new 	= 'Nouveau dossier';

@@ -30,65 +30,57 @@ export function FileManagerActions() {
 
         return flm.api.createArchive(flm.stripJailPath(archive), flm.getFullPaths(files), options)
             .done((response) => {
-                    self.refreshIfCurrentPath(flm.utils.basedir(archive)) || self.refreshIfCurrentPath(cPath);
-                    return response;
-                });
+                self.refreshIfCurrentPath(flm.utils.basedir(archive)) || self.refreshIfCurrentPath(cPath);
+                return response;
+            });
     };
 
-    self.doCopy = function (destination, filePaths) {
+    this.doCopy = function (checklist, path) {
 
-        destination = flm.stripJailPath($.trim(destination));
+        let cPath = flm.getCurrentPath();
+        let destination = flm.stripJailPath($.trim(path.val()));
+        let filePaths = flm.ui.dialogs.getCheckedList(checklist);
 
-        var deferred = $.Deferred();
-        //flm.manager.logConsole(theUILang.fStarts.copy, filePaths.length + " files");
-
-        if (!$type(filePaths) || filePaths.length === 0) {
-            deferred.reject({errcode: 'copy', msg: 'Empty paths'});
-            return deferred.promise();
-        }
-
-        if (!flm.utils.isValidPath(destination)) {
-            // flm.manager.logAction('copy', theUILang.fDiagInvalidname);
-            deferred.reject({errcode: 'copy', msg: theUILang.fDiagInvalidname + ": " + destination});
-
-            return deferred.promise();
-        }
+        let validation = self.doValidation([
+            [!$type(filePaths) || filePaths.length === 0, theUILang.flm_empty_selection, checklist.find('input').get(0)],
+            [!flm.utils.isValidPath(destination), path.data("msgRequired"), path],
+            [destination === cPath, path.data("msgExists"), path]
+        ]);
 
         // check if its empty from clipboard
         filePaths = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(filePaths) : filePaths;
 
-        self.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
+        validation.then(() => {
+            self.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
+            return flm.api.copy(filePaths, destination);
+        }).done(function () {
+            // refresh in case we are in destination
+            flm.actions.refreshIfCurrentPath(destination);
+            flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
+        });
 
-        return flm.api.copy(filePaths, destination)
-            .then(function (result) {
-                    // refresh in case we are in destination
-                    flm.actions.refreshIfCurrentPath(destination);
-                    flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
-                    return result;
-                },
-                function (response) {
-                    return response;
-                });
+        return validation;
     }
 
-    self.doDelete = function (paths) {
-
-        var deferred = $.Deferred();
-
-        if (!$type(paths) || paths.length === 0) {
-            deferred.reject({errcode: 'delete', msg: 'Empty paths'});
-            return deferred.promise();
-        }
-
-        paths = flm.getFullPaths(paths);
+    self.doDelete = function (checklist) {
+        let paths = flm.ui.dialogs.getCheckedList(checklist);
         const cPath = flm.getCurrentPath();
-        flm.actions.notify(theUILang.fStarts.delete + ": " + paths.length + " files");
 
-        return flm.api.removeFiles(paths).then(function (result) {
+        let validation = self.doValidation([
+            [!$type(paths) || paths.length === 0, theUILang.flm_empty_selection, checklist.find('input').get(0)],
+        ]);
+
+        validation.then(() => {
+            paths = flm.getFullPaths(paths);
+            flm.actions.notify(theUILang.fStarts.delete + ": " + paths.length + " files");
+            return flm.api.removeFiles(paths);
+        }).done(() => {
+            //TODO: create event listeners for flm.actions.refreshIfCurrentPath
             flm.actions.refreshIfCurrentPath(cPath);
-            $(document).trigger(flm.EVENTS.delete, [paths]);
-            return result;
+            $(document).trigger(flm.EVENTS.delete, [paths, cPath]);
         });
+
+        return validation;
     }
 
     self.doExtract = function (archiveFiles, toDir, password) {
@@ -120,101 +112,91 @@ export function FileManagerActions() {
             });
     }
 
-    self.doMove = function (filePaths, destination) {
+    self.doMove = function (checklist, path) {
+        let cPath = flm.getCurrentPath();
+        let destination = flm.stripJailPath($.trim(path.val()));
+        let filePaths = flm.ui.dialogs.getCheckedList(checklist);
 
-        destination = flm.stripJailPath($.trim(destination));
-
-        var deferred = $.Deferred();
-
-        if (!$type(filePaths) || filePaths.length === 0) {
-            deferred.reject({errcode: 'move', msg: 'Empty paths'});
-            return deferred.promise();
-        }
-
-        if (!flm.utils.isValidPath(destination)) {
-            deferred.reject({errcode: 'move', msg: theUILang.fDiagInvalidname + ": " + destination});
-            return deferred.promise();
-        }
+        let validation = self.doValidation([
+            [!$type(filePaths) || filePaths.length === 0, theUILang.flm_empty_selection, checklist.find('input').get(0)],
+            [!flm.utils.isValidPath(destination), path.data("msgRequired"), path],
+            [destination === cPath, path.data("msgExists"), path]
+        ]);
 
         filePaths = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(filePaths) : filePaths;
-        var cPath = flm.getCurrentPath();
 
-        flm.actions.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
-
-        return flm.api.move(filePaths, destination)
-            .then(function (result) {
-
+        validation.then(() => {
+            self.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
+            return flm.api.move(filePaths, destination);
+        }).done(function () {
                     flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
-
-                    $(document).trigger(flm.EVENTS.move, [filePaths, destination]);
+                    $(document).trigger(flm.EVENTS.move, [filePaths, destination, cPath]);
                     flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
+        });
 
-                    return result;
-                },
-                function (response) {
-                    return response;
-                });
+        return validation;
     }
 
-    self.doNewDir = (path) => {
+    this.doNewDir = (path) => {
         const dirName = flm.utils.basename(path.val());
-        let hasError;
 
-        if (!dirName) {
-            hasError = theUILang.fDiagInvalidname;
-        } else if (flm.ui.filenav.fileExists(dirName)) {
-            hasError = theUILang.fDiagAexist;
-        }
+        let validation = self.doValidation([
+            [!dirName.length || flm.utils.isValidPath(path.val()), path.data("msgRequired")],
+            [() => flm.ui.filenav.fileExists(dirName), path.data("msgExists")],
+        ], (msg) => ({
+            errcode: theUILang.fcNewDir,
+            msg: msg + ' - ' + dirName,
+            fields: [{input: path, err: msg}]
+        }));
 
-        if ($type(hasError)) {
-            var def = $.Deferred();
+        validation.then(() => flm.api.mkDir(flm.getCurrentPath(dirName)))
+            .done(() => flm.actions.refreshIfCurrentPath(flm.getCurrentPath(dirName)));
 
-            def.reject({
-                errcode: theUILang.fcNewDir,
-                msg: hasError + ' - ' + dirName,
-                fields: [{input: path, err: hasError}]
-            });
-
-            return def.promise();
-        }
-
-        return flm.api.mkDir(flm.getCurrentPath(dirName))
-                .done(function (response) {
-                    flm.Refresh();
-                    return response;
-                });
-
+        return validation;
     }
 
-    self.doRename = function (source, destination, cPath) {
+    this.doRename = function (source, path) {
+        const cPath = flm.getCurrentPath();
+        source = flm.utils.buildPath([cPath, flm.utils.basename(source)]);
 
-        let hasError;
+        let destination = flm.utils.buildPath([cPath, flm.utils.basename(path.val())]);
 
-        if (!flm.utils.isValidPath(destination)) {
-            hasError = theUILang.fDiagInvalidname;
-        } else if (flm.utils.basename(destination) === flm.utils.basename(source)
-            || flm.ui.filenav.fileExists(destination)) //dir check
-        {
-            hasError = theUILang.fDiagAexist;
-        }
+        let validation = self.doValidation([
+            [!flm.utils.isValidPath(destination) || !flm.utils.basename(path.val()).length, path.data("msgRequired")],
+            [() => flm.utils.basename(destination) === flm.utils.basename(source) || flm.ui.filenav.fileExists(destination), path.data("msgExists")]
+        ], (msg) => ({
+            errcode: theUILang.fDiagRenameBut + ' ' + flm.utils.basename(source),
+            msg: flm.utils.basename(destination) + ' - ' + msg,
+            fields: [{input: path, err: msg}]
+        }));
 
-        if ($type(hasError)) {
-            var def = $.Deferred();
-            def.reject({
-                errcode: theUILang.fDiagRenameBut + ' ' + flm.utils.basename(source),
-                msg: flm.utils.basename(destination) + ' - ' + hasError
-            });
-            return def.promise();
-        }
-
-        return flm.api.rename(source, destination).done(
-            function (response) {
-                flm.actions.refreshIfCurrentPath(cPath);
+        validation.then(() => flm.api.rename(source, destination))
+            .done((response) => {
+                self.refreshIfCurrentPath(cPath);
                 $(document).trigger(flm.EVENTS.rename, [source, destination]);
                 return response;
-            }
-        );
+            });
 
+        return validation;
+    };
+
+    self.doValidation = (filters, formatMsg) => {
+        let d = $.Deferred();
+        formatMsg = formatMsg || function (msg, input) {
+            return {fields: [{input: input, err: msg}]};
+        };
+
+        let errs = filters.reduce((accumulator, currentValue) => {
+            let validation = currentValue[0];
+            if (!accumulator && ($type(validation) === 'function' ? validation.apply(self, []) : validation)) {
+                return d.reject($type(formatMsg) && formatMsg(currentValue[1], currentValue[2]) || currentValue[1]);
+            } else {
+                return accumulator;
+            }
+
+        }, false);
+
+        return errs || d.resolve();
     };
 
     self.logAction = (action, text) => {
@@ -248,7 +230,7 @@ export function FileManagerActions() {
                 closeOnSelfClick: true
             });
 
-         flm.actions.logConsole(contents);
+        flm.actions.logConsole(contents);
     }
 
     self.doMediainfo = (target) => {

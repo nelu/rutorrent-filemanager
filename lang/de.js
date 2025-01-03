@@ -47,8 +47,8 @@ theUILang.fErrMsg[22]	= 'Nichts um damit zu arbeiten';
 theUILang.fErrMsg[23]	= 'Aktion fehlgeschlagen';
 theUILang.fErrMsg[24]	= 'Archiv Manipulation deaktiviert (Anwendung nicht gefunden)';
 
-
-
+ 
+theUILang.flm_empty_selection = 'Nothing selected';
 theUILang.flm_popup_mkdir		= 'Erstelle neues Verzeichnis';
 theUILang.flm_popup_mkdir_cpath = 'Inside path:';
 theUILang.flm_popup_mkdir_new 	= 'New Folder';

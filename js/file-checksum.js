@@ -114,9 +114,6 @@ function FlmChecksum ()  {
         const cPath = flm.getCurrentPath();
         var pathBrowser = dialog.dirBrowserInput(diagId);
 
-
-
-
         let algo = () => { return type.find(":selected").val() };
 
         dialog.onStart(() => self.doChecksumCreate(

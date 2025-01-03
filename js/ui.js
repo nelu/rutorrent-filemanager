@@ -6,12 +6,12 @@ export function FileManagerUi(flm) {
     let self = this;
 
     // table filesystem navigation
-    self.filenav = new FsBrowser();
+    this.filenav = new FsBrowser();
 
     //  operation dialogs
-    self.dialogs = new FileManagerDialogs(self.filenav);
+    this.dialogs = new FileManagerDialogs(this.filenav);
 
-    self.settings = {
+    this.settings = {
         defaults: {
             "showhidden": true,
             "histpath": 5,
@@ -78,7 +78,7 @@ export function FileManagerUi(flm) {
         }
     };
 
-    self.console = {
+    this.console = {
 
         loader: thePlugins.isInstalled('create')
             ? 'create'
@@ -193,11 +193,11 @@ export function FileManagerUi(flm) {
 
     };
 
-    self.getDialogs = function () {
+    this.getDialogs = function () {
         return self.dialogs;
     };
 
-    self.createDataFrame = () => {
+    this.createDataFrame = () => {
         $(document.body).append($("<iframe name='datafrm'/>")
             .css({
             visibility: "hidden"
@@ -213,7 +213,7 @@ export function FileManagerUi(flm) {
         }));
     };
 
-    self.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
+    this.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
 
         self.filenav.setSelectedTarget(selectedPath);
         self.filenav.selectedEntries = selectedEntries;
@@ -261,7 +261,7 @@ export function FileManagerUi(flm) {
         return fileManagerSubmenu;
     }
 
-    self.handleFilesTabMenu = function (selected, event) {
+    this.handleFilesTabMenu = function (selected, event) {
         let plugin = flm.getPlugin();
 
         plugin.fno = null;
@@ -345,28 +345,28 @@ export function FileManagerUi(flm) {
 
     };
 
-    self.init = function () {
+    this.init = function () {
 
         // file navigation
         self.initFileBrowser();
     };
 
-    self.disableNavigation = function () {
+    this.disableNavigation = function () {
         self.filenav.disableTable();
         self.filenav.disableRefresh();
     };
 
-    self.enableNavigation = function () {
+    this.enableNavigation = function () {
         self.filenav.enableTable();
         self.filenav.enableRefresh();
 
     };
 
-    self.formatDate = function (timestamp) {
+    this.formatDate = function (timestamp) {
         return flm.utils.formatDate(timestamp, this.settings.timef || '%d.%M.%y %h:%m:%s')
     };
 
-    self.initFileBrowser = function () {
+    this.initFileBrowser = function () {
         $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
         $('#fMan_showconsole').click(function () {
             self.console.show();
@@ -375,27 +375,25 @@ export function FileManagerUi(flm) {
         self.filenav.init();
     };
 
-    self.onSettingsShow = function (call) {
+    this.onSettingsShow = function (call) {
         $(document).on("flm.settingsOnShow", function (view) {
             call(view);
         });
 
     };
 
-    self.showArchive = function () {
+    this.showArchive = function () {
         return self.dialogs.showDialog('archive');
     };
 
-    self.viewNFO = function (file) {
+    this.viewNFO = function (file) {
         file && self.filenav.setSelectedTarget(file);
         self.dialogs.showDialog('nfo_view');
     };
 
-    self.showPermissions = function () {
+    this.showPermissions = function () {
         self.dialogs.showDialog('permissions');
-
     };
 
-    return self;
-
+    return this;
 }

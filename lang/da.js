@@ -50,7 +50,8 @@ theUILang.fErrMsg[24]	= 'archive manipulation disabled (application not found)';
 
 
 
-theUILang.flm_popup_mkdir		= 'Create new directory';
+theUILang.flm_empty_selection = 'Nothing selected';
+theUILang.flm_popup_mkdir = 'Create new directory';
 theUILang.flm_popup_mkdir_cpath = 'Inside path:';
 theUILang.flm_popup_mkdir_new 	= 'New Folder';
 theUILang.fDiagndirname	= 'Directory name';

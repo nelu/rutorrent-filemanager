@@ -16,17 +16,20 @@
     </div>
 {% endmacro %}
 
-{% macro pathBrowser(default="", title = false, class = "", disabled="", errorMsg="Invalid") %}
+{% macro pathBrowser(default="", title = false, class = "", disabled="") %}
     {% set default = default == "/" ? "" : default %}
     {% set class = class == "" ? "flm-diag-nav-path" : class %}
     {% set randId = random() %}
     <div class="row">
         <div class="input-group mb-3">
             <label class="input-group-text m-0 pt-1 pb-1" for="flm-nav-path-{{ randId }}">{{ title }}</label>
-            <input class="form-control m-0 p-1 {{ class }}" id="flm-nav-path-{{ randId }}" type="text"
+            <input class="form-control m-0 p-1 {{ class }}" id="flm-nav-path-{{ randId }}"
+                   type="text"
+                   data-msg-required="{{ theUILang.fDiagInvalidname }}"
+                   data-msg-exists="{{ theUILang.fDiagAexist }}"
                    value="{{ default }}" {{ disabled }}>
             <div class="invalid-feedback">
-                {{ errorMsg }}
+                {{ theUILang.fDiagInvalidname }}
             </div>
         </div>
     </div>
@@ -56,6 +59,8 @@
 {% import _self as window %}
 
 <div class="cont fxcaret flm_popup-content">
+    <form class="g-3 needs-validation" novalidate>
+
     <div class="flm-popup-diag-content">
         {% if multiselect %}
             <fieldset>
@@ -76,7 +81,7 @@
             {{ window.pathBrowser(pathbrowse, theUILang.fDiagTo) }}
         {% endif %}
     {% endblock %}
-
+    </form>
     {% block buttons %}
         <div class="buttons-list">
             <input class="flm-diag-start Button"
