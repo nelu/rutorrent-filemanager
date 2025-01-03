@@ -297,7 +297,7 @@ export function FsBrowser() {
             } : null]);
             create_sub.push([CMENU_SEP]);
             create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
-            create_sub.push([theUILang.fcNewArchive, "flm.ui.showArchive()"]);
+            create_sub.push([theUILang.fcNewArchive, () => flm.archive.showCreate()]);
 
             if (!utils.hasDir(entries)) {
                 create_sub.push([CMENU_SEP]);
@@ -317,19 +317,9 @@ export function FsBrowser() {
             }
             menu.push([CMENU_SEP]);
 
-            if (utils.isArchive(target)) {
+            if (flm.archive.isArchive(target)) {
 
-                menu.push([theUILang.fExtracta, function () {
-                    var archives = [];
-                    var entry;
-                    for (var i = 0; i < self.selectedEntries.length; i++) {
-                        entry = self.selectedEntries[i];
-                        utils.isArchive(entry) && archives.push(entry)
-                    }
-                    self.selectedEntries = archives;
-
-                    window.flm.ui.getDialogs().showDialog('extract');
-                }]);
+                menu.push([theUILang.fExtracta, () => flm.archive.showExtract()]);
                 menu.push([CMENU_SEP]);
             }
 

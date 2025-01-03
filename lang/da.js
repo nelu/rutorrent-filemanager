@@ -98,15 +98,17 @@ theUILang.flm_checksum_save_to	= 'Hash file:';
 
 theUILang.flm_checksum_empty_file	= 'Please name a hash file';
 
-theUILang.flm_popup_archive	= 'Create Archive';
+
+theUILang.flm_popup_archive_create	= 'Create Archive';
 theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
 
-theUILang.fManArComp = {}; 
+theUILang.fManArComp = {};
 
 // rar
 theUILang.fManArComp.rar = ['Store', 'Fastest', 'Fast', 'Normal', 'Good', 'Best'];
+
 // zip
 theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 
@@ -114,29 +116,30 @@ theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
-theUILang.fDiagExtract	= 'Extract Archive';
+theUILang.flm_popup_archive_extract	= 'Extract Archive';
 theUILang.fDiagArchive	= 'Archive:';
 theUILang.fDiagCompression	= 'Compression:';
 theUILang.flm_diag_extract_button		= 'Extract';
 theUILang.flm_password		= 'Password';
 theUILang.fDiagArchempty	= 'Please name an archive file';
 
-theUILang.fStarts = { 
-	Delete: 	'File removal started',
-	Extract:	'Archive extraction started',
-	CArchive: 	'File archiving started',
-	CheckSFV: 	'File checking started',
-	CreateSFV:	'File hashing started',
-	Move:		'File relocation started',
-	Copy:		'File duplication started',
-	Screenshots:	'Video screenshots creation started. Please wait this could take some time'
+theUILang.fStarts = {
+	delete: 	'File removal started',
+	extract:	'Archive extraction started',
+	archive: 	'File archiving started',
+	check_sfv: 	'File checking started',
+	create_sfv:	'File hashing started',
+	move:		'File relocation started',
+	copy:		'File duplication started'
 };
-theUILang.fStops = { 
+
+theUILang.fStops = {
 	Delete: 	'File removal stopped',
 	Extract:	'Extraction stopped',
 	CArchive: 	'Archive creation stopped',
 	Move:		'File relocation stopped',
-	Copy:		'File duplication stopped',
-	Screenshots:		'Video screenshots creation stopped'
+	Copy:		'File duplication stopped'
 };
+
+
 thePlugins.get("filemanager").langLoaded();

@@ -37,11 +37,6 @@ div[id^="flm_popup_"].dlg-window
     left: 0;
 }
 
-.fMan_CArchiveRAR {
-
-    margin-top:5px;
-    margin-bottom:5px;
-}
 div#flm-settings-pane {
     overflow: auto;
 }
@@ -110,8 +105,12 @@ input.text-long {
     content: "";
 }
 
-.sprite-archive {
-    background-image: url("package.svg") !important;
+.sprite-archive_create {
+    background-image: url("archive-create.svg") !important;
+}
+
+.sprite-archive_extract {
+    background-image: url("archive-extract.svg") !important;
 }
 
 .sprite-console {
@@ -136,12 +135,6 @@ input.text-long {
     width: 16px;
     height: 16px;
     background-position: -31px -31px;
-}
-
-.sprite-extract {
-    width: 16px;
-    height: 16px;
-    background-position: -57px -31px;
 }
 
 .sprite-move {

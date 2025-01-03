@@ -5,7 +5,6 @@ export function FileManagerUtils(flm) {
         };
 
         utils.extTypes = {
-            archive: (ext) => utils.isArchive(ext),
             text: (ext) => utils.isTextfile(ext)
         };
 
@@ -13,10 +12,6 @@ export function FileManagerUtils(flm) {
             let re = new RegExp(pattern + '$', "i");
             return utils.basename(file).match(re);
         }
-
-        utils.isArchive = function (element) {
-            return utils.fileMatches(element, flm.config.extensions.fileExtract);
-        };
 
         utils.isTextfile = (extension) => {
             return utils.fileMatches(extension, flm.config.extensions.text);

@@ -99,8 +99,7 @@ theUILang.flm_checksum_save_to	= 'Hash file:';
 theUILang.flm_checksum_empty_file	= 'Please name a hash file';
 
 
-
-theUILang.flm_popup_archive	= 'Create Archive';
+theUILang.flm_popup_archive_create	= 'Create Archive';
 theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Type:';
 theUILang.fDiagCArchVsize	= 'Volume size (mb):';
@@ -117,7 +116,7 @@ theUILang.fManArComp.zip = ['Store', 'Fast', 'Better'];
 theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Add to archive:';
-theUILang.flm_popup_extract	= 'Extract Archive';
+theUILang.flm_popup_archive_extract	= 'Extract Archive';
 theUILang.fDiagArchive	= 'Archive:';
 theUILang.fDiagCompression	= 'Compression:';
 theUILang.flm_diag_extract_button		= 'Extract';

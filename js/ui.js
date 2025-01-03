@@ -382,10 +382,6 @@ export function FileManagerUi(flm) {
 
     };
 
-    this.showArchive = function () {
-        return self.dialogs.showDialog('archive');
-    };
-
     this.viewNFO = function (file) {
         file && self.filenav.setSelectedTarget(file);
         self.dialogs.showDialog('nfo_view');

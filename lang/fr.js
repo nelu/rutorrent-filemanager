@@ -99,7 +99,7 @@ theUILang.flm_checksum_save_to	= "Enregister le fichier de hash vers :";
 
 theUILang.flm_checksum_empty_file		= "Veuillez nommer le fichier de hash.";
 
-theUILang.flm_popup_archive	= "Créer une archive";
+theUILang.flm_popup_archive_create	= "Créer une archive";
 theUILang.fDiagOptions		= "Options :";
 theUILang.fDiagCArchType	= "Type :";
 theUILang.fDiagCArchVsize	= "Taille des volumes (en Mo) :";
@@ -116,7 +116,7 @@ theUILang.fManArComp.zip 	= ["Aucune", "Rapide", "La meilleure"];
 theUILang.fManArComp.tar 	= ["aucune", "gzip", "bzip2"];
 
 theUILang.fDiagCArchiveSel	= "Ajouter à l'archive :";
-theUILang.fDiagExtract		= "Extraire une archive";
+theUILang.flm_popup_archive_extract		= "Extraire une archive";
 theUILang.fDiagArchive		= "Archive :";
 theUILang.fDiagCompression	= "Compression :";
 theUILang.flm_diag_extract_button = "Extraire";

@@ -111,25 +111,6 @@ export function apiClient  (endpoint) {
 
     };
 
-
-    client.createArchive = function (archive, files, options) {
-        return this.runTask("compress", {
-            method: 'filesCompress',
-            target: archive,
-            mode: options,
-            fls: files
-        });
-    };
-
-    client.extractFiles = function (archiveFiles, toDir, password) {
-        return this.runTask("unpack", {
-            method: 'filesExtract',
-            fls: archiveFiles,
-            password: password,
-            to: toDir
-        });
-    };
-
     client.mkDir = function (dir) {
 
         return client.post({

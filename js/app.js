@@ -210,6 +210,7 @@ import {FileManagerActions} from "./actions.js";
             });
 
             Promise.all([
+                import("./file-archive.js"),
                 import("./file-checksum.js")
             ]).then(([]) => {
                 // notify plugin loaded

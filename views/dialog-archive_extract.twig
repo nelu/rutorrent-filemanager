@@ -1,0 +1,25 @@
+{% set pathbrowse = currentPath %}
+{% set multiselect = true %}
+{% set multiselectFilesOnly = false %}
+
+{% extends "flm::dialog-window.twig" %}
+
+{% block heading %}
+    <legend>{{ theUILang.fDiagArchive }}</legend>
+{% endblock %}
+
+{% block content %}
+    {{ window.passwordField("fman-extract-password", "Password") }}
+{% endblock %}
+
+{% set startButtonValue = theUILang.flm_diag_extract_button %}
+
+{% block scripts %}
+    <script>
+        (flm.archive.onShowExtract)(flm.ui.getDialogs());
+    </script>
+{% endblock %}
+
+
+
+

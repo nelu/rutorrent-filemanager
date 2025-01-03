@@ -9,32 +9,6 @@ export function FileManagerActions() {
         $(".fMan_Stop").attr('disabled', true);
     }
 
-    self.doArchive = function (archive, files, options, cPath) {
-
-        let hasError;
-
-        if (!archive.length) {
-            hasError = theUILang.fDiagNoPath;
-        } else if (!$type(files) || files.length === 0) {
-            hasError = theUILang.fErrMsg[22];
-        } else if (!flm.utils.isValidPath(archive)) {
-            hasError = theUILang.fDiagInvalidname;
-        }
-
-        if ($type(hasError)) {
-            var def = $.Deferred();
-            def.reject({errcode: theUILang.fDiagArchive, msg: hasError + ' - ' + archive});
-
-            return def.promise();
-        }
-
-        return flm.api.createArchive(flm.stripJailPath(archive), flm.getFullPaths(files), options)
-            .done((response) => {
-                self.refreshIfCurrentPath(flm.utils.basedir(archive)) || self.refreshIfCurrentPath(cPath);
-                return response;
-            });
-    };
-
     this.doCopy = function (checklist, path) {
 
         let cPath = flm.getCurrentPath();
@@ -81,35 +55,6 @@ export function FileManagerActions() {
         });
 
         return validation;
-    }
-
-    self.doExtract = function (archiveFiles, toDir, password) {
-
-        var deferred = $.Deferred();
-        toDir = flm.stripJailPath(toDir)
-
-        if (!toDir.length || !flm.utils.isDir(toDir)) {
-            deferred.reject({errcode: theUILang.fDiagNoPath, msg: toDir});
-            return deferred.promise();
-        }
-
-        if (!$type(archiveFiles) || archiveFiles.length === 0) {
-            deferred.reject({errcode: 'extract', msg: 'Empty paths'});
-            return deferred.promise();
-        }
-
-        return flm.api.extractFiles(
-            flm.getFullPaths(archiveFiles),
-            toDir,
-            password
-        ).then(function (response) {
-                flm.actions.refreshIfCurrentPath(toDir);
-                return response;
-            },
-            function (response) {
-                flm.actions.refreshIfCurrentPath(toDir);
-                return response;
-            });
     }
 
     self.doMove = function (checklist, path) {

@@ -78,11 +78,7 @@ export function FileManagerDialogs(browser) {
     let self = this;
 
     this.forms = {
-        archive: {
-            modal: true,
-            pathbrowse: true,
-            template: "dialog-archive"
-        }, copy: {
+        copy: {
             modal: true,
             pathbrowse: true,
             template: "dialog-copy"
@@ -100,10 +96,6 @@ export function FileManagerDialogs(browser) {
             modal: true,
             pathbrowse: false,
             template: "dialog-delete"
-        }, extract: {
-            modal: true,
-            pathbrowse: true,
-            template: "dialog-extract"
         }, permissions: {
             modal: false,
             template: "dialog-permissions"
