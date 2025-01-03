@@ -9,14 +9,8 @@
 
 {% block scripts %}
     <script>
-        if (!flm.ui.hasOwnProperty('dialogDelete')) {
-            flm.ui.dialogDelete = function () {
-                var dialogs = flm.ui.getDialogs();
-                const diagId = dialogs.getCurrentDialog();
-                dialogs.onStart(() => flm.actions.doDelete(dialogs.getCheckedList(diagId)));
-            };
-        }
-
-        (flm.ui.dialogDelete)();
+        ((dialogs) => {
+            dialogs.onStart((diagId) => flm.actions.doDelete(dialogs.getCheckList(diagId)));
+        })(flm.ui.getDialogs());
     </script>
 {% endblock %}

@@ -10,12 +10,8 @@
 
 {% block scripts %}
     <script>
-        (function (flm) {
-            let dialogs = flm.ui.getDialogs();
-            const diagId = dialogs.getCurrentDialog();
-
-            dialogs.onStart(() => flm.actions.doMove(dialogs.getCheckedList(diagId), dialogs.getTargetPath(diagId)));
-
-        })(flm);
+        ((dialogs) => {
+            dialogs.onStart((diagId) => flm.actions.doMove(dialogs.getCheckList(diagId), dialogs.dirBrowserInput(diagId)));
+        })(flm.ui.getDialogs());
     </script>
 {% endblock %}

@@ -6,33 +6,22 @@
 {% endblock %}
 
 {% block content %}
-    {{ window.pathBrowser(basename(selectedTarget), theUILang.fDiagRenameTo, "fman-rename-to") }}
+    {{ window.pathBrowser(basename(selectedTarget), theUILang.fDiagRenameTo, "fman-rename-to", "required") }}
 {% endblock %}
 
 {% block scripts %}
     <script>
         if (!flm.ui.hasOwnProperty('dialogRename')) {
+            flm.ui.dialogRename =  (dialogs) => {
+                let destination = $('.fman-rename-to');
 
-            flm.ui.dialogRename = function () {
-                let dialogs = flm.ui.getDialogs();
-                const diagId = dialogs.getCurrentDialog();
-                const destination = $('.fman-rename-to');
-                const cPath = flm.getCurrentPath();
+                flm.utils.setValidation(destination);
+                dialogs.onStart((diagId) => flm.actions.doRename(dialogs.getTargetPath(diagId), destination));
 
-                dialogs.onStart(() => flm.actions.doRename(
-                    flm.utils.buildPath([cPath, flm.utils.basename(dialogs.getTargetPath(diagId))]),
-                    flm.utils.buildPath([cPath, flm.utils.basename(destination.val())]),
-                    cPath
-                ))
-
-                setTimeout(function () {
-                    destination.click();
-                    destination.select();
-                }, 1);
-
+                setTimeout(() => destination.select().click());
             };
         }
-        (flm.ui.dialogRename)(window);
+        (flm.ui.dialogRename)(flm.ui.dialogs);
     </script>
 {% endblock %}
 

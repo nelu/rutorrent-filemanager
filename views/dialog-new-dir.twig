@@ -1,10 +1,7 @@
 {% extends "flm::dialog-window.twig" %}
 
 {% block content %}
-    <form class="row g-3 needs-validation" novalidate>
-
-    {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name) }}
-    </form>
+    {{ window.pathBrowser(theUILang.fcNewDir, theUILang.Name, "", "required") }}
 {% endblock %}
 
 {% block scripts %}
@@ -17,10 +14,7 @@
 
             dialogs.onStart(() => flm.actions.doNewDir(nameInput));
 
-            setTimeout(function () {
-                nameInput.click();
-                nameInput.select();
-            });
+            setTimeout(() => nameInput.click().select());
         })
         (flm.ui.getDialogs());
     </script>
