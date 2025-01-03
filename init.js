@@ -81,19 +81,7 @@ plugin.ui.onTorrentFilesMenu = function (call) {
     });
 };
 
-plugin.ui.getContextMenuEntryPosition = function (menu, what, atIndex) {
-    atIndex = atIndex || 0;
-    var pos = -1;
-    $.each(menu, function (i, value) {
-
-        if (value[atIndex] === what) {
-            pos = i;
-            return false;
-        }
-    });
-
-    return pos;
-};
+plugin.ui.getContextMenuEntryPosition =  (menu, what, atIndex) => flm.ui.getContextMenuEntryPosition(menu, what, atIndex);
 
 //  update/initialize rest ui elements, when localisation is loaded
 plugin.ui.init = function () {

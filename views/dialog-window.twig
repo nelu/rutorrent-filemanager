@@ -41,10 +41,10 @@
         <div class="input-group mb-2">
             <label class="input-group-text m-0 pt-1 pb-1" for="{{ id }}">{{ title }}</label>
             <input class="form-control m-0 p-1" id="{{ id }}" name="{{ id }}" aria-label="{{ title }}"
-                   type="password" value="">
+                   autocomplete="{{ id }}" type="password" value="">
 
             <div class="input-group-text m-0 p-1">
-                <input class="form-check-input mt-0" id="{{ id }}-showpass" role="switch" type="checkbox" value="" aria-label="Show password">
+                <input class="form-check-input mt-0" id="{{ id }}-showpass" type="checkbox" value="" aria-label="Show password">
                 <label class="form-check-label m-0" for="{{ id }}-showpass">Show</label>
             </div>
         </div>

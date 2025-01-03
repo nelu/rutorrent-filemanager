@@ -74,9 +74,9 @@ export function FileManagerActions() {
             self.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
             return flm.api.move(filePaths, destination);
         }).done(function () {
-                    flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
-                    $(document).trigger(flm.EVENTS.move, [filePaths, destination, cPath]);
-                    flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
+            flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
+            $(document).trigger(flm.EVENTS.move, [filePaths, destination, cPath]);
+            flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
         });
 
         return validation;

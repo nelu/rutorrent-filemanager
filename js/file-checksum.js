@@ -15,7 +15,6 @@ flm.ui.dialogs.setDialogConfig('checksum_check',
         });
 
 
-
 flm.api.checksumVerify = function (path, type) {
     return this.runTask("checksum-verify", {
         method: 'checksumVerify',
@@ -33,7 +32,7 @@ flm.api.checksumCreate = function (path, files, type) {
     });
 };
 
-function FlmChecksum ()  {
+function FlmChecksum() {
     let self = this;
     let dialog = flm.ui.getDialogs();
     const checksumTypesExt = flm.config.extensions.checksum;
@@ -91,8 +90,7 @@ function FlmChecksum ()  {
         let ext = flm.utils.getExt(checksumFile);
         let type = 'CRC32';
 
-        if(self.isChecksumFile(ext))
-        {
+        if (self.isChecksumFile(ext)) {
             type = Object.values(checksumTypesExt)
                 .reduce(
                     (extension, key, index) => (key === extension)
@@ -114,7 +112,9 @@ function FlmChecksum ()  {
         const cPath = flm.getCurrentPath();
         var pathBrowser = dialog.dirBrowserInput(diagId);
 
-        let algo = () => { return type.find(":selected").val() };
+        let algo = () => {
+            return type.find(":selected").val()
+        };
 
         dialog.onStart(() => self.doChecksumCreate(
                 dialog.getCheckedList(diagId),

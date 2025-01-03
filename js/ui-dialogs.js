@@ -196,7 +196,7 @@ export function FileManagerDialogs(browser) {
             ? self.getCheckList(checklist)
             : checklist;
 
-        return $(checklist).find(':checked').map( (i, val) => decodeURIComponent(val.value)).get();
+        return $(checklist).find(':checked').map((i, val) => decodeURIComponent(val.value)).get();
     }
 
     self.getCurrentDialog = () => {
@@ -221,11 +221,11 @@ export function FileManagerDialogs(browser) {
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val() : ele.text();
     }
 
-    this.handleStartButton = (diagId) =>  {
+    this.handleStartButton = (diagId) => {
         diagId = '#' + diagId;
 
         let dialogForms = Array.from(document.querySelectorAll(diagId + ' .needs-validation'));
-        let validForms =  dialogForms.reduce((a, form) => {
+        let validForms = dialogForms.reduce((a, form) => {
             form.checkValidity() && a++;
             form.classList.add('was-validated');
             return a;

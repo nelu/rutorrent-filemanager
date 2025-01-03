@@ -28,7 +28,7 @@ DeleteTests = function () {
 
         setTimeout(() => {
             dialogs.hide(diagId, () => {
-                console.log("DeleteTests.testCloseDialog: closed dialog "+diagId)
+                console.log("DeleteTests.testCloseDialog: closed dialog " + diagId)
                 def.resolve(diagId);
             });
         }, timeout);
@@ -42,7 +42,7 @@ DeleteTests = function () {
         flm.ui.filenav.selectedEntries = [file, '/TestFolder2/'];
 
         self.testOpenDialog().then((diagId) => {
-            console.log("DeleteTests.testDeleteExisting: dialog open "+diagId)
+            console.log("DeleteTests.testDeleteExisting: dialog open " + diagId)
             dialogs.startButton(diagId).click();
 
             return dialogs.startedPromise.then(function (result) {
@@ -95,7 +95,7 @@ NewDirTests = function () {
 
         setTimeout(() => {
             dialogs.hide(diagId, () => {
-                console.log("NewDirTests.testCloseDialog: closed dialog "+diagId)
+                console.log("NewDirTests.testCloseDialog: closed dialog " + diagId)
                 def.resolve(diagId);
             });
         }, timeout);
@@ -108,17 +108,17 @@ NewDirTests = function () {
         //let promise = DeleteTests().testDeleteExisting(dirname);
 
         DeleteTests().testDeleteExisting(dirname).then((result) => {
-                console.log("NewDirTests.testCreateNewDirectory: open dialog ", result);
-                //                 return self.testOpenDialog();
-                // calling from will change the scope to DeleteTests
-                // opens the delete dialog window
-                // so a different method name works
-                // like self.openDiag
-                return self.openDiag();
-            })
+            console.log("NewDirTests.testCreateNewDirectory: open dialog ", result);
+            //                 return self.testOpenDialog();
+            // calling from will change the scope to DeleteTests
+            // opens the delete dialog window
+            // so a different method name works
+            // like self.openDiag
+            return self.openDiag();
+        })
             .then((diagId) => {
-                console.log("NewDirTests.testCreateNewDirectory creating dir: ",diagId);
-                dialogs.updateTargetPath('#'+diagId, dirname);
+                console.log("NewDirTests.testCreateNewDirectory creating dir: ", diagId);
+                dialogs.updateTargetPath('#' + diagId, dirname);
 
 
                 // let see the dialog for 2 seconds
@@ -133,8 +133,8 @@ NewDirTests = function () {
                     });
                 }, 2000);
 
-            return diagId;
-        });
+                return diagId;
+            });
 
         return def.promise();
     };
@@ -165,7 +165,7 @@ NewDirTests = function () {
                 console.log("NewDirTests.runTests.testOpenDialog error: ", error);
             })
             .then((dialogId) => {
-                console.log("NewDirTests.runTests.testCreateNewDirectory: " , dialogId, dirname);
+                console.log("NewDirTests.runTests.testCreateNewDirectory: ", dialogId, dirname);
                 return self.testCreateNewDirectory(dialogId, dirname);
             });
 

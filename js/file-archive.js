@@ -16,12 +16,13 @@ flm.api.extractFiles = function (archiveFiles, toDir, password) {
     });
 };
 
-class FlmArchive   {
+class FlmArchive {
 
     config = {};
 
     constructor(config) {
         this.config = config;
+        let self = this;
         flm.ui.dialogs.setDialogConfig('archive_create',
             {
                 modal: true,
@@ -34,6 +35,23 @@ class FlmArchive   {
                     pathbrowse: true,
                     template: "dialog-archive_extract"
                 });
+
+        flm.ui.filenav.onSetEntryMenu((menu, path) => {
+            let createMenu = flm.ui.getContextMenuEntryPosition(menu, theUILang.fcreate, 1);
+            if (createMenu > -1) {
+                let submenu = menu[createMenu][2];
+                let newdir = flm.ui.getContextMenuEntryPosition(submenu, theUILang.fcNewDir);
+                if (newdir > -1) {
+                    submenu.splice(++newdir, 0, [theUILang.fcNewArchive, () => self.showCreate()]);
+                }
+            }
+
+            if (flm.archive.isArchive(path)) {
+                let rename = flm.ui.getContextMenuEntryPosition(menu, theUILang.fRename) + 2;
+                menu.splice(rename, 0, [theUILang.fExtracta, () => flm.archive.showExtract()]);
+                menu.splice(++rename, 0, [CMENU_SEP]);
+            }
+        });
     }
 
     doArchive = function (archive, files, options, cPath) {
@@ -62,42 +80,33 @@ class FlmArchive   {
             });
     };
 
-    doExtract = function (archiveFiles, toDir, password) {
+    doExtract = function (checklist, path, password) {
+        let destination = flm.stripJailPath($.trim(path.val()));
+        let archiveFiles = flm.ui.dialogs.getCheckedList(checklist);
 
-        var deferred = $.Deferred();
-        toDir = flm.stripJailPath(toDir)
+        let validation = flm.actions.doValidation([
+            [!$type(archiveFiles) || archiveFiles.length === 0, theUILang.flm_empty_selection, checklist.find('input').get(0)],
+            [!destination.length || !flm.utils.isDir(destination), theUILang.fDiagNoPath, path]
+        ]);
 
-        if (!toDir.length || !flm.utils.isDir(toDir)) {
-            deferred.reject({errcode: theUILang.fDiagNoPath, msg: toDir});
-            return deferred.promise();
-        }
+        archiveFiles = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(archiveFiles) : archiveFiles;
 
-        if (!$type(archiveFiles) || archiveFiles.length === 0) {
-            deferred.reject({errcode: 'extract', msg: 'Empty paths'});
-            return deferred.promise();
-        }
-
-        return flm.api.extractFiles(
-            flm.getFullPaths(archiveFiles),
-            toDir,
-            password
-        ).then(function (response) {
-                flm.actions.refreshIfCurrentPath(toDir);
-                return response;
-            },
-            function (response) {
-                flm.actions.refreshIfCurrentPath(toDir);
-                return response;
-            });
+        validation.then(() => {
+            return flm.api.extractFiles(archiveFiles, destination, password);
+        }).done(function () {
+            flm.actions.refreshIfCurrentPath(destination);
+            //$(document).trigger(flm.EVENTS.move, [archiveFiles, destination, cPath]);
+            //flm.actions.notify(theUILang.flm_popup_move + ": " + archiveFiles.length, 'success', 10000);
+        });
     }
 
     isArchive = function (element) {
-        return flm.utils.fileMatches(element, flm.config.extensions.fileExtract);
+        return flm.utils.fileMatches(element, this.config.extensions.fileExtract);
     };
 
     onShowCreate = function (dialog) {
         const diagId = dialog.getCurrentDialog();
-        var settings = this.config['archives'];
+        var settings = this.config.archives;
 
         var pathBrowser = dialog.dirBrowserInput(diagId);
         var archiveType = $("#fMan_archtype");
@@ -179,15 +188,16 @@ class FlmArchive   {
     }
 
     onShowExtract(dialogs) {
-            const diagId = dialogs.getCurrentDialog();
-            let password = $("#fman-extract-password");
+        const diagId = dialogs.getCurrentDialog();
+        let password = $("#fman-extract-password");
 
-            // form submit
-            dialogs.onStart(() => flm.archive.doExtract(
-                    dialogs.getCheckedList(diagId),
-                    dialogs.getTargetPath(diagId)),
-                password.val()
-            );
+        // form submit
+        dialogs.onStart(() => this.doExtract(
+                dialogs.getCheckList(diagId),
+                dialogs.dirBrowserInput(diagId),
+                password
+            )
+        );
     }
 
     showCreate = () => {
@@ -195,16 +205,11 @@ class FlmArchive   {
     }
 
     showExtract = () => {
-        let self = this;
-        flm.ui.filenav.selectedEntries = flm.ui.filenav.selectedEntries.reduce((archives, entry) => {
-            self.isArchive(entry) && archives.push(entry)
-            return archives;
-        }, []);
-
+        flm.ui.filenav.selectedEntries = flm.ui.filenav.selectedEntries.filter((entry) => this.isArchive(entry), this);
         flm.ui.dialogs.showDialog('archive_extract');
     }
 }
 
-flm.archive = new FlmArchive(flm.config.archives);
+flm.archive = new FlmArchive(flm.config);
 
 flm.utils.extTypes.archive = (ext) => flm.archive.isArchive(ext);

@@ -1,4 +1,4 @@
-export function apiClient  (endpoint) {
+export function apiClient(endpoint) {
 
     let client = {
         endpoint: endpoint,

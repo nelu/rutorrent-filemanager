@@ -200,17 +200,31 @@ export function FileManagerUi(flm) {
     this.createDataFrame = () => {
         $(document.body).append($("<iframe name='datafrm'/>")
             .css({
-            visibility: "hidden"
-        }).attr({
-            name: "datafrm", id: "datafrm"
-        }).width(0).height(0)
+                visibility: "hidden"
+            }).attr({
+                name: "datafrm", id: "datafrm"
+            }).width(0).height(0)
             .on('load', function () {
-            var d = (this.contentDocument || this.contentWindow.document);
-            if (d.location.href !== "about:blank") try {
-                eval(d.body.innerHTML);
-            } catch (e) {
+                var d = (this.contentDocument || this.contentWindow.document);
+                if (d.location.href !== "about:blank") try {
+                    eval(d.body.innerHTML);
+                } catch (e) {
+                }
+            }));
+    };
+
+    this.getContextMenuEntryPosition = function (menu, what, atIndex) {
+        atIndex = atIndex || 0;
+        var pos = -1;
+        $.each(menu, function (i, value) {
+
+            if (value[atIndex] === what) {
+                pos = i;
+                return false;
             }
-        }));
+        });
+
+        return pos;
     };
 
     this.getFilesTabMenu = (currentTorrentDirPath, selectedName, selectedPath, selectedEntries) => {
@@ -269,8 +283,7 @@ export function FileManagerUi(flm) {
 
         let selectedTorrent = theWebUI.dID && $type(theWebUI.torrents[theWebUI.dID]) ? theWebUI.torrents[theWebUI.dID] : null;
 
-        if(!selectedTorrent)
-        {
+        if (!selectedTorrent) {
             console.error('No torrent files');
             return false;
         }
@@ -279,11 +292,10 @@ export function FileManagerUi(flm) {
         let getEntry = (item) => {
             let r;
             let itemPath;
-            if(item.split('_d_').length > 1) {
+            if (item.split('_d_').length > 1) {
                 r = theWebUI.dirs[theWebUI.dID].getEntry(item);
                 // topdircheck
-                if(r === null)
-                {
+                if (r === null) {
                     return false;
                 }
                 itemPath = flm.utils.buildPath([theWebUI.dirs[theWebUI.dID].current, r.name + '/']);
@@ -310,30 +322,28 @@ export function FileManagerUi(flm) {
         let table = theWebUI.getTable("fls");
         let validEntries = [];
 
-        $.each(table.getSelected(), (i, row)=>
-        {
+        $.each(table.getSelected(), (i, row) => {
             let entry = getEntry(row);
             entry && entry.complete && validEntries.push(entry.path);
         });
 
-        if(validEntries.length) {
+        if (validEntries.length) {
 
             let selectedPath = validEntries[0];
-            if(selected && selected.complete)
-            {
-                selectedPath =  selected.path;
+            if (selected && selected.complete) {
+                selectedPath = selected.path;
             }
 
             var el = theContextMenu.get(theUILang.Priority);
             if (el) {
                 theContextMenu.add(el,
                     [CMENU_CHILD, theUILang.fManager,
-                    self.getFilesTabMenu(
-                        flm.utils.basedir(selectedPath),
-                        selectedPath,
-                        selectedPath,
-                        validEntries
-                    )
+                        self.getFilesTabMenu(
+                            flm.utils.basedir(selectedPath),
+                            selectedPath,
+                            selectedPath,
+                            validEntries
+                        )
                     ]
                 );
             }
