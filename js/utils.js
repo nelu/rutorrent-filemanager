@@ -184,15 +184,15 @@ export function FileManagerUtils(flm) {
     };
 
     utils.stripBasePath = function (path, basepath) {
-        var t = this.trimslashes(path).split(this.trimslashes(basepath));
-
-        var relative = path;
-
-        if (t.length > 1) {
-            relative = t[1];
+        const normalizedBase = basepath.endsWith("/") ? basepath : basepath + "/";
+        let strippedPath = path.startsWith(normalizedBase)
+            ? path.slice(normalizedBase.length)
+            : path;
+        // Ensure the result starts with a slash
+        if (!strippedPath.startsWith("/")) {
+            strippedPath = "/" + strippedPath;
         }
-
-        return relative;
+        return strippedPath;
     };
 
 

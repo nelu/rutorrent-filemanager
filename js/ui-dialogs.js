@@ -8,7 +8,7 @@ class FlmRdb extends theWebUI.rDirBrowser {
         flm.utils.setValidation(this.edit);
         this.stripTopdir = stripPaths || false;
         this.edit.on('change', () => {
-            //this.edit.val(flm.stripJailPath(this.edit.val()));
+//            data('previousValue', this.edit.val()})
         });
     }
 
@@ -34,12 +34,16 @@ class FlmRdb extends theWebUI.rDirBrowser {
             ? [this.stripTopdir, this.edit.val()].join('/')
             : this.edit.val();
 
+        if(!flm.utils.isDir(path))
+        {
+            path = flm.utils.basedir(path);
+        }
+
         this.xhr = $.ajax(
             `plugins/_getdir/listdir.php?dir=${encodeURIComponent(path)}&time=${(new Date()).getTime()}${this.withFiles ? "&withfiles=1" : ""}`,
             {
                 success: (res) => {
                     if (this.stripTopdir) {
-                        //res.path = res.path.split(this.stripTopdir).pop();
                         res.path = flm.utils.stripBasePath(res.path, this.stripTopdir)
                     }
                     this.frame.find(".filter-dir").val("").trigger("focus");
@@ -288,7 +292,7 @@ export function FileManagerDialogs(browser) {
 
     self.updateTargetPath = function (container, path) {
         var ele = self.dirBrowserInput(container);
-        path = flm.addJailPath(path);
+        //path = flm.addJailPath(path);
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
     }
 

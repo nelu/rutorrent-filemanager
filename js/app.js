@@ -172,9 +172,8 @@ import {FileManagerActions} from "./actions.js";
         }
 
         flm.stripJailPath = (entry) => {
-            const path = flm.utils.stripBasePath(entry, flm.config.homedir);
-            return flm.utils.isDir(entry) ? path + '/' : path;
-        }
+            return flm.utils.stripBasePath(entry, flm.config.homedir);
+        };
 
         flm.Refresh = function (dir) {
             dir = dir || flm.currentPath;
