@@ -16,6 +16,7 @@ class P7zip extends ShellCmd
     const ARCHIVE_FILE_ARG = '';
     const SWITCHES_DELIMITER = '--';
 
+    const OVERWRITE_MODE = '-ao';
     const DISABLE_ARCHIVE_FILE_ARG = '-an';
     const PASSWORD_SWITCH = '-p';
     const ARCHIVE_TYPE_SWITCH = '-t';
@@ -27,6 +28,9 @@ class P7zip extends ShellCmd
     const VOLUME_SIZE_SWITCH = '-v';
     const HASHER_SWITCH = '-scrc';
 
+    const CONSOLE_CHARSET = '-scc';
+
+    const LIST_CHARSET = '-scs';
 
     const AWK_FILE_HASH_LINE = '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1" "$3}';
 
@@ -34,15 +38,18 @@ class P7zip extends ShellCmd
         self::PROGRESS_DISPLAY_SWITCH => null,
         self::ARCHIVE_TYPE_SWITCH => null,
         self::PASSWORD_SWITCH => null,
+        self::CONSOLE_CHARSET => 'UTF-8',
         self::COMPRESSION_LEVEL_SWITCH => null,
         self::VOLUME_SIZE_SWITCH => null,
         self::WRITE_STDOUT_SWITCH => null,
         self::READ_STDIN_SWITCH => null,
         self::DISABLE_ARCHIVE_FILE_ARG => null,
+        self::OVERWRITE_MODE => null,
         self::HASHER_SWITCH => null,
         self::OUTPUT_DIR_SWITCH => null,
         self::ARCHIVE_FILE_ARG => null,
         self::FILE_LIST_ARG => null,
+        //self::LIST_CHARSET => 'UTF-8',
         self::SWITCHES_DELIMITER => true,
     ];
 
@@ -203,6 +210,12 @@ class P7zip extends ShellCmd
     public function setOutputDir(string $value)
     {
         $this->setArg(static::OUTPUT_DIR_SWITCH, $value);
+        return $this;
+    }
+
+    public function setOverwriteMode($value)
+    {
+        $this->setArg(static::OVERWRITE_MODE, $value);
         return $this;
     }
 

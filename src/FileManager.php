@@ -49,7 +49,7 @@ class FileManager
         $b_isdir = ($b['type'] == 'd');
 
         if ($a_isdir && $b_isdir) {
-            strcmp($a['name'], $b['name']);
+            return strcmp($a['name'], $b['name']);
         } elseif ($a_isdir) {
             return -1;
         } elseif ($b_isdir) {
@@ -167,35 +167,35 @@ class FileManager
      * @return array
      * @throws Exception
      */
-    public function extractFile($paths)
+    public function extractFiles($files, $to, $options) : array
     {
-        $to = $this->currentDir($paths['to']);
+        $to = $this->currentDir($to);
 
         if ($this->fs->isFile($to)) {
             throw new Exception($to, 16);
         } else if (!RemoteShell::test($this->getFsPath($to), 'w')) {
             throw new Exception("Not writable: " . $to, 300);
         }
-        $count = count($paths['archives']);
+        $count = count($files);
         $cmds = [];
-        foreach ($paths['archives'] as $archive_file) {
+        foreach ($files as $archive_file) {
             $archive_file = $this->currentDir($archive_file);
             if (!$this->fs->isFile($archive_file)) {
                 throw new Exception($archive_file, 6);
             }
 
             $archive = new Archive($this->getFsPath($archive_file));
-            $archive->setOptions(['password' => $paths['password']]);
+            $archive->setOptions($options);
 
             $cmds = array_merge($cmds, $archive->extract($this->getFsPath($to)));
         }
 
         $rtask = TaskController::from([
             'name' => 'unpack',
-            'arg' => $count == 1 ? basename($paths['archives'][0]) : $count . ' items'
+            'arg' => $count == 1 ? basename($files[0]) : $count . ' items'
         ]);
 
-        return $rtask->start($cmds, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
+        return $rtask->start($cmds, rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD);
     }
 
     public function mediainfo($path)

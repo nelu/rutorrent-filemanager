@@ -7,11 +7,11 @@ flm.api.createArchive = function (archive, files, options) {
     });
 };
 
-flm.api.extractFiles = function (archiveFiles, toDir, password) {
+flm.api.extractFiles = function (archiveFiles, toDir, options) {
     return this.runTask("unpack", {
         method: 'filesExtract',
         fls: archiveFiles,
-        password: password,
+        options: options,
         to: toDir
     });
 };
@@ -22,7 +22,7 @@ class FlmArchive {
 
     constructor(config) {
         this.config = config;
-        let self = this;
+
         flm.ui.dialogs.setDialogConfig('archive_create',
             {
                 modal: true,
@@ -65,7 +65,7 @@ class FlmArchive {
         return validation;
     };
 
-    doExtract = function (checklist, path, password) {
+    doExtract = function (checklist, path, options) {
         let destination = flm.stripJailPath($.trim(path.val()));
         let archiveFiles = flm.ui.dialogs.getCheckedList(checklist);
 
@@ -77,7 +77,7 @@ class FlmArchive {
         archiveFiles = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(archiveFiles) : archiveFiles;
 
         validation.then(() => {
-            return flm.api.extractFiles(archiveFiles, destination, password.val());
+            return flm.api.extractFiles(archiveFiles, destination, options);
         }).done(function () {
             flm.actions.refreshIfCurrentPath(destination);
             //$(document).trigger(flm.EVENTS.move, [archiveFiles, destination, cPath]);

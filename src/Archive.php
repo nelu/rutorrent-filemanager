@@ -70,6 +70,7 @@ class Archive
         return P7zip::unpack($o->file, $o->to)
             ->binary($o->binary)
             ->setPassword(isset($o->password) && strlen($o->password) > 0 ? $o->password : '')
+            ->setOverwriteMode($o->overwrite)
             ->setProgressIndicator(1)
             ->cmd();
     }
@@ -79,10 +80,12 @@ class Archive
         $aopts = $this->config['type'][$options['type']];
         $compression = $aopts['compression'][$options['compression']];
 
+
         $this->options = [
             'type' => $options['type'],
             'compression' => $compression,
             'password' => $options['password'],
+            'overwrite' => $options['overwrite'],
             'volumeSize' => (int)$options['volumeSize'] * 1024,
             'multiplePass' => isset($aopts['multipass']) ? $aopts['multipass'] : []
         ];
@@ -125,9 +128,7 @@ class Archive
             '{', self::compressCmd($p)->cmd(), '}',
         ];
 
-        $ret = $rtask->start($cmds, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
-
-        return $ret;
+        return $rtask->start($cmds, rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD);
     }
 
     public function getCompressBin(string $type = ''): P7zip

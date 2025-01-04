@@ -102,20 +102,10 @@ class WebController extends BaseController
 
     public function filesExtract($params)
     {
-        if (!isset($params->to)) {
-            self::jsonError(2);
-        }
-        if (!isset($params->fls) || (count($params->fls) < 1)) {
-            self::jsonError(22);
-        }
+        !isset($params->to) && self::jsonError(2);
+        (!isset($params->fls) || (count($params->fls) < 1)) && self::jsonError(22);
 
-        $task = $this->flm()->extractFile([
-            'archives' => $params->fls,
-            'password' => $params->password,
-            'to' => $params->to
-        ]);
-
-        return $task;
+        return $this->flm()->extractFiles($params->fls, $params->to, $params->options);
     }
 
     public function filesCopy($params)
