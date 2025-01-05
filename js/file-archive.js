@@ -1,20 +1,43 @@
-flm.api.createArchive = function (archive, files, options) {
-    return this.runTask("compress", {
-        method: 'filesCompress',
-        target: archive,
-        mode: options,
-        fls: files
-    });
-};
+import {FlmDirBrowser} from "./ui-dialogs.js";
 
-flm.api.extractFiles = function (archiveFiles, toDir, options) {
-    return this.runTask("unpack", {
-        method: 'filesExtract',
-        fls: archiveFiles,
-        options: options,
-        to: toDir
-    });
-};
+
+class FlmArchiveBrowser extends FlmDirBrowser {
+
+    constructor(a, b, c, d) {
+       super(a, b, c, d);
+       this.showFindBtn();
+    }
+
+    hide(notify = true) {
+        let r = super.hide(notify);
+        this.showFindBtn();
+        return r;
+    }
+
+    showFindBtn () {
+        this.btn.html('<icon class="flm-sprite flm-icon-search"></icon>').removeClass('p-1').addClass('p-0');
+    }
+
+    show() {
+        let r = super.show();
+        this.btn.removeClass('p-0').addClass('p-1');
+        return r;
+    }
+
+    selectItem() {
+    }
+
+    request() {
+        let r = {files: [], directories: [], path: this.edit.val()};
+
+        return flm.api.archiveList(this.edit.val()).then((list) => {
+            list.map((v) => {
+                v && (v.type === 'd' && r.directories.push(flm.utils.rtrim(v.name, '/')) || r.files.push(v.name));
+            });
+            return r;
+        });
+    }
+}
 
 class FlmArchive {
 
@@ -55,7 +78,7 @@ class FlmArchive {
         ]);
 
         validation.then(() => {
-            return flm.api.createArchive(flm.stripJailPath(archive), flm.getFullPaths(filePaths), options);
+            return flm.api.archiveCreate(flm.stripJailPath(archive), flm.getFullPaths(filePaths), options);
         }).done(function () {
             flm.actions.refreshIfCurrentPath(flm.utils.basedir(archive)) || flm.actions.refreshIfCurrentPath(cPath);
             //$(document).trigger(flm.EVENTS.move, [archiveFiles, destination, cPath]);
@@ -70,14 +93,14 @@ class FlmArchive {
         let archiveFiles = flm.ui.dialogs.getCheckedList(checklist);
 
         let validation = flm.actions.doValidation([
-            [!$type(archiveFiles) || archiveFiles.length === 0, theUILang.flm_empty_selection, checklist.find('input').get(0)],
+            [archiveFiles.length === 0, theUILang.flm_empty_selection, checklist.length > 1 ? checklist.find('input').get(0) : checklist[0]],
             [!destination.length || !flm.utils.isDir(destination), theUILang.fDiagNoPath, path]
         ]);
 
         archiveFiles = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(archiveFiles) : archiveFiles;
 
         validation.then(() => {
-            return flm.api.extractFiles(archiveFiles, destination, options);
+            return flm.api.archiveExtract(archiveFiles, destination, options);
         }).done(function () {
             flm.actions.refreshIfCurrentPath(destination);
             //$(document).trigger(flm.EVENTS.move, [archiveFiles, destination, cPath]);
@@ -90,6 +113,10 @@ class FlmArchive {
     isArchive = function (element) {
         return flm.utils.fileMatches(element, this.config.extensions.fileExtract);
     }
+
+    setArchiveBrowser = (diagId, inputId) => flm.ui.dialogs.setDirBrowser(diagId,
+            new FlmArchiveBrowser(inputId, true, undefined, flm.config.homedir)
+    )
 
     setContextMenu = (menu, path) => {
         let self = this;
@@ -118,6 +145,33 @@ class FlmArchive {
         flm.ui.dialogs.showDialog('archive_extract');
     }
 }
+
+flm.api.archiveCreate = function (archive, files, options) {
+    return this.runTask("compress", {
+        method: 'archiveCreate',
+        target: archive,
+        options: options,
+        fls: files
+    });
+};
+
+flm.api.archiveExtract = function (archiveFiles, toDir, options = {}) {
+    return this.runTask("unpack", {
+        method: 'archiveExtract',
+        fls: archiveFiles,
+        options: options,
+        to: toDir
+    });
+};
+
+flm.api.archiveList = function (archiveFile, options = {}) {
+    return this.post({
+        method: 'archiveList',
+        target: archiveFile,
+        options: options,
+    });
+};
+
 
 flm.archive = new FlmArchive(flm.config);
 

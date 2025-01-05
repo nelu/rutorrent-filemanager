@@ -197,6 +197,13 @@ input.text-long {
     background-image: url("rar.svg") !important;
 }
 
+.flm-icon-search {
+    height: 18px;
+    width: 18px;
+    background-size: 1.75rem 1.75rem;
+    background-image: url("find.svg") !important;
+}
+
 .flm-icon-text, .sprite-nfo_view {
     width: 16px;
     height: 16px;

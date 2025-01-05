@@ -1,10 +1,14 @@
-{% set multiselect = true %}
+{% set multiselect = selectedEntries.length > 1 %}
 {% set multiselectFilesOnly = false %}
 
 {% extends "flm::dialog-window.twig" %}
 
 {% block heading %}
-    <legend>{{ theUILang.fDiagArchive }}</legend>
+    {% if multiselect %}
+        <legend>{{ theUILang.fDiagArchive }}</legend>
+    {% else %}
+        {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive, "fman-archive-file", "disabled readonly") }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -36,16 +40,24 @@
     <script>
         ((dialogs) => {
             const diagId = dialogs.getCurrentDialog();
+            let archive_file = $('.fman-archive-file');
+            let archive = flm.ui.filenav.selectedEntries.length > 1
+                ? dialogs.getCheckList(diagId)
+                : [archive_file];
 
             // form submit
             dialogs.onStart(() => flm.archive.doExtract(
-                dialogs.getCheckList(diagId),
+                archive,
                 dialogs.dirBrowserInput(diagId),
                 {
                     password: $("#fman-extract-password").val(),
                     overwrite: $("#fman-archive-overwrite").val()
                 }
             ));
+
+            // dialog has not been created in dom yet
+            setTimeout(() => flm.archive.setArchiveBrowser(diagId, archive_file[0].id));
+
         })(flm.ui.getDialogs());
     </script>
 {% endblock %}

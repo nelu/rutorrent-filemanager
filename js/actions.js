@@ -175,7 +175,7 @@ export function FileManagerActions() {
                 closeOnSelfClick: true
             });
 
-        flm.actions.logConsole(contents);
+        self.logConsole(contents);
     }
 
     self.doMediainfo = (target) => {

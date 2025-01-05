@@ -173,34 +173,41 @@ class Filesystem
      */
     public function listDir($directory_path)
     {
-        $output = [];
         $directory_path = $this->rootPath($directory_path);
-
         $find_args = [$directory_path, '-mindepth', '1', '-maxdepth', '1', '-printf', '%y\\t%f\\t%s\\t%C@\\t%#m\\n'];
 
-        $i = 0;
         $result = ShellCmd::bin('find', $find_args)->runRemote();
 
-        foreach ($result[1] as $fileline) {
+        $output = self::parseFileListing($result[1],
+            '/^(?<type>[\w])\t(?<name>.+?)\t(?<size>[\d]+)\t(?<date>[\d.]+)\t(?<perm>[\d]+)/');
+
+        return $output;
+    }
+
+
+    public static function parseFileListing($contents, $pattern): array
+    {
+        $output = [];
+        foreach ($contents as $fileline) {
             if (!empty($fileline)) {
+                if (preg_match($pattern, trim($fileline), $matches)) {
+                    $f = [
+                        'type' => strtolower(trim($matches['type'])),
+                        'name' => stripslashes($matches['name']),
+                        'size' => trim($matches['size']),
+                        'time' => trim($matches['date']),
+                        'perm' => trim($matches['perm']),
+                    ];
 
-                $item = explode("\t", trim($fileline));
-                $f = [
-                    'type' => $item[0],
-                    'name' => stripslashes($item[1]),
-                    'size' => $item[2],
-                    'time' => (int)$item[3],
-                    'perm' => $item[4],
-                ];
 
+                    if ($f['type'] == 'd' && substr($f['name'], 0, 1) !== DIRECTORY_SEPARATOR) {
+                        $f['name'] .= DIRECTORY_SEPARATOR;
+                        $f['size'] = '';
+                    }
 
-                if ($f['type'] == 'd') {
-                    $f['name'] .= DIRECTORY_SEPARATOR;
-                    $f['size'] = '';
                 }
 
-                $output[$i] = $f;
-                $i++;
+                $output[] = $f;
             }
 
         }
