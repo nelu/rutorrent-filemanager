@@ -4,8 +4,8 @@ import {FlmDirBrowser} from "./ui-dialogs.js";
 class FlmArchiveBrowser extends FlmDirBrowser {
 
     constructor(a, b, c, d) {
-       super(a, b, c, d);
-       this.showFindBtn();
+        super(a, b, c, d);
+        this.showFindBtn();
     }
 
     hide(notify = true) {
@@ -14,7 +14,7 @@ class FlmArchiveBrowser extends FlmDirBrowser {
         return r;
     }
 
-    showFindBtn () {
+    showFindBtn() {
         this.btn.html('<icon class="flm-sprite flm-icon-search"></icon>').removeClass('p-1').addClass('p-0');
     }
 
@@ -115,7 +115,7 @@ class FlmArchive {
     }
 
     setArchiveBrowser = (diagId, inputId) => flm.ui.dialogs.setDirBrowser(diagId,
-            new FlmArchiveBrowser(inputId, true, undefined, flm.config.homedir)
+        new FlmArchiveBrowser(inputId, true, undefined, flm.config.homedir)
     )
 
     setContextMenu = (menu, path) => {
