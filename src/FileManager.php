@@ -49,7 +49,7 @@ class FileManager
         $b_isdir = ($b['type'] == 'd');
 
         if ($a_isdir && $b_isdir) {
-            strcmp($a['name'], $b['name']);
+            return strcmp($a['name'], $b['name']);
         } elseif ($a_isdir) {
             return -1;
         } elseif ($b_isdir) {
@@ -78,15 +78,16 @@ class FileManager
     }
 
     /**
-     * @param $paths
+     * @param string $archive_path
+     * @param array $files
+     * @param array $options
      * @return array
      * @throws Exception
      */
-    public function archive($paths)
+    public function archiveCreate(array $files, string $archive_path, array $options = []): array
     {
-        $archive_path = Helper::makeRelative($this->currentDir($paths->target));
+        $archive_path = Helper::makeRelative($this->currentDir($archive_path));
         $archive_file = array_shift($archive_path);
-        $options = empty($paths->mode) ? [] : (array)$paths->mode;
 
         $config = Helper::getConfig('archive');
 
@@ -94,17 +95,15 @@ class FileManager
             throw new Exception("Invalid type: " . $options['type'], 1);
         }
 
-        $files = Helper::makeRelative((array)$paths->fls);
+        $files = Helper::makeRelative((array)$files);
 
         if ($this->fs->isFile($archive_file)) {
             throw new Exception($archive_file, 16);
         }
 
-        $archive = new Archive($archive_file, $config);
-        $archive->setWorkDir(FileUtil::addslash($this->getFsPath()));
-        $archive->setOptions($options);
-
-        return $archive->create($files);
+        return Archive::from($archive_file, $options, $config)
+            ->setWorkDir(FileUtil::addslash($this->getFsPath()))
+            ->create($files);
     }
 
     public function currentDir($relative_path = null)
@@ -117,6 +116,59 @@ class FileManager
     public function getFsPath($relative = null)
     {
         return $this->fs->rootPath($this->currentDir($relative));
+    }
+
+    public function archiveExtract(array $files, string $to, array $options = []): array
+    {
+        $to = $this->currentDir($to);
+
+        if ($this->fs->isFile($to)) {
+            throw new Exception($to, 16);
+        } else if (!RemoteShell::test($this->getFsPath($to), 'w')) {
+            throw new Exception("Not writable: " . $to, 300);
+        }
+        $count = count($files);
+        $cmds = [];
+        foreach ($files as $archive_file) {
+            $archive_file = $this->currentDir($archive_file);
+            if (!$this->fs->isFile($archive_file)) {
+                throw new Exception($archive_file, 6);
+            }
+
+            $cmds = array_merge($cmds, Archive::from($this->getFsPath($archive_file), $options)
+                ->extract($this->getFsPath($to))
+            );
+        }
+
+        $rtask = TaskController::from([
+            'name' => 'unpack',
+            'arg' => $count == 1 ? basename($files[0]) : $count . ' items'
+        ]);
+
+        return $rtask->start($cmds, rTask::FLG_DEFAULT & ~rTask::FLG_ECHO_CMD);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function archiveList(string $archive_file, $options): array
+    {
+        $archive_file = $this->currentDir($archive_file);
+        if (!$this->fs->isFile($archive_file)) {
+            throw new Exception($archive_file, 6);
+        }
+
+        $path = $options->path ?? null;
+        $archive_file = $this->getFsPath($archive_file);
+
+        $listing = Archive::from($archive_file, $options)->list($path)->runRemote();
+
+        $contents = Filesystem::parseFileListing($listing[1],
+            '/^(?<date>(([\d-]+) ([\d:]+)|[\s]+)) ((\.+)?(?<type>[\w\.])(\.+)?) (?<size>[\d\s]+) (?<csize>[\d\s]+) (?<name>.+)/'
+        );
+        usort($contents, [$this, 'dir_sort']);
+
+        return $contents;
     }
 
     /**
@@ -163,40 +215,12 @@ class FileManager
     }
 
     /**
-     * @param $paths
+     * @param array $files
+     * @param string $to
+     * @param array $options
      * @return array
      * @throws Exception
      */
-    public function extractFile($paths)
-    {
-        $to = $this->currentDir($paths['to']);
-
-        if ($this->fs->isFile($to)) {
-            throw new Exception($to, 16);
-        } else if (!RemoteShell::test($this->getFsPath($to), 'w')) {
-            throw new Exception("Not writable: " . $to, 300);
-        }
-        $count = count($paths['archives']);
-        $cmds = [];
-        foreach ($paths['archives'] as $archive_file) {
-            $archive_file = $this->currentDir($archive_file);
-            if (!$this->fs->isFile($archive_file)) {
-                throw new Exception($archive_file, 6);
-            }
-
-            $archive = new Archive($this->getFsPath($archive_file));
-            $archive->setOptions(['password' => $paths['password']]);
-
-            $cmds = array_merge($cmds, $archive->extract($this->getFsPath($to)));
-        }
-
-        $rtask = TaskController::from([
-            'name' => 'unpack',
-            'arg' => $count == 1 ? basename($paths['archives'][0]) : $count . ' items'
-        ]);
-
-        return $rtask->start($cmds, rTask::FLG_DEFAULT ^ rTask::FLG_ECHO_CMD);
-    }
 
     public function mediainfo($path)
     {

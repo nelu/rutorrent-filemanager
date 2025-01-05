@@ -11,11 +11,13 @@ class P7zip extends ShellCmd
     const EXTRACT_COMMAND = 'x';
     const ARCHIVE_COMMAND = 'a';
     const HASH_COMMAND = 'h';
+    const LIST_COMMAND = 'l';
 
     const FILE_LIST_ARG = '@';
     const ARCHIVE_FILE_ARG = '';
     const SWITCHES_DELIMITER = '--';
 
+    const OVERWRITE_MODE = '-ao';
     const DISABLE_ARCHIVE_FILE_ARG = '-an';
     const PASSWORD_SWITCH = '-p';
     const ARCHIVE_TYPE_SWITCH = '-t';
@@ -27,6 +29,9 @@ class P7zip extends ShellCmd
     const VOLUME_SIZE_SWITCH = '-v';
     const HASHER_SWITCH = '-scrc';
 
+    const CONSOLE_CHARSET = '-scc';
+
+    const LIST_CHARSET = '-scs';
 
     const AWK_FILE_HASH_LINE = '$0 ~/^[a-zA-Z0-9]+[ \t]+[0-9]+[ \t].[^ \t]/ {print $1" "$3}';
 
@@ -34,15 +39,18 @@ class P7zip extends ShellCmd
         self::PROGRESS_DISPLAY_SWITCH => null,
         self::ARCHIVE_TYPE_SWITCH => null,
         self::PASSWORD_SWITCH => null,
+        self::CONSOLE_CHARSET => 'UTF-8',
         self::COMPRESSION_LEVEL_SWITCH => null,
         self::VOLUME_SIZE_SWITCH => null,
         self::WRITE_STDOUT_SWITCH => null,
         self::READ_STDIN_SWITCH => null,
         self::DISABLE_ARCHIVE_FILE_ARG => null,
+        self::OVERWRITE_MODE => null,
         self::HASHER_SWITCH => null,
         self::OUTPUT_DIR_SWITCH => null,
         self::ARCHIVE_FILE_ARG => null,
         self::FILE_LIST_ARG => null,
+        //self::LIST_CHARSET => 'UTF-8',
         self::SWITCHES_DELIMITER => true,
     ];
 
@@ -64,14 +72,58 @@ class P7zip extends ShellCmd
     {
         $self = new static();
         $self->setCommand(static::ARCHIVE_COMMAND)
-             ->setArchiveFile($archive);
+            ->setArchiveFile($archive);
 
-        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled())
-        {
+        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled()) {
             throw new Exception("Invalid archive file: " . $archive);
         }
 
         return $self;
+    }
+
+    /**
+     * @param string $archiveFile
+     * @return P7zip
+     */
+    public function setArchiveFile(string $archiveFile)
+    {
+        if (empty($archiveFile)) {
+            $this->disableArchiveFile();
+        } else {
+            $this->disableArchiveFile(false);
+            $this->setArg(static::ARCHIVE_FILE_ARG, $archiveFile);
+        }
+
+        return $this;
+    }
+
+    public function disableArchiveFile(bool $value = true)
+    {
+        $this->setArg(static::DISABLE_ARCHIVE_FILE_ARG, $value);
+        return $this;
+    }
+
+    /**
+     * @param string $command
+     * @return P7zip
+     */
+    public function setCommand(string $command)
+    {
+        array_unshift($this->args, $command);
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getArchiveFile(): string
+    {
+        return (string)$this->getArg(static::ARCHIVE_FILE_ARG);
+    }
+
+    public function archiveFileIsDisabled(): bool
+    {
+        return (bool)$this->getArg(static::DISABLE_ARCHIVE_FILE_ARG);
     }
 
     /**
@@ -86,17 +138,21 @@ class P7zip extends ShellCmd
         $self->setCommand(static::EXTRACT_COMMAND)
             ->setArchiveFile($archive);
 
-        if (!empty($toDirectory))
-        {
+        if (!empty($toDirectory)) {
             $self->setOutputDir($toDirectory);
         }
 
-        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled())
-        {
+        if (empty($self->getArchiveFile()) && !$self->archiveFileIsDisabled()) {
             throw new Exception("Invalid archive file: " . $archive);
         }
 
         return $self;
+    }
+
+    public function setOutputDir(string $value)
+    {
+        $this->setArg(static::OUTPUT_DIR_SWITCH, $value);
+        return $this;
     }
 
     public static function hash(array $files, $hasher = 'CRC32')
@@ -107,14 +163,31 @@ class P7zip extends ShellCmd
             ->addArgs($files)
             ->disableArchiveFile(false)
             ->setArg('| awk', true)
-            ->addArgs([ static::AWK_FILE_HASH_LINE]);
+            ->addArgs([static::AWK_FILE_HASH_LINE]);
 
         return $self;
+    }
+
+    public function setFileHasher($algo)
+    {
+        return $this->setArg(static::HASHER_SWITCH, $algo);
     }
 
     public static function from($p)
     {
 
+    }
+
+    public static function list($file, mixed $path)
+    {
+        $self = new static();
+        $self->setCommand(static::LIST_COMMAND)
+            ->setArchiveFile($file)
+            ->disableArchiveFile(false)
+            ->setArg('| awk', true)
+            ->addArgs(['/------------------------/{flag=1; next} flag {print} /-------------------/{exit}']);
+
+        return $self;
     }
 
     public function setCompression(int $value = 1)
@@ -166,61 +239,10 @@ class P7zip extends ShellCmd
         return $this;
     }
 
-    /**
-     * @param string $command
-     * @return P7zip
-     */
-    public function setCommand(string $command)
+    public function setOverwriteMode($value)
     {
-        array_unshift($this->args, $command);
+        $this->setArg(static::OVERWRITE_MODE, $value);
         return $this;
-    }
-
-    /**
-     * @param string $archiveFile
-     * @return P7zip
-     */
-    public function setArchiveFile(string $archiveFile)
-    {
-        if (empty($archiveFile))
-        {
-            $this->disableArchiveFile();
-        } else
-        {
-            $this->disableArchiveFile(false);
-            $this->setArg(static::ARCHIVE_FILE_ARG, $archiveFile);
-        }
-
-        return $this;
-    }
-
-    public function disableArchiveFile(bool $value = true)
-    {
-        $this->setArg(static::DISABLE_ARCHIVE_FILE_ARG, $value);
-        return $this;
-    }
-
-    public function setOutputDir(string $value)
-    {
-        $this->setArg(static::OUTPUT_DIR_SWITCH, $value);
-        return $this;
-    }
-
-    public function setFileHasher($algo) {
-        return $this->setArg(static::HASHER_SWITCH, $algo);
-    }
-
-    /**
-     * @return string
-     */
-    public function getArchiveFile(): string
-    {
-        return (string)$this->getArg(static::ARCHIVE_FILE_ARG);
-    }
-
-    public function archiveFileIsDisabled(): bool
-    {
-        return (bool)$this->getArg(static::DISABLE_ARCHIVE_FILE_ARG);
     }
 
     public function setPassword(string $p)
@@ -231,8 +253,7 @@ class P7zip extends ShellCmd
 
     public function setVolumeSize($value = 0)
     {
-        if (!empty($value))
-        {
+        if (!empty($value)) {
             $value = $value . 'k';
         }
         $this->setArg('-v', $value);

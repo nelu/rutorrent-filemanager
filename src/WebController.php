@@ -3,6 +3,7 @@
 namespace Flm;
 
 use CachedEcho;
+use Exception;
 use SendFile;
 
 // web controller
@@ -29,6 +30,39 @@ class WebController extends BaseController
         $settings['archives'] = $archive;
 
         return $settings;
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function archiveCreate($params): array
+    {
+        isset($params->target) || self::jsonError(16);
+        (isset($params->fls) && count($params->fls) > 0) || self::jsonError(22);
+        isset($params->options) || self::jsonError(300);
+
+        return $this->flm()->archiveCreate((array)$params->fls, $params->target, (array)$params->options);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function archiveExtract($params): array
+    {
+        isset($params->to) || self::jsonError(2);
+        (!isset($params->fls) || (count($params->fls) < 1)) && self::jsonError(22);
+
+        return $this->flm()->archiveExtract((array)$params->fls, $params->to, (array)$params->options);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function archiveList($params): array
+    {
+        isset($params->target) || self::jsonError(22);
+        return $this->flm()->archiveList($params->target, $params->options);
     }
 
     public function newDirectory($params)
@@ -79,43 +113,6 @@ class WebController extends BaseController
         ]);
 
         return ['error' => !$res];
-    }
-
-    public function filesCompress($params)
-    {
-        if (!isset($params->fls) || (count($params->fls) < 1)) {
-            self::jsonError(22);
-        }
-
-        if (!isset($params->target)) {
-            self::jsonError(16);
-        }
-
-        if (!isset($params->mode)) {
-            self::jsonError(300);
-        }
-
-        $task = $this->flm()->archive($params);
-
-        return $task;
-    }
-
-    public function filesExtract($params)
-    {
-        if (!isset($params->to)) {
-            self::jsonError(2);
-        }
-        if (!isset($params->fls) || (count($params->fls) < 1)) {
-            self::jsonError(22);
-        }
-
-        $task = $this->flm()->extractFile([
-            'archives' => $params->fls,
-            'password' => $params->password,
-            'to' => $params->to
-        ]);
-
-        return $task;
     }
 
     public function filesCopy($params)

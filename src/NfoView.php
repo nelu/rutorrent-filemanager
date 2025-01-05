@@ -15,6 +15,26 @@ class NfoView
         $this->file = $file;
     }
 
+    /**
+     * @param bool $dos
+     * @return mixed
+     * @throws Exception
+     */
+    public function get($dos = false)
+    {
+
+        if (($contents = file_get_contents($this->file)) === false) {
+
+            throw new Exception("Cannot get file contents " . $this->file, 3);
+        }
+
+
+        $output = $dos ? self::dos_format($contents, TRUE) : htmlentities($contents);
+
+
+        return $output;
+    }
+
     public static function dos_format($ibm_437, $swedishmagic = false)
     {
 
@@ -70,8 +90,7 @@ class NfoView
 
         $s = str_replace($control, " ", $s);
 
-        if ($swedishmagic)
-        {
+        if ($swedishmagic) {
             $s = str_replace("\345", "\206", $s); // Code windows "?" to dos.
             $s = str_replace("\344", "\204", $s); // Code windows "�" to dos.
             $s = str_replace("\366", "\224", $s); // Code windows "�" to dos.
@@ -87,27 +106,6 @@ class NfoView
 
         $s = str_replace($table437, $tablehtml, $s);
         return $s;
-    }
-
-    /**
-     * @param bool $dos
-     * @return mixed
-     * @throws Exception
-     */
-    public function get($dos = false)
-    {
-
-        if (($contents = file_get_contents($this->file)) === false)
-        {
-
-            throw new Exception("Cannot get file contents " . $this->file, 3);
-        }
-
-
-        $output = $dos ? self::dos_format($contents, TRUE) : htmlentities($contents);
-
-
-        return $output;
     }
 
 }

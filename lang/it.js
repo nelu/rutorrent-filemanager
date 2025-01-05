@@ -97,7 +97,7 @@ theUILang.flm_checksum_save_to	= "Salva il file hash in:";
 
 theUILang.flm_checksum_empty_file	= "Inserisci un nome per il file SFV";
 
-theUILang.flm_popup_archive	= "Crea un archivio";
+theUILang.flm_popup_archive_create	= "Crea un archivio";
 theUILang.fDiagOptions		= "Opzioni:";
 theUILang.fDiagCArchType	= "Tipo:";
 theUILang.fDiagCArchVsize	= "Dimensione (mb):";
@@ -113,7 +113,7 @@ theUILang.fManArComp.zip = ["default", "Veloce", "Migliore"];
 theUILang.fManArComp.tar = ["nessuno", "gzip", "bzip2"];
 
 theUILang.fDiagCArchiveSel	= "Aggiungi all'archivio:";
-theUILang.fDiagExtract	= "Estrai archivio";
+theUILang.flm_popup_archive_extract	= "Estrai archivio";
 theUILang.fDiagArchive	= "Archivio:";
 theUILang.fDiagCompression	= "Compressione:";
 theUILang.flm_diag_extract_button		= "Estrarre";

@@ -165,16 +165,15 @@ import {FileManagerActions} from "./actions.js";
             let i;
             for (i = 0; i < entries.length; i++) {
                 // ensure trailing slash on dirs
-                entries[i] = flm.utils.buildPath([flm.config.homedir+"/", this.stripJailPath(entries[i])]);
+                entries[i] = flm.utils.buildPath([flm.config.homedir + "/", this.stripJailPath(entries[i])]);
             }
 
             return Array.isArray(paths) ? entries : entries[0];
         }
 
         flm.stripJailPath = (entry) => {
-            const path = flm.utils.stripBasePath(entry, flm.config.homedir);
-            return flm.utils.isDir(entry) ? path + '/' : path;
-        }
+            return flm.utils.stripBasePath(entry, flm.config.homedir);
+        };
 
         flm.Refresh = function (dir) {
             dir = dir || flm.currentPath;
@@ -210,6 +209,7 @@ import {FileManagerActions} from "./actions.js";
             });
 
             Promise.all([
+                import("./file-archive.js"),
                 import("./file-checksum.js")
             ]).then(([]) => {
                 // notify plugin loaded
@@ -222,7 +222,7 @@ import {FileManagerActions} from "./actions.js";
         flm.api = apiClient(flm.pluginUrl + 'action.php');
         flm.views = new FileManagerViews(flm);
         flm.ui = new FileManagerUi(flm);
-        flm.actions  = new FileManagerActions();
+        flm.actions = new FileManagerActions();
 
         return this;
     }

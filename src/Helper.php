@@ -22,8 +22,7 @@ class Helper
 
             $prefix .= '\\';
             // does the class use the namespace prefix?
-            if (stripos($class, $prefix) === false)
-            {
+            if (stripos($class, $prefix) === false) {
                 return;
             }
 
@@ -33,8 +32,7 @@ class Helper
             // with .php
             $file = $dir . '/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
 
-            if (file_exists($file))
-            {
+            if (file_exists($file)) {
                 require $file;
             }
         });
@@ -42,13 +40,11 @@ class Helper
 
     public static function makeRelative($a = [])
     {
-        if (!is_array($a))
-        {
+        if (!is_array($a)) {
             $a = [$a];
         }
         $r = [];
-        foreach ($a as $value)
-        {
+        foreach ($a as $value) {
             $r[] = './' . ltrim($value, '/');
         }
 
@@ -67,15 +63,12 @@ class Helper
         $args = !is_array($args) ? (array)$args : $args;
 
 
-        foreach ($args as $key => $value)
-        {
-            if ($key === 'binary')
-            {
+        foreach ($args as $key => $value) {
+            if ($key === 'binary') {
                 continue;
             }
 
-            if (is_array($value) || is_object($value))
-            {
+            if (is_array($value) || is_object($value)) {
                 $args[$key] = self::escapeCmdArgs($value);
                 continue;
             }
@@ -91,11 +84,9 @@ class Helper
 
     public static function mb_escapeshellarg($arg)
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-        {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             return '"' . str_replace(['"', '%'], ['', ''], $arg) . '"';
-        } else
-        {
+        } else {
             return "'" . str_replace("'", "'\\''", $arg) . "'";
         }
     }
@@ -103,13 +94,11 @@ class Helper
     public static function getConfig($section = null)
     {
 
-        if (is_null(self::$config))
-        {
+        if (is_null(self::$config)) {
 
             eval(FileUtil::getPluginConf('filemanager'));
 
-            if (!isset($config))
-            {
+            if (!isset($config)) {
                 require_once(dirname(__FILE__) . '/../conf.php');
             }
 
@@ -128,11 +117,9 @@ class Helper
 
         $filename = '';
 
-        if ($req->success())
-        {
+        if ($req->success()) {
             $filename = $req->val[0];
-            if ($filename == '')
-            {
+            if ($filename == '') {
                 $req = new rXMLRPCRequest([
                     new rXMLRPCCommand("d.open", $hash),
                     new rXMLRPCCommand("f.get_frozen_path", [$hash, $fno]),

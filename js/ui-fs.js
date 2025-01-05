@@ -81,7 +81,7 @@ export function FsBrowser() {
             try {
                 return (self.table().getValueById(self.tableEntryPrefix + path, 'name'));
             } catch (dx) {
-                flm.config.debug &&  console.log(dx);
+                flm.config.debug && console.log(dx);
             }
 
             return exists;
@@ -284,7 +284,9 @@ export function FsBrowser() {
             var fext = utils.getExt(target);
 
             if (flm.utils.isTextfile(fext)) {
-                menu.push([theUILang.fView, () => { flm.ui.viewNFO(target); }]);
+                menu.push([theUILang.fView, () => {
+                    flm.ui.viewNFO(target);
+                }]);
                 menu.push([CMENU_SEP]);
             }
 
@@ -297,7 +299,6 @@ export function FsBrowser() {
             } : null]);
             create_sub.push([CMENU_SEP]);
             create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
-            create_sub.push([theUILang.fcNewArchive, "flm.ui.showArchive()"]);
 
             if (!utils.hasDir(entries)) {
                 create_sub.push([CMENU_SEP]);
@@ -311,27 +312,9 @@ export function FsBrowser() {
             menu.push([theUILang.fCopy, "flm.ui.getDialogs().showDialog('copy')"]);
             menu.push([theUILang.fMove, "flm.ui.getDialogs().showDialog('move')"]);
             menu.push([theUILang.fDelete, "flm.ui.getDialogs().showDialog('delete')"]);
+            menu.push([theUILang.fRename, (entries.length > 1) ? null : "flm.ui.getDialogs().showDialog('rename')"]);
 
-            if (!(entries.length > 1)) {
-                menu.push([theUILang.fRename, "flm.ui.getDialogs().showDialog('rename')"]);
-            }
             menu.push([CMENU_SEP]);
-
-            if (utils.isArchive(target)) {
-
-                menu.push([theUILang.fExtracta, function () {
-                    var archives = [];
-                    var entry;
-                    for (var i = 0; i < self.selectedEntries.length; i++) {
-                        entry = self.selectedEntries[i];
-                        utils.isArchive(entry) && archives.push(entry)
-                    }
-                    self.selectedEntries = archives;
-
-                    window.flm.ui.getDialogs().showDialog('extract');
-                }]);
-                menu.push([CMENU_SEP]);
-            }
 
             flm.checksum.isChecksumFile(fext)
             && menu.push([theUILang.flm_checksum_menu_check, () => dialogs.showDialog('checksum_check')]);

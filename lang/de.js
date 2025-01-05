@@ -96,7 +96,7 @@ theUILang.flm_checksum_save_to	= 'Speichere SFV-Datei nach:';
 
 theUILang.flm_checksum_empty_file	= 'Benenne die SFV-Datei';
 
-theUILang.flm_popup_archive	= 'Erstelle Archiv';
+theUILang.flm_popup_archive_create	= 'Erstelle Archiv';
 theUILang.fDiagOptions		= 'Options:';
 theUILang.fDiagCArchType	= 'Typ:';
 theUILang.fDiagCArchVsize	= 'Dateigröße (mb):';
@@ -112,7 +112,7 @@ theUILang.fManArComp.zip = ['Speichern', 'Schnell', 'Besser'];
 theUILang.fManArComp.tar = ['none', 'gzip', 'bzip2'];
 
 theUILang.fDiagCArchiveSel	= 'Zum Archiv hinzufügen:';
-theUILang.fDiagExtract	= 'Entpacke Archive';
+theUILang.flm_popup_archive_extract	= 'Entpacke Archive';
 theUILang.fDiagArchive	= 'Archiv:';
 theUILang.fDiagCompression	= 'Kompression:';
 theUILang.flm_diag_extract_button		= 'Entpacke';

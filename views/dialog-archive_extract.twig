@@ -1,0 +1,66 @@
+{% set multiselect = selectedEntries.length > 1 %}
+{% set multiselectFilesOnly = false %}
+
+{% extends "flm::dialog-window.twig" %}
+
+{% block heading %}
+    {% if multiselect %}
+        <legend>{{ theUILang.fDiagArchive }}</legend>
+    {% else %}
+        {{ window.pathBrowser(selectedTarget, theUILang.fDiagArchive, "fman-archive-file", "disabled readonly") }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ window.pathBrowser(currentPath, theUILang.fDiagTo) }}
+    <fieldset class="mb-3">
+        <legend>{{ theUILang.fDiagOptions }}</legend>
+        <div class="mt-3 row">
+            <div class="mb col-md-4">
+                <div class="input-group">
+                    <label class="input-group-text m-0 p-1" for="fman-archive-overwrite">Overwrite</label>
+                    <select class="form-select m-0 p-1" id="fman-archive-overwrite" name="fman-archive-overwrite"
+                            aria-label="overwrite">
+                        <option value="s" selected>Skip</option>
+                        <option value="a">Always</option>
+                        <option value="u">Auto rename</option>
+                    </select>
+                </div>
+            </div>
+
+            {{ window.passwordField("fman-extract-password", "Password") }}
+
+        </div>
+    </fieldset>
+{% endblock %}
+
+{% set startButtonValue = theUILang.flm_diag_extract_button %}
+
+{% block scripts %}
+    <script>
+        ((dialogs) => {
+            const diagId = dialogs.getCurrentDialog();
+            let archive_file = $('.fman-archive-file');
+            const multiple = flm.ui.filenav.selectedEntries.length > 1;
+            let archive = multiple ? dialogs.getCheckList(diagId) : [archive_file];
+
+            // form submit
+            dialogs.onStart(() => flm.archive.doExtract(
+                archive,
+                dialogs.dirBrowserInput(diagId),
+                {
+                    password: $("#fman-extract-password").val(),
+                    overwrite: $("#fman-archive-overwrite").val()
+                }
+            ));
+
+            // dialog has not been created in dom yet
+            multiple || setTimeout(() => flm.archive.setArchiveBrowser(diagId, archive_file[0].id));
+
+        })(flm.ui.getDialogs());
+    </script>
+{% endblock %}
+
+
+
+

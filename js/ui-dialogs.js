@@ -1,4 +1,4 @@
-class FlmRdb extends theWebUI.rDirBrowser {
+export class FlmDirBrowser extends theWebUI.rDirBrowser {
 
     xhr = null;
     stripTopdir = false;
@@ -7,8 +7,10 @@ class FlmRdb extends theWebUI.rDirBrowser {
         super(a, b, c);
         flm.utils.setValidation(this.edit);
         this.stripTopdir = stripPaths || false;
+
+        this.btn.addClass(['m-0', 'p-1']);
         this.edit.on('change', () => {
-            //this.edit.val(flm.stripJailPath(this.edit.val()));
+//            data('previousValue', this.edit.val()})
         });
     }
 
@@ -28,37 +30,43 @@ class FlmRdb extends theWebUI.rDirBrowser {
         this.frame.find('.filter-dir').val(expression);
     }
 
+    request(path) {
+        return $.ajax(
+            `plugins/_getdir/listdir.php?dir=${encodeURIComponent(path)}&time=${(new Date()).getTime()}${this.withFiles ? "&withfiles=1" : ""}`
+        );
+    }
+
     requestDir() {
 
         let path = this.stripTopdir
             ? [this.stripTopdir, this.edit.val()].join('/')
             : this.edit.val();
 
-        this.xhr = $.ajax(
-            `plugins/_getdir/listdir.php?dir=${encodeURIComponent(path)}&time=${(new Date()).getTime()}${this.withFiles ? "&withfiles=1" : ""}`,
-            {
-                success: (res) => {
-                    if (this.stripTopdir) {
-                        //res.path = res.path.split(this.stripTopdir).pop();
-                        res.path = flm.utils.stripBasePath(res.path, this.stripTopdir)
-                    }
-                    this.frame.find(".filter-dir").val("").trigger("focus");
-                    this.edit.val(res.path).data({cwd: res.path, previousValue: this.edit.val()}).change();
-                    this.frame.find(".rmenuobj").remove();
-                    this.frame.append(
-                        $("<div>").addClass("rmenuobj").append(
-                            ...res.directories.map(ele => $("<div>").addClass("rmenuitem").text(ele + "/")),
-                            ...(this.withFiles ? res.files : []).map(ele => $("<div>").addClass("rmenuitem").text(ele)),
-                        ),
-                    );
-                    this.frame.find(".rmenuitem").on(
-                        "click", (ev) => this.selectItem(ev)
-                    ).on(
-                        "dblclick", (ev) => (ev.currentTarget.innerText.endsWith("/")) ? this.requestDir() : this.hide()
-                    );
-                },
-                error: (res) => console.log(res),
-            }
+        if (!flm.utils.isDir(path)) {
+            path = flm.utils.basedir(path);
+        }
+
+        this.xhr = this.request(path).then(
+            (res) => {
+                if (this.stripTopdir) {
+                    res.path = flm.utils.stripBasePath(res.path, this.stripTopdir)
+                }
+                this.frame.find(".filter-dir").val("").trigger("focus");
+                this.edit.val(res.path).data({cwd: res.path, previousValue: this.edit.val()}).change();
+                this.frame.find(".rmenuobj").remove();
+                this.frame.append(
+                    $("<div>").addClass("rmenuobj").append(
+                        ...res.directories.map(ele => $("<div>").addClass("rmenuitem").text(ele + "/")),
+                        ...(this.withFiles ? res.files : []).map(ele => $("<div>").addClass("rmenuitem").text(ele)),
+                    ),
+                );
+                this.frame.find(".rmenuitem").on(
+                    "click", (ev) => this.selectItem(ev)
+                ).on(
+                    "dblclick", (ev) => (ev.currentTarget.innerText.endsWith("/")) ? this.requestDir() : this.hide()
+                );
+            },
+            (res) => console.log(res)
         );
 
     }
@@ -78,11 +86,7 @@ export function FileManagerDialogs(browser) {
     let self = this;
 
     this.forms = {
-        archive: {
-            modal: true,
-            pathbrowse: true,
-            template: "dialog-archive"
-        }, copy: {
+        copy: {
             modal: true,
             pathbrowse: true,
             template: "dialog-copy"
@@ -100,10 +104,6 @@ export function FileManagerDialogs(browser) {
             modal: true,
             pathbrowse: false,
             template: "dialog-delete"
-        }, extract: {
-            modal: true,
-            pathbrowse: true,
-            template: "dialog-extract"
         }, permissions: {
             modal: false,
             template: "dialog-permissions"
@@ -116,7 +116,7 @@ export function FileManagerDialogs(browser) {
             template: "dialog-nfo_view"
         }
     };
-    this.activeDialogs = {};
+
     this.currentDialog = "window";
     this.onStartEvent = null;
     this.startedPromise = null;
@@ -161,7 +161,7 @@ export function FileManagerDialogs(browser) {
         const persistentDiag = ($type(diagConf.persist) && diagConf.persist);
 
         if (self.dirBrowser.hasOwnProperty(dialogId)) {
-            for (let i = 0; i < self.dirBrowser[dialogId].length; i++) {
+            for (let i in self.dirBrowser[dialogId]) {
                 $type(self.dirBrowser[dialogId][i]) && $type(self.dirBrowser[dialogId][i]) && self.dirBrowser[dialogId][i].hide(false);
                 if (!persistentDiag) {
                     // use setTimeout for dom elements to be removed after this afterHide call
@@ -200,11 +200,13 @@ export function FileManagerDialogs(browser) {
     }
 
     this.getCheckedList = function (checklist) {
-        checklist = $type(checklist) !== 'object'
-            ? self.getCheckList(checklist)
-            : checklist;
+        const t = $type(checklist);
 
-        return $(checklist).find(':checked').map( (i, val) => decodeURIComponent(val.value)).get();
+        if (t !== 'array') {
+            checklist = (t === 'object' && checklist || self.getCheckList(checklist)).find(':checked');
+        }
+
+        return Array.from(checklist).map((input) => decodeURIComponent($(input).val()));
     }
 
     self.getCurrentDialog = () => {
@@ -229,11 +231,11 @@ export function FileManagerDialogs(browser) {
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val() : ele.text();
     }
 
-    this.handleStartButton = (diagId) =>  {
+    this.handleStartButton = (diagId) => {
         diagId = '#' + diagId;
 
         let dialogForms = Array.from(document.querySelectorAll(diagId + ' .needs-validation'));
-        let validForms =  dialogForms.reduce((a, form) => {
+        let validForms = dialogForms.reduce((a, form) => {
             form.checkValidity() && a++;
             form.classList.add('was-validated');
             return a;
@@ -296,31 +298,37 @@ export function FileManagerDialogs(browser) {
 
     self.updateTargetPath = function (container, path) {
         var ele = self.dirBrowserInput(container);
-        path = flm.addJailPath(path);
+        //path = flm.addJailPath(path);
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
     }
 
-    self.dirBrowserInput = function (diagId) {
+    this.dirBrowserInput = function (diagId) {
         diagId = '#' + flm.utils.ltrim(diagId, '#');
         return $(diagId + '.dlg-window .flm-diag-nav-path');
     }
 
-    self.setDirBrowser = function (diagId, withFiles) {
+    this.getDirBrowser = (diagId) => {
+        return self.dirBrowser.hasOwnProperty(diagId) && self.dirBrowser[diagId];
+    };
+
+    this.createDirBrowser = function (diagId, withFiles) {
         diagId = flm.utils.ltrim(diagId, '#');
         let inputSelectors = $('#' + diagId + ' .flm-diag-nav-path');
 
         if (thePlugins.isInstalled("_getdir")) {
-            if (!self.dirBrowser.hasOwnProperty(diagId)) {
-                self.dirBrowser[diagId] = []
-            }
+
             for (var i = 0; i < inputSelectors.length; i++) {
-                let rdb = new FlmRdb(inputSelectors[i].id, withFiles, undefined, flm.config.homedir);
-
-                self.dirBrowser[diagId][i] = rdb;
-                rdb.btn.addClass(['m-0', 'p-1']);
-
+                let rdb = new FlmDirBrowser(inputSelectors[i].id, withFiles, undefined, flm.config.homedir);
+                self.setDirBrowser(diagId, rdb);
             }
         }
+    }
+
+    this.setDirBrowser = function (diagId, browser) {
+        if (!self.dirBrowser.hasOwnProperty(diagId)) {
+            self.dirBrowser[diagId] = {};
+        }
+        self.dirBrowser[diagId][browser.edit.id] = browser;
     }
 
     self.createDialog = (diagId, content, config, viewEvents, what) => {
@@ -330,27 +338,22 @@ export function FileManagerDialogs(browser) {
         // create it
         // if (!theDialogManager.items.hasOwnProperty(diagId)) {
         theDialogManager.make(diagId, theUILang['flm_popup_' + what], content, config.modal); // prevent the user from changing table selection by default
-        $type(config.pathbrowse) && config.pathbrowse && self.setDirBrowser(diagId, config.pathbrowseFiles);
+        $type(config.pathbrowse) && config.pathbrowse && self.createDirBrowser(diagId, config.pathbrowseFiles);
 
         self.getDialogHeader(diagId)
             .prepend('<icon class="flm-sprite-diag flm-sprite sprite-' + what + '"></icon>');
 
         self.bindKeys(diagId);
 
-        // $("#"+diagId).find('.flm-diag-cancel')
-        //     .click(function () {
-        //         console.log("cancel triggered");
-        //         dialogs.hide(diagId);
-        //     });
-        //}
-
         const eventNames = ['beforeHide', 'beforeShow', 'afterHide', 'afterShow'];
 
         for (let i = 0; i < eventNames.length; i++) {
             const evName = eventNames[i];
             theDialogManager.setHandler(diagId, evName, function (id) {
-                $type(self[evName]) && self[evName].apply(self, [id, what]);
-                viewEvents.hasOwnProperty(evName) && viewEvents[evName].apply(self, [id, what]);
+                // id is not being call when multiple calls are registered to a specific handler
+                // using diagId instead
+                $type(self[evName]) && self[evName].apply(self, [diagId, what]);
+                viewEvents.hasOwnProperty(evName) && viewEvents[evName].apply(self, [diagId, what]);
             });
         }
 
@@ -397,7 +400,7 @@ export function FileManagerDialogs(browser) {
 //                options.selectedTarget = !browser.selectedTarget ? '/'  :flm.getCurrentPath(browser.selectedTarget);
 
             templateVars.selectedTarget = !browser.getSelectedTarget() ? '/' : browser.getSelectedTarget();
-            templateVars.currentPath = flm.addJailPath(flm.getCurrentPath('/'));
+            templateVars.currentPath = flm.getCurrentPath('/');
 
             config.options = templateVars;
 
