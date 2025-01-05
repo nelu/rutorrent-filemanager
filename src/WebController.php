@@ -3,6 +3,7 @@
 namespace Flm;
 
 use CachedEcho;
+use Exception;
 use SendFile;
 
 // web controller
@@ -33,7 +34,7 @@ class WebController extends BaseController
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function archiveCreate($params): array
     {
@@ -45,7 +46,7 @@ class WebController extends BaseController
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function archiveExtract($params): array
     {
@@ -56,7 +57,7 @@ class WebController extends BaseController
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function archiveList($params): array
     {

@@ -28,23 +28,12 @@ class ShellCmd
     }
 
     /**
-     * @param $bin
-     * @param array $args
-     * @return ShellCmd
-     */
-    public static function bin($bin, $args = []): ShellCmd
-    {
-        return (new static($bin))->setArgs($args);
-    }
-
-    /**
      * @param string $bin
      * @return string|P7zip
      */
     public function binary(string $bin = '')
     {
-        if (!empty($bin))
-        {
+        if (!empty($bin)) {
             $this->binary = $bin;
             return $this;
         }
@@ -52,53 +41,13 @@ class ShellCmd
     }
 
     /**
-     * @param bool $asArray
-     * @return string|array
-     * @throws Exception
+     * @param $bin
+     * @param array $args
+     * @return ShellCmd
      */
-    public function cmd($asArray = false)
+    public static function bin($bin, $args = []): ShellCmd
     {
-        if (empty($this->binary))
-        {
-            throw new Exception("Command binary not set");
-        }
-
-        $formatted_args = [];
-        //compile arguments
-        array_walk($this->args, function (&$item, $key) use (&$formatted_args) {
-            $r = null;
-            // null is disabled
-            if (!is_null($item))
-            {
-
-                if (is_int($key))
-                {
-                    // exclude numeric keys value from arg value
-                    $key = '';
-                }
-                if (is_bool($item) && $item === true)
-                {
-                    $r = $key;
-                } elseif (is_string($item))
-                {
-                    // trim spaces from positional/no name arguments
-                    $r = ltrim($key, " ") . Helper::mb_escapeshellarg($item);
-                } elseif (is_int($item))
-                {
-                    // int we hope
-                    $r = $key . $item;
-                }
-
-                if (!is_null($r))
-                {
-                    $formatted_args[] = $r;
-                }
-            }
-        });
-
-        $cmd = array_merge([$this->binary], $formatted_args);
-
-        return $asArray ? $cmd : implode(" ", $cmd);
+        return (new static($bin))->setArgs($args);
     }
 
     /**
@@ -116,20 +65,88 @@ class ShellCmd
     }
 
     /**
+     * @param bool $asArray
+     * @return string|array
+     * @throws Exception
+     */
+    public function cmd($asArray = false)
+    {
+        if (empty($this->binary)) {
+            throw new Exception("Command binary not set");
+        }
+
+        $formatted_args = [];
+        //compile arguments
+        array_walk($this->args, function (&$item, $key) use (&$formatted_args) {
+            $r = null;
+            // null is disabled
+            if (!is_null($item)) {
+
+                if (is_int($key)) {
+                    // exclude numeric keys value from arg value
+                    $key = '';
+                }
+                if (is_bool($item) && $item === true) {
+                    $r = $key;
+                } elseif (is_string($item)) {
+                    // trim spaces from positional/no name arguments
+                    $r = ltrim($key, " ") . Helper::mb_escapeshellarg($item);
+                } elseif (is_int($item)) {
+                    // int we hope
+                    $r = $key . $item;
+                }
+
+                if (!is_null($r)) {
+                    $formatted_args[] = $r;
+                }
+            }
+        });
+
+        $cmd = array_merge([$this->binary], $formatted_args);
+
+        return $asArray ? $cmd : implode(" ", $cmd);
+    }
+
+    /** Set the command input/output: | > &
+     * When $outputArg is empty it will remove the argument
+     * @param string $outputArg
+     * @return ShellCmd
+     */
+    public function end($outputArg = '')
+    {
+        if (is_string($outputArg) && !empty($outputArg)) {
+            unset($this->args[$outputArg]);
+            $this->setArg($outputArg, true);
+            $this->endAt = $outputArg;
+        } elseif (isset($this->endAt)) {
+            // remove end or update position
+            unset($this->args[$this->endAt]);
+            $this->endAt = null;
+        }
+
+        return $this;
+    }
+
+    public function setArg(string $name, $value)
+    {
+        $this->args[$name] = $value;
+        return $this;
+    }
+
+    /**
      * @return array
      * @throws Exception
      */
     public function runRemote($force_clean = false)
     {
         $expectedCode = 255;
-        if(Helper::getConfig("unicode_emoji_fix"))
-        {
+        if (Helper::getConfig("unicode_emoji_fix")) {
             $cmd = $this->cmd();
             $task = TaskController::from([
                 'name' => 'runRemote',
                 'arg' => $cmd
             ]);
-            $result = $task->start([$cmd], (rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD &~ rTask::FLG_STRIP_LOGS) | rTask::FLG_WAIT | rTask::FLG_DO_NOT_TRIM );
+            $result = $task->start([$cmd], (rTask::FLG_DEFAULT & ~rTask::FLG_ECHO_CMD & ~rTask::FLG_STRIP_LOGS) | rTask::FLG_WAIT | rTask::FLG_DO_NOT_TRIM);
             $output = $result['log'];
 
             $expectedCode = $result['status'];
@@ -144,28 +161,6 @@ class ShellCmd
         return [$expectedCode, $output];
     }
 
-    /** Set the command input/output: | > &
-     * When $outputArg is empty it will remove the argument
-     * @param string $outputArg
-     * @return ShellCmd
-     */
-    public function end($outputArg = '')
-    {
-        if (is_string($outputArg) && !empty($outputArg))
-        {
-            unset($this->args[$outputArg]);
-            $this->setArg($outputArg, true);
-            $this->endAt = $outputArg;
-        } elseif (isset($this->endAt))
-        {
-            // remove end or update position
-            unset($this->args[$this->endAt]);
-            $this->endAt = null;
-        }
-
-        return $this;
-    }
-
     /**
      * @return array
      */
@@ -173,6 +168,8 @@ class ShellCmd
     {
         return $this->args;
     }
+
+// append a new arguments
 
     /**
      * @param array $args
@@ -184,19 +181,11 @@ class ShellCmd
         return $this;
     }
 
-// append a new arguments
     public function addArgs(array $values = [])
     {
-        foreach ($values as $value)
-        {
+        foreach ($values as $value) {
             $this->args[] = $value;
         }
-        return $this;
-    }
-
-    public function setArg(string $name, $value)
-    {
-        $this->args[$name] = $value;
         return $this;
     }
 

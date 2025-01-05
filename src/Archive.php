@@ -57,7 +57,7 @@ class Archive
         return $rtask->start($cmds, rTask::FLG_DEFAULT & ~rTask::FLG_ECHO_CMD);
     }
 
-    public static function from($archive_file, $options, $config = []) : static
+    public static function from($archive_file, $options, $config = []): static
     {
         $archive = new static($archive_file, $config);
         $archive->setOptions((array)$options);
@@ -194,7 +194,7 @@ class Archive
      * @param $path
      * @return ShellCmd
      */
-    public function list($path = null) : ShellCmd
+    public function list($path = null): ShellCmd
     {
         $path && $this->setWorkDir($path);
         return P7zip::list($this->file, $path)

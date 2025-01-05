@@ -4,6 +4,7 @@ namespace Flm;
 
 use Exception;
 use Iterator;
+use ReturnTypeWillChange;
 
 class FileChecksum implements Iterator
 {
@@ -203,34 +204,34 @@ class FileChecksum implements Iterator
         return $this->file;
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     function rewind()
     {
         $this->position = 0;
         $this->file = null;
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     function current()
     {
         $this->file = $this->files[$this->position];
         return $this->file;
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     function key()
     {
         return $this->position;
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     function next()
     {
 
         ++$this->position;
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     function valid()
     {
         return isset($this->files[$this->position]);
