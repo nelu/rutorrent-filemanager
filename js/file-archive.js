@@ -97,7 +97,7 @@ class FlmArchive {
             [!destination.length || !flm.utils.isDir(destination), theUILang.fDiagNoPath, path]
         ]);
 
-        archiveFiles = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(archiveFiles) : archiveFiles;
+        //archiveFiles = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(archiveFiles) : archiveFiles;
 
         validation.then(() => {
             return flm.api.archiveExtract(archiveFiles, destination, options);

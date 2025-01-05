@@ -37,7 +37,9 @@
                 <div class="mb-3 col fman-archive-options">
                     <div class="input-group">
                         <label class="input-group-text m-0 p-1" for="fman-archive-vsize">{{ theUILang.fDiagCArchVsize }}</label>
-                        <input class="form-control m-0 p-1" id="fman-archive-vsize" name="fman-archive-vsize" aria-label="{{ theUILang.fDiagCArchVsize }}"
+                        <input class="form-control m-0 p-1" id="fman-archive-vsize" name="fman-archive-vsize"
+                               aria-label="{{ theUILang.fDiagCArchVsize }}"
+                               min="0"
                                type="number" value="">
                     </div>
                 </div>
@@ -99,7 +101,7 @@
             archiveType.change(self.onFormatChange);
 
             pathBrowser.change(function (event) {
-                console.log("File change event", this, event);
+                //console.log("File change event", this, event);
                 self.updateFilePath($(this));
             });
 

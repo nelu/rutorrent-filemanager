@@ -190,7 +190,7 @@ class Filesystem
         $output = [];
         foreach ($contents as $fileline) {
             if (!empty($fileline)) {
-                if (preg_match($pattern, trim($fileline), $matches)) {
+                if (preg_match($pattern, $fileline, $matches)) {
                     $f = [
                         'type' => strtolower(trim($matches['type'])),
                         'name' => stripslashes($matches['name']),
@@ -199,15 +199,16 @@ class Filesystem
                         'perm' => trim($matches['perm']),
                     ];
 
-
                     if ($f['type'] == 'd' && substr($f['name'], 0, 1) !== DIRECTORY_SEPARATOR) {
                         $f['name'] .= DIRECTORY_SEPARATOR;
                         $f['size'] = '';
                     }
 
+                    $output[] = $f;
                 }
-
-                $output[] = $f;
+//                else {
+//                    var_dump(__METHOD__, 'not matched', $fileline);
+//                }
             }
 
         }

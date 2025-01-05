@@ -164,7 +164,7 @@ class FileManager
         $listing = Archive::from($archive_file, $options)->list($path)->runRemote();
 
         $contents = Filesystem::parseFileListing($listing[1],
-            '/^(?<date>([\d-]+) ([\d:]+)) ((\.+)?(?<type>[\w])(\.+)?) (?<size>[\d\s]+) (?<csize>[\d\s]+) (?<name>.+)/'
+            '/^(?<date>(([\d-]+) ([\d:]+)|[\s]+)) ((\.+)?(?<type>[\w\.])(\.+)?) (?<size>[\d\s]+) (?<csize>[\d\s]+) (?<name>.+)/'
         );
         usort($contents, [$this, 'dir_sort']);
 

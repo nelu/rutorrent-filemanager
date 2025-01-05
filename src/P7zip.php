@@ -185,7 +185,7 @@ class P7zip extends ShellCmd
             ->setArchiveFile($file)
             ->disableArchiveFile(false)
             ->setArg('| awk', true)
-            ->addArgs(['/------------------------/{flag=1; next} flag && $3 ~ /\./ {print} /-------------------/{exit}']);
+            ->addArgs(['/------------------------/{flag=1; next} flag {print} /-------------------/{exit}']);
 
         return $self;
     }
