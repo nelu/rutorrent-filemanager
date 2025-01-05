@@ -41,9 +41,8 @@
         ((dialogs) => {
             const diagId = dialogs.getCurrentDialog();
             let archive_file = $('.fman-archive-file');
-            let archive = flm.ui.filenav.selectedEntries.length > 1
-                ? dialogs.getCheckList(diagId)
-                : [archive_file];
+            const multiple = flm.ui.filenav.selectedEntries.length > 1;
+            let archive = multiple ? dialogs.getCheckList(diagId) : [archive_file];
 
             // form submit
             dialogs.onStart(() => flm.archive.doExtract(
@@ -56,7 +55,7 @@
             ));
 
             // dialog has not been created in dom yet
-            setTimeout(() => flm.archive.setArchiveBrowser(diagId, archive_file[0].id));
+            multiple || setTimeout(() => flm.archive.setArchiveBrowser(diagId, archive_file[0].id));
 
         })(flm.ui.getDialogs());
     </script>
