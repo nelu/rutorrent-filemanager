@@ -79,7 +79,7 @@ export function FsBrowser() {
         var checkInTable = function (path) {
 
             try {
-                return (self.table().getValueById(self.tableEntryPrefix + path, 'name'));
+                return (self.table().getValues(self.tableEntryPrefix + path));
             } catch (dx) {
                 flm.config.debug && console.log(dx);
             }
@@ -175,7 +175,7 @@ export function FsBrowser() {
 
     };
 
-    self.onHide = function (id) {
+    self.onHide = function () {
         $('#fMan_showconsole').hide();
         isVisible = false;
 

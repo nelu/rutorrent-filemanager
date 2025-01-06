@@ -64,19 +64,17 @@ class Archive
         return $archive;
     }
 
-    public function setOptions($options)
+    public function setOptions($o)
     {
-        $aopts = $this->config['type'][$options['type']];
-        $compression = $aopts['compression'][$options['compression']];
-
+        $aopts = isset($o['type']) ? $this->config['type'][$o['type']] : [];
 
         $this->options = [
-            'type' => $options['type'],
-            'compression' => $compression,
-            'password' => $options['password'],
-            'overwrite' => $options['overwrite'],
-            'volumeSize' => (int)$options['volumeSize'] * 1024,
-            'multiplePass' => isset($aopts['multipass']) ? $aopts['multipass'] : []
+            'type' => $o['type'] ?? '',
+            'compression' => isset($aopts['compression']) ? $aopts['compression'][$o['compression']] : 0,
+            'password' => $o['password'] ?? null,
+            'overwrite' => $o['overwrite'] ?? false,
+            'volumeSize' => isset($o['volumeSize']) ? (int)$o['volumeSize'] * 1024 : 0,
+            'multiplePass' => $aopts['multipass'] ?? []
         ];
 
         return $this;
@@ -197,7 +195,7 @@ class Archive
     public function list($path = null): ShellCmd
     {
         $path && $this->setWorkDir($path);
-        return P7zip::list($this->file, $path)
+        return P7zip::list($this->file, $this->config['list_limit'] ?? 1000)
             ->binary(Utility::getExternal('7zip'))
             ->setPassword(isset($this->options->password) && strlen($this->options->password) > 0 ? $this->options->password : '')
             ->setProgressIndicator(1);

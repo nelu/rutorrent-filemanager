@@ -4,6 +4,7 @@ namespace Flm;
 
 
 use CachedEcho;
+use FileUtil;
 use ReflectionMethod;
 use RuntimeException;
 use Throwable;
@@ -53,6 +54,7 @@ abstract class BaseController
             self::jsonOut($out);
 
         } catch (Throwable $err) {
+            Helper::getConfig("debug") && FileUtil::toLog(__METHOD__ . ' DEBUG Exception ' . var_export([$err->getMessage(), $err->getTraceAsString()], true));
             self::jsonError($err->getCode(), $err->getMessage());
         }
 

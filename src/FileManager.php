@@ -160,15 +160,33 @@ class FileManager
 
         $path = $options->path ?? null;
         $archive_file = $this->getFsPath($archive_file);
+        $in_background = $options['background'] ?? false;
+        $conf = Helper::getConfig('archive');
 
-        $listing = Archive::from($archive_file, $options)->list($path)->runRemote();
+        if($in_background)
+        {
+            $conf['list_limit'] = 0;
+        }
+        $cmd = Archive::from($archive_file, $options, $conf)
+            ->list($path);
 
-        $contents = Filesystem::parseFileListing($listing[1],
-            '/^(?<date>(([\d-]+) ([\d:]+)|[\s]+)) ((\.+)?(?<type>[\w\.])(\.+)?) (?<size>[\d\s]+) (?<csize>[\d\s]+) (?<name>.+)/'
-        );
-        usort($contents, [$this, 'dir_sort']);
+        if($in_background) {
+            $task =  TaskController::from([
+                'name' => 'archive-list',
+                'arg' => basename($archive_file)
+            ])->start([$cmd->cmd()], rTask::FLG_DEFAULT &~ rTask::FLG_ECHO_CMD);
 
-        return $contents;
+            ($task['finish'] > 0) && rTask::clean(rTask::formatPath($task['no']));
+
+            $listing = $task;
+        } else {
+            $listing = $cmd->runRemote()[1];
+        }
+
+        //$contents = Filesystem::parseFileListing($listing[1], Archive::LIST_FORMAT);
+        //usort($contents, [$this, 'dir_sort']);
+
+        return $listing;
     }
 
     /**

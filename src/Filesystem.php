@@ -179,7 +179,7 @@ class Filesystem
         $result = ShellCmd::bin('find', $find_args)->runRemote();
 
         $output = self::parseFileListing($result[1],
-            '/^(?<type>[\w])\t(?<name>.+?)\t(?<size>[\d]+)\t(?<date>[\d.]+)\t(?<perm>[\d]+)/');
+            '/^(?<type>[\w])\t(?<name>.+?)\t(?<size>[\d]+)\t(?<date>[\d]+)(\.[\d]+)?\t(?<perm>[\d]+)/');
 
         return $output;
     }

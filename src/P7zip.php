@@ -178,43 +178,44 @@ class P7zip extends ShellCmd
 
     }
 
-    public static function list($file, mixed $path)
+    public static function list($file, int $limit = 0)
     {
         $self = new static();
         $self->setCommand(static::LIST_COMMAND)
             ->setArchiveFile($file)
             ->disableArchiveFile(false)
-            ->setArg('| awk', true)
-            ->addArgs(['/------------------------/{flag=1; next} flag {print} /-------------------/{exit}']);
+            ->pipe(ShellCmd::bin('awk', ['/------------------------/{flag=1; next} flag {print} /-------------------/{exit}']));
+
+        ($limit > 0) && $self->pipe(ShellCmd::bin("awk ", ['NR<='.$limit.' {print}']));
 
         return $self;
     }
 
-    public function setCompression(int $value = 1)
+    public function setCompression(int $value = 1): static
     {
         $this->setArg(static::COMPRESSION_LEVEL_SWITCH, $value);
         return $this;
     }
 
-    public function setProgressIndicator(int $value = 1)
+    public function setProgressIndicator(int $value = 1): static
     {
         $this->setArg(static::PROGRESS_DISPLAY_SWITCH, $value);
         return $this;
     }
 
-    public function setArchiveType(string $value)
+    public function setArchiveType(string $value): static
     {
         $this->setArg(static::ARCHIVE_TYPE_SWITCH, $value);
         return $this;
     }
 
-    public function setReadFromStdin(bool $value)
+    public function setReadFromStdin(bool $value): static
     {
         $this->setArg(static::READ_STDIN_SWITCH, $value);
         return $this;
     }
 
-    public function setStdOutput(bool $value)
+    public function setStdOutput(bool $value): static
     {
         $this->setArg(static::WRITE_STDOUT_SWITCH, $value);
         //$this->disableArchiveFile($value);
@@ -233,25 +234,25 @@ class P7zip extends ShellCmd
      * @param string $listPath
      * @return P7zip
      */
-    public function setFileList(string $listPath)
+    public function setFileList(string $listPath): static
     {
         $this->setArg(static::FILE_LIST_ARG, $listPath);
         return $this;
     }
 
-    public function setOverwriteMode($value)
+    public function setOverwriteMode($value): static
     {
         $this->setArg(static::OVERWRITE_MODE, $value);
         return $this;
     }
 
-    public function setPassword(string $p)
+    public function setPassword(string $p): static
     {
         $this->setArg(static::PASSWORD_SWITCH, $p);
         return $this;
     }
 
-    public function setVolumeSize($value = 0)
+    public function setVolumeSize($value = 0): static
     {
         if (!empty($value)) {
             $value = $value . 'k';
@@ -259,4 +260,5 @@ class P7zip extends ShellCmd
         $this->setArg('-v', $value);
         return $this;
     }
+
 }

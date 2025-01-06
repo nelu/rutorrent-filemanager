@@ -29,9 +29,9 @@ class ShellCmd
 
     /**
      * @param string $bin
-     * @return string|P7zip
+     * @return string|static
      */
-    public function binary(string $bin = '')
+    public function binary(string $bin = ''): string|static
     {
         if (!empty($bin)) {
             $this->binary = $bin;
@@ -81,12 +81,14 @@ class ShellCmd
             $r = null;
             // null is disabled
             if (!is_null($item)) {
-
                 if (is_int($key)) {
                     // exclude numeric keys value from arg value
                     $key = '';
                 }
-                if (is_bool($item) && $item === true) {
+                if ($item instanceof self) {
+                    $r = (is_string($key) ? $key : "") . $item->cmd();
+                }
+                else if (is_bool($item) && $item === true) {
                     $r = $key;
                 } elseif (is_string($item)) {
                     // trim spaces from positional/no name arguments
@@ -127,12 +129,19 @@ class ShellCmd
         return $this;
     }
 
-    public function setArg(string $name, $value)
+    public function setArg(string $name, $value): static
     {
         $this->args[$name] = $value;
         return $this;
     }
 
+    public function pipe(ShellCmd $cmd)
+    {
+        $c = clone $cmd;
+        $c->binary('| ' .$cmd->binary());
+        $this->addArgs([$c]);
+        return $this;
+    }
     /**
      * @return array
      * @throws Exception

@@ -29,10 +29,33 @@ class FlmArchiveBrowser extends FlmDirBrowser {
 
     request() {
         let r = {files: [], directories: [], path: this.edit.val()};
+        let fileInfo = flm.ui.filenav.fileExists(flm.utils.basename(this.edit.val()));
 
-        return flm.api.archiveList(this.edit.val()).then((list) => {
-            list.map((v) => {
-                v && (v.type === 'd' && r.directories.push(flm.utils.rtrim(v.name, '/')) || r.files.push(v.name));
+        return flm.api.archiveList(this.edit.val(),
+            {
+                password: $("#fman-extract-password").val(),
+                background: fileInfo[1] > 1073741824
+            }).then((list) => {
+
+            if ($type(list['log'])) {
+                flm.config.debug && console.log('listing task finished', list);
+                (list['finish'] > 0) && theDialogManager.hide('tskConsole');
+                if(list['log'].length > 0) {
+                    list = list['log'];
+                } else {
+                    list = thePlugins.get("_task").readConsoleLog().split('\n');
+                }
+            }
+
+            $type(list) === 'array' && list.map((v) => {
+
+                let fields = v.match(/^(?<date>(([\d-]+) ([\d:]+)|[\s]+)) ((\.+)?(?<type>[\w\.])(\.+)?) (?<size>[\d\s]+) (?<perm>[\d\s]+) (?<name>.+)/);
+                if(fields) {
+                    let fname = fields.groups.name.trim();
+                    fields.groups.type.toLowerCase() === 'd' && r.directories.push(fname) || r.files.push(fname);
+                } else if (v && (v = v.trim()) !== "") {
+                    r.files.push(v);
+                }
             });
             return r;
         });
@@ -165,11 +188,12 @@ flm.api.archiveExtract = function (archiveFiles, toDir, options = {}) {
 };
 
 flm.api.archiveList = function (archiveFile, options = {}) {
-    return this.post({
+    let data = {
         method: 'archiveList',
         target: archiveFile,
         options: options,
-    });
+    };
+    return options.background ? this.runTask("archive-list", data) : this.post(data);
 };
 
 

@@ -27,6 +27,10 @@ $config['checksumExtensions'] = [
     "SHA256" => 'sha256sum'
 ];
 
+// if the task log is bigger than the allowed memory task plugin will break ruTorrent
+// limit for listing large archives
+$config['archive']['list_limit'] = 1000;
+
 // archive creation, see archiver man page before editing
 // archive.fileExt -> config
 $config['archive']['type'] = [
