@@ -50,9 +50,14 @@
         </div>
     </div>
     <script>
-        $('#{{ id }}-showpass').on('change', function () {
-            $("#{{ id }}").attr('type', $(this).is(':checked') ? 'text' : 'password');
-        });
+        (() => {
+            let passField =$('#{{ id }}');
+            flm.utils.setValidation(passField);
+
+            $('#{{ id }}-showpass').on('change', function () {
+                passField.attr('type', $(this).is(':checked') ? 'text' : 'password');
+            });
+        })();
     </script>
 {% endmacro %}
 

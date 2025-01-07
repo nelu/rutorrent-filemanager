@@ -17,7 +17,7 @@ export function FileManagerUi(flm) {
             "histpath": 5,
             "timef": '%d-%M-%y %h:%m:%s',
             "permf": 1,
-            "cleanlog": false,
+            "logActions": false,
             "arcnscheme": 'new',
             "scrows": 12,
             "sccols": 4,
@@ -49,11 +49,12 @@ export function FileManagerUi(flm) {
                     },
                     function (view) {
                         flm.getPlugin().attachPageToOptions($(view).get(0), theUILang.fManager);
-                        $(document).trigger(flm.EVENTS.settingsShow, view);
+                        flm.triggerEvent('settingsShow', [view]);
+
                     }
                 );
             } else {
-                $(document).trigger(flm.EVENTS.settingsShow);
+                flm.triggerEvent('settingsShow');
             }
         },
         onSave: function () {
@@ -163,6 +164,16 @@ export function FileManagerUi(flm) {
 
         },
 
+        init: function () {
+            let self = this;
+            $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
+            this.btn().click(() => self.show());
+        },
+
+        btn: () => {
+            return $('#fMan_showconsole');
+        },
+
         clearlog: function () {
             return $('#flm_popup_console-log-container pre').empty();
         },
@@ -252,7 +263,7 @@ export function FileManagerUi(flm) {
 
         fileManagerSubmenu = self.filenav.getEntryMenu(selectedName, selectedEntries);
 
-        $(document).trigger(flm.EVENTS.entryMenu, [fileManagerSubmenu, selectedName]);
+        flm.triggerEvent('entryMenu',  [fileManagerSubmenu, selectedName]);
 
         var remove = [theUILang.fOpen, //theUILang.fCopy,
             theUILang.fMove, theUILang.fDelete, theUILang.fRename, theUILang.fcNewDir,
@@ -364,8 +375,7 @@ export function FileManagerUi(flm) {
                     ]
                 );
             }
-
-            $(document).trigger(flm.EVENTS.torrentFileEntryMenu, [theContextMenu, selected, selectedPath, validEntries, table]);
+            flm.triggerEvent('torrentFileEntryMenu', [theContextMenu, selected, selectedPath, validEntries, table]);
         } else {
             console.debug('No valid files selected');
         }
@@ -373,9 +383,10 @@ export function FileManagerUi(flm) {
     };
 
     this.init = function () {
-
+        // console
+        self.console.init();
         // file navigation
-        self.initFileBrowser();
+        self.filenav.init();
     };
 
     this.disableNavigation = function () {
@@ -393,21 +404,6 @@ export function FileManagerUi(flm) {
         return flm.utils.formatDate(timestamp, this.settings.timef || '%d.%M.%y %h:%m:%s')
     };
 
-    this.initFileBrowser = function () {
-        $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
-        $('#fMan_showconsole').click(function () {
-            self.console.show();
-        });
-        // file navigation
-        self.filenav.init();
-    };
-
-    this.onSettingsShow = function (call) {
-        $(document).on("flm.settingsOnShow", function (view) {
-            call(view);
-        });
-
-    };
 
     this.viewNFO = function (file) {
         file && self.filenav.setSelectedTarget(file);

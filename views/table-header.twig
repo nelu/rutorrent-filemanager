@@ -20,7 +20,7 @@
 </form>
 
 <script>
-    (function (global) {
+    (function () {
         var cpath = $('#flm-navpath');
 
         flm.ui.updateNavbarPath = function () {
@@ -30,7 +30,6 @@
             var entries = [];
 
             entries.push(currentPath);
-
 
             cpath.children('option').each(function (index, val) {
                 if (entries.length < historySize) {
@@ -52,9 +51,7 @@
 
         };
 
-        $(document).on(flm.EVENTS.changeDir, function () {
-            flm.ui.updateNavbarPath();
-        });
+        flm.onEvent('changeDir', () => flm.ui.updateNavbarPath())
 
         cpath.change(function () {
             var path = $(this).val();

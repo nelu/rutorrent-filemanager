@@ -163,22 +163,21 @@ export function FsBrowser() {
             if (table) {
                 flm.goToPath('/').then(function () {
                     theWebUI.resize();
-                    $(document).trigger(flm.EVENTS.browserVisible, self);
+                    flm.triggerEvent('browserVisible', [self]);
                 });
 
                 // display table columns
                 table.refreshRows();
             }
         } else {
-            $(document).trigger(flm.EVENTS.browserVisible, self);
+            flm.triggerEvent('browserVisible', [self]);
         }
 
     };
 
     self.onHide = function () {
-        $('#fMan_showconsole').hide();
+        flm.ui.console.btn().hide();
         isVisible = false;
-
     };
 
     self.handleDeleteEntry = () => {
@@ -201,7 +200,7 @@ export function FsBrowser() {
             self.selectedEntries = self.getSelection(false);
 
             var menuEntries = self.getEntryMenu(self.selectedTarget, self.selectedEntries);
-            $(document).trigger(flm.EVENTS.entryMenu, [menuEntries, self.selectedTarget]);
+            flm.triggerEvent('entryMenu', [menuEntries, self.selectedTarget]);
 
             $.each(menuEntries, function (index, value) {
                 theContextMenu.add(value);
@@ -259,10 +258,9 @@ export function FsBrowser() {
     };
 
     self.onSetEntryMenu = function (call) {
-        $(document).on(flm.EVENTS.entryMenu, function (e, menu, path) {
+        flm.onEvent('entryMenu',  (e, menu, path) => {
             call(menu, path);
         });
-
     };
 
     self.getEntryMenu = function (target, entries) {

@@ -163,7 +163,7 @@ export function FileManagerActions() {
                 closeOnSelfClick: true
             });
 
-        self.logConsole(contents);
+        flm.ui.settings.getSettingValue('logActions') && self.logConsole(contents);
     }
 
     self.doMediainfo = (target) => {

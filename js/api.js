@@ -61,7 +61,7 @@ export function apiClient(endpoint) {
             }
         };
 
-        $(document).on(flm.EVENTS.taskDone, unbind);
+        flm.onEvent('taskDone', unbind);
 
         return def.promise().then(function (task) {
             $(document).off(flm.EVENTS.taskDone, unbind);

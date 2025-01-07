@@ -3,7 +3,7 @@ import {apiClient} from "./api.js";
 import {FileManagerUi} from "./ui.js";
 import {FileManagerActions} from "./actions.js";
 
-(function (global) {
+(function () {
 
     const FileManagerViews = function (flm) {
 
@@ -109,7 +109,7 @@ import {FileManagerActions} from "./actions.js";
                     flm.ui.enableNavigation();
 
                     flm.currentPath = flm.utils.buildPath([dir]);
-                    $(document).trigger(flm.EVENTS.changeDir, [flm.currentPath]);
+                    flm.triggerEvent('changeDir', [flm.currentPath]);
                     flm.ui.filenav.setTableEntries(response.listing);
                 }, function (code, msg) {
                     flm.utils.logError(1, msg);
@@ -118,6 +118,13 @@ import {FileManagerActions} from "./actions.js";
 
         };
 
+        this.onEvent = (name, fn)  => {
+            return $type(flm.EVENTS[name]) && $(document).on(flm.EVENTS[name], fn);
+        }
+
+        this.triggerEvent = (name, args) => {
+            return $type(flm.EVENTS[name]) && $(document).trigger(flm.EVENTS[name], args) || console.log('No such event registered: ', name);
+        }
 
         flm.showPath = function (dir, highlight) {
 
@@ -200,9 +207,10 @@ import {FileManagerActions} from "./actions.js";
             $(document).on('theTabs:onShow', (ev, id) => (id === plugin.ui.fsBrowserContainer) &&
                 flm.ui.filenav.onShow());
             $(document).on('theTabs:show', (ev, id) => {
-                (id !== plugin.ui.fsBrowserContainer)
-                && flm.ui.filenav.onHide(id)
-                || $('#fMan_showconsole').css('display', 'inline');
+                console.log('theTabs:show', id);
+                (id === plugin.ui.fsBrowserContainer)
+                && flm.ui.console.btn().show()
+                || flm.ui.filenav.onHide(id);
             });
 
             $(document).on('theWebUI:addAndShowSettings', (ev, data) => plugin.enabled && flm.ui.settings.onShow(data));
@@ -212,8 +220,7 @@ import {FileManagerActions} from "./actions.js";
             $(document).on('theWebUI:createFileMenu', (ev, data, e) => plugin.enabled && plugin.canChangeMenu() &&
                 flm.ui.handleFilesTabMenu(data, e));
 
-            $(document).on(flm.EVENTS.browserVisible, function () {
-
+            flm.onEvent('browserVisible',  () => {
                 if (flm.showPathPromise) {
                     flm.showPathPromise.resolve();
                     flm.showPathPromise = null;

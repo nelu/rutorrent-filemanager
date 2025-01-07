@@ -72,6 +72,12 @@ class FlmArchive {
         flm.EVENTS.ARCHIVE_EXTRACT = "flm.doExtract";
         flm.EVENTS.ARCHIVE_CREATE = "flm.doArchive";
 
+        flm.onEvent('ARCHIVE_EXTRACT', (e, archiveFiles, destination) => {
+            flm.actions.notify(theUILang.flm_popup_archive_extract + ': '
+                + (archiveFiles.length > 1 ? archiveFiles.length + ' files' : flm.utils.basename(archiveFiles[0]))
+                + ' -> ' + destination,
+                'success', 6000);
+        })
 
         flm.ui.filenav.onSetEntryMenu(this.setContextMenu);
         flm.ui.dialogs.setDialogConfig('archive_create',
@@ -109,7 +115,8 @@ class FlmArchive {
                 .then(function () {
                     return {
                         refresh: flm.utils.basedir(archive),
-                        triggerEvent: [flm.EVENTS.ARCHIVE_CREATE, [filePaths, archive, options]]
+                        triggerEvent: ['ARCHIVE_CREATE', [filePaths, archive, options]],
+                        notify: [theUILang.fDiagCArchiveSel + ': ' + filePaths.length + ' files' + ' -> ' + archive],
                     };
                 });
 
@@ -129,7 +136,7 @@ class FlmArchive {
                 .then(function () {
                     return {
                         refresh: destination,
-                        triggerEvent: [flm.EVENTS.ARCHIVE_EXTRACT, [archiveFiles, destination]]
+                        triggerEvent: ['ARCHIVE_EXTRACT', [archiveFiles, destination]]
                     };
                 });
     }

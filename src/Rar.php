@@ -27,7 +27,7 @@ class Rar extends P7zip
         parent::__construct($binPath);
     }
 
-    public function setProgressIndicator(int $value = 1)
+    public function setProgressIndicator(int $value = 1): static
     {
         // not implemented
         return $this;

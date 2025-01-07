@@ -6,30 +6,35 @@
                 <label for="flm-settings-opt-histpath">Paths history number of values:</label>
             </div>
             <div class="col-12 col-md-6">
-                <input type="text" name="flm-settings-opt-histpath" class="Textbox num1" id="flm-settings-opt-histpath" value="{{ opts.histpath }}"/>
+                <input type="text" name="flm-settings-opt-histpath" class="Textbox num1" id="flm-settings-opt-histpath"
+                       value="{{ opts.histpath }}"/>
             </div>
             <div class="col-12 col-md-6">
-                <input type="checkbox" name="flm-settings-opt-showhidden" id="flm-settings-opt-showhidden" {{ (opts.showhidden) ? 'checked': '' }} value="{{ opts.showhidden }}"/>
+                <input type="checkbox" name="flm-settings-opt-showhidden"
+                       id="flm-settings-opt-showhidden" {{ (opts.showhidden) ? 'checked': '' }}
+                       value="{{ opts.showhidden }}"/>
                 <label for="flm-settings-opt-showhidden">Show hidden files</label>
             </div>
             <div class="col-12 col-md-6">
-                <input type="checkbox" name="flm-settings-opt-cleanlog" id="flm-settings-opt-cleanlog" {{ (opts.cleanlog) ? 'checked': '' }} value="{{ opts.cleanlog }}"/>
-                <label for="flm-settings-opt-cleanlog">Clean console log automatically</label>
+                <input type="checkbox" name="flm-settings-opt-logActions"
+                       id="flm-settings-opt-logActions" {{ opts.logActions ? 'checked' }}
+                       value="{{ opts.logActions }}"/>
+                <label for="flm-settings-opt-logActions">Log events in console</label>
             </div>
             <div class="col-12 col-md-6">
                 <label for="flm-settings-opt-permf">Permissions format:</label>
             </div>
             <div class="col-12 col-md-6">
                 <select name="flm-settings-opt-permf" id="flm-settings-opt-permf">
-                    <option value="1"{% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
-                    <option value="2"{% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)</option>
+                    <option value="1" {% if opts.permf == "1" %}selected="selected"{% endif %}>Octal (0755)</option>
+                    <option value="2" {% if opts.permf == "2" %}selected="selected"{% endif %}>Symbolic (-rw)</option>
                 </select>
             </div>
             <div class="col-12 col-md-6">
                 <label for="flm-settings-opt-timef">Date - Time format:</label>
             </div>
             <div class="col-12 col-md-6">
-                <input type="text" name="flm-settings-opt-timef" id="flm-settings-opt-timef" value="{{ opts.timef }}" />
+                <input type="text" name="flm-settings-opt-timef" id="flm-settings-opt-timef" value="{{ opts.timef }}"/>
             </div>
             <div class="col-12 col-md-4">
                 <span><strong>%s</strong> - seconds</span>

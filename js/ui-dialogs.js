@@ -251,11 +251,10 @@ export function FileManagerDialogs(browser) {
             }
 
             self.startedPromise.then((data) => {
-                    if(data)
-                    {
+                    if (data) {
+                        data.triggerEvent && flm.triggerEvent(data.triggerEvent[0], data.triggerEvent[1]);
                         data.refresh && flm.refreshIfCurrentPath(data.refresh);
-                        data.notify && flm.refreshIfCurrentPath(data.refresh);
-                        data.triggerEvent && $(document).trigger(data.triggerEvent[0], data.triggerEvent[1]);
+                        data.notify && flm.actions.notify(data.notify[0], 'success', $type(data.notify[1]) ? data.notify[1] : 10000);
                     }
                     return data;
                 },
