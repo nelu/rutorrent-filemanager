@@ -180,6 +180,18 @@ import {FileManagerActions} from "./actions.js";
             return flm.goToPath(dir);
         };
 
+        this.refreshIfCurrentPath = (path) => {
+            // refresh in case we are in path
+            if (!this.utils.isDir(path)) {
+                // when destination is a directory name
+                path = this.utils.basedir(path)
+            }
+
+            const same = (path === this.getCurrentPath());
+            same && this.Refresh()
+            return same;
+        }
+
         flm.init = () => {
 
             flm.ui.init();
@@ -218,16 +230,16 @@ import {FileManagerActions} from "./actions.js";
 
         }
 
-        flm.utils = FileManagerUtils(flm);
-        flm.api = apiClient(flm.pluginUrl + 'action.php');
-        flm.views = new FileManagerViews(flm);
-        flm.ui = new FileManagerUi(flm);
-        flm.actions = new FileManagerActions();
+        this.utils = FileManagerUtils(flm);
+        this.api = apiClient(flm.pluginUrl + 'action.php');
+        this.views = new FileManagerViews(flm);
+        this.ui = new FileManagerUi(flm);
+        this.actions = new FileManagerActions();
 
         return this;
     }
 
     // namespace
-    global.flm = theWebUI.FileManager = new FileManager();
+    window.flm = theWebUI.FileManager = new FileManager();
 
-})(window);
+})();

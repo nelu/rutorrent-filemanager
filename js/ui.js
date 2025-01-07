@@ -213,6 +213,23 @@ export function FileManagerUi(flm) {
             }));
     };
 
+    this.addContextMenu = (menu, entry, after, before) => {
+        let reference = after || before;
+        let createPos = menu.length - 1;
+
+        if (reference) {
+            createPos = this.getContextMenuEntryPosition(menu, reference);
+            if (createPos >= 0) {
+                after && menu.splice(++createPos, 0, entry) || menu.splice(--createPos, 0, entry);
+            }
+        } else {
+            menu.push(entry);
+        }
+
+        // entry's position in the array
+        return createPos;
+    };
+
     this.getContextMenuEntryPosition = function (menu, what, atIndex) {
         atIndex = atIndex || 0;
         var pos = -1;

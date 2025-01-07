@@ -65,7 +65,7 @@ function FlmChecksum() {
         //console.log("got type", type);
         return flm.api.checksumCreate(flm.stripJailPath(checksumFile), flm.getFullPaths(filePaths), type)
             .done(function (response) {
-                flm.actions.refreshIfCurrentPath(flm.utils.basedir(checksumFile));
+                flm.refreshIfCurrentPath(flm.utils.basedir(checksumFile));
                 flm.actions.notify(theUILang.flm_popup_checksum_create + ": " + checksumFile, 'success', 10000);
 
                 return response;

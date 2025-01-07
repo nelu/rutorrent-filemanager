@@ -22,7 +22,7 @@ plugin.ui = {
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer + "-table";
 
 
-plugin.ready = () => {
+plugin.loaded = () => {
     return plugin.ui.readyPromise;
 };
 // boostrap ui elements, at a early stage in rutorrent ui load

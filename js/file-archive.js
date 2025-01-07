@@ -40,7 +40,7 @@ class FlmArchiveBrowser extends FlmDirBrowser {
             if ($type(list['log'])) {
                 flm.config.debug && console.log('listing task finished', list);
                 (list['finish'] > 0) && theDialogManager.hide('tskConsole');
-                if(list['log'].length > 0) {
+                if (list['log'].length > 0) {
                     list = list['log'];
                 } else {
                     list = thePlugins.get("_task").readConsoleLog().split('\n');
@@ -49,8 +49,8 @@ class FlmArchiveBrowser extends FlmDirBrowser {
 
             $type(list) === 'array' && list.map((v) => {
 
-                let fields = v.match(/^(?<date>(([\d-]+) ([\d:]+)|[\s]+)) ((\.+)?(?<type>[\w\.])(\.+)?) (?<size>[\d\s]+) (?<perm>[\d\s]+) (?<name>.+)/);
-                if(fields) {
+                let fields = v.match(/^(?<date>(([\d-]+) ([\d:]+)|[\s]+)) ((\.+)?(?<type>[\w.])(\.+)?) (?<size>[\d\s]+) (?<perm>[\d\s]+) (?<name>.+)/);
+                if (fields) {
                     let fname = fields.groups.name.trim();
                     fields.groups.type.toLowerCase() === 'd' && r.directories.push(fname) || r.files.push(fname);
                 } else if (v && (v = v.trim()) !== "") {
@@ -69,6 +69,11 @@ class FlmArchive {
     constructor(config) {
         this.config = config;
 
+        flm.EVENTS.ARCHIVE_EXTRACT = "flm.doExtract";
+        flm.EVENTS.ARCHIVE_CREATE = "flm.doArchive";
+
+
+        flm.ui.filenav.onSetEntryMenu(this.setContextMenu);
         flm.ui.dialogs.setDialogConfig('archive_create',
             {
                 modal: true,
@@ -82,7 +87,6 @@ class FlmArchive {
                     template: "dialog-archive_extract"
                 });
 
-        flm.ui.filenav.onSetEntryMenu(this.setContextMenu);
     }
 
     settings = (type) => {
@@ -90,7 +94,6 @@ class FlmArchive {
     }
     doArchive = function (path, checklist, options) {
 
-        let cPath = flm.getCurrentPath();
         let archive = flm.stripJailPath($.trim(path.val()));
         let filePaths = flm.ui.dialogs.getCheckedList(checklist);
 
@@ -100,15 +103,16 @@ class FlmArchive {
             [flm.ui.filenav.fileExists(archive), path.data("msgExists"), path]
         ]);
 
-        validation.then(() => {
-            return flm.api.archiveCreate(flm.stripJailPath(archive), flm.getFullPaths(filePaths), options);
-        }).done(function () {
-            flm.actions.refreshIfCurrentPath(flm.utils.basedir(archive)) || flm.actions.refreshIfCurrentPath(cPath);
-            //$(document).trigger(flm.EVENTS.move, [archiveFiles, destination, cPath]);
-            //flm.actions.notify(theUILang.flm_popup_move + ": " + archiveFiles.length, 'success', 10000);
-        });
+        return (validation.state() === "rejected")
+            ? validation
+            : validation.then(() => flm.api.archiveCreate(flm.stripJailPath(archive), flm.getFullPaths(filePaths), options))
+                .then(function () {
+                    return {
+                        refresh: flm.utils.basedir(archive),
+                        triggerEvent: [flm.EVENTS.ARCHIVE_CREATE, [filePaths, archive, options]]
+                    };
+                });
 
-        return validation;
     };
 
     doExtract = function (checklist, path, options) {
@@ -120,17 +124,14 @@ class FlmArchive {
             [!destination.length || !flm.utils.isDir(destination), theUILang.fDiagNoPath, path]
         ]);
 
-        //archiveFiles = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(archiveFiles) : archiveFiles;
-
-        validation.then(() => {
-            return flm.api.archiveExtract(archiveFiles, destination, options);
-        }).done(function () {
-            flm.actions.refreshIfCurrentPath(destination);
-            //$(document).trigger(flm.EVENTS.move, [archiveFiles, destination, cPath]);
-            //flm.actions.notify(theUILang.flm_popup_move + ": " + archiveFiles.length, 'success', 10000);
-        });
-
-        return validation;
+        return (validation.state() === "rejected") ? validation
+            : validation.then(() => flm.api.archiveExtract(archiveFiles, destination, options))
+                .then(function () {
+                    return {
+                        refresh: destination,
+                        triggerEvent: [flm.EVENTS.ARCHIVE_EXTRACT, [archiveFiles, destination]]
+                    };
+                });
     }
 
     isArchive = function (element) {
@@ -145,17 +146,16 @@ class FlmArchive {
         let self = this;
         let createMenu = flm.ui.getContextMenuEntryPosition(menu, theUILang.fcreate, 1);
         if (createMenu > -1) {
-            let submenu = menu[createMenu][2];
-            let newdir = flm.ui.getContextMenuEntryPosition(submenu, theUILang.fcNewDir);
-            if (newdir > -1) {
-                submenu.splice(++newdir, 0, [theUILang.fcNewArchive, () => self.showCreate()]);
-            }
+            flm.ui.addContextMenu(menu[createMenu][2],
+                [theUILang.fcNewArchive, () => self.showCreate()],
+                theUILang.fcNewDir
+            );
         }
 
         if (self.isArchive(path)) {
-            let rename = flm.ui.getContextMenuEntryPosition(menu, theUILang.fRename) + 2;
-            menu.splice(rename, 0, [theUILang.fExtracta, () => self.showExtract()]);
-            menu.splice(++rename, 0, [CMENU_SEP]);
+            let afterRename = flm.ui.getContextMenuEntryPosition(menu, theUILang.fRename) + 2;
+            menu.splice(afterRename, 0, [theUILang.fExtracta, () => self.showExtract()]);
+            menu.splice(++afterRename, 0, [CMENU_SEP]);
         }
     }
 

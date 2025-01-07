@@ -29,7 +29,7 @@ export function FileManagerActions() {
             return flm.api.copy(filePaths, destination);
         }).done(function () {
             // refresh in case we are in destination
-            flm.actions.refreshIfCurrentPath(destination);
+            flm.refreshIfCurrentPath(destination);
             flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
         });
 
@@ -49,8 +49,8 @@ export function FileManagerActions() {
             flm.actions.notify(theUILang.fStarts.delete + ": " + paths.length + " files");
             return flm.api.removeFiles(paths);
         }).done(() => {
-            //TODO: create event listeners for flm.actions.refreshIfCurrentPath
-            flm.actions.refreshIfCurrentPath(cPath);
+            //TODO: create event listeners for flm.refreshIfCurrentPath
+            flm.refreshIfCurrentPath(cPath);
             $(document).trigger(flm.EVENTS.delete, [paths, cPath]);
         });
 
@@ -74,7 +74,7 @@ export function FileManagerActions() {
             self.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
             return flm.api.move(filePaths, destination);
         }).done(function () {
-            flm.actions.refreshIfCurrentPath(destination) || flm.actions.refreshIfCurrentPath(cPath);
+            flm.refreshIfCurrentPath(destination) || flm.refreshIfCurrentPath(cPath);
             $(document).trigger(flm.EVENTS.move, [filePaths, destination, cPath]);
             flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
         });
@@ -95,7 +95,7 @@ export function FileManagerActions() {
         }));
 
         validation.then(() => flm.api.mkDir(flm.getCurrentPath(dirName)))
-            .done(() => flm.actions.refreshIfCurrentPath(flm.getCurrentPath(dirName)));
+            .done(() => flm.refreshIfCurrentPath(flm.getCurrentPath(dirName)));
 
         return validation;
     }
@@ -117,7 +117,7 @@ export function FileManagerActions() {
 
         validation.then(() => flm.api.rename(source, destination))
             .done((response) => {
-                self.refreshIfCurrentPath(cPath);
+                flm.refreshIfCurrentPath(cPath);
                 $(document).trigger(flm.EVENTS.rename, [source, destination]);
                 return response;
             });
@@ -151,18 +151,6 @@ export function FileManagerActions() {
     self.logConsole = (text) => {
         const ts = Math.floor(Date.now() / 1000);
         flm.ui.console.logMsg(flm.ui.formatDate(ts) + " " + text);
-    }
-
-    self.refreshIfCurrentPath = (path) => {
-        // refresh in case we are in path
-        if (!flm.utils.isDir(path)) {
-            // when destination is a directory name
-            path = flm.utils.basedir(path)
-        }
-
-        const same = (path === flm.getCurrentPath());
-        same && flm.Refresh()
-        return same;
     }
 
     self.notify = (contents, color = 'information', hideAfter = 5000) => {

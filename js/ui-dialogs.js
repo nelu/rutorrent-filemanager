@@ -251,6 +251,12 @@ export function FileManagerDialogs(browser) {
             }
 
             self.startedPromise.then((data) => {
+                    if(data)
+                    {
+                        data.refresh && flm.refreshIfCurrentPath(data.refresh);
+                        data.notify && flm.refreshIfCurrentPath(data.refresh);
+                        data.triggerEvent && $(document).trigger(data.triggerEvent[0], data.triggerEvent[1]);
+                    }
                     return data;
                 },
                 (errData) => {
@@ -349,9 +355,7 @@ export function FileManagerDialogs(browser) {
 
         for (let i = 0; i < eventNames.length; i++) {
             const evName = eventNames[i];
-            theDialogManager.setHandler(diagId, evName, function (id) {
-                // id is not being call when multiple calls are registered to a specific handler
-                // using diagId instead
+            theDialogManager.setHandler(diagId, evName, function () {
                 $type(self[evName]) && self[evName].apply(self, [diagId, what]);
                 viewEvents.hasOwnProperty(evName) && viewEvents[evName].apply(self, [diagId, what]);
             });
