@@ -3,6 +3,16 @@ if (typeof plugin === undefined) {
     let plugin = new rPlugin();
 }
 
+dxSTable.prototype.selectRowById = function (rowId, scrollToRow = true) {
+    let row = $type(rowId) === 'object' ? rowId : $('#' + $.escapeSelector(rowId));
+    let parent = $(this.dBody);
+
+    scrollToRow && parent.scrollTop(0).animate({
+        scrollTop: parent.scrollTop() + row.position().top - parent.height() / 2 + row.height() / 2
+    }, 50)
+    row.length && this.selectRow(new CustomEvent("click"), row.get(0))
+}
+
 plugin.ui = {
     fsBrowserContainer: "flm-browser",
     readyPromise: $.Deferred(),
@@ -81,7 +91,7 @@ plugin.ui.onTorrentFilesMenu = function (call) {
     });
 };
 
-plugin.ui.getContextMenuEntryPosition =  (menu, what, atIndex) => flm.ui.getContextMenuEntryPosition(menu, what, atIndex);
+plugin.ui.getContextMenuEntryPosition = (menu, what, atIndex) => flm.ui.getContextMenuEntryPosition(menu, what, atIndex);
 
 //  update/initialize rest ui elements, when localisation is loaded
 plugin.ui.init = function () {
@@ -89,20 +99,20 @@ plugin.ui.init = function () {
     plugin.resizeBottom = theWebUI.resizeBottom;
     theWebUI.resizeBottom = function (w, h) {
         plugin.resizeBottom.call(this, w, h);
-/*
-        if (w !== null) {
-            w -= 16;
-        }
-        if (h !== null) {
-            h -= ($("#flm-navigation-head").outerHeight());
-            h -= ($("#tabbar").outerHeight());
-            h -= TR_HEIGHT + 2;
-        }
+        /*
+                if (w !== null) {
+                    w -= 16;
+                }
+                if (h !== null) {
+                    h -= ($("#flm-navigation-head").outerHeight());
+                    h -= ($("#tabbar").outerHeight());
+                    h -= TR_HEIGHT + 2;
+                }
 
-        var table = flm.ui.filenav.table();
-        if (table) {
-            table.resize(w, h);
-        }*/
+                var table = flm.ui.filenav.table();
+                if (table) {
+                    table.resize(w, h);
+                }*/
     };
 
     !thePlugins.isInstalled('data') && flm.ui.createDataFrame();

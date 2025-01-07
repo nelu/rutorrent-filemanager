@@ -157,7 +157,6 @@ export function FsBrowser() {
         }
         isVisible = true;
 
-
         if (!flm.currentPath) {
             var table = self.table();
             if (table) {

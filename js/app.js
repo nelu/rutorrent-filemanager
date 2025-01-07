@@ -65,126 +65,124 @@ import {FileManagerActions} from "./actions.js";
 
     function FileManager() {
 
-        let flm = this;
-        flm.getPlugin = function () {
+        let self = this;
+        self.getPlugin = function () {
             return thePlugins.get('filemanager');
         };
 
-        let plugin = flm.getPlugin();
+        let plugin = self.getPlugin();
 
-        flm.currentPath = null;
-        flm.showPathPromise = null;
-        flm.pluginUrl = plugin.path;
-        flm.EVENTS = plugin.ui.EVENTS;
-        flm.config = plugin.config;
-        flm.getConfig = function () {
-            return flm.getPlugin().config;
+        self.currentPath = null;
+        self.showPathPromise = null;
+        self.pluginUrl = plugin.path;
+        self.EVENTS = plugin.ui.EVENTS;
+        self.config = plugin.config;
+        self.getConfig = function () {
+            return self.getPlugin().config;
         }
 
         // expose api client
-        flm.client = function (endpoint) {
+        self.client = function (endpoint) {
             return apiClient(endpoint);
         };
 
-        flm.getCurrentPath = function (file) {
+        self.getCurrentPath = function (file) {
 
-            var path = flm.currentPath + "";
+            var path = self.currentPath + "";
 
             if ($type(file)) {
-                file = file.length > 0 && flm.utils.ltrim(file, '/') || '';
-                path = flm.utils.buildPath([path, file]);
+                file = file.length > 0 && self.utils.ltrim(file, '/') || '';
+                path = self.utils.buildPath([path, file]);
             }
 
             return path;
         };
 
-        flm.goToPath = function (dir) {
+        self.goToPath = function (dir) {
 
-            flm.ui.disableNavigation();
-            flm.actions.inaction = true;
+            self.ui.disableNavigation();
+            self.actions.inaction = true;
 
-            return flm.api.getDir(dir)
-                .then(function (response) {
-                    flm.actions.inaction = false;
-                    flm.ui.enableNavigation();
+            return self.api.getDir(dir)
+                .done((response) => {
+                    self.actions.inaction = false;
+                    self.ui.enableNavigation();
 
-                    flm.currentPath = flm.utils.buildPath([dir]);
-                    flm.triggerEvent('changeDir', [flm.currentPath]);
-                    flm.ui.filenav.setTableEntries(response.listing);
-                }, function (code, msg) {
-                    flm.utils.logError(1, msg);
-                    flm.ui.enableNavigation();
+                    self.currentPath = self.utils.buildPath([dir]);
+                    self.triggerEvent('changeDir', [self.currentPath]);
+                    self.ui.filenav.setTableEntries(response.listing);
+                    return response;
+                }).fail((code, msg) => {
+                    self.utils.logError(1, msg);
+                    self.ui.enableNavigation();
                 });
 
         };
 
-        this.onEvent = (name, fn)  => {
-            return $type(flm.EVENTS[name]) && $(document).on(flm.EVENTS[name], fn);
+        this.onEvent = (name, fn, oneTime = false) => {
+            return $type(self.EVENTS[name])
+                && (oneTime ? $(document).one(self.EVENTS[name], fn) : $(document).on(self.EVENTS[name], fn));
         }
 
         this.triggerEvent = (name, args) => {
-            return $type(flm.EVENTS[name]) && $(document).trigger(flm.EVENTS[name], args) || console.log('No such event registered: ', name);
+            return $type(self.EVENTS[name]) && $(document).trigger(self.EVENTS[name], args) || console.log('No such event registered: ', name);
         }
 
-        flm.showPath = function (dir, highlight) {
+        self.showPath = function (dir, highlight) {
+            dir = self.stripJailPath(dir);
+            highlight = highlight ?? null;
 
-            dir = flm.stripJailPath(dir);
-            highlight = highlight || null;
+            return self.goToPath(dir).then(function (value) {
+                highlight && self.onEvent('browserVisible',
+                        () => {
+                            const rowId = self.ui.filenav.getEntryHash(highlight);
+                            self.ui.filenav.table().selectRowById(rowId);
 
-            return flm.goToPath(dir).then(function (value) {
+                        },
+                    true);
 
-                if (highlight) {
-                    flm.showPathPromise = $.Deferred();
-
-                    flm.showPathPromise.promise().then(function () {
-                        $(document.getElementById(flm.ui.filenav.getEntryHash(highlight)))
-                            .trigger("mousedown");
-                    });
-
-                }
-
-                theTabs.show(flm.getPlugin().ui.fsBrowserContainer);
+                theTabs.show(self.getPlugin().ui.fsBrowserContainer);
 
                 return value;
             });
 
         };
 
-        flm.getFile = function (path) {
+        self.getFile = function (path) {
 
-            // $("#flm-get-data [name ='dir']").val(flm.currentPath);
-            $("#flm-get-data [name ='target']").val(path);
-            $("#flm-get-data").submit();
+            // $("#self-get-data [name ='dir']").val(self.currentPath);
+            $("#self-get-data [name ='target']").val(path);
+            $("#self-get-data").submit();
 
         };
 
-        flm.getFullPaths = (entries) => {
+        self.getFullPaths = (entries) => {
             for (var i = 0; i < entries.length; i++) {
-                entries[i] = flm.getCurrentPath(flm.stripJailPath(entries[i]));
+                entries[i] = self.getCurrentPath(self.stripJailPath(entries[i]));
             }
 
             return entries;
         }
 
-        flm.addJailPath = (paths) => {
+        self.addJailPath = (paths) => {
             let entries = !Array.isArray(paths) ? [paths] : paths;
 
             let i;
             for (i = 0; i < entries.length; i++) {
                 // ensure trailing slash on dirs
-                entries[i] = flm.utils.buildPath([flm.config.homedir + "/", this.stripJailPath(entries[i])]);
+                entries[i] = self.utils.buildPath([self.config.homedir + "/", this.stripJailPath(entries[i])]);
             }
 
             return Array.isArray(paths) ? entries : entries[0];
         }
 
-        flm.stripJailPath = (entry) => {
-            return flm.utils.stripBasePath(entry, flm.config.homedir);
+        self.stripJailPath = (entry) => {
+            return self.utils.stripBasePath(entry, self.config.homedir);
         };
 
-        flm.Refresh = function (dir) {
-            dir = dir || flm.currentPath;
-            return flm.goToPath(dir);
+        self.Refresh = function (dir) {
+            dir = dir || self.currentPath;
+            return self.goToPath(dir);
         };
 
         this.refreshIfCurrentPath = (path) => {
@@ -199,48 +197,40 @@ import {FileManagerActions} from "./actions.js";
             return same;
         }
 
-        flm.init = () => {
+        self.init = () => {
 
-            flm.ui.init();
+            self.ui.init();
 
             // listening on events from ruTorrent components
             $(document).on('theTabs:onShow', (ev, id) => (id === plugin.ui.fsBrowserContainer) &&
-                flm.ui.filenav.onShow());
+                self.ui.filenav.onShow());
             $(document).on('theTabs:show', (ev, id) => {
-                console.log('theTabs:show', id);
                 (id === plugin.ui.fsBrowserContainer)
-                && flm.ui.console.btn().show()
-                || flm.ui.filenav.onHide(id);
+                && self.ui.console.btn().show()
+                || self.ui.filenav.onHide(id);
             });
 
-            $(document).on('theWebUI:addAndShowSettings', (ev, data) => plugin.enabled && flm.ui.settings.onShow(data));
+            $(document).on('theWebUI:addAndShowSettings', (ev, data) => plugin.enabled && self.ui.settings.onShow(data));
 
-            $(document).on('theWebUI:setSettings', (ev, data) => plugin.enabled && flm.ui.settings.onSave(data));
+            $(document).on('theWebUI:setSettings', (ev, data) => plugin.enabled && self.ui.settings.onSave(data));
 
             $(document).on('theWebUI:createFileMenu', (ev, data, e) => plugin.enabled && plugin.canChangeMenu() &&
-                flm.ui.handleFilesTabMenu(data, e));
-
-            flm.onEvent('browserVisible',  () => {
-                if (flm.showPathPromise) {
-                    flm.showPathPromise.resolve();
-                    flm.showPathPromise = null;
-                }
-            });
+                self.ui.handleFilesTabMenu(data, e));
 
             Promise.all([
                 import("./file-archive.js"),
                 import("./file-checksum.js")
             ]).then(([]) => {
                 // notify plugin loaded
-                plugin.ui.readyPromise.resolve(flm.ui);
+                plugin.ui.readyPromise.resolve(self.ui);
             });
 
         }
 
-        this.utils = FileManagerUtils(flm);
-        this.api = apiClient(flm.pluginUrl + 'action.php');
-        this.views = new FileManagerViews(flm);
-        this.ui = new FileManagerUi(flm);
+        this.utils = FileManagerUtils(self);
+        this.api = apiClient(self.pluginUrl + 'action.php');
+        this.views = new FileManagerViews(self);
+        this.ui = new FileManagerUi(self);
         this.actions = new FileManagerActions();
 
         return this;

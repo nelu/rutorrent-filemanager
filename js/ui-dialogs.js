@@ -241,7 +241,7 @@ export function FileManagerDialogs(browser) {
             return a;
         }, 0);
 
-        flm.getConfig().debug && console.log("Start button click " + diagId, `Valid forms ${validForms}/${dialogForms.length}`);
+        flm.getConfig().debug && console.debug("Start button click " + diagId, `Valid forms ${validForms}/${dialogForms.length}`);
 
         if (//validForms === dialogForms.length &&
             $type(self.onStartEvent) === "function") {
@@ -261,7 +261,7 @@ export function FileManagerDialogs(browser) {
                 (errData) => {
                     // form validation failure
                     if ($type(errData.fields)) {
-                        flm.config.debug && console.log('fields validation not passed', diagId, errData);
+                        flm.config.debug && console.debug('fields validation not passed', diagId, errData);
                         errData.fields.map((f) => {
                             let validation = $(f.input).parent().find('.invalid-feedback');
                             $(f.input)[0].setCustomValidity(f.err);
@@ -363,7 +363,6 @@ export function FileManagerDialogs(browser) {
     }
 
     self.deleteDialog = (dialogId) => {
-        console.log("deleteDialog: ", dialogId);
         $("#" + dialogId).remove();
         delete theDialogManager.items[dialogId];
     }

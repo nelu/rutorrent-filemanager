@@ -297,7 +297,7 @@ export function FileManagerUi(flm) {
         });
 
         fileManagerSubmenu.unshift([theUILang.fOpen, function () {
-            flm.showPath(currentTorrentDirPath, selectedName);
+            flm.showPath(currentTorrentDirPath, flm.utils.basename(selectedName));
         }]);
 
         return fileManagerSubmenu;
