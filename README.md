@@ -1,6 +1,7 @@
 # rutorrent-filemanager
-ruTorrent file management plugin with a javascript user interface running on rTorrent bittorrent client
+[![Docker Multiarch Build](https://github.com/nelu/rutorrent-filemanager/actions/workflows/docker-image.yml/badge.svg)](https://hub.docker.com/r/unzel/rutorrent-filemanager/tags)
 
+ruTorrent file management plugin with a javascript user interface running on rTorrent bittorrent client
 ### Features
 - supported file operations: copy, move, delete, rename, archive, extract, checksum, view, file info
 - file checksum functionality with multiple alogorithms supported: sfv, sha256
@@ -37,3 +38,4 @@ Many thanks to all contributors, users and the projects behind this plugin:
 - [ruTorrent](https://github.com/Novik/ruTorrent)
 - [rtorrent](https://github.com/rakshasa/rtorrent)
 - [7Zip](https://www.7-zip.org/)
+- [twig.js](https://github.com/twigjs/twig.js)
