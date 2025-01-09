@@ -155,7 +155,7 @@ export function FileManagerDialogs(browser) {
         });
     }
     // common dialog cleanup
-    self.afterHide = function (dialogId, what) {
+    this.afterHide = function (dialogId, what) {
 
         let diagConf = self.getDialogConfig(what);
         const persistentDiag = ($type(diagConf.persist) && diagConf.persist);
@@ -182,16 +182,16 @@ export function FileManagerDialogs(browser) {
         });
     }
 
-    self.startButton = function (diag) {
+    this.startButton = function (diag) {
         diag = flm.utils.ltrim(diag, '#');
         return $(`#${diag} .flm-diag-start`);
     }
 
-    self.disableStartButton = function (diag) {
+    this.disableStartButton = function (diag) {
         return self.startButton(diag).attr('disabled', true);
     }
 
-    self.enableStartButton = function (diag) {
+    this.enableStartButton = function (diag) {
         return self.startButton(diag).attr('disabled', false);
     }
 
@@ -213,20 +213,20 @@ export function FileManagerDialogs(browser) {
         return self.currentDialog;
     }
 
-    self.getDialogId = function (formId) {
+    this.getDialogId = function (formId) {
         formId = formId || 'window';
         return '#' + self.getDialogsPrefix(flm.utils.ltrim(formId, '#'));
     }
 
-    self.getDialogsPrefix = function (formId) {
+    this.getDialogsPrefix = function (formId) {
         return 'flm_popup_' + formId;
     }
 
-    self.getDialogHeader = function (diagId) {
+    this.getDialogHeader = function (diagId) {
         return $(`#${diagId}-header`);
     }
 
-    self.getTargetPath = function (container) {
+    this.getTargetPath = function (container) {
         var ele = self.dirBrowserInput(container)
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val() : ele.text();
     }
@@ -280,28 +280,30 @@ export function FileManagerDialogs(browser) {
 
     }
 
-    self.hide = function (dialogId, afterHide) {
+    this.hide = function (dialogId, afterHide) {
         dialogId = flm.utils.ltrim(dialogId, '#');
         theDialogManager.hide(dialogId, afterHide);
     }
 
-    this.onStart = function (callback, diagId) {
+    this.onStart = function (callback, diagId, oneTime = false) {
         diagId = diagId || self.getCurrentDialog();
-
-        self.enableStartButton(diagId).on('click', () => {
+        let btn = self.enableStartButton(diagId);
+        const method = oneTime ? 'one': 'on';
+        btn[method].apply(btn, ['click',() => {
             self.startedPromise = null;
             self.onStartEvent = callback;
             self.handleStartButton(diagId);
-        });
+        }]);
 
+        return this;
     }
 
-    self.show = function (dialogId, afterShow) {
+    this.show = function (dialogId, afterShow) {
         dialogId = dialogId || 'window';
         theDialogManager.show(flm.utils.ltrim(dialogId, '#'), afterShow);
     }
 
-    self.updateTargetPath = function (container, path) {
+    this.updateTargetPath = function (container, path) {
         var ele = self.dirBrowserInput(container);
         //path = flm.addJailPath(path);
         return ele[0].tagName.toLowerCase() === 'input' ? ele.val(path) : ele.text(path);
@@ -382,7 +384,7 @@ export function FileManagerDialogs(browser) {
         config && self.hide(config.diagWindow, afterHide);
     }
 
-    self.showDialog = function (what, viewEvents) {
+    this.showDialog = function (what, viewEvents) {
 
         let config = self.getDialogConfig(what);
 

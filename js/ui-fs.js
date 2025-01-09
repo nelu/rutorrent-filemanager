@@ -1,13 +1,13 @@
-export function FsBrowser() {
+export function FsBrowser(fm) {
     let self = this;
 
-    self.tableEntryPrefix = "_flm_";
-    self.uiTable = $('#flm-browser-table table');
-    self.clipaboardEvent = null;
-    self.clipboardEntries = [];
-    self.selectedEntries = [];
-    self.selectedTarget = null;
-    self.navigationLoaded = false;
+    this.tableEntryPrefix = "_flm_";
+    this.uiTable = $('#' + fm.getPlugin().ui.fsBrowserTableContainer + ' table');
+    this.clipaboardEvent = null;
+    this.clipboardEntries = [];
+    this.selectedEntries = [];
+    this.selectedTarget = null;
+    this.navigationLoaded = false;
 
     var isVisible = false;
 
@@ -29,7 +29,7 @@ export function FsBrowser() {
             if (e.keyCode === ctrlKey || e.keyCode === cmdKey) ctrlDown = false;
         });
 
-        $("#flm-browser-table").keydown(function (e) {
+        $("#" + flm.getPlugin().ui.fsBrowserTableContainer).keydown(function (e) {
             if (ctrlDown && (e.keyCode === vKey || e.keyCode === cKey || e.keyCode === xKey)) return false;
         });
 
@@ -38,40 +38,40 @@ export function FsBrowser() {
 
     };
 
-    self.init = function () {
+    this.init = function () {
         self.updateUiTable();
         self.setSorting();
         bindKeys();
         self.loadNavigation();
     };
 
-    self.isVisible = function () {
+    this.isVisible = function () {
         return isVisible;
     };
 
     // up dir path check
-    self.isTopDir = function (path) {
+    this.isTopDir = function (path) {
         var parentDir = flm.utils.basedir(flm.currentPath);
         return (path === parentDir);
     };
 
-    self.disableTable = function () {
+    this.disableTable = function () {
         self.uiTable.addClass('disabled_table');
     };
 
-    self.enableTable = function () {
+    this.enableTable = function () {
         self.uiTable.removeClass('disabled_table');
     };
 
-    self.disableRefresh = function () {
+    this.disableRefresh = function () {
         $('#flm-nav-refresh').attr('disabled', true);
     };
 
-    self.enableRefresh = function () {
+    this.enableRefresh = function () {
         $('#flm-nav-refresh').attr('disabled', false);
     };
 
-    self.fileExists = function (what) {
+    this.fileExists = function (what) {
 
         var exists = false;
         what = flm.utils.basename(what);
@@ -90,11 +90,11 @@ export function FsBrowser() {
         return (checkInTable(what) || checkInTable(what + '/'));
     };
 
-    self.getSelectedTarget = function () {
+    this.getSelectedTarget = function () {
         return self.selectedTarget;
     };
 
-    self.setSelectedTarget = function (target) {
+    this.setSelectedTarget = function (target) {
         self.selectedTarget = target;
         return self;
     }
@@ -105,7 +105,7 @@ export function FsBrowser() {
         return entry;
     }
 
-    self.getSelection = function (fullpath) {
+    this.getSelection = function (fullpath) {
         fullpath = fullpath || false;
         var selectedEntries = [];
         var rows = self.table().rowSel;
@@ -125,7 +125,7 @@ export function FsBrowser() {
 
     };
 
-    self.recommendedFileName = function (ext, desiredExt) {
+    this.recommendedFileName = function (ext, desiredExt) {
         // use the current dir name as base if multiple files are selected
         desiredExt = desiredExt || ext
         let file = self.selectedEntries.length > 1 && !self.isTopDir(flm.getCurrentPath())
@@ -136,7 +136,7 @@ export function FsBrowser() {
         return file;
     };
 
-    self.loadNavigation = function () {
+    this.loadNavigation = function () {
         if (!self.navigationLoaded) {
             flm.views.loadView({
                     template: 'table-header',
@@ -151,7 +151,7 @@ export function FsBrowser() {
         }
     };
 
-    self.onShow = function () {
+    this.onShow = function () {
         if (isVisible) {
             return;
         }
@@ -172,7 +172,7 @@ export function FsBrowser() {
         }
     };
 
-    self.onHide = function () {
+    this.onHide = function () {
         flm.ui.console.btn().hide();
         isVisible = false;
     };
@@ -188,7 +188,7 @@ export function FsBrowser() {
     }
 
     // executed outside the browse/this scope
-    self.handleSelectEntry = function (e, id) {
+    this.handleSelectEntry = function (e, id) {
         // handles right/left click events
         if ($type(id) && (e.button === rightMouseKey)) {
             self.setSelectedEntry(id);
@@ -209,7 +209,7 @@ export function FsBrowser() {
         }
     };
 
-    self.handleKeyCombo = function (e, ctrlDown) {
+    this.handleKeyCombo = function (e, ctrlDown) {
         if (self.isVisible() && theDialogManager.visible.length === 0) {
             // only if the tab is visible and no dialogs are open
             if (ctrlDown) {
@@ -237,7 +237,7 @@ export function FsBrowser() {
 
     };
 
-    self.handleKeyPaste = function () {
+    this.handleKeyPaste = function () {
         if (self.clipaboardEvent) {
             self.selectedEntries = self.clipboardEntries;
             self.clipboardEntries = [];
@@ -246,7 +246,7 @@ export function FsBrowser() {
         }
     };
 
-    self.handleKeyRename = function () {
+    this.handleKeyRename = function () {
         if (self.selectedEntries.length === 1
             && self.selectedTarget
             && !self.isTopDir(self.selectedTarget)) {
@@ -254,13 +254,13 @@ export function FsBrowser() {
         }
     };
 
-    self.onSetEntryMenu = function (call) {
-        flm.onEvent('entryMenu',  (e, menu, path) => {
+    this.onSetEntryMenu = function (call) {
+        flm.onEvent('entryMenu', (e, menu, path) => {
             call(menu, path);
         });
     };
 
-    self.getEntryMenu = function (target, entries) {
+    this.getEntryMenu = function (target, entries) {
         let flm = theWebUI.FileManager;
         let utils = flm.utils;
         let dialogs = flm.ui.dialogs;
@@ -334,7 +334,7 @@ export function FsBrowser() {
     };
 
     // navigation
-    self.open = function (path) {
+    this.open = function (path) {
         if (flm.utils.isDir(path)) {
             flm.goToPath(path);
         } else {
@@ -345,7 +345,7 @@ export function FsBrowser() {
     };
 
     // table
-    self.setSorting = function () {
+    this.setSorting = function () {
         const table = self.table();
         table.initialGetSortFunc = table.getSortFunc;
         table.getSortFunc = function (id, reverse, valMapping) {
@@ -371,11 +371,11 @@ export function FsBrowser() {
         }
     };
 
-    self.getEntryHash = function (fileName) {
+    this.getEntryHash = function (fileName) {
         return self.tableEntryPrefix + fileName;
     };
 
-    self.setTableEntries = function (data) {
+    this.setTableEntries = function (data) {
 
         var table = self.table();
 
@@ -429,11 +429,11 @@ export function FsBrowser() {
 
     };
 
-    self.table = function () {
+    this.table = function () {
         return theWebUI.getTable("flm");
     };
 
-    self.handleTableFormat = function (table, arr) {
+    this.handleTableFormat = function (table, arr) {
         var i;
         for (i = 0; i < arr.length; i++) {
             if (arr[i] == null) {
@@ -474,7 +474,7 @@ export function FsBrowser() {
         return arr;
     };
 
-    self.updateUiTable = function () {
+    this.updateUiTable = function () {
         let table = self.table();
 
 

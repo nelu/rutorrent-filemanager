@@ -6,7 +6,7 @@ export function FileManagerUi(flm) {
     let self = this;
 
     // table filesystem navigation
-    this.filenav = new FsBrowser();
+    this.filenav = new FsBrowser(flm);
 
     //  operation dialogs
     this.dialogs = new FileManagerDialogs(this.filenav);
