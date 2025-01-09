@@ -43,7 +43,7 @@ plugin.ui = {
         delete: 'flm.filesDelete',
         move: 'flm.filesDelete',
         settingsShow: "flm.settingsOnShow",
-        entryMenu: "flm.onSetEntryMenu",
+        entryMenu: "flm.onContextMenu",
         browserVisible: "flm.onBrowserVisible",
         rename: 'flm.filesDelete',
         torrentFileEntryMenu: 'torrentFileEntryMenu',

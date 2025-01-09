@@ -79,7 +79,7 @@ class FlmArchive {
                 'success', 6000);
         })
 
-        flm.ui.filenav.onSetEntryMenu(this.setContextMenu);
+        flm.ui.filenav.onContextMenu(this.setContextMenu);
         flm.ui.dialogs.setDialogConfig('archive_create',
             {
                 modal: true,

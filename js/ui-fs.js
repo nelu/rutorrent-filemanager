@@ -254,7 +254,7 @@ export function FsBrowser(fm) {
         }
     };
 
-    this.onSetEntryMenu = function (call) {
+    this.onContextMenu = function (call) {
         flm.onEvent('entryMenu', (e, menu, path) => {
             call(menu, path);
         });
