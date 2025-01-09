@@ -162,16 +162,14 @@ export function FsBrowser() {
             if (table) {
                 flm.goToPath('/').then(function () {
                     theWebUI.resize();
+                    // display table columns
+                    table.refreshRows();
                     flm.triggerEvent('browserVisible', [self]);
                 });
-
-                // display table columns
-                table.refreshRows();
             }
         } else {
             flm.triggerEvent('browserVisible', [self]);
         }
-
     };
 
     self.onHide = function () {

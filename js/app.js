@@ -131,21 +131,13 @@ import {FileManagerActions} from "./actions.js";
         self.showPath = function (dir, highlight) {
             dir = self.stripJailPath(dir);
             highlight = highlight ?? null;
+            highlight && self.onEvent('browserVisible', () => {
+                    const rowId = self.ui.filenav.getEntryHash(highlight);
+                    setTimeout(() => self.ui.filenav.table().selectRowById(rowId));
+                },
+                true);
 
-            return self.goToPath(dir).then(function (value) {
-                highlight && self.onEvent('browserVisible',
-                        () => {
-                            const rowId = self.ui.filenav.getEntryHash(highlight);
-                            self.ui.filenav.table().selectRowById(rowId);
-
-                        },
-                    true);
-
-                theTabs.show(self.getPlugin().ui.fsBrowserContainer);
-
-                return value;
-            });
-
+            return self.goToPath(dir).done((value) => theTabs.show(self.getPlugin().ui.fsBrowserContainer));
         };
 
         self.getFile = function (path) {

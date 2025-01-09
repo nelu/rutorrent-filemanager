@@ -3,14 +3,36 @@ if (typeof plugin === undefined) {
     let plugin = new rPlugin();
 }
 
-dxSTable.prototype.selectRowById = function (rowId, scrollToRow = true) {
+dxSTable.prototype.selectRowById = function (rowId, scrollToRow = true, initial = true) {
     let row = $type(rowId) === 'object' ? rowId : $('#' + $.escapeSelector(rowId));
     let parent = $(this.dBody);
+    let self = this;
 
-    scrollToRow && parent.scrollTop(0).animate({
-        scrollTop: parent.scrollTop() + row.position().top - parent.height() / 2 + row.height() / 2
-    }, 50)
-    row.length && this.selectRow(new CustomEvent("click"), row.get(0))
+    if (row.length) {
+        flm.config.debug && console.debug('Row found', rowId, $(this.tBody).offset().top);
+        setTimeout(() => self.selectRow(new CustomEvent("click"), row.get(0)), 1);
+
+        if(scrollToRow) {
+            //initial && parent.scrollTop(0);
+            let pos = $(this.tBody).scrollTop() + row.position().top
+            - $(this.tBody).height()/2 + row.height()/2
+
+            // parent.animate({scrollTop:  pos < $(this.tBody).height()/2 ? row.position().top : pos}, 1);
+            parent.scrollTop(pos < $(this.tBody).height()/2 ? row.position().top : pos);
+        }
+
+    } else {
+        initial && parent.animate({scrollTop: 0}, 1);
+        let pos = this.scrollTop + (TR_HEIGHT * 2);
+        flm.config.debug && console.debug('Row NOT found', rowId, this.scrollTop, 'pos', pos, 'tbody', $(this.dBody).height());
+
+        parent.animate({scrollTop: pos}, 1, () => {});
+        if (pos < $(this.dBody).height()) {
+            self.selectRowById(rowId, true, false);
+        }
+
+    }
+
 }
 
 plugin.ui = {
