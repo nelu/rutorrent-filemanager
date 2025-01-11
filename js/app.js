@@ -145,11 +145,8 @@ import {FileManagerActions} from "./actions.js";
         };
 
         self.getFile = function (path) {
-
-            // $("#self-get-data [name ='dir']").val(self.currentPath);
-            $("#self-get-data [name ='target']").val(path);
-            $("#self-get-data").submit();
-
+            $("#flm-get-data [name ='target']").val(path);
+            $("#flm-get-data").submit();
         };
 
         self.getFullPaths = (entries) => {
