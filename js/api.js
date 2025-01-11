@@ -48,27 +48,37 @@ export function apiClient(endpoint) {
 
     client.runTask = function (name, data, plugin_name) {
         var def = $.Deferred();
-        var plugin = flm.getPlugin();
 
-        plugin_name = plugin_name || plugin.name;
+        plugin_name = plugin_name || flm.getPlugin().name;
         data.workdir = flm.getCurrentPath();
 
         theWebUI.startConsoleTask(name, plugin_name, data, {noclose: true});
+        let runTask = theWebUI.getConsoleTask();
 
-        var runTask = theWebUI.getConsoleTask();
-
-        var unbind = function (e, task) {
+        var handleTask = function (e, task) {
             if (task.no === runTask.no) {
-                def.resolve(task);
+                // our task
+                if (task.hasOwnProperty('errcode') && task.errors === 0) {
+                    // log to system
+                    //flm.utils.logSystem(task.errcode, " -> ", task.msg);
+                    //task.status = false;
+                    def.reject(task);
+
+                    task.status = 1;
+                    task.errors = [($type(theUILang.fErrMsg[task.errcode])
+                        ? theUILang.fErrMsg[task.errcode] + " -> " + task.msg
+                        : task.msg)];
+                    delete task.errcode;
+                    // log the request error as task errors
+                    thePlugins.get("_task").check(task);
+                } else if (!task.hasOwnProperty('errcode')) {
+                    def.resolve(task);
+                }
             }
         };
 
-        flm.onEvent('taskDone', unbind);
-
-        return def.promise().then(function (task) {
-            $(document).off(flm.EVENTS.taskDone, unbind);
-            return task;
-        });
+        flm.onEvent('taskDone', handleTask, true);
+        return def.promise();
     };
 
     client.copy = function (files, to) {

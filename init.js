@@ -156,27 +156,12 @@ plugin.onRemove = function () {
 };
 
 plugin.onTaskFinished = function (task, onBackground) {
-    if (task.hasOwnProperty('errcode') && task.errors === 0) {
-        // log to system
-        //flm.utils.logSystem(task.errcode, " -> ", task.msg);
-        //task.status = false;
-        task.status = 1;
-        task.errors = [($type(theUILang.fErrMsg[task.errcode])
-            ? theUILang.fErrMsg[task.errcode] + " -> " + task.msg
-            : task.msg)];
-        delete task.errcode;
-        // log the request error as task errors
-        thePlugins.get("_task").check(task);
-
-    } else if (!task.hasOwnProperty('errcode')) {
-        flm.triggerEvent('taskDone', [task]);
-    }
-
+    flm.triggerEvent('taskDone', [task]);
 };
 
 // load language strings first + start app
 plugin.onLangLoaded = () => {
-// ruTorrent component overrides
+    // ruTorrent component overrides
     plugin.flmOnShow = theTabs.onShow;
     theTabs.onShow = (id) => $(document).trigger('theTabs:onShow', [id]) && plugin.flmOnShow.call(theTabs, id);
 
