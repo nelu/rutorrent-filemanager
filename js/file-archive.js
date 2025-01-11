@@ -38,7 +38,7 @@ class FlmArchiveBrowser extends FlmDirBrowser {
             }).then((list) => {
 
             if ($type(list['log'])) {
-                flm.config.debug && console.log('listing task finished', list);
+                flm.debug('listing task finished', list);
                 (list['finish'] > 0) && theDialogManager.hide('tskConsole');
                 if (list['log'].length > 0) {
                     list = list['log'];

@@ -3,34 +3,36 @@ if (typeof plugin === undefined) {
     let plugin = new rPlugin();
 }
 
-dxSTable.prototype.selectRowById = function (rowId, scrollToRow = true, initial = true) {
+dxSTable.prototype.selectRowById = function (rowId, scrollToRow = true, initial = true, offsetTop = 0) {
     let row = $type(rowId) === 'object' ? rowId : $('#' + $.escapeSelector(rowId));
     let parent = $(this.dBody);
     let self = this;
 
     if (row.length) {
-        flm.config.debug && console.debug('Row found', rowId, $(this.tBody).offset().top);
-        setTimeout(() => self.selectRow(new CustomEvent("click"), row.get(0)), 1);
+        flm.debug('Row found', rowId, row.position().top , offsetTop);
+        parent.stop(true, true);
 
-        if(scrollToRow) {
-            //initial && parent.scrollTop(0);
-            let pos = $(this.tBody).scrollTop() + row.position().top
-            - $(this.tBody).height()/2 + row.height()/2
+        scrollToRow && parent.scrollTop(row.position().top + offsetTop);
 
-            // parent.animate({scrollTop:  pos < $(this.tBody).height()/2 ? row.position().top : pos}, 1);
-            parent.scrollTop(pos < $(this.tBody).height()/2 ? row.position().top : pos);
-        }
-
+        setTimeout(function () {
+            parent.stop(true, true);
+            self.selectRow(new CustomEvent("click"), row.get(0));
+        }, 1);
     } else {
-        initial && parent.animate({scrollTop: 0}, 1);
-        let pos = this.scrollTop + (TR_HEIGHT * 2);
-        flm.config.debug && console.debug('Row NOT found', rowId, this.scrollTop, 'pos', pos, 'tbody', $(this.dBody).height());
+        initial && parent.stop(true, true).scrollTop(0);
 
-        parent.animate({scrollTop: pos}, 1, () => {});
-        if (pos < $(this.dBody).height()) {
-            self.selectRowById(rowId, true, false);
-        }
+        let pos = parent.scrollTop() + parent.height();
+        flm.debug('Row NOT found', rowId,
+            'parent.scrollTop()', parent.scrollTop(),
+            'parent.height', parent.height(),
+            'parent[0].scrollHeight', parent[0].scrollHeight,
+            'parent.outerHeight()', parent.outerHeight(),
+        );
 
+        parent.scrollTop(pos);
+        // look again
+        parent.outerHeight() < parent[0].scrollHeight - parent.scrollTop()
+            && setTimeout(() => self.selectRowById(rowId, true, false, pos));
     }
 
 }
@@ -167,7 +169,7 @@ plugin.onTaskFinished = function (task, onBackground) {
         thePlugins.get("_task").check(task);
 
     } else if (!task.hasOwnProperty('errcode')) {
-        $(document).trigger(plugin.ui.EVENTS.taskDone, task);
+        flm.triggerEvent('taskDone', [task]);
     }
 
 };

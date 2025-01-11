@@ -81,6 +81,10 @@ import {FileManagerActions} from "./actions.js";
             return self.getPlugin().config;
         }
 
+        this.debug = (...args) => {
+            flm.config.debug && console.debug(...args);
+        }
+
         // expose api client
         self.client = function (endpoint) {
             return apiClient(endpoint);
@@ -174,7 +178,12 @@ import {FileManagerActions} from "./actions.js";
 
         self.Refresh = function (dir) {
             dir = dir || self.currentPath;
-            return self.goToPath(dir);
+            let scrollPos = flm.ui.filenav.table().scrollTop;
+
+            return self.goToPath(dir)
+                .done(() => scrollPos > TR_HEIGHT
+                    && setTimeout(() => flm.ui.filenav.table().scrollTo(scrollPos))
+                );
         };
 
         this.refreshIfCurrentPath = (path) => {

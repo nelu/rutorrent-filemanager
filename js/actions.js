@@ -12,7 +12,7 @@ export function FileManagerActions() {
     this.doCopy = function (checklist, path) {
 
         let cPath = flm.getCurrentPath();
-        let destination = flm.stripJailPath($.trim(path.val()));
+        let destination = flm.stripJailPath(path.val());
         let filePaths = flm.ui.dialogs.getCheckedList(checklist);
 
         let validation = self.doValidation([

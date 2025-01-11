@@ -377,7 +377,7 @@ export function FileManagerUi(flm) {
             }
             flm.triggerEvent('torrentFileEntryMenu', [theContextMenu, selected, selectedPath, validEntries, table]);
         } else {
-            console.debug('No valid files selected');
+            flm.debug('No valid files selected');
         }
 
     };

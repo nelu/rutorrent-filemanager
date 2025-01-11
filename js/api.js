@@ -46,12 +46,14 @@ export function apiClient(endpoint) {
 
     };
 
-    client.runTask = function (name, data) {
+    client.runTask = function (name, data, plugin_name) {
         var def = $.Deferred();
         var plugin = flm.getPlugin();
+
+        plugin_name = plugin_name || plugin.name;
         data.workdir = flm.getCurrentPath();
 
-        theWebUI.startConsoleTask(name, plugin.name, data, {noclose: true});
+        theWebUI.startConsoleTask(name, plugin_name, data, {noclose: true});
 
         var runTask = theWebUI.getConsoleTask();
 
