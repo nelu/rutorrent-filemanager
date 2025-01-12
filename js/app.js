@@ -135,14 +135,15 @@ import {FileManagerActions} from "./actions.js";
         self.showPath = function (dir, highlight) {
             dir = self.stripJailPath(dir);
             highlight = highlight ?? null;
-            highlight && self.onEvent('browserVisible', () => {
-                    const rowId = self.ui.filenav.getEntryHash(highlight);
-                    setTimeout(() => self.ui.filenav.table().selectRowById(rowId));
-                },
-                true);
+            highlight && self.onEvent('browserVisible', () => this.showInTable(highlight), true);
 
-            return self.goToPath(dir).done((value) => theTabs.show(self.getPlugin().ui.fsBrowserContainer));
+            return self.goToPath(dir).done(() => theTabs.show(self.getPlugin().ui.fsBrowserContainer));
         };
+
+        this.showInTable = (file) => {
+            const rowId = this.ui.filenav.getEntryHash(this.utils.basename(file));
+            setTimeout(() => this.ui.filenav.table().selectRowById(rowId));
+        }
 
         self.getFile = function (path) {
             $("#flm-get-data [name ='target']").val(path);
