@@ -1,6 +1,6 @@
 plugin.description: Plugin that provides file management functionality in the UI.
 plugin.author: HWK
-plugin.version: 1.4.0
+plugin.version: 1.5.0
 rtorrent.remote: error
 rtorrent.external.error: php,pgrep,find
 plugin.dependencies: _task
