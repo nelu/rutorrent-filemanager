@@ -40,10 +40,7 @@ export function apiClient(endpoint) {
             });
 
             return deferred.promise();
-        },
-
-        promise: null
-
+        }
     };
 
     client.runTask = function (name, data, plugin_name) {

@@ -196,7 +196,7 @@ export function FileManagerDialogs(browser) {
     }
 
     this.getCheckList = (diag) => {
-        return $("#" + flm.utils.ltrim(diag, "#") + ' .checklist');
+        return $("#" + flm.utils.ltrim(diag, "#") + ' .checklist .form-check');
     }
 
     this.getCheckedList = function (checklist) {
