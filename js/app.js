@@ -176,10 +176,11 @@ import {FileManagerActions} from "./actions.js";
 
         self.Refresh = function (dir) {
             dir = dir || self.currentPath;
-            let scrollPos = flm.ui.filenav.table().scrollTop;
+            let table = flm.ui.filenav.table()
+            let scrollPos = table.scrollTop;
 
             return self.goToPath(dir)
-                .done(() => scrollPos > TR_HEIGHT
+                .done(() => scrollPos > table.TR_HEIGHT
                     && setTimeout(() => flm.ui.filenav.table().scrollTo(scrollPos))
                 );
         };
