@@ -34,3 +34,23 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the Docker image
       run: docker buildx build --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --push --tag=unzel/rutorrent-filemanager:$(basename ${GITHUB_REF}) --tag=unzel/rutorrent-filemanager:latest ./
+
+    - name: Extract release files from image
+      run: |
+        docker create --name extract-builder unzel/rutorrent-filemanager:latest
+        docker cp extract-builder:/usr/src/app ./rutorrent
+        docker rm extract-builder
+
+    - name: Prepare release zip
+      id: zip
+      run: |
+        zip_name="bundle_rutorrent_latest.zip"
+        zip -r "$zip_name" rutorrent
+        echo "zip_name=$zip_name" >> $GITHUB_ENV
+
+    - name: Upload release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ env.zip_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -174,16 +174,14 @@ export function FileManagerActions() {
     }
 
     self.createTorrent = function (target) {
-        var relative = flm.stripJailPath(target);
-        var isRelative = (relative !== target);
+        const relative = flm.stripJailPath(target);
 
-        var path = flm.addJailPath(isRelative ? relative : target);
+        $('#path_edit').val(flm.addJailPath((relative !== target) ? relative : target));
 
-        $('#path_edit').val(path);
+        ($('#tcreate').css('display') === 'none')
+        && thePlugins.checkLoad('create')
+        && theDialogManager.show('tcreate');
 
-        if ($('#tcreate').css('display') === 'none') {
-            theWebUI.showCreate();
-        }
     }
 
     return self;
