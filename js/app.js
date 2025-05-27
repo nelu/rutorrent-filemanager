@@ -181,7 +181,7 @@ import {FileManagerActions} from "./actions.js";
 
             return self.goToPath(dir)
                 .done(() => scrollPos > table.TR_HEIGHT
-                    && setTimeout(() => flm.ui.filenav.table().scrollTo(scrollPos))
+                    && setTimeout(() => table.scrollTo(scrollPos))
                 );
         };
 
