@@ -20,7 +20,7 @@ export function apiClient(endpoint) {
                 timeout: theWebUI.settings["webui.reqtimeout"],
                 async: true,
                 cache: false,
-                data: {action: flm.utils.json_encode(data)}, // encoded rest
+                data: {action: JSON.stringify(data)}, // encoded rest
                 //  contentType: "application/json",
                 dataType: "json",
 

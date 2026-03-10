@@ -195,39 +195,6 @@ export function FileManagerUtils(flm) {
         return strippedPath;
     };
 
-
-    utils.json_encode = function (obj) {
-        var self = this;
-        var s = '';
-        switch ($type(obj)) {
-            case "number":
-                return (String(obj));
-            case "boolean":
-                return (obj ? "1" : "0");
-            case "string":
-                return ('"' + obj + '"');
-            case "array": {
-                s = '';
-                $.each(obj, function (key, item) {
-                    if (s.length)
-                        s += ",";
-                    s += self.json_encode(item);
-                });
-                return ("[" + s + "]");
-            }
-            case "object": {
-                s = '';
-                $.each(obj, function (key, item) {
-                    if (s.length)
-                        s += ",";
-                    s += ('"' + key + '":' + self.json_encode(item));
-                });
-                return ("{" + s + "}");
-            }
-        }
-        return ("null");
-    };
-
     utils.rtrim = function (str, char) {
         if (!$type(str)) {
             return str;
