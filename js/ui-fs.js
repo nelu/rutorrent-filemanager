@@ -293,7 +293,7 @@ export function FsBrowser(fm) {
                 flm.actions.createTorrent(target);
             } : null]);
             create_sub.push([CMENU_SEP]);
-            create_sub.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
+            create_sub.push([theUILang.fcNewDir, () => flm.ui.getDialogs().showDialog('mkdir')]);
 
             if (!utils.hasDir(entries)) {
                 create_sub.push([CMENU_SEP]);
@@ -304,10 +304,10 @@ export function FsBrowser(fm) {
             menu.push([CMENU_SEP]);
 
 
-            menu.push([theUILang.fCopy, "flm.ui.getDialogs().showDialog('copy')"]);
-            menu.push([theUILang.fMove, "flm.ui.getDialogs().showDialog('move')"]);
-            menu.push([theUILang.fDelete, "flm.ui.getDialogs().showDialog('delete')"]);
-            menu.push([theUILang.fRename, (entries.length > 1) ? null : "flm.ui.getDialogs().showDialog('rename')"]);
+            menu.push([theUILang.fCopy, () => flm.ui.getDialogs().showDialog('copy')]);
+            menu.push([theUILang.fMove, () => flm.ui.getDialogs().showDialog('move')]);
+            menu.push([theUILang.fDelete, () => flm.ui.getDialogs().showDialog('delete')]);
+            menu.push([theUILang.fRename, (entries.length > 1) ? null : () => flm.ui.getDialogs().showDialog('rename')]);
 
             menu.push([CMENU_SEP]);
 
@@ -319,7 +319,7 @@ export function FsBrowser(fm) {
                 flm.actions.doMediainfo(target);
             }]);
         } else {
-            menu.push([theUILang.fcNewDir, "flm.ui.getDialogs().showDialog('mkdir')"]);
+            menu.push([theUILang.fcNewDir, () => flm.ui.getDialogs().showDialog('mkdir')]);
         }
 
         if (menu[menu.length - 1][0] !== CMENU_SEP) {
@@ -328,7 +328,7 @@ export function FsBrowser(fm) {
 
         /*  menu.push(["Permissions", "flm.ui.showPermissions()"]);*/
 
-        menu.push([theUILang.fRefresh, "flm.goToPath(flm.currentPath)"]);
+        menu.push([theUILang.fRefresh, () => flm.goToPath(flm.currentPath)]);
 
         return menu;
     };
