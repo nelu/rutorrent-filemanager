@@ -40,8 +40,23 @@ RUN  docker-php-ext-install sockets pcntl \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/src/php.tar.xz
 
-# COPY rar /usr/src/rarsrc
-# COPY vhost.conf /etc/apache2/sites-enabled/000-default.conf
+# create apache vhost using heredoc so we don't need to COPY a vhost.conf file
+RUN mkdir -p ${APP_HOME} \
+    && cat > /etc/apache2/sites-enabled/000-default.conf <<EOF
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot ${APP_HOME}
+
+    <Directory "${APP_HOME}">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+EOF
 
 RUN mkdir -p "$APP_HOME" "$STORAGE_DIR/downloads" "$STORAGE_DIR/.session" \
       && chmod 775 -R "$APP_HOME" \
@@ -49,14 +64,15 @@ RUN mkdir -p "$APP_HOME" "$STORAGE_DIR/downloads" "$STORAGE_DIR/.session" \
     && echo "${TARGETPLATFORM}" | grep -q "arm" \
            || {  \
             BUILDPLATFORM_SHORT=$(echo "${TARGETPLATFORM}" | grep -q "64" && echo "x64" || echo "x32"); \
-            RAR_DISTRO="/usr/src/rarsrc/rarlinux-${BUILDPLATFORM_SHORT}.tar.gz";  \
-             tar -xzvf "${RAR_DISTRO}" -C /tmp/ \
-              && cp -rfp /tmp/rar/rar /usr/bin/rar  \
-              && ln -s /usr/bin/rar /usr/bin/unrar; \
-            rm -rf /usr/src/rarsrc; \
+            # fetch rar binary directly from rarlab and extract
+            RAR_URL="https://www.rarlab.com/rar/rarlinux-${BUILDPLATFORM_SHORT}.tar.gz"; \
+            curl -L "$RAR_URL" | tar -xzf - -C /tmp/ \
+             && cp -rfp /tmp/rar/rar /usr/bin/rar  \
+             && ln -sf /usr/bin/rar /usr/bin/unrar; \
+            rm -rf /tmp/rar*; \
             curl -L https://github.com/TheGoblinHero/dumptorrent/releases/download/v1.3/dumptorrent_linux_amd64.tar.gz \
                 | tar -xzf - -C "/usr/bin"; \
-     } && exit 0
+     }
 
 
 FROM ${ARCH}${RTORRENT_IMG_SRC} AS rutorrent_src
@@ -103,6 +119,3 @@ RUN     mkdir "$APP_HOME/plugins/filemanager-share" \
 
 RUN rm -rf "$PLUGIN_DIR"
 COPY --chmod=775 --chown=www-data:www-data . "$PLUGIN_DIR"
-
-
-
