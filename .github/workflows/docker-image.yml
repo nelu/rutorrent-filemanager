@@ -1,7 +1,7 @@
 name: Multiarch Build
 
 on:
-  workflow_dispatch:    
+  workflow_dispatch:
   release:
     types: [published]
 #  push:
@@ -13,6 +13,9 @@ on:
 #    paths:
 #      - './.env'
 
+permissions:
+  contents: write
+
 jobs:
 
   build:
@@ -20,18 +23,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    # setup Docker buildx action
+    - uses: actions/checkout@v4
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: all
     - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v1
-    - name: Setup buildx
-      run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && docker buildx create --name builder --driver docker-container --use && docker buildx inspect --bootstrap
+      uses: docker/setup-buildx-action@v3
     - name: Login to DockerHub
-      uses: docker/login-action@v1 
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build & Push base image if needed
+      run: |
+        if docker pull "unzel/rutorrent-filemanager:base" > /dev/null 2>&1; then
+          echo "Base image found, using cache."
+          echo "build_base=false" >> "$GITHUB_ENV"
+        else
+          echo "Base image not found, will build it."
+          echo "build_base=true" >> "$GITHUB_ENV"
+          docker buildx build --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --target=osbuild --push --tag=unzel/rutorrent-filemanager:base ./
+        fi
     - name: Build the Docker image
       run: docker buildx build --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --push --tag=unzel/rutorrent-filemanager:$(basename ${GITHUB_REF}) --tag=unzel/rutorrent-filemanager:latest ./
 
@@ -46,10 +60,10 @@ jobs:
       run: |
         zip_name="bundle_rutorrent_latest.zip"
         zip -r "$zip_name" rutorrent
-        echo "zip_name=$zip_name" >> $GITHUB_ENV
+        echo "zip_name=$zip_name" >> "$GITHUB_ENV"
 
     - name: Upload release asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: ${{ env.zip_name }}
       env:
