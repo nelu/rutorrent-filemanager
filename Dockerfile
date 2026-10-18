@@ -57,24 +57,37 @@ RUN mkdir -p ${APP_HOME} \
 </VirtualHost>
 EOF
 
-RUN mkdir -p "$APP_HOME" "$STORAGE_DIR/downloads" "$STORAGE_DIR/.session" \
-      && chmod 775 -R "$APP_HOME" \
-      && chown -R ${UID}:${GID} "$STORAGE_DIR" \
-    && echo "${TARGETPLATFORM}" | grep -q "arm" \
-           || {  \
-            BUILDPLATFORM_SHORT=$(echo "${TARGETPLATFORM}" | grep -q "64" && echo "x64" || echo "x32"); \
-            # fetch rar binary directly from rarlab and extract
-            RAR_URL="https://www.rarlab.com/rar/rarlinux-${BUILDPLATFORM_SHORT}-723.tar.gz"; \
-            curl -L "$RAR_URL" | tar -xzf - -C /tmp/ \
-             && cp -rfp /tmp/rar/rar /usr/bin/rar  \
-             && ln -sf /usr/bin/rar /usr/bin/unrar; \
-            rm -rf /tmp/rar*; \
-            curl -L https://github.com/TheGoblinHero/dumptorrent/releases/download/v1.3/dumptorrent_linux_amd64.tar.gz \
-                | tar -xzf - -C "/usr/bin"; \
-     }
+COPY --chown=${UID}:${GID} <<EOF /home/runuser/.rtorrent.rc
+directory = /data/downloads
+session = /data/.session
+port_range = 55951-55952
+port_random = no
+check_hash = yes
+encryption = allow_incoming,enable_retry,prefer_plaintext
+scgi_port = 0.0.0.0:5000
+EOF
+
+RUN set -eu; \
+    mkdir -p "$APP_HOME" "$STORAGE_DIR/downloads" "$STORAGE_DIR/.session"; \
+    chmod 775 -R "$APP_HOME"; \
+    chown -R ${UID}:${GID} "$STORAGE_DIR"; \
+    case "$TARGETPLATFORM" in \
+        linux/amd64) RAR_ARCH=x64; RAR_VERSION=723 ;; \
+        linux/386) RAR_ARCH=x32; RAR_VERSION=624 ;; \
+        *) echo "Skipping x86-only tools for $TARGETPLATFORM"; exit 0 ;; \
+    esac; \
+    RAR_URL="https://www.rarlab.com/rar/rarlinux-${RAR_ARCH}-${RAR_VERSION}.tar.gz"; \
+    curl -fsSL "$RAR_URL" | tar -xzf - -C /tmp/; \
+    cp -fp /tmp/rar/rar /usr/bin/rar; \
+    ln -sf /usr/bin/rar /usr/bin/unrar; \
+    rm -rf /tmp/rar; \
+    if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        curl -fsSL https://github.com/TheGoblinHero/dumptorrent/releases/download/v1.3/dumptorrent_linux_amd64.tar.gz \
+            | tar -xzf - -C /usr/bin; \
+    fi
 
 
-FROM ${ARCH}osbuild AS rutorrent_src
+FROM ${ARCH}unzel/rutorrent-filemanager:base AS rutorrent_src
 LABEL org.opencontainers.image.authors="hwk <nelu@github.com>"
 
 ARG STORAGE_DIR=/data
@@ -89,15 +102,7 @@ WORKDIR $APP_HOME
 RUN mkdir -p "$APP_HOME" \
     && curl https://codeload.github.com/Novik/ruTorrent/tar.gz/${RUTORRENT_VER} | tar -xzf - --overwrite-dir --strip-components=1 -C "$APP_HOME"
 
-COPY --chown=${UID}:${GID} <<EOF /home/runuser/.rtorrent.rc
-directory = /data/downloads
-session = /data/.session
-port_range = 55951-55952
-port_random = no
-check_hash = yes
-encryption = allow_incoming,enable_retry,prefer_plaintext
-scgi_port = 0.0.0.0:5000
-EOF
+
 
 RUN chown -R www-data:www-data "$APP_HOME" \
     && rm -rf /var/www/html && ln -s "$APP_HOME"  "/var/www/html"
@@ -109,7 +114,7 @@ RUN chown -R www-data:www-data "$APP_HOME" \
 STOPSIGNAL TERM
 
 
-FROM unzel/rutorrent-filemanager:base AS appbuild
+FROM rutorrent_src AS appbuild
 ARG FILEMANAGER_MEDIA_VER=master
 ARG FILEMANAGER_SHARE_VER=master
 
