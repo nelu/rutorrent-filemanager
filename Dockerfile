@@ -19,7 +19,7 @@ RUN  sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/d
           rtorrent mediainfo \
           gzip p7zip p7zip-full p7zip-rar \
           ffmpeg sox python3-pip \
-         && pip install --no-cache-dir --break-system-packages pipx \
+         && pip install --ignore-installed --no-cache-dir --break-system-packages pipx \
          && pipx ensurepath
 
 RUN  docker-php-ext-install sockets pcntl \
@@ -47,14 +47,13 @@ RUN mkdir -p ${APP_HOME} \
     ServerAdmin webmaster@localhost
     DocumentRoot ${APP_HOME}
 
-    <Directory "${APP_HOME}">
-        Options Indexes FollowSymLinks
+    <Directory />
         AllowOverride All
-        Require all granted
     </Directory>
 
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+	CustomLog ${APACHE_LOG_DIR}/access.log vhost_combined
 </VirtualHost>
 EOF
 
@@ -65,7 +64,7 @@ RUN mkdir -p "$APP_HOME" "$STORAGE_DIR/downloads" "$STORAGE_DIR/.session" \
            || {  \
             BUILDPLATFORM_SHORT=$(echo "${TARGETPLATFORM}" | grep -q "64" && echo "x64" || echo "x32"); \
             # fetch rar binary directly from rarlab and extract
-            RAR_URL="https://www.rarlab.com/rar/rarlinux-${BUILDPLATFORM_SHORT}.tar.gz"; \
+            RAR_URL="https://www.rarlab.com/rar/rarlinux-${BUILDPLATFORM_SHORT}-723.tar.gz"; \
             curl -L "$RAR_URL" | tar -xzf - -C /tmp/ \
              && cp -rfp /tmp/rar/rar /usr/bin/rar  \
              && ln -sf /usr/bin/rar /usr/bin/unrar; \
@@ -75,13 +74,13 @@ RUN mkdir -p "$APP_HOME" "$STORAGE_DIR/downloads" "$STORAGE_DIR/.session" \
      }
 
 
-FROM ${ARCH}${RTORRENT_IMG_SRC} AS rutorrent_src
+FROM ${ARCH}osbuild AS rutorrent_src
 LABEL org.opencontainers.image.authors="hwk <nelu@github.com>"
 
 ARG STORAGE_DIR=/data
 ARG UID=1000
 ARG GID=1000
-ARG RUTORRENT_VER=v5.3.16
+ARG RUTORRENT_VER=v5.3.17
 ENV APP_HOME=/usr/src/app
 ENV PATH="$PATH:$APP_HOME"
 
@@ -90,7 +89,15 @@ WORKDIR $APP_HOME
 RUN mkdir -p "$APP_HOME" \
     && curl https://codeload.github.com/Novik/ruTorrent/tar.gz/${RUTORRENT_VER} | tar -xzf - --overwrite-dir --strip-components=1 -C "$APP_HOME"
 
-COPY --chown=${UID}:${GID} rtorrent.conf /home/runuser/.rtorrent.rc
+COPY --chown=${UID}:${GID} <<EOF /home/runuser/.rtorrent.rc
+directory = /data/downloads
+session = /data/.session
+port_range = 55951-55952
+port_random = no
+check_hash = yes
+encryption = allow_incoming,enable_retry,prefer_plaintext
+scgi_port = 0.0.0.0:5000
+EOF
 
 RUN chown -R www-data:www-data "$APP_HOME" \
     && rm -rf /var/www/html && ln -s "$APP_HOME"  "/var/www/html"
@@ -102,7 +109,7 @@ RUN chown -R www-data:www-data "$APP_HOME" \
 STOPSIGNAL TERM
 
 
-FROM rutorrent_src AS appbuild
+FROM unzel/rutorrent-filemanager:base AS appbuild
 ARG FILEMANAGER_MEDIA_VER=master
 ARG FILEMANAGER_SHARE_VER=master
 
