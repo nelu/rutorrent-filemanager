@@ -51,6 +51,11 @@ RUN mkdir -p ${APP_HOME} \
         AllowOverride All
     </Directory>
 
+    <Directory ${APP_HOME}>
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
 
 	ErrorLog ${APACHE_LOG_DIR}/error.log
 	CustomLog ${APACHE_LOG_DIR}/access.log vhost_combined
@@ -107,10 +112,7 @@ RUN mkdir -p "$APP_HOME" \
 RUN chown -R www-data:www-data "$APP_HOME" \
     && rm -rf /var/www/html && ln -s "$APP_HOME"  "/var/www/html"
 
-# COPY entrypoint.sh  "/usr/src/entrypoint.sh" #
-# chmod 775 "/usr/src/entrypoint.sh" \ #
-#     &&  #
-
+VOLUME ["$STORAGE_DIR"]
 STOPSIGNAL TERM
 
 
