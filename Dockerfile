@@ -98,7 +98,7 @@ LABEL org.opencontainers.image.authors="hwk <nelu@github.com>"
 ARG STORAGE_DIR=/data
 ARG UID=1000
 ARG GID=1000
-ARG RUTORRENT_VER=v5.3.17
+ARG RUTORRENT_VER=v5.3.18
 ENV APP_HOME=/usr/src/app
 ENV PATH="$PATH:$APP_HOME"
 
