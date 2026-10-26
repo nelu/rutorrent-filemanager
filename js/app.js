@@ -152,7 +152,10 @@ import {FileManagerActions} from "./actions.js";
 
         self.getFullPaths = (entries) => {
             for (var i = 0; i < entries.length; i++) {
-                entries[i] = self.getCurrentPath(self.stripJailPath(entries[i]));
+                // entries from the torrent Files tab are already full paths
+                entries[i] = entries[i].startsWith('/')
+                    ? self.stripJailPath(entries[i])
+                    : self.getCurrentPath(self.stripJailPath(entries[i]));
             }
 
             return entries;
