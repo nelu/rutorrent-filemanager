@@ -92,7 +92,7 @@ import {FileManagerActions} from "./actions.js";
 
         self.getCurrentPath = function (file) {
 
-            var path = self.currentPath + "";
+            let path = self.currentPath || "/";
 
             if ($type(file)) {
                 file = file.length > 0 && self.utils.ltrim(file, '/') || '';
