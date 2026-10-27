@@ -84,13 +84,15 @@ export function FileManagerUi(flm) {
         loader: thePlugins.isInstalled('create')
             ? 'create'
             : 'default',
+
         loaded: null,
+
         dialog: function () {
             return $(self.dialogs.getDialogId('console'));
         },
 
         writeConsole: function (text) {
-            var promise = this.loaded ? this.loaded.promise() : this.show();
+            var promise = this.loaded ? this.loaded.promise() : this.loadConsole();
 
             return promise.then(
                 function () {
@@ -137,6 +139,10 @@ export function FileManagerUi(flm) {
                         });
                     });
 
+
+                    $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
+                    self.console.btn().click(() => self.console.show());
+
                     // can override handler above
                     self.console.loaded.resolve(diagId);
                     $type(onLoaded) && onLoaded();
@@ -144,30 +150,29 @@ export function FileManagerUi(flm) {
                 });
 
 
-            } else {
-                // triggering other later subscribtins
-                $type(onLoaded) && onLoaded();
             }
 
             return self.console.loaded.promise();
         },
 
-        logMsg: function (text) {
+        logMsg: function (text, showConsole = false) {
 
             text = text + "\n";
             self.console.writeConsole(text).then(
                 function () {
                     var console = self.console.dialog().find('#flm_popup_console-log-container');
                     console[0].scrollTop = console[0].scrollHeight;
+
+                    if(showConsole) {
+                        self.console.show();
+                    }
                 }
             );
 
         },
 
         init: function () {
-            let self = this;
-            $('#tabbar').append('<input type="button" id="fMan_showconsole" class="Button" value="Console" style="display: none;">');
-            this.btn().click(() => self.show());
+            this.loadConsole();
         },
 
         btn: () => {
@@ -178,28 +183,9 @@ export function FileManagerUi(flm) {
             return $('#flm_popup_console-log-container pre').empty();
         },
 
-        show: function (msg, viewEvents) {
-            var diagId = self.dialogs.getDialogId('console');
-
-            return self.console.loadConsole().then(
-                function () {
-                    // override previous callbacks
-                    viewEvents = viewEvents || {};
-
-                    /*             $.each(['beforeHide', 'beforeShow', 'afterHide', 'afterShow'], function (ndx, evName) {
-
-                                     theDialogManager.setHandler(diagId, evName, function (id) {
-                                         viewEvents.hasOwnProperty(evName)
-                                         && viewEvents[evName].apply(diags, [id, what]);
-
-                                     });
-
-                                 });*/
-                    $type(msg) && self.console.logMsg(msg);
-                    theDialogManager.show(flm.utils.ltrim(diagId, '#'));
-                }
-            );
-
+        show: function () {
+            const diagId = flm.utils.ltrim(self.dialogs.getDialogId('console'), '#');
+            theDialogManager.show(diagId);
         },
 
     };

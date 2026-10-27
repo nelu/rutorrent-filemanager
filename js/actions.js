@@ -25,12 +25,12 @@ export function FileManagerActions() {
         filePaths = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(filePaths) : filePaths;
 
         validation.then(() => {
-            self.notify(theUILang.fStarts.copy + ": " + filePaths.length + " files");
+            self.notify([theUILang.fStarts.copy, filePaths.length, theUILang.Files.toLowerCase()].join(" "));
             return flm.api.copy(filePaths, destination);
         }).done(function () {
             // refresh in case we are in destination
             flm.refreshIfCurrentPath(destination);
-            flm.actions.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
+            self.notify(theUILang.flm_popup_copy + ": " + filePaths.length, 'success', 10000);
         });
 
         return validation;
@@ -46,7 +46,7 @@ export function FileManagerActions() {
 
         validation.then(() => {
             paths = flm.getFullPaths(paths);
-            flm.actions.notify(theUILang.fStarts.delete + ": " + paths.length + " files");
+            self.notify([theUILang.fStarts.delete, paths.length, theUILang.Files.toLowerCase()].join(" "));
             return flm.api.removeFiles(paths);
         }).done(() => {
             //TODO: create event listeners for flm.refreshIfCurrentPath
@@ -71,12 +71,12 @@ export function FileManagerActions() {
         filePaths = flm.ui.filenav.getSelectedTarget() ? flm.getFullPaths(filePaths) : filePaths;
 
         validation.then(() => {
-            self.notify(theUILang.fStarts.move + " " + filePaths.length + " files");
+            self.notify([theUILang.fStarts.move, filePaths.length, theUILang.Files.toLowerCase()].join(" "));
             return flm.api.move(filePaths, destination);
         }).done(function () {
             flm.refreshIfCurrentPath(destination) || flm.refreshIfCurrentPath(cPath);
             $(document).trigger(flm.EVENTS.move, [filePaths, destination, cPath]);
-            flm.actions.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
+            self.notify(theUILang.flm_popup_move + ": " + filePaths.length, 'success', 10000);
         });
 
         return validation;
@@ -145,7 +145,7 @@ export function FileManagerActions() {
     };
 
     self.logAction = (action, text) => {
-        flm.ui.console.show(action + ': ' + text);
+        flm.ui.console.logMsg(action + ': ' + text);
     }
 
     self.logConsole = (text) => {

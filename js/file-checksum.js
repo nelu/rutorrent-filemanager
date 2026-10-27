@@ -58,8 +58,8 @@ function FlmChecksum() {
             return def.promise();
         }
 
-        flm.actions.notify(theUILang.fStarts.create_sfv + ": "
-            + flm.utils.basename(checksumFile) + ' <- ' + filePaths.length + " files"
+        flm.actions.notify([theUILang.fStarts.create_sfv, flm.utils.basename(checksumFile), '<-', filePaths.length,
+            theUILang.Files.toLowerCase()].join(" ")
         );
 
         //console.log("got type", type);

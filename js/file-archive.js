@@ -19,9 +19,8 @@ class FlmArchiveBrowser extends FlmDirBrowser {
     }
 
     show() {
-        let r = super.show();
+        super.show();
         this.btn.removeClass('p-0').addClass('p-1');
-        return r;
     }
 
     selectItem() {
@@ -73,9 +72,9 @@ class FlmArchive {
         flm.EVENTS.ARCHIVE_CREATE = "flm.doArchive";
 
         flm.onEvent('ARCHIVE_EXTRACT', (e, archiveFiles, destination) => {
-            flm.actions.notify(theUILang.flm_popup_archive_extract + ': '
-                + (archiveFiles.length > 1 ? archiveFiles.length + ' files' : flm.utils.basename(archiveFiles[0]))
-                + ' -> ' + destination,
+            flm.actions.notify([theUILang.flm_popup_archive_extract + ':',
+                (archiveFiles.length > 1 ? archiveFiles.length + " " + theUILang.Files.toLowerCase() : flm.utils.basename(archiveFiles[0])),
+                '->', destination].join(" "),
                 'success', 6000);
         })
 
@@ -116,7 +115,7 @@ class FlmArchive {
                     return {
                         refresh: flm.utils.basedir(archive),
                         triggerEvent: ['ARCHIVE_CREATE', [filePaths, archive, options]],
-                        notify: [theUILang.fDiagCArchiveSel + ': ' + filePaths.length + ' files' + ' -> ' + archive],
+                        notify: [[theUILang.fDiagCArchiveSel, filePaths.length, theUILang.Files.toLowerCase(), '->' + archive].join(" ")],
                     };
                 });
 
