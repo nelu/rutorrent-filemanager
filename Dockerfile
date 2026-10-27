@@ -15,20 +15,21 @@ ARG GID=1000
 ENV APP_HOME=/usr/src/app
 
 RUN  sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/debian.sources \
-         && apt update && apt install --no-install-recommends -y sudo gosu bash unzip g++ make file re2c autoconf openssl libssl-dev libevent-dev \
+         && apt update && apt install --no-install-recommends -y sudo gosu bash unzip g++ make file re2c autoconf \
+              openssl libssl-dev libevent-dev libzip-dev \
           rtorrent mediainfo \
           gzip p7zip p7zip-full p7zip-rar \
           ffmpeg sox python3-pip \
          && pip install --ignore-installed --no-cache-dir --break-system-packages pipx \
          && pipx ensurepath
 
-RUN  docker-php-ext-install sockets pcntl \
+RUN  docker-php-ext-install sockets pcntl zip \
     && docker-php-source delete \
     && groupadd -g ${GID} runuser && useradd -u ${UID} -g ${GID} -m runuser \
     && usermod -a -G www-data runuser && usermod -a -G ${GID} www-data \
      && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
      && pip  install --break-system-packages cloudscraper \
-     && apt remove -y g++ make re2c autoconf libssl-dev libevent-dev \
+     && apt remove -y g++ make re2c autoconf libssl-dev libevent-dev libzip-dev \
      && apt autoremove -y --purge \
      && rm -rf /var/www/html \
 #    && ln -s $APP_HOME /var/www/html \
@@ -124,7 +125,7 @@ VOLUME ["$STORAGE_DIR"]
 STOPSIGNAL TERM
 
 
-FROM rutorrent_src AS appbuild
+FROM ${ARCH}rutorrent_src AS appbuild
 ARG FILEMANAGER_MEDIA_VER=master
 ARG FILEMANAGER_SHARE_VER=master
 
