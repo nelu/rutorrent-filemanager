@@ -51,7 +51,7 @@
 
         };
 
-        flm.onEvent('changeDir', () => flm.ui.updateNavbarPath())
+        flm.EVENTS.dirChanged.on(flm.ui.updateNavbarPath)
 
         cpath.change(function () {
             var path = $(this).val();

@@ -212,7 +212,7 @@ input.text-long {
 div[id^="flm"] .input-group input, div[id^="flm"] .input-group select
 {
     color: inherit;
-    background-color: field;
+    background-color: inherit;
 }
 
 

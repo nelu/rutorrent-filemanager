@@ -4,7 +4,7 @@
 ############################################################
 
 ARG ARCH
-ARG RTORRENT_IMG_SRC="unzel/rtorrent"
+ARG RUTORRENT_BASE_IMG="unzel/rutorrent-filemanager:base"
 
 FROM ${ARCH}php:8.3-apache AS osbuild
 ARG STORAGE_DIR=/data
@@ -15,14 +15,15 @@ ARG GID=1000
 ENV APP_HOME=/usr/src/app
 
 RUN  sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/debian.sources \
-         && apt update && apt install --no-install-recommends -y sudo gosu bash unzip g++ make file re2c autoconf openssl libssl-dev libevent-dev \
+         && apt update && apt install --no-install-recommends -y sudo gosu bash unzip g++ make file re2c autoconf \
+              openssl libssl-dev libevent-dev libzip-dev \
           rtorrent mediainfo \
           gzip p7zip p7zip-full p7zip-rar \
           ffmpeg sox python3-pip \
          && pip install --ignore-installed --no-cache-dir --break-system-packages pipx \
          && pipx ensurepath
 
-RUN  docker-php-ext-install sockets pcntl \
+RUN  docker-php-ext-install sockets pcntl zip \
     && docker-php-source delete \
     && groupadd -g ${GID} runuser && useradd -u ${UID} -g ${GID} -m runuser \
     && usermod -a -G www-data runuser && usermod -a -G ${GID} www-data \
@@ -30,8 +31,6 @@ RUN  docker-php-ext-install sockets pcntl \
      && pip  install --break-system-packages cloudscraper \
      && apt remove -y g++ make re2c autoconf libssl-dev libevent-dev \
      && apt autoremove -y --purge \
-     && rm -rf /var/www/html \
-#    && ln -s $APP_HOME /var/www/html \
     && ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load \
     && ln -s /etc/apache2/mods-available/proxy.load /etc/apache2/mods-enabled/proxy.load \
     && ln -s /etc/apache2/mods-available/remoteip.load /etc/apache2/mods-enabled/remoteip.load \
@@ -57,8 +56,8 @@ RUN mkdir -p ${APP_HOME} \
         Require all granted
     </Directory>
 
-	ErrorLog ${APACHE_LOG_DIR}/error.log
-	CustomLog ${APACHE_LOG_DIR}/access.log vhost_combined
+	ErrorLog /dev/stderr
+	CustomLog /dev/stdout vhost_combined
 </VirtualHost>
 EOF
 
@@ -92,13 +91,13 @@ RUN set -eu; \
     fi
 
 
-FROM ${ARCH}unzel/rutorrent-filemanager:base AS rutorrent_src
-LABEL org.opencontainers.image.authors="hwk <nelu@github.com>"
+FROM ${ARCH}${RUTORRENT_BASE_IMG} AS rutorrent_src
+LABEL org.opencontainers.image.authors="nelu https://github.com/nelu/"
 
 ARG STORAGE_DIR=/data
 ARG UID=1000
 ARG GID=1000
-ARG RUTORRENT_VER=v5.3.18
+ARG RUTORRENT_VER=v5.3.19
 ENV APP_HOME=/usr/src/app
 ENV PATH="$PATH:$APP_HOME"
 ENV RU_LOG_FILE="$STORAGE_DIR/logs/errors.log"
@@ -124,11 +123,12 @@ VOLUME ["$STORAGE_DIR"]
 STOPSIGNAL TERM
 
 
-FROM rutorrent_src AS appbuild
+FROM ${ARCH}rutorrent_src AS appbuild
 ARG FILEMANAGER_MEDIA_VER=master
 ARG FILEMANAGER_SHARE_VER=master
 
-MAINTAINER hwk <nelu@github.com>
+LABEL org.opencontainers.image.authors="nelu https://github.com/nelu/"
+
 ENV PLUGIN_DIR 	"$APP_HOME/plugins/filemanager"
 
 RUN     mkdir "$APP_HOME/plugins/filemanager-share" \

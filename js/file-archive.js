@@ -1,4 +1,5 @@
 import {FlmDirBrowser} from "./ui-dialogs.js";
+import {EventWrapper} from "./app.js";
 
 
 class FlmArchiveBrowser extends FlmDirBrowser {
@@ -19,9 +20,8 @@ class FlmArchiveBrowser extends FlmDirBrowser {
     }
 
     show() {
-        let r = super.show();
+        super.show();
         this.btn.removeClass('p-0').addClass('p-1');
-        return r;
     }
 
     selectItem() {
@@ -69,17 +69,18 @@ class FlmArchive {
     constructor(config) {
         this.config = config;
 
-        flm.EVENTS.ARCHIVE_EXTRACT = "flm.doExtract";
-        flm.EVENTS.ARCHIVE_CREATE = "flm.doArchive";
+        flm.EVENTS.ARCHIVE_EXTRACT = new EventWrapper("flm.doExtract");
+        flm.EVENTS.ARCHIVE_CREATE = new EventWrapper("flm.doArchive");
 
-        flm.onEvent('ARCHIVE_EXTRACT', (e, archiveFiles, destination) => {
-            flm.actions.notify(theUILang.flm_popup_archive_extract + ': '
-                + (archiveFiles.length > 1 ? archiveFiles.length + ' files' : flm.utils.basename(archiveFiles[0]))
-                + ' -> ' + destination,
+        flm.EVENTS.ARCHIVE_EXTRACT.on((e, archiveFiles, destination) => {
+            flm.actions.notify([theUILang.flm_popup_archive_extract + ':',
+                    (archiveFiles.length > 1 ? archiveFiles.length + " " + theUILang.Files.toLowerCase() : flm.utils.basename(archiveFiles[0])),
+                    '->', destination].join(" "),
                 'success', 6000);
-        })
+        });
 
         flm.ui.filenav.onContextMenu(this.setContextMenu);
+
         flm.ui.dialogs.setDialogConfig('archive_create',
             {
                 modal: true,
@@ -115,8 +116,8 @@ class FlmArchive {
                 .then(function () {
                     return {
                         refresh: flm.utils.basedir(archive),
-                        triggerEvent: ['ARCHIVE_CREATE', [filePaths, archive, options]],
-                        notify: [theUILang.fDiagCArchiveSel + ': ' + filePaths.length + ' files' + ' -> ' + archive],
+                        triggerEvent: [flm.EVENTS.ARCHIVE_CREATE, [filePaths, archive, options]],
+                        notify: [[theUILang.fDiagCArchiveSel, filePaths.length, theUILang.Files.toLowerCase(), '->' + archive].join(" ")],
                     };
                 });
 
@@ -133,10 +134,10 @@ class FlmArchive {
 
         return (validation.state() === "rejected") ? validation
             : validation.then(() => flm.api.archiveExtract(archiveFiles, destination, options))
-                .then(function () {
+                .then(()=> {
                     return {
                         refresh: destination,
-                        triggerEvent: ['ARCHIVE_EXTRACT', [archiveFiles, destination]]
+                        triggerEvent: [flm.EVENTS.ARCHIVE_EXTRACT, [archiveFiles, destination]]
                     };
                 });
     }

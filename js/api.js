@@ -49,32 +49,41 @@ export function apiClient(endpoint) {
         plugin_name = plugin_name || flm.getPlugin().name;
         data.workdir = flm.getCurrentPath();
 
-        theWebUI.startConsoleTask(name, plugin_name, data, {noclose: true});
-        let runTask = theWebUI.getConsoleTask();
+        flm.EVENTS.taskStarted.on((event, ranTask) => {
+            // background task reference
+            const startedTask = JSON.parse(JSON.stringify(ranTask));
 
-        var handleTask = function (e, task) {
-            if (task.no === runTask.no) {
-                // our task
-                if (task.hasOwnProperty('errcode') && task.errors === 0) {
-                    // log to system
-                    //flm.utils.logSystem(task.errcode, " -> ", task.msg);
-                    //task.status = false;
-                    def.reject(task);
+            var handleTask = function (e, finishedTask) {
+                if (finishedTask.no === startedTask.no) {
+                    // our task
+                    if (finishedTask.hasOwnProperty('errcode') && finishedTask.errors === 0) {
+                        // log to system
+                        //flm.utils.logSystem(task.errcode, " -> ", task.msg);
+                        //task.status = false;
+                        def.reject(finishedTask);
 
-                    task.status = 1;
-                    task.errors = [($type(theUILang.fErrMsg[task.errcode])
-                        ? theUILang.fErrMsg[task.errcode] + " -> " + task.msg
-                        : task.msg)];
-                    delete task.errcode;
-                    // log the request error as task errors
-                    thePlugins.get("_task").check(task);
-                } else if (!task.hasOwnProperty('errcode')) {
-                    def.resolve(task);
+                        finishedTask.status = 1;
+                        finishedTask.errors = [($type(theUILang.fErrMsg[finishedTask.errcode]) ? theUILang.fErrMsg[finishedTask.errcode]
+                            + " -> " + finishedTask.msg : finishedTask.msg)];
+                        delete finishedTask.errcode;
+                        // log the request error as task errors
+                        thePlugins.get("_task").check(finishedTask);
+                    } else if (!finishedTask.hasOwnProperty('errcode')) {
+                        def.resolve(finishedTask);
+                    }
+                } else {
+                    console.warn('got untracked task?', finishedTask,
+                        "startedTask", ranTask,
+                        'startedTask clone', startedTask);
                 }
-            }
-        };
+            };
 
-        flm.onEvent('taskDone', handleTask, true);
+            flm.EVENTS.taskDone.on(handleTask, true);
+
+        }, true);
+
+        theWebUI.startConsoleTask(name, plugin_name, data, {noclose: true});
+
         return def.promise();
     };
 

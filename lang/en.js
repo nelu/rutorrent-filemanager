@@ -44,7 +44,7 @@ theUILang.fErrMsg[23]	= 'Action failed';
 theUILang.fErrMsg[24]	= 'File Manager: archive manipulation disabled (application not found) ';
 
 
- 
+
 theUILang.flm_empty_selection = 'Nothing selected';
 theUILang.flm_popup_mkdir		= 'Create new directory';
 theUILang.flm_popup_mkdir_cpath = 'Inside path:';
@@ -125,13 +125,13 @@ theUILang.flm_password		= 'Password';
 theUILang.fDiagArchempty	= 'Please name an archive file';
 
 theUILang.fStarts = {
-	delete: 	'File removal started',
+	delete: 	'File removal started:',
 	extract:	'Archive extraction started',
-	archive: 	'File archiving started',
-	check_sfv: 	'File checking started',
-	create_sfv:	'File hashing started',
-	move:		'File relocation started',
-	copy:		'File duplication started'
+	archive: 	'File archiving started:',
+	check_sfv: 	'File checking started:',
+	create_sfv:	'File hashing started:',
+	move:		'File relocation started:',
+	copy:		'File duplication started:'
 };
 
 theUILang.fStops = {
