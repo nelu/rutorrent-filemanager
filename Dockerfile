@@ -4,7 +4,7 @@
 ############################################################
 
 ARG ARCH
-ARG RTORRENT_IMG_SRC="unzel/rtorrent"
+ARG RUTORRENT_BASE_IMG="unzel/rutorrent-filemanager:base"
 
 FROM ${ARCH}php:8.3-apache AS osbuild
 ARG STORAGE_DIR=/data
@@ -29,10 +29,8 @@ RUN  docker-php-ext-install sockets pcntl zip \
     && usermod -a -G www-data runuser && usermod -a -G ${GID} www-data \
      && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
      && pip  install --break-system-packages cloudscraper \
-     && apt remove -y g++ make re2c autoconf libssl-dev libevent-dev libzip-dev \
+     && apt remove -y g++ make re2c autoconf libssl-dev libevent-dev \
      && apt autoremove -y --purge \
-     && rm -rf /var/www/html \
-#    && ln -s $APP_HOME /var/www/html \
     && ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load \
     && ln -s /etc/apache2/mods-available/proxy.load /etc/apache2/mods-enabled/proxy.load \
     && ln -s /etc/apache2/mods-available/remoteip.load /etc/apache2/mods-enabled/remoteip.load \
@@ -58,8 +56,8 @@ RUN mkdir -p ${APP_HOME} \
         Require all granted
     </Directory>
 
-	ErrorLog ${APACHE_LOG_DIR}/error.log
-	CustomLog ${APACHE_LOG_DIR}/access.log vhost_combined
+	ErrorLog /dev/stderr
+	CustomLog /dev/stdout vhost_combined
 </VirtualHost>
 EOF
 
@@ -93,13 +91,13 @@ RUN set -eu; \
     fi
 
 
-FROM ${ARCH}unzel/rutorrent-filemanager:base AS rutorrent_src
-LABEL org.opencontainers.image.authors="hwk <nelu@github.com>"
+FROM ${ARCH}${RUTORRENT_BASE_IMG} AS rutorrent_src
+LABEL org.opencontainers.image.authors="nelu https://github.com/nelu/"
 
 ARG STORAGE_DIR=/data
 ARG UID=1000
 ARG GID=1000
-ARG RUTORRENT_VER=v5.3.18
+ARG RUTORRENT_VER=v5.3.19
 ENV APP_HOME=/usr/src/app
 ENV PATH="$PATH:$APP_HOME"
 ENV RU_LOG_FILE="$STORAGE_DIR/logs/errors.log"
@@ -129,7 +127,8 @@ FROM ${ARCH}rutorrent_src AS appbuild
 ARG FILEMANAGER_MEDIA_VER=master
 ARG FILEMANAGER_SHARE_VER=master
 
-MAINTAINER hwk <nelu@github.com>
+LABEL org.opencontainers.image.authors="nelu https://github.com/nelu/"
+
 ENV PLUGIN_DIR 	"$APP_HOME/plugins/filemanager"
 
 RUN     mkdir "$APP_HOME/plugins/filemanager-share" \
