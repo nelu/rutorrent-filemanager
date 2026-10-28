@@ -35,22 +35,11 @@ dxSTable.prototype.selectRowById = function (rowId, scrollToRow = true, initial 
             && setTimeout(() => self.selectRowById(rowId, true, false, pos));
     }
 
-}
+};
 
 plugin.ui = {
     fsBrowserContainer: "flm-browser",
-    readyPromise: $.Deferred(),
-    EVENTS: {
-        taskDone: 'flm.taskDone',
-        delete: 'flm.filesDelete',
-        move: 'flm.filesDelete',
-        settingsShow: "flm.settingsOnShow",
-        entryMenu: "flm.onContextMenu",
-        browserVisible: "flm.onBrowserVisible",
-        rename: 'flm.filesDelete',
-        torrentFileEntryMenu: 'torrentFileEntryMenu',
-        changeDir: 'flm.onChangeCurrentDir'
-    }
+    readyPromise: $.Deferred()
 };
 
 plugin.ui.fsBrowserTableContainer = plugin.ui.fsBrowserContainer + "-table";
@@ -110,7 +99,7 @@ plugin.ui.setConfig = function () {
 };
 
 plugin.ui.onTorrentFilesMenu = function (call) {
-    $(document).on(plugin.ui.EVENTS.torrentFileEntryMenu, function (e, menu, table) {
+    flm.EVENTS.torrentFileEntryMenu.on( (e, menu, table) => {
         call(menu, table);
     });
 };
@@ -155,8 +144,14 @@ plugin.onRemove = function () {
     $('[id^="fMan_"]').remove();
 };
 
-plugin.onTaskFinished = function (task, onBackground) {
-    flm.triggerEvent('taskDone', [task]);
+
+// task plugin integration
+plugin.onTaskFinished = (task, onBackground) => {
+    flm.EVENTS.taskDone.trigger(arguments);
+};
+
+plugin.onTaskShowInterface = (taskData) => {
+    flm.EVENTS.taskStarted.trigger(arguments);
 };
 
 // load language strings first + start app

@@ -164,11 +164,12 @@ export function FsBrowser(fm) {
                     theWebUI.resize();
                     // display table columns
                     table.refreshRows();
-                    flm.triggerEvent('browserVisible', [self]);
+
+                    flm.EVENTS.navigationVisible.trigger(flm.currentPath);
                 });
             }
         } else {
-            flm.triggerEvent('browserVisible', [self]);
+            flm.EVENTS.navigationVisible.trigger(flm.currentPath);
         }
     };
 
@@ -196,8 +197,9 @@ export function FsBrowser(fm) {
             theContextMenu.clear();
             self.selectedEntries = self.getSelection(false);
 
-            var menuEntries = self.getEntryMenu(self.selectedTarget, self.selectedEntries);
-            flm.triggerEvent('entryMenu', [menuEntries, self.selectedTarget]);
+            let menuEntries = self.getEntryMenu(self.selectedTarget, self.selectedEntries);
+
+            flm.EVENTS.entryMenu.trigger(menuEntries, self.selectedTarget)
 
             $.each(menuEntries, function (index, value) {
                 theContextMenu.add(value);
@@ -255,9 +257,7 @@ export function FsBrowser(fm) {
     };
 
     this.onContextMenu = function (call) {
-        flm.onEvent('entryMenu', (e, menu, path) => {
-            call(menu, path);
-        });
+        flm.EVENTS.entryMenu.on((e, menu, path) => call(menu, path));
     };
 
     this.getEntryMenu = function (target, entries) {

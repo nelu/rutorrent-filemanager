@@ -3,6 +3,36 @@ import {apiClient} from "./api.js";
 import {FileManagerUi} from "./ui.js";
 import {FileManagerActions} from "./actions.js";
 
+
+export class EventWrapper {
+    eventName;
+    // A private jQuery object serving as an isolated event bus
+    _bus;
+    constructor(eventName, eventBus) {
+        this.eventName = eventName;
+        this._bus = eventBus;
+    }
+
+    get bus() {
+        return this._bus || $(document);
+    }
+
+    // Subscribe to event trigger
+    on(callback, oneTime) {
+        return oneTime ? this.bus.one(this.eventName, callback) : this.bus.on(this.eventName, callback);
+    }
+
+    // Unsubscribe event
+    off(callback) {
+        this.bus.off(this.eventName, callback);
+    }
+
+    // Trigger the event
+    trigger() {
+        return this.bus.trigger(this.eventName, arguments);
+    }
+}
+
 (function () {
 
     const FileManagerViews = function (flm) {
@@ -64,6 +94,18 @@ import {FileManagerActions} from "./actions.js";
     };
 
     function FileManager() {
+        this.EVENTS = {
+            taskStarted: new EventWrapper('flm.taskStarted'),
+            taskDone: new EventWrapper('flm.taskDone'),
+            delete: 'flm.filesDelete',
+            move: 'flm.filesDelete',
+            settingsShow: new EventWrapper('flm.settingsOnShow'),
+            entryMenu: new EventWrapper('flm.onContextMenu'),
+            navigationVisible: new EventWrapper('flm.onNavVisible'),
+            rename: 'flm.filesDelete',
+            torrentFileEntryMenu: new EventWrapper('torrentFileEntryMenu'),
+            dirChanged: new EventWrapper('flm.onChangeCurrentDir')
+        };
 
         let self = this;
         self.getPlugin = function () {
@@ -75,8 +117,8 @@ import {FileManagerActions} from "./actions.js";
         self.currentPath = null;
         self.showPathPromise = null;
         self.pluginUrl = plugin.path;
-        self.EVENTS = plugin.ui.EVENTS;
         self.config = plugin.config;
+
         self.getConfig = function () {
             return self.getPlugin().config;
         }
@@ -113,7 +155,7 @@ import {FileManagerActions} from "./actions.js";
                     self.ui.enableNavigation();
 
                     self.currentPath = self.utils.buildPath([dir]);
-                    self.triggerEvent('changeDir', [self.currentPath]);
+                    self.EVENTS.dirChanged.trigger([self.currentPath])
                     self.ui.filenav.setTableEntries(response.listing);
                     return response;
                 }).fail((code, msg) => {
@@ -125,17 +167,19 @@ import {FileManagerActions} from "./actions.js";
 
         this.onEvent = (name, fn, oneTime = false) => {
             return $type(self.EVENTS[name])
-                && (oneTime ? $(document).one(self.EVENTS[name], fn) : $(document).on(self.EVENTS[name], fn));
+                && (oneTime ? $(document).one(self.EVENTS[name], fn) : $(document).on(self.EVENTS[name], fn))
+                || console.warn('Plugin onEvent name not registered: ', name);
         }
 
         this.triggerEvent = (name, args) => {
-            return $type(self.EVENTS[name]) && $(document).trigger(self.EVENTS[name], args) || console.log('No such event registered: ', name);
+            return $type(self.EVENTS[name]) && $(document).trigger(self.EVENTS[name], args)
+                || console.warn('Plugin triggerEvent name not registered: ', name);
         }
 
         self.showPath = function (dir, highlight) {
             dir = self.stripJailPath(dir);
             highlight = highlight ?? null;
-            highlight && self.onEvent('browserVisible', () => this.showInTable(highlight), true);
+            highlight && self.EVENTS.navigationVisible.on(() => this.showInTable(highlight), true);
 
             return self.goToPath(dir).done(() => theTabs.show(self.getPlugin().ui.fsBrowserContainer));
         };

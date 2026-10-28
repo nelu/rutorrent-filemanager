@@ -49,12 +49,12 @@ export function FileManagerUi(flm) {
                     },
                     function (view) {
                         flm.getPlugin().attachPageToOptions($(view).get(0), theUILang.fManager);
-                        flm.triggerEvent('settingsShow', [view]);
+                        flm.EVENTS.settingsShow.trigger(view);
 
                     }
                 );
             } else {
-                flm.triggerEvent('settingsShow');
+                flm.EVENTS.settingsShow.trigger();
             }
         },
         onSave: function () {
@@ -249,7 +249,7 @@ export function FileManagerUi(flm) {
 
         fileManagerSubmenu = self.filenav.getEntryMenu(selectedName, selectedEntries);
 
-        flm.triggerEvent('entryMenu',  [fileManagerSubmenu, selectedName]);
+        flm.EVENTS.entryMenu.trigger(fileManagerSubmenu, selectedName)
 
         var remove = [theUILang.fOpen, //theUILang.fCopy,
             theUILang.fMove, theUILang.fDelete, theUILang.fRename, theUILang.fcNewDir,
@@ -361,7 +361,9 @@ export function FileManagerUi(flm) {
                     ]
                 );
             }
-            flm.triggerEvent('torrentFileEntryMenu', [theContextMenu, selected, selectedPath, validEntries, table]);
+
+            flm.EVENTS.torrentFileEntryMenu.trigger(theContextMenu, selected, selectedPath, validEntries, table);
+
         } else {
             flm.debug('No valid files selected');
         }
