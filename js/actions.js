@@ -124,6 +124,7 @@ export function FileManagerActions() {
 
         validation.then(() => flm.api.rename(source, destination))
             .done((response) => {
+                self.logConsole([theUILang.flm_popup_rename, ':', source, '->', destination].join(" "));
                 flm.refreshIfCurrentPath(cPath);
                 $(document).trigger(flm.EVENTS.rename, [source, destination]);
                 return response;
