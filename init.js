@@ -147,11 +147,11 @@ plugin.onRemove = function () {
 
 // task plugin integration
 plugin.onTaskFinished = (task, onBackground) => {
-    flm.EVENTS.taskDone.trigger(arguments);
+    flm.EVENTS.taskDone.trigger(task, onBackground);
 };
 
 plugin.onTaskShowInterface = (taskData) => {
-    flm.EVENTS.taskStarted.trigger(arguments);
+    flm.EVENTS.taskStarted.trigger(taskData);
 };
 
 // load language strings first + start app
