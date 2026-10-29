@@ -272,7 +272,8 @@ export function FileManagerDialogs(browser) {
                         });
                     } else {
                         self.hide(diagId);
-                        flm.utils.logError(errData.errcode ? errData.errcode : "", errData.msg || errData);
+                        //flm.utils.logError(errData.errcode ? errData.errcode : "", errData.msg || errData);
+                        flm.actions.notify(errData.errors[0], 'error', 10000);
                     }
 
                     return errData;
