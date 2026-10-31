@@ -52,26 +52,61 @@ class  FileManagerTests {
     }
 
     public function testFileChecksum() {
+        $algorithms = [
+            'CRC32' => 'crc32b',
+            'SHA1' => 'sha1',
+            'SHA256' => 'sha256',
+        ];
+        $hashes = [];
 
-        var_dump(__METHOD__,
-            $this->tmpFile,
-            FileChecksum::getFileHash($this->tmpFile),
-            FileChecksum::getFileHash($this->tmpFile, 'SHA1'),
-            FileChecksum::getFileHash($this->tmpFile, 'SHA256')
-
-        );
+        foreach ($algorithms as $type => $phpAlgorithm) {
+            $actual = FileChecksum::getFileHash($this->tmpFile, $type);
+            $expected = hash_file($phpAlgorithm, $this->tmpFile);
+            if (strcasecmp($actual, $expected) !== 0) {
+                throw new RuntimeException("{$type} mismatch: expected {$expected}, got {$actual}");
+            }
+            $hashes[$type] = $actual;
+        }
 
         $sfv_file = "{$this->tempTestDir}/files_checksum.sfv";
         $sfv_filelist = "{$this->tempTestDir}/checksum_filelist.txt";
 
-        $files =  glob("{$this->tempTestDir}/*");
-        file_put_contents($sfv_filelist, json_encode($files));
+        $files = [$this->tmpFile];
+        if (file_put_contents($sfv_filelist, json_encode($files)) === false) {
+            throw new RuntimeException('Unable to write checksum file list');
+        }
+
+        $created = FileChecksum::checksumFromFilelist($sfv_filelist, $sfv_file);
+        if (!$created) {
+            throw new RuntimeException('Checksum file creation failed');
+        }
+
+        $sfvContents = file_get_contents($sfv_file);
+        if ($sfvContents === false || !str_contains($sfvContents, basename($this->tmpFile) . ' ')) {
+            throw new RuntimeException('Checksum file does not contain the source file');
+        }
+
+        $verified = FileChecksum::fromChecksumFile($sfv_file, 'CRC32');
+        if (!$verified) {
+            throw new RuntimeException('Checksum verification failed');
+        }
 
         var_dump(
-            FileChecksum::checksumFromFilelist($sfv_filelist, $sfv_file),
-            FileChecksum::fromChecksumFile($sfv_file)
+            __METHOD__,
+            $this->tmpFile,
+            $hashes,
+            $created,
+            $verified
         );
 
+    }
+
+    private function commandExists(string $binary): bool {
+        if (str_contains($binary, DIRECTORY_SEPARATOR)) {
+            return is_executable($binary);
+        }
+
+        return ShellCmd::bin('command', ['-v', $binary])->run()[0] === 0;
     }
 
     private function runTarGzArchiveTest(ShellCmd $command, string $fileList): array {
@@ -105,19 +140,43 @@ class  FileManagerTests {
 
         $rar_archive = "{$this->tmpFile}.rar";
         $zip_archive = "{$this->tmpFile}.zip";
+        $rarBinary = Utility::getExternal('rar');
+        $rarAvailable = $this->commandExists($rarBinary);
 
         chdir($this->tempTestDir);
 
         $archive_filelist = "{$this->tempTestDir}/archive_filelist.txt";
         file_put_contents($archive_filelist, basename($this->tmpFile));
+
+        if ($rarAvailable) {
+            $rarPackResult = Rar::pack($rar_archive)
+                ->binary($rarBinary)
+                ->setFileList($archive_filelist)
+                ->run();
+            $rarUnpackCommand = Rar::unpack($rar_archive, $this->tempTestDir)
+                ->binary($rarBinary)
+                ->setPassword("123")
+                ->cmd();
+            $rarArchiveResult = $archive->compressCmd((object)[
+                'type' => 'rar',
+                'archive' => $rar_archive,
+                'fileList' => $archive_filelist,
+                'password' => "123",
+                'volumeSize' => 1024 * 1000,
+                'compression' => 0
+            ])->run();
+        } else {
+            $rarPackResult = 'SKIPPED: RAR binary is not available';
+            $rarUnpackCommand = $rarPackResult;
+            $rarArchiveResult = $rarPackResult;
+        }
+
         var_dump(
         __METHOD__,
             ShellCmd::bin('cd', [$this->tempTestDir])->run(),
             // rar bin wrapper
-            Rar::pack($rar_archive)
-                ->setFileList($archive_filelist)
-                ->run(),
-            Rar::unpack($rar_archive, $this->tempTestDir)->setPassword("123")->cmd(),
+            $rarPackResult,
+            $rarUnpackCommand,
             // 7zip file
             $archive->compressCmd((object)[
                 'type' => '7z',
@@ -154,14 +213,7 @@ class  FileManagerTests {
                 $archive_filelist
             ),
             // rar file
-            $archive->compressCmd((object)[
-                'type' => 'rar',
-                'archive' => $rar_archive,
-                'fileList' => $archive_filelist,
-                'password' => "123",
-                'volumeSize' => 1024 * 1000,
-                'compression' => 0
-            ])->run()
+            $rarArchiveResult
         );
     }
 
@@ -184,7 +236,6 @@ class  FileManagerTests {
 }
 
 (new FileManagerTests())->runTests();
-
 
 
 

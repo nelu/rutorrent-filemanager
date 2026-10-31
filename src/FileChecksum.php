@@ -132,11 +132,15 @@ class FileChecksum implements Iterator
     public static function getFileHash($file, string $type = 'CRC32'): string
     {
         if (!is_file($file)) {
-            throw new Exception('File found', 1);
+            throw new Exception('File not found: ' . $file, 1);
         }
 
         $cmd = P7zip::hash([$file], $type);
         $entries = $cmd->run();
+
+        if ($entries[0] !== 0 || empty($entries[1][0])) {
+            throw new Exception('File hashing error: ' . $file, 1);
+        }
 
         $parts = static::parseFilehashLine($entries[1][0]);
 
@@ -148,7 +152,7 @@ class FileChecksum implements Iterator
     }
 
     #[ReturnTypeWillChange]
-    public static function checksumFromFilelist(string $fileList, $checksumFile, $type = ' CRC32')
+    public static function checksumFromFilelist(string $fileList, $checksumFile, $type = 'CRC32')
     {
         $files = json_decode(file_get_contents($fileList));
 
