@@ -74,6 +74,32 @@ class  FileManagerTests {
 
     }
 
+    private function runTarGzArchiveTest(ShellCmd $command, string $fileList): array {
+        $generatedCommand = $command->cmd();
+        $passes = explode(' | ', $generatedCommand, 2);
+        $expectedFileList = '@' . Helper::mb_escapeshellarg($fileList);
+
+        if (count($passes) !== 2) {
+            throw new RuntimeException('tar.gz command does not contain two archive passes: ' . $generatedCommand);
+        }
+        if (!str_contains($passes[0], $expectedFileList)) {
+            throw new RuntimeException('tar pass is missing its file list: ' . $generatedCommand);
+        }
+        if (!str_contains($passes[1], '-si')) {
+            throw new RuntimeException('gzip pass is not reading from stdin: ' . $generatedCommand);
+        }
+        if (str_contains($passes[1], "@''")) {
+            throw new RuntimeException('gzip pass contains an empty file list: ' . $generatedCommand);
+        }
+
+        $result = $command->run();
+        if ($result[0] !== 0) {
+            throw new RuntimeException("tar.gz archive command failed:\n" . implode("\n", $result[1]));
+        }
+
+        return $result;
+    }
+
     public function testArchives() {
         $archive = new Archive(null, Helper::getConfig('archive'));
 
@@ -114,16 +140,19 @@ class  FileManagerTests {
                 'compression' => 0
             ])->run(),
             // tar.gz file
-            $archive->compressCmd((object)[
-                'type' => 'tar.gz',
-                'multiplePass' => ['tar', 'gzip'],
-                'archive' => "{$this->tmpFile}.tgz",
-                'binary' => '7z',
-                'fileList' => $archive_filelist,
-                // 'password' => "123", // not supported
-                'volumeSize' => 1024 * 1000,
-                'compression' => 0
-            ])->run(),
+            $this->runTarGzArchiveTest(
+                $archive->compressCmd((object)[
+                    'type' => 'tar.gz',
+                    'multiplePass' => ['tar', 'gzip'],
+                    'archive' => "{$this->tmpFile}.tgz",
+                    'binary' => '7z',
+                    'fileList' => $archive_filelist,
+                    // 'password' => "123", // not supported
+                    'volumeSize' => 1024 * 1000,
+                    'compression' => 0
+                ]),
+                $archive_filelist
+            ),
             // rar file
             $archive->compressCmd((object)[
                 'type' => 'rar',
@@ -155,7 +184,6 @@ class  FileManagerTests {
 }
 
 (new FileManagerTests())->runTests();
-
 
 
 

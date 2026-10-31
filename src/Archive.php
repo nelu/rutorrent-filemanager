@@ -54,7 +54,10 @@ class Archive
             '{', self::compressCmd($p)->cmd(), '}',
         ];
 
-        return $rtask->start($cmds, rTask::FLG_DEFAULT & ~rTask::FLG_ECHO_CMD);
+
+        $flags =  Helper::getConfig("debug") ? rTask::FLG_DEFAULT : rTask::FLG_DEFAULT & ~rTask::FLG_ECHO_CMD;
+        return $rtask->start($cmds, $flags);
+
     }
 
     public static function from($archive_file, $options, $config = []): static
@@ -103,16 +106,17 @@ class Archive
         isset($o->password) && strlen($o->password) > 0
         && $wrapper->setPassword($o->password);
 
-        if (is_array($o->multiplePass) && !empty($o->multiplePass)) {
+        $multiplePass = $o->multiplePass ?? [];
+        if (is_array($multiplePass) && !empty($multiplePass)) {
             // pipe to specified binary
             $wrapper
-                ->setArchiveType($o->multiplePass[1])
+                ->setArchiveType($multiplePass[1])
                 ->setProgressIndicator(1)
                 ->setReadFromStdin(true)
-                ->setFileList(false)
+                ->setFileList(null)
                 ->setStdOutput(false);
 
-            $wrapper = $newpass->setArchiveType($o->multiplePass[0])
+            $wrapper = $newpass->setArchiveType($multiplePass[0])
                 ->setArchiveFile(' ')
                 ->setProgressIndicator(2)
                 ->setStdOutput(true)
