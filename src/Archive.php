@@ -47,7 +47,7 @@ class Archive
             'arg' => count($files) . ' files in ' . basename($p->archive)
         ]);
 
-        $p->fileList = ($rtask->writeFile)($p->fileList, implode("\n", $p->files) . "\n");
+        $p->fileList = TaskController::writeTaskFile($rtask, $p->fileList, implode("\n", $p->files) . "\n");
 
         $cmds = [
             'cd ' . Helper::mb_escapeshellarg($this->workDir),
