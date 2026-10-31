@@ -231,10 +231,10 @@ class P7zip extends ShellCmd
     }
 
     /**
-     * @param string $listPath
+     * @param string|null $listPath
      * @return P7zip
      */
-    public function setFileList(string $listPath): static
+    public function setFileList(?string $listPath): static
     {
         $this->setArg(static::FILE_LIST_ARG, $listPath);
         return $this;

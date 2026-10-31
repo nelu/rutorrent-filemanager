@@ -42,13 +42,7 @@ class TaskController
 
     public static function from($task_opts): rTask
     {
-        $rtask = self::task($task_opts);
-        // extending rTask the wrong way
-        $rtask->writeFile = function ($file, $data) use ($rtask) {
-            return self::writeTaskFile($rtask, basename($file), $data);
-        };
-
-        return $rtask;
+        return self::task($task_opts);
     }
 
     public static function task($task_opts = []): rTask
@@ -71,7 +65,7 @@ class TaskController
     {
 
         $taskDir = $rtask->makeDirectory();
-        $out_file = $taskDir . '/' . $file;
+        $out_file = $taskDir . '/' . basename($file);
         file_put_contents($out_file, $data);
         return $out_file;
     }

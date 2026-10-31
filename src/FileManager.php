@@ -418,7 +418,7 @@ class FileManager
 
         $rtask = TaskController::from($task_opts);
 
-        $filelist = ($rtask->writeFile)("files.json", json_encode($files));
+        $filelist = TaskController::writeTaskFile($rtask, "files.json", json_encode($files));
 
         $commands = [TaskController::getTaskCmd(FileChecksum::class . '::checksumFromFilelist',
             [$filelist, $this->getFsPath($checksums_file), $type])];
